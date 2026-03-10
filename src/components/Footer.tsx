@@ -60,13 +60,13 @@ export default function Footer() {
         <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-12">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 rounded-lg bg-gold flex items-center justify-center text-xs font-black text-gray-900">M</div>
-              <div className="leading-none">
-                <div className="text-white font-bold text-sm tracking-wide">MULTITRADE</div>
-                <div className="text-white/40 text-[10px] tracking-widest uppercase">Building Hire</div>
-              </div>
-            </div>
+            <Link href="/" className="inline-block mb-4">
+              <img
+                src="/images/logos/logo-white.png"
+                alt="Multitrade Building Hire"
+                className="h-12 w-auto"
+              />
+            </Link>
             <p className="text-white/30 text-xs leading-relaxed mb-4 max-w-[200px]">
               Design · Manufacture · Hire · Install
             </p>

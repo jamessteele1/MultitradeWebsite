@@ -10,12 +10,12 @@ export const metadata: Metadata = {
 };
 
 const MINING_PRODUCTS = [
-  { name: "12x3m Crib Room", cat: "Crib Rooms", size: "12x3m", img: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=500&h=340&fit=crop", desc: "Spacious break facility for crews up to 20. Full kitchenette and climate control." },
-  { name: "Mobile Crib Room", cat: "Self-Contained", size: "12.5x3m", img: "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=500&h=340&fit=crop", desc: "Fully towable with 11.2kVA generator and onboard water.", badge: "POPULAR" },
-  { name: "12x3m Site Office", cat: "Offices", size: "12x3m", img: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=500&h=340&fit=crop", desc: "Professional workspace for project management and administration." },
-  { name: "6x3m Toilet Block", cat: "Ablutions", size: "6x3m", img: "https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=500&h=340&fit=crop", desc: "Mine-spec compliant toilet facilities with male/female configurations." },
-  { name: "Solar Facility", cat: "Solar", size: "Custom", img: "https://images.unsplash.com/photo-1509391366360-2e959784a276?w=500&h=340&fit=crop", desc: "Off-grid solar power. 8.85kW PV with 32.8kWh lithium battery.", badge: "NEW" },
-  { name: "12x12m Complex", cat: "Complexes", size: "12x12m", img: "https://images.unsplash.com/photo-1494412574643-ff11b0a5eb19?w=500&h=340&fit=crop", desc: "Multi-module complex combining offices, crib rooms, and ablutions." },
+  { name: "12x3m Crib Room", cat: "Crib Rooms", size: "12x3m", img: "/images/products/12x3-crib-room/1.jpg", desc: "Spacious break facility for crews up to 20. Full kitchenette and climate control." },
+  { name: "Mobile Crib Room", cat: "Self-Contained", size: "12.5x3m", img: "/images/products/12x3-mobile-crib-room/1.jpg", desc: "Fully towable with 11.2kVA generator and onboard water.", badge: "POPULAR" },
+  { name: "12x3m Site Office", cat: "Offices", size: "12x3m", img: "/images/products/12x3-office/1.jpg", desc: "Professional workspace for project management and administration." },
+  { name: "6x3m Toilet Block", cat: "Ablutions", size: "6x3m", img: "/images/products/6x3-toilet/1.jpg", desc: "Mine-spec compliant toilet facilities with male/female configurations." },
+  { name: "Solar Facility", cat: "Solar", size: "Custom", img: "/images/products/solar-facility/1.jpg", desc: "Off-grid solar power. 8.85kW PV with 32.8kWh lithium battery.", badge: "NEW" },
+  { name: "12x12m Complex", cat: "Complexes", size: "12x12m", img: "/images/products/12x6m-complex/1.jpg", desc: "Multi-module complex combining offices, crib rooms, and ablutions." },
 ];
 
 

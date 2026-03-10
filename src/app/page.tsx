@@ -3,12 +3,12 @@ import MobileCTA from "@/components/MobileCTA";
 import Link from "next/link";
 
 const PRODUCTS = [
-  { name: "Crib Rooms", desc: "Fully equipped lunch rooms with kitchenettes, seating, and air conditioning.", sizes: "6x3m — 12x3m", href: "/hire/crib-rooms", img: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600&h=400&fit=crop" },
-  { name: "Site Offices", desc: "Professional portable offices for project management and administration.", sizes: "3x3m — 12x3m", href: "/hire/site-offices", img: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&h=400&fit=crop" },
-  { name: "Ablutions", desc: "Toilet blocks, shower facilities, and solar-powered ablution buildings.", sizes: "3.6x2.4m — 6x3m", href: "/hire/ablutions", img: "https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=600&h=400&fit=crop" },
-  { name: "Complexes", desc: "Multi-module complexes for large-scale site accommodation needs.", sizes: "12x6m — 12x12m+", href: "/hire/complexes", img: "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?w=600&h=400&fit=crop" },
-  { name: "Containers", desc: "Shipping containers, dangerous goods storage, and container conversions.", sizes: "10ft — 40ft", href: "/hire/containers", img: "https://images.unsplash.com/photo-1494412574643-ff11b0a5eb19?w=600&h=400&fit=crop" },
-  { name: "Ancillary", desc: "Tanks, pumps, covered decks, flat racks, stairs, and hand wash stations.", sizes: "Various", href: "/hire/ancillary", img: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600&h=400&fit=crop&q=80" },
+  { name: "Crib Rooms", desc: "Fully equipped lunch rooms with kitchenettes, seating, and air conditioning.", sizes: "6x3m — 12x3m", href: "/hire/crib-rooms", img: "/images/products/12x3-crib-room/1.jpg" },
+  { name: "Site Offices", desc: "Professional portable offices for project management and administration.", sizes: "3x3m — 12x3m", href: "/hire/site-offices", img: "/images/products/12x3-office/1.jpg" },
+  { name: "Ablutions", desc: "Toilet blocks, shower facilities, and solar-powered ablution buildings.", sizes: "3.6x2.4m — 6x3m", href: "/hire/ablutions", img: "/images/products/6x3-toilet/1.jpg" },
+  { name: "Complexes", desc: "Multi-module complexes for large-scale site accommodation needs.", sizes: "12x6m — 12x12m+", href: "/hire/complexes", img: "/images/products/12x6m-complex/1.jpg" },
+  { name: "Containers", desc: "Shipping containers, dangerous goods storage, and container conversions.", sizes: "10ft — 40ft", href: "/hire/containers", img: "/images/products/10ft-container/1.jpg" },
+  { name: "Ancillary", desc: "Tanks, pumps, covered decks, flat racks, stairs, and hand wash stations.", sizes: "Various", href: "/hire/ancillary", img: "/images/products/5000l-tank-pump/1.jpg" },
 ];
 
 const STATS = [

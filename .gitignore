@@ -1,0 +1,26 @@
+# dependencies
+node_modules/
+.next/
+out/
+
+# env
+.env
+.env.local
+.env.production
+
+# Full-res originals (2.2GB - use CDN for production)
+public/images/buildings/
+
+# Keep web-optimized versions (35MB - fine for git)
+# public/images/buildings-web/ is tracked
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# debug
+npm-debug.log*

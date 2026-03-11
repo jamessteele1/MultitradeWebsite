@@ -23,22 +23,24 @@ function Section({ title, items }: { title: string; items: string[] }) {
 }
 
 export default function ScopeResult({ result, onEditScope, onRegenerate }: Props) {
-  const mailBody = encodeURIComponent([
-    "Scope Builder Preliminary Recommendation",
-    "",
-    `Customer-facing summary: ${result.customerView.projectSummary}`,
-    "",
-    "Recommended setup:",
-    ...result.recommendedProducts.map((item) => `- ${item}`),
-    "",
-    "Suggested extras:",
-    ...result.suggestedAddOns.map((item) => `- ${item}`),
-    "",
-    "Internal brief:",
-    result.internalBrief,
-    "",
-    `Disclaimer: ${result.disclaimer}`,
-  ].join("\n"));
+  const mailBody = encodeURIComponent(
+    [
+      "Scope Builder Preliminary Recommendation",
+      "",
+      `Project summary: ${result.customerView.projectSummary}`,
+      "",
+      "Recommended setup:",
+      ...result.recommendedProducts.map((item) => `- ${item}`),
+      "",
+      "Suggested extras:",
+      ...result.suggestedAddOns.map((item) => `- ${item}`),
+      "",
+      "Technical brief:",
+      result.internalBrief,
+      "",
+      `Disclaimer: ${result.disclaimer}`,
+    ].join("\n")
+  );
 
   return (
     <div className="space-y-4">
@@ -62,21 +64,33 @@ export default function ScopeResult({ result, onEditScope, onRegenerate }: Props
       <Section title="Next Steps" items={result.customerView.nextSteps} />
 
       <div className="bg-gray-50 border border-gray-200 rounded-xl p-4">
-        <h3 className="font-semibold text-gray-900 mb-2">Internal-ready brief (included in submission)</h3>
+        <h3 className="font-semibold text-gray-900 mb-2">Technical brief included with your enquiry</h3>
         <pre className="text-xs text-gray-700 whitespace-pre-wrap font-sans">{result.internalBrief}</pre>
       </div>
 
       <div className="flex flex-col sm:flex-row gap-3">
-        <button onClick={onEditScope} className="px-6 py-3 rounded-lg font-semibold border border-gray-300 text-gray-800 hover:bg-gray-50">
+        <button
+          onClick={onEditScope}
+          className="px-6 py-3 rounded-lg font-semibold border border-gray-300 text-gray-800 hover:bg-gray-50"
+        >
           Edit Scope
         </button>
-        <button onClick={onRegenerate} className="px-6 py-3 rounded-lg font-semibold bg-gray-900 text-white hover:bg-black">
+        <button
+          onClick={onRegenerate}
+          className="px-6 py-3 rounded-lg font-semibold bg-gray-900 text-white hover:bg-black"
+        >
           Regenerate Recommendation
         </button>
-        <Link href="/quote" className="px-6 py-3 rounded-lg font-semibold text-gray-900 bg-gold hover:brightness-110 text-center">
+        <Link
+          href="/quote"
+          className="px-6 py-3 rounded-lg font-semibold text-gray-900 bg-gold hover:brightness-110 text-center"
+        >
           Submit Enquiry
         </Link>
-        <a href={`mailto:james@multitrade.com.au?subject=Scope%20Builder%20Preliminary%20Recommendation&body=${mailBody}`} className="px-6 py-3 rounded-lg font-semibold text-white bg-gray-900 hover:bg-black text-center">
+        <a
+          href={`mailto:james@multitrade.com.au?subject=Scope%20Builder%20Preliminary%20Recommendation&body=${mailBody}`}
+          className="px-6 py-3 rounded-lg font-semibold text-white bg-gray-900 hover:bg-black text-center"
+        >
           Submit by Email
         </a>
       </div>

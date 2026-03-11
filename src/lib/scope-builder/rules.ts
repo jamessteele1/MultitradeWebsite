@@ -55,7 +55,9 @@ export function buildScopeRecommendation(input: ScopeBuilderInput): ScopeBuilder
       add(suggestedAddOns, productName("waste-tank-4000"));
       add(suggestedAddOns, productName("waste-tank-6000"));
       add(suggestedAddOns, productName("stair-landing"));
-      assumptions.add("Where toilets are set over waste tanks, tanks are generally set first and buildings are craned into place.");
+      assumptions.add(
+        "Where toilets are set over waste tanks, tanks are generally set first and buildings are craned into place."
+      );
     }
 
     if (input.waterAccess !== "available") {
@@ -65,7 +67,9 @@ export function buildScopeRecommendation(input: ScopeBuilderInput): ScopeBuilder
 
   if (input.powerAccess === "limited" || input.powerAccess === "unknown") {
     add(recommendedProducts, productName("solar-facility"));
-    assumptions.add("Power constraints were identified, so solar/off-grid options are included for consideration.");
+    assumptions.add(
+      "Power constraints were identified, so solar/off-grid options are included for consideration."
+    );
   }
 
   if (input.powerAccess === "generator") {
@@ -73,10 +77,15 @@ export function buildScopeRecommendation(input: ScopeBuilderInput): ScopeBuilder
     assumptions.add(MBH_RULES.electrical.plugUpgrade);
   }
 
-  const exceedsSingleModule = input.headcount > MBH_RULES.thresholds.officeDesksSingleModuleMax || input.headcount > MBH_RULES.thresholds.cribSeatsSingleModuleMax;
+  const exceedsSingleModule =
+    input.headcount > MBH_RULES.thresholds.officeDesksSingleModuleMax ||
+    input.headcount > MBH_RULES.thresholds.cribSeatsSingleModuleMax;
+
   if (exceedsSingleModule) {
     assumptions.add("Based on your team size, additional 12x3 single-floor modules are considered first.");
-    questionsToConfirm.add("Would you like MBH to include a complex option for integrated layout planning?");
+    questionsToConfirm.add(
+      "Would you like MBH to include a complex option for integrated layout planning?"
+    );
 
     if (input.prefersComplexOption === "yes") {
       add(suggestedAddOns, productName("complex-12x6"));
@@ -84,7 +93,10 @@ export function buildScopeRecommendation(input: ScopeBuilderInput): ScopeBuilder
     }
   }
 
-  if (input.projectType.toLowerCase().includes("storage") || input.description.toLowerCase().includes("storage")) {
+  if (
+    input.projectType.toLowerCase().includes("storage") ||
+    input.description.toLowerCase().includes("storage")
+  ) {
     add(recommendedProducts, productName("container-20"));
   }
 
@@ -94,7 +106,10 @@ export function buildScopeRecommendation(input: ScopeBuilderInput): ScopeBuilder
     questionsToConfirm.add("What is the mine name/location?");
   }
 
-  if (input.projectType.toLowerCase().includes("shutdown") || input.description.toLowerCase().includes("shutdown")) {
+  if (
+    input.projectType.toLowerCase().includes("shutdown") ||
+    input.description.toLowerCase().includes("shutdown")
+  ) {
     questionsToConfirm.add("How long is the shutdown hire?");
     questionsToConfirm.add("When does it start?");
   }
@@ -115,6 +130,7 @@ export function buildScopeRecommendation(input: ScopeBuilderInput): ScopeBuilder
 
   add(siteConstraints, input.siteAccess || undefined);
   add(siteConstraints, input.siteConstraints || undefined);
+
   if (!siteConstraints.size) {
     siteConstraints.add("Site access and constraints to be confirmed.");
   }
@@ -124,7 +140,13 @@ export function buildScopeRecommendation(input: ScopeBuilderInput): ScopeBuilder
   const confirmList = Array.from(questionsToConfirm);
   const assumptionList = Array.from(assumptions);
 
-  const summaryForSales = `Preliminary scope for ${input.projectType.toLowerCase()} in ${input.location} for approximately ${input.duration.toLowerCase()} with around ${input.headcount} personnel. Recommended setup includes ${recommendedList.join(", ") || "TBC"}, with confirmation required on site services, access, and final project requirements.`;
+  const summaryForSales = `Preliminary scope for ${input.projectType.toLowerCase()} in ${
+    input.location
+  } for approximately ${input.duration.toLowerCase()} with around ${
+    input.headcount
+  } personnel. Recommended setup includes ${
+    recommendedList.join(", ") || "TBC"
+  }, with confirmation required on site services, access, and final project requirements.`;
 
   const internalBrief = [
     `Industry: ${input.industry || "Unspecified"}`,

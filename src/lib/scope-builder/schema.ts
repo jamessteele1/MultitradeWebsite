@@ -80,7 +80,8 @@ export type ScopeBuilderResult = {
   disclaimer: string;
 };
 
-const isObject = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null;
+const isObject = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null;
 
 export const defaultScopeInput: ScopeBuilderInput = {
   description: "",
@@ -102,7 +103,10 @@ export const defaultScopeInput: ScopeBuilderInput = {
   prefersComplexOption: "unsure",
 };
 
-export function mergeScopeInput(base: ScopeBuilderInput, patch: Partial<ScopeBuilderInput>): ScopeBuilderInput {
+export function mergeScopeInput(
+  base: ScopeBuilderInput,
+  patch: Partial<ScopeBuilderInput>
+): ScopeBuilderInput {
   return {
     ...base,
     ...patch,
@@ -118,20 +122,51 @@ export function parseScopeBuilderInput(payload: unknown): ScopeBuilderInput {
     description: String(payload.description ?? "").trim(),
     industry: String(payload.industry ?? "").trim(),
     projectType: String(payload.projectType ?? "").trim(),
-    hireOrBuy: payload.hireOrBuy === "hire" || payload.hireOrBuy === "buy" || payload.hireOrBuy === "unsure" ? payload.hireOrBuy : "unsure",
+    hireOrBuy:
+      payload.hireOrBuy === "hire" ||
+      payload.hireOrBuy === "buy" ||
+      payload.hireOrBuy === "unsure"
+        ? payload.hireOrBuy
+        : "unsure",
     headcount: Number(payload.headcount ?? 0),
     location: String(payload.location ?? "").trim(),
     duration: String(payload.duration ?? "").trim(),
     needsOffice: Boolean(payload.needsOffice),
     needsCrib: Boolean(payload.needsCrib),
     needsToilets: Boolean(payload.needsToilets),
-    powerAccess: payload.powerAccess === "grid" || payload.powerAccess === "generator" || payload.powerAccess === "limited" || payload.powerAccess === "unknown" ? payload.powerAccess : "unknown",
-    waterAccess: payload.waterAccess === "available" || payload.waterAccess === "unavailable" || payload.waterAccess === "unknown" ? payload.waterAccess : "unknown",
-    wasteAccess: payload.wasteAccess === "available" || payload.wasteAccess === "unavailable" || payload.wasteAccess === "unknown" ? payload.wasteAccess : "unknown",
-    wantsTransportQuote: payload.wantsTransportQuote === "yes" || payload.wantsTransportQuote === "no" || payload.wantsTransportQuote === "unsure" ? payload.wantsTransportQuote : "unsure",
+    powerAccess:
+      payload.powerAccess === "grid" ||
+      payload.powerAccess === "generator" ||
+      payload.powerAccess === "limited" ||
+      payload.powerAccess === "unknown"
+        ? payload.powerAccess
+        : "unknown",
+    waterAccess:
+      payload.waterAccess === "available" ||
+      payload.waterAccess === "unavailable" ||
+      payload.waterAccess === "unknown"
+        ? payload.waterAccess
+        : "unknown",
+    wasteAccess:
+      payload.wasteAccess === "available" ||
+      payload.wasteAccess === "unavailable" ||
+      payload.wasteAccess === "unknown"
+        ? payload.wasteAccess
+        : "unknown",
+    wantsTransportQuote:
+      payload.wantsTransportQuote === "yes" ||
+      payload.wantsTransportQuote === "no" ||
+      payload.wantsTransportQuote === "unsure"
+        ? payload.wantsTransportQuote
+        : "unsure",
     siteAccess: String(payload.siteAccess ?? "").trim(),
     siteConstraints: String(payload.siteConstraints ?? "").trim(),
-    prefersComplexOption: payload.prefersComplexOption === "yes" || payload.prefersComplexOption === "no" || payload.prefersComplexOption === "unsure" ? payload.prefersComplexOption : "unsure",
+    prefersComplexOption:
+      payload.prefersComplexOption === "yes" ||
+      payload.prefersComplexOption === "no" ||
+      payload.prefersComplexOption === "unsure"
+        ? payload.prefersComplexOption
+        : "unsure",
   };
 
   if (!input.description) {
@@ -154,8 +189,11 @@ export function parseFollowUpAnswers(payload: unknown): Record<string, string> {
     return {};
   }
 
-  return Object.entries(payload.followUpAnswers).reduce<Record<string, string>>((acc, [key, value]) => {
-    acc[key] = String(value ?? "").trim();
-    return acc;
-  }, {});
+  return Object.entries(payload.followUpAnswers).reduce<Record<string, string>>(
+    (acc, [key, value]) => {
+      acc[key] = String(value ?? "").trim();
+      return acc;
+    },
+    {}
+  );
 }

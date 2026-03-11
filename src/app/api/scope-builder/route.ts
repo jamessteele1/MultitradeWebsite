@@ -1,9 +1,19 @@
 export const runtime = "nodejs";
 
 import { NextResponse } from "next/server";
-import { buildDynamicFollowUps, extractSignalsFromDescription, helperAnswer } from "@/lib/scope-builder/ai";
+import {
+  buildDynamicFollowUps,
+  extractSignalsFromDescription,
+  helperAnswer,
+} from "@/lib/scope-builder/ai";
 import { buildScopeRecommendation } from "@/lib/scope-builder/rules";
-import { defaultScopeInput, mergeScopeInput, parseFollowUpAnswers, parseScopeBuilderInput, type ScopeBuilderInput } from "@/lib/scope-builder/schema";
+import {
+  defaultScopeInput,
+  mergeScopeInput,
+  parseFollowUpAnswers,
+  parseScopeBuilderInput,
+  type ScopeBuilderInput,
+} from "@/lib/scope-builder/schema";
 
 type Action = "interpret" | "recommend" | "helper";
 
@@ -15,7 +25,10 @@ type RouteBody = {
   followUpAnswers?: Record<string, string>;
 };
 
-function applyFollowUpAnswers(input: ScopeBuilderInput, answers: Record<string, string>): ScopeBuilderInput {
+function applyFollowUpAnswers(
+  input: ScopeBuilderInput,
+  answers: Record<string, string>
+): ScopeBuilderInput {
   const next = { ...input };
 
   if (answers.services_available === "all") {
@@ -38,7 +51,11 @@ function applyFollowUpAnswers(input: ScopeBuilderInput, answers: Record<string, 
     next.powerAccess = "limited";
   }
 
-  if (answers.transport_quote === "yes" || answers.transport_quote === "no" || answers.transport_quote === "unsure") {
+  if (
+    answers.transport_quote === "yes" ||
+    answers.transport_quote === "no" ||
+    answers.transport_quote === "unsure"
+  ) {
     next.wantsTransportQuote = answers.transport_quote;
   }
 
@@ -112,7 +129,11 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ result: recommendation, updatedInput: enriched });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unable to process scope builder request.";
+    const message =
+      error instanceof Error
+        ? error.message
+        : "Unable to process scope builder request.";
+
     return NextResponse.json({ error: message }, { status: 400 });
   }
 }

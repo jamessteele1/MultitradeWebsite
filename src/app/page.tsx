@@ -127,7 +127,7 @@ export default function HomePage() {
         <div className="text-center mb-8">
           <div className="text-xs font-semibold tracking-widest uppercase text-gray-400">Trusted by Industry Leaders</div>
         </div>
-        <div className="relative">
+        <div className="relative overflow-hidden">
           <div className="marquee-track">
             {[...Array(2)].map((_, set) =>
               [

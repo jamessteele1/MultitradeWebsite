@@ -130,9 +130,26 @@ export default function HomePage() {
         <div className="relative">
           <div className="marquee-track">
             {[...Array(2)].map((_, set) =>
-              ["BHP", "Glencore", "Anglo American", "Rio Tinto", "Thiess", "Coronado", "Downer", "UGL", "Monadelphous", "Golding"].map((name, i) => (
-                <div key={`${set}-${i}`} className="flex-shrink-0 mx-8 md:mx-12 flex items-center justify-center h-12">
-                  <span className="text-gray-300 font-bold text-lg tracking-wider uppercase">{name}</span>
+              [
+                { name: "Glencore", src: "/images/logos/clients/glencore.png" },
+                { name: "Rio Tinto", src: "/images/logos/clients/rio-tinto.png" },
+                { name: "Thiess", src: "/images/logos/clients/thiess.png" },
+                { name: "Coronado", src: "/images/logos/clients/coronado.png" },
+                { name: "Downer", src: "/images/logos/clients/downer.png" },
+                { name: "UGL", src: "/images/logos/clients/ugl.png" },
+                { name: "Monadelphous", src: "/images/logos/clients/monadelphous.png" },
+                { name: "Fortescue", src: "/images/logos/clients/fortescue.png" },
+                { name: "New Hope Group", src: "/images/logos/clients/new-hope.png" },
+                { name: "Gladstone Ports", src: "/images/logos/clients/gpc.png" },
+                { name: "Fulton Hogan", src: "/images/logos/clients/fulton-hogan.png" },
+                { name: "McCosker", src: "/images/logos/clients/mccosker.png" },
+                { name: "Acciona", src: "/images/logos/clients/acciona.png" },
+                { name: "Aestec Services", src: "/images/logos/clients/aestec.png" },
+                { name: "Golding", src: "/images/logos/clients/golding.svg" },
+              ].map((client, i) => (
+                <div key={`${set}-${i}`} className="flex-shrink-0 mx-6 md:mx-10 flex items-center justify-center h-12">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={client.src} alt={client.name} className="h-7 md:h-9 w-auto max-w-[120px] object-contain opacity-40 grayscale hover:opacity-70 hover:grayscale-0 transition-all duration-300" />
                 </div>
               ))
             )}

@@ -16,7 +16,7 @@ const PRODUCTS: Record<string, Product> = {
     selfContained: false,
     mobile: false,
     images: ["/images/products/12x3-crib-room/1.jpg", "/images/products/12x3-crib-room/2.jpg"],
-    floorPlan: "/images/floorplans/MBH-12030-CRB-01-A - 12.0x3.0m Crib Room.pdf",
+    floorPlan: "/images/floorplans/MBH-12030-CRB-01-A-12x3m-Crib-Room.pdf",
     description: "The 12.0m × 3.0m Crib Room is a spacious, fully equipped portable break facility designed to comfortably accommodate up to 20 workers. Built on a 75mm steel frame with Colorbond steel cladding and fully insulated walls and ceiling, this unit delivers a cool, comfortable environment even in Central Queensland's toughest conditions.",
     features: [
       { title: "Dual Climate Control", desc: "2 × 3.9kW TECO reverse cycle mounted air conditioners ensure the entire space stays comfortable year-round." },
@@ -52,7 +52,7 @@ const PRODUCTS: Record<string, Product> = {
     selfContained: false,
     mobile: false,
     images: ["/images/products/6x3-crib/1.jpg"],
-    floorPlan: "/images/floorplans/MBH-6030-CRB-01-A - 6.0x3.0m Crib Room.pdf",    description: "The 6.0m × 3.0m Crib Room is a versatile and durable portable break facility designed to provide a comfortable space for up to 10 workers. Equipped with climate control, a convenient kitchenette, and robust steel frame construction, this unit is ideal for smaller crews on mining, construction, and industrial sites.",
+    floorPlan: "/images/floorplans/MBH-6030-CRB-01-A-6x3m-Crib-Room.pdf",    description: "The 6.0m × 3.0m Crib Room is a versatile and durable portable break facility designed to provide a comfortable space for up to 10 workers. Equipped with climate control, a convenient kitchenette, and robust steel frame construction, this unit is ideal for smaller crews on mining, construction, and industrial sites.",
     features: [
       { title: "Climate Controlled", desc: "1 × 3.9kW TECO reverse cycle air conditioner for year-round comfort in any conditions." },
       { title: "Convenient Kitchenette", desc: "1200mm laminate bench with stainless steel sink, instant boiling water unit, and benchtop space for appliances." },
@@ -87,7 +87,7 @@ const PRODUCTS: Record<string, Product> = {
     selfContained: true,
     mobile: true,
     images: ["/images/products/12x3-mobile-crib-room/1.jpg", "/images/products/12x3-mobile-crib-room/2.jpg"],
-    floorPlan: "/images/floorplans/SQF-4491-01-A - 12.5x3.0m Mobile Crib Room - Floor Plan.pdf",
+    floorPlan: "/images/floorplans/SQF-4491-01-A-12.5x3m-Mobile-Crib-Room.pdf",
     description: "The 12.5m × 3.0m Mobile Crib Room is a self-sufficient, fully transportable lunch and break facility built on a heavy-duty trailer with air brakes, suspension, and dual axles. Powered by an 11.2kVA Kubota diesel generator with dual 1000L water tanks, this unit requires zero external connections — just park and go.",
     features: [
       { title: "Fully Mobile & Self-Contained", desc: "Built on a heavy-duty trailer with air brakes, suspension, and dual axles. Tow directly to site with no crane required." },
@@ -155,7 +155,7 @@ const PRODUCTS: Record<string, Product> = {
     selfContained: true,
     mobile: false,
     images: ["/images/products/72x3m-self-contained-crib/1.jpg", "/images/products/72x3m-self-contained-crib/2.jpg"],
-    floorPlan: "/images/floorplans/SQF-3321-01-1 - 7.2x3.0m Site Crib Room - Floor Plan.pdf",
+    floorPlan: "/images/floorplans/SQF-3321-01-1-7.2x3m-Site-Crib-Room.pdf",
     description: "The 7.2m × 3.0m Self-Contained Site Crib Room is a highly versatile standalone unit providing a fully functional break space for remote worksites. Powered by a 6kVA Kubota Lowboy Series 2 mine-spec diesel generator with 230L water storage, this unit requires no external connections. The integrated bathroom makes it ideal for isolated locations.",
     features: [
       { title: "Self-Sufficient Power", desc: "6kVA Kubota Lowboy Series 2 mine-spec diesel generator provides reliable power in remote locations without mains connection." },
@@ -189,7 +189,7 @@ const PRODUCTS: Record<string, Product> = {
     selfContained: true,
     mobile: false,
     images: ["/images/products/96x3m-living-quarters/1.jpg", "/images/products/96x3m-living-quarters/2.jpg"],
-    floorPlan: "/images/floorplans/Cribroom 9.6x3m MBH-9630-CRB-01.pdf",
+    floorPlan: "/images/floorplans/MBH-9630-CRB-01-9.6x3m-Crib-Room.pdf",
     description: "The 9.6m × 3.0m Living Quarters is a fully self-contained, transportable accommodation unit designed for remote site managers, supervisors, and key personnel. Featuring a private bedroom, ensuite bathroom with shower and toilet, and a full kitchen/living area, this unit delivers genuine comfort and privacy in even the most isolated locations.",
     features: [
       { title: "Private Living Space", desc: "Separate bedroom, ensuite bathroom, and living area provide genuine comfort and privacy for extended remote deployments." },
@@ -275,7 +275,7 @@ export default function CribRoomDetailPage({ params }: { params: { slug: string 
                 </Link>
                 <a href="tel:0749792333" className="px-6 py-3 rounded-lg font-semibold text-white border border-white/20 hover:bg-white/5 transition-all">(07) 4979 2333</a>
                 {product.floorPlan && (
-                  <a href={encodeURI(product.floorPlan!)} target="_blank" rel="noopener" className="px-4 py-3 rounded-lg text-sm font-medium text-white/70 hover:text-white transition-colors flex items-center gap-1.5">
+                  <a href={product.floorPlan!} target="_blank" rel="noopener" className="px-4 py-3 rounded-lg text-sm font-medium text-white/70 hover:text-white transition-colors flex items-center gap-1.5">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
                     Floor Plan PDF
                   </a>
@@ -344,7 +344,7 @@ export default function CribRoomDetailPage({ params }: { params: { slug: string 
                   ))}
                 </div>
               </div>              {product.floorPlan && (
-                <a href={encodeURI(product.floorPlan!)} target="_blank" rel="noopener" className="mt-4 inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-700 transition-all">
+                <a href={product.floorPlan!} target="_blank" rel="noopener" className="mt-4 inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-700 transition-all">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
                   Download Floor Plan (PDF)
                 </a>

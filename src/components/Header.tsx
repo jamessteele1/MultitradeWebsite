@@ -29,6 +29,7 @@ const NAV_ITEMS = [
     ],
   },
   { label: "Solar Facility", href: "/solar-facility" },
+  { label: "Scope Builder", href: "/scope-builder" },
   { label: "About", href: "/about" },
   { label: "Contact", href: "/contact" },
 ];

@@ -147,18 +147,35 @@ export default function Footer() {
         </div>
 
         {/* Certifications & Bottom bar */}
-        <div className="pt-6 border-t border-white/5 space-y-4">
-          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+        <div className="pt-6 border-t border-white/5 space-y-6">
+          <div className="flex flex-wrap items-center justify-center gap-5">
             {[
-              { std: "ISO 9001:2015", label: "Quality" },
-              { std: "ISO 14001:2015", label: "Environmental" },
-              { std: "ISO 45001:2018", label: "Health & Safety" },
+              { std: "ISO 9001:2015", label: "Quality Management" },
+              { std: "ISO 14001:2015", label: "Environmental Management" },
+              { std: "ISO 45001:2018", label: "Health & Safety Management" },
             ].map((c) => (
-              <span key={c.std} className="inline-flex items-center gap-1.5 text-[11px] text-white/30">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-white/20"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
-                <span className="text-white/40 font-medium">{c.std}</span>
-                {c.label}
-              </span>
+              <div key={c.std} className="flex items-center gap-3 px-4 py-3 rounded-xl border border-white/10 bg-white/[0.03]">
+                {/* ISO Globe Logo */}
+                <svg width="36" height="36" viewBox="0 0 100 100" fill="none" className="flex-shrink-0">
+                  {/* Globe arcs */}
+                  <path d="M50 8 C50 8 20 8 12 30" stroke="rgba(255,255,255,0.25)" strokeWidth="3" fill="none" />
+                  <path d="M50 8 C50 8 80 8 88 30" stroke="rgba(255,255,255,0.25)" strokeWidth="3" fill="none" />
+                  <path d="M8 38 Q30 20 50 18 Q70 20 92 38" stroke="rgba(255,255,255,0.25)" strokeWidth="3" fill="none" />
+                  <path d="M5 48 Q30 32 50 30 Q70 32 95 48" stroke="rgba(255,255,255,0.25)" strokeWidth="3" fill="none" />
+                  <path d="M8 62 Q30 80 50 82 Q70 80 92 62" stroke="rgba(255,255,255,0.25)" strokeWidth="3" fill="none" />
+                  <path d="M12 70 Q30 88 50 92 Q70 88 88 70" stroke="rgba(255,255,255,0.25)" strokeWidth="3" fill="none" />
+                  {/* Vertical arcs */}
+                  <path d="M25 20 Q20 50 25 80" stroke="rgba(255,255,255,0.15)" strokeWidth="2" fill="none" />
+                  <path d="M50 10 Q50 50 50 90" stroke="rgba(255,255,255,0.15)" strokeWidth="2" fill="none" />
+                  <path d="M75 20 Q80 50 75 80" stroke="rgba(255,255,255,0.15)" strokeWidth="2" fill="none" />
+                  {/* ISO text */}
+                  <text x="50" y="58" textAnchor="middle" fill="rgba(255,255,255,0.5)" fontSize="28" fontWeight="800" fontFamily="Inter, sans-serif">ISO</text>
+                </svg>
+                <div>
+                  <div className="text-sm font-bold text-white/60">{c.std}</div>
+                  <div className="text-xs text-white/30">{c.label}</div>
+                </div>
+              </div>
             ))}
           </div>
           <div className="flex flex-col md:flex-row items-center justify-between gap-3">

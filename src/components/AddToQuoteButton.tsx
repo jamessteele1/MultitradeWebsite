@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useQuoteCart, type CartItem } from "@/context/QuoteCartContext";
 
 type Props = {
@@ -11,21 +12,44 @@ type Props = {
 export default function AddToQuoteButton({ product, className = "", compact = false }: Props) {
   const { addItem, isInCart } = useQuoteCart();
   const inCart = isInCart(product.id);
+  const [animating, setAnimating] = useState(false);
+
+  const handleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    addItem(product);
+    setAnimating(true);
+    setTimeout(() => setAnimating(false), 600);
+  };
 
   if (compact) {
     return (
       <button
-        onClick={(e) => { e.preventDefault(); e.stopPropagation(); addItem(product); }}
+        onClick={handleClick}
         className={`flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-          inCart
-            ? "bg-green-50 text-green-700 border border-green-200"
-            : "bg-gold/10 text-amber-700 border border-gold/30 hover:bg-gold/20"
+          animating
+            ? "bg-green-50 text-green-700 border border-green-200 scale-110"
+            : inCart
+              ? "bg-green-50 text-green-700 border border-green-200"
+              : "bg-gold/10 text-amber-700 border border-gold/30 hover:bg-gold/20"
         } ${className}`}
+        style={{ transition: "all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)" }}
       >
-        {inCart ? (
+        {inCart || animating ? (
           <>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"><path d="M20 6L9 17l-5-5"/></svg>
-            In Quote
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="3"
+              strokeLinecap="round"
+              className={animating ? "animate-[checkPop_0.4s_ease-out]" : ""}
+            >
+              <path d="M20 6L9 17l-5-5" />
+            </svg>
+            {animating ? "Added!" : "In Quote"}
           </>
         ) : (
           <>
@@ -39,17 +63,31 @@ export default function AddToQuoteButton({ product, className = "", compact = fa
 
   return (
     <button
-      onClick={(e) => { e.preventDefault(); e.stopPropagation(); addItem(product); }}
+      onClick={handleClick}
       className={`flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold transition-all ${
-        inCart
-          ? "bg-green-50 text-green-700 border border-green-200"
-          : "bg-gold text-gray-900 hover:brightness-110"
+        animating
+          ? "bg-green-100 text-green-700 border border-green-300 scale-105"
+          : inCart
+            ? "bg-green-50 text-green-700 border border-green-200"
+            : "bg-gold text-gray-900 hover:brightness-110"
       } ${className}`}
+      style={{ transition: "all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)" }}
     >
-      {inCart ? (
+      {inCart || animating ? (
         <>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"><path d="M20 6L9 17l-5-5"/></svg>
-          Added to Quote
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="3"
+            strokeLinecap="round"
+            className={animating ? "animate-[checkPop_0.4s_ease-out]" : ""}
+          >
+            <path d="M20 6L9 17l-5-5" />
+          </svg>
+          {animating ? "Added!" : "Added to Quote"}
         </>
       ) : (
         <>

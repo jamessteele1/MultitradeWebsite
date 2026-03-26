@@ -157,15 +157,19 @@ export default function QuotePage() {
           {submitted ? (
             <FadeIn>
               <div className="bg-white rounded-2xl shadow-xl shadow-black/10 border border-gray-200 p-8 md:p-12 text-center">
-                <div className="w-16 h-16 rounded-full bg-green-50 flex items-center justify-center mx-auto mb-5">
+                <div
+                  className="w-20 h-20 rounded-full bg-green-50 flex items-center justify-center mx-auto mb-5"
+                  style={{ animation: "successPulse 1.2s ease-out 0.3s" }}
+                >
                   <svg
-                    width="32"
-                    height="32"
+                    width="36"
+                    height="36"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="#16a34a"
                     strokeWidth="2.5"
                     strokeLinecap="round"
+                    style={{ animation: "checkPop 0.5s ease-out 0.2s both" }}
                   >
                     <path d="M20 6L9 17l-5-5" />
                   </svg>

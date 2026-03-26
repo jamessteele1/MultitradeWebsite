@@ -51,7 +51,18 @@ export default function Header() {
   const [mobileMenu, setMobileMenu] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<number | null>(null);
   const { itemCount, openCart } = useQuoteCart();
+  const [badgeBounce, setBadgeBounce] = useState(false);
+  const [prevCount, setPrevCount] = useState(itemCount);
 
+  // Bounce badge when item count increases
+  useEffect(() => {
+    if (itemCount > prevCount) {
+      setBadgeBounce(true);
+      const t = setTimeout(() => setBadgeBounce(false), 500);
+      return () => clearTimeout(t);
+    }
+    setPrevCount(itemCount);
+  }, [itemCount, prevCount]);
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 20);
@@ -126,7 +137,7 @@ export default function Header() {
           <button onClick={openCart} className="relative p-2 rounded-lg hover:bg-gray-100 transition-colors">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-700"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
             {itemCount > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 w-5 h-5 rounded-full bg-gold text-[10px] font-bold text-gray-900 flex items-center justify-center">{itemCount}</span>
+              <span className={`absolute -top-0.5 -right-0.5 w-5 h-5 rounded-full bg-gold text-[10px] font-bold text-gray-900 flex items-center justify-center transition-transform ${badgeBounce ? "scale-150" : "scale-100"}`} style={{ transition: "transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)" }}>{itemCount}</span>
             )}
           </button>
           <Link
@@ -142,7 +153,7 @@ export default function Header() {
           <button onClick={openCart} className="relative p-2 text-gray-700">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
             {itemCount > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 w-5 h-5 rounded-full bg-gold text-[10px] font-bold text-gray-900 flex items-center justify-center">{itemCount}</span>
+              <span className={`absolute -top-0.5 -right-0.5 w-5 h-5 rounded-full bg-gold text-[10px] font-bold text-gray-900 flex items-center justify-center transition-transform ${badgeBounce ? "scale-150" : "scale-100"}`} style={{ transition: "transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)" }}>{itemCount}</span>
             )}
           </button>
           <button

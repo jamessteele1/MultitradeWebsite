@@ -148,32 +148,22 @@ export default function Footer() {
 
         {/* Certifications & Bottom bar */}
         <div className="pt-6 border-t border-white/5 space-y-6">
-          <div className="flex flex-wrap items-center justify-center gap-5">
+          <div className="grid grid-cols-3 gap-3">
             {[
               { std: "ISO 9001:2015", label: "Quality Management" },
               { std: "ISO 14001:2015", label: "Environmental Management" },
               { std: "ISO 45001:2018", label: "Health & Safety Management" },
             ].map((c) => (
-              <div key={c.std} className="flex items-center gap-3 px-4 py-3 rounded-xl border border-white/10 bg-white/[0.03]">
-                {/* ISO Globe Logo */}
-                <svg width="36" height="36" viewBox="0 0 100 100" fill="none" className="flex-shrink-0">
-                  {/* Globe arcs */}
-                  <path d="M50 8 C50 8 20 8 12 30" stroke="rgba(255,255,255,0.25)" strokeWidth="3" fill="none" />
-                  <path d="M50 8 C50 8 80 8 88 30" stroke="rgba(255,255,255,0.25)" strokeWidth="3" fill="none" />
-                  <path d="M8 38 Q30 20 50 18 Q70 20 92 38" stroke="rgba(255,255,255,0.25)" strokeWidth="3" fill="none" />
-                  <path d="M5 48 Q30 32 50 30 Q70 32 95 48" stroke="rgba(255,255,255,0.25)" strokeWidth="3" fill="none" />
-                  <path d="M8 62 Q30 80 50 82 Q70 80 92 62" stroke="rgba(255,255,255,0.25)" strokeWidth="3" fill="none" />
-                  <path d="M12 70 Q30 88 50 92 Q70 88 88 70" stroke="rgba(255,255,255,0.25)" strokeWidth="3" fill="none" />
-                  {/* Vertical arcs */}
-                  <path d="M25 20 Q20 50 25 80" stroke="rgba(255,255,255,0.15)" strokeWidth="2" fill="none" />
-                  <path d="M50 10 Q50 50 50 90" stroke="rgba(255,255,255,0.15)" strokeWidth="2" fill="none" />
-                  <path d="M75 20 Q80 50 75 80" stroke="rgba(255,255,255,0.15)" strokeWidth="2" fill="none" />
-                  {/* ISO text */}
-                  <text x="50" y="58" textAnchor="middle" fill="rgba(255,255,255,0.5)" fontSize="28" fontWeight="800" fontFamily="Inter, sans-serif">ISO</text>
-                </svg>
-                <div>
-                  <div className="text-sm font-bold text-white/60">{c.std}</div>
-                  <div className="text-xs text-white/30">{c.label}</div>
+              <div key={c.std} className="flex items-center justify-center gap-2.5 px-3 py-3 rounded-xl border border-white/10 bg-white/[0.03]">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/images/logos/iso-logo.png"
+                  alt="ISO"
+                  className="w-8 h-8 md:w-10 md:h-10 flex-shrink-0 brightness-0 invert opacity-50"
+                />
+                <div className="min-w-0">
+                  <div className="text-xs md:text-sm font-bold text-white/60 truncate">{c.std}</div>
+                  <div className="text-[10px] md:text-xs text-white/30 truncate">{c.label}</div>
                 </div>
               </div>
             ))}

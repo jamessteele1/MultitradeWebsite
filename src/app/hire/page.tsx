@@ -82,7 +82,7 @@ export default function HireIndexPage() {
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {CATEGORIES.map((cat, i) => (
               <FadeIn key={i} delay={i * 0.06}>
-                <Link href={cat.href} className="group bg-white rounded-xl border border-gray-200 overflow-hidden hover:border-gray-300 hover:shadow-xl hover:shadow-black/5 transition-all block">
+                <Link href={cat.href} className="group bg-white rounded-xl border border-gray-200 shadow-lg shadow-black/5 overflow-hidden hover:border-gray-300 hover:shadow-xl hover:shadow-black/10 transition-all block">
                   <div className="relative h-52 overflow-hidden">
                     <img src={cat.img} alt={cat.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />

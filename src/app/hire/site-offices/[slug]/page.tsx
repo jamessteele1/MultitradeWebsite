@@ -380,7 +380,7 @@ export default function SiteOfficeDetailPage({ params }: { params: { slug: strin
             {/* Specs */}
             <div>
               <h2 className="text-xl font-bold text-gray-900 mb-4">Technical Specifications</h2>
-              <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+              <div className="bg-white rounded-xl border border-gray-200 shadow-lg shadow-black/5 overflow-hidden">
                 {Object.entries(product.specifications).map(([key, val], i) => (
                   <div key={i} className={`flex items-start gap-3 px-5 py-3 ${i % 2 === 0 ? "bg-white" : "bg-gray-50/50"}`}>
                     <span className="text-sm font-semibold text-gray-700 w-36 flex-shrink-0">{key}</span>
@@ -392,7 +392,7 @@ export default function SiteOfficeDetailPage({ params }: { params: { slug: strin
             {/* Inclusions */}
             <div>
               <h2 className="text-xl font-bold text-gray-900 mb-4">Standard Inclusions</h2>
-              <div className="bg-white rounded-xl border border-gray-200 p-5">
+              <div className="bg-white rounded-xl border border-gray-200 shadow-lg shadow-black/5 p-5">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {product.standardInclusions.map((item, i) => (
                     <div key={i} className="flex items-center gap-2 text-sm text-gray-600">

@@ -11,10 +11,10 @@ export const metadata: Metadata = {
 };
 
 const PRODUCTS = [
-    { name: "12x6m Complex", size: "12x6m (72sqm)", capacity: "Up to 24", desc: "Two 12x3m modules combined. Flexible layout — open plan, partitioned, or mixed use.", badge: "" },
-    { name: "12x9m Complex", size: "12x9m (108sqm)", capacity: "Up to 36", desc: "Three-module facility for major projects. Training rooms, offices, and break areas.", badge: "" },
-    { name: "12x12m Complex", size: "12x12m (144sqm)", capacity: "Up to 50+", desc: "Our largest standard configuration. Full camp facilities under one roof.", badge: "LARGEST" },
-    { name: "Custom Complexes", size: "Custom", capacity: "Unlimited", desc: "Bespoke configurations beyond standard sizes. We design and build to your exact specifications.", badge: "CUSTOM" }
+    { name: "12x6m Complex", size: "12x6m (72sqm)", capacity: "Up to 24", desc: "Two 12x3m modules combined. Flexible layout — open plan, partitioned, or mixed use.", badge: "", img: "/images/products/12x6m-complex/1.jpg" },
+    { name: "12x9m Complex", size: "12x9m (108sqm)", capacity: "Up to 36", desc: "Three-module facility for major projects. Training rooms, offices, and break areas.", badge: "", img: "/images/products/12x6m-complex/2.jpg" },
+    { name: "12x12m Complex", size: "12x12m (144sqm)", capacity: "Up to 50+", desc: "Our largest standard configuration. Full camp facilities under one roof.", badge: "LARGEST", img: "/images/products/office_complex.jpg" },
+    { name: "Custom Complexes", size: "Custom", capacity: "Unlimited", desc: "Bespoke configurations beyond standard sizes. We design and build to your exact specifications.", badge: "CUSTOM", img: "/images/products/12x6m-complex/1.jpg" }
 ];
 
 export default function ComplexesPage() {
@@ -39,13 +39,15 @@ export default function ComplexesPage() {
         </div>
       </section>
 
-      <section className="py-12 md:py-16">
+      <section className="py-12 md:py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4">
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {PRODUCTS.map((p, i) => (
               <FadeIn key={i} delay={i * 0.06}>
                 <div className="group bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-xl hover:shadow-black/5 transition-all cursor-pointer">
                   <div className="relative h-48 bg-gray-100 overflow-hidden">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={p.img} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-10" />
                     {p.badge && <span className="absolute top-3 left-3 z-20 px-2.5 py-1 rounded-md text-xs font-bold text-gray-900 bg-gold">{p.badge}</span>}
                     <div className="absolute bottom-3 left-3 z-20 text-white">
@@ -55,9 +57,12 @@ export default function ComplexesPage() {
                   </div>
                   <div className="p-4">
                     <p className="text-sm text-gray-600 mb-3 serif">{p.desc}</p>
-                    <div className="flex items-center gap-3">
-                      <Link href="/quote" className="flex-1 text-center py-2 rounded-lg text-sm font-semibold text-gray-900 bg-gold hover:brightness-110">Get a Quote</Link>
-                      <span className="text-sm font-semibold text-gray-500">Details →</span>
+                    <div className="grid grid-cols-2 gap-2.5">
+                      <Link href={`/hire/complexes/${p.id}`} className="text-center py-2.5 rounded-lg text-sm font-semibold text-gray-700 border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all flex items-center justify-center gap-1.5">
+                        See Details
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                      </Link>
+                      <Link href="/quote" className="text-center py-2.5 rounded-lg text-sm font-semibold text-gray-900 bg-gold hover:brightness-110 transition-all">Get a Quote</Link>
                     </div>
                   </div>
                 </div>

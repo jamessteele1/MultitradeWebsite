@@ -75,11 +75,12 @@ export default function CribRoomsPage() {
                       </div>
                     ))}
                   </div>
-                  <div className="flex items-center gap-3 pt-3 border-t border-gray-100">
-                    <Link href="/quote" className="flex-1 text-center py-2.5 rounded-lg text-sm font-semibold text-gray-900 bg-gold hover:brightness-110 transition-all">Get a Quote</Link>
-                    <Link href={`/hire/crib-rooms/${p.id}`} className="text-sm font-semibold text-gray-500 hover:text-gray-900 flex items-center gap-1">
-                      Details <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                  <div className="grid grid-cols-2 gap-2.5 pt-3 border-t border-gray-100">
+                    <Link href={`/hire/crib-rooms/${p.id}`} className="text-center py-2.5 rounded-lg text-sm font-semibold text-gray-700 border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all flex items-center justify-center gap-1.5">
+                      See Details
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
                     </Link>
+                    <Link href="/quote" className="text-center py-2.5 rounded-lg text-sm font-semibold text-gray-900 bg-gold hover:brightness-110 transition-all">Get a Quote</Link>
                   </div>
                 </div>
               </div>

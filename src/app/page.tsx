@@ -48,8 +48,8 @@ export default function HomePage() {
               <div className="hidden md:inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-400 text-xs font-medium mb-6">
                 NEW — Solar-Powered Facility Now Available
               </div>
-              <h1 className="text-3xl md:text-5xl lg:text-6xl font-extrabold text-white leading-tight tracking-tight">
-                Portable Buildings{" "}<br className="hidden md:block" />
+              <h1 className="text-3xl md:text-5xl lg:text-6xl font-extrabold text-white leading-tight tracking-tight text-center md:text-left">
+                Portable Buildings{" "}<br />
                 <span className="gold-text">Built for</span> Industry
               </h1>
             </div>
@@ -381,6 +381,7 @@ export default function HomePage() {
                 { name: "Acciona", src: "/images/logos/clients/acciona.png" },
                 { name: "Aestec Services", src: "/images/logos/clients/aestec.png" },
                 { name: "Golding", src: "/images/logos/clients/golding.svg" },
+                { name: "Alpha HPA", src: "/images/logos/clients/alpha-hpa.png" },
               ].map((client, i) => (
                 <div key={`${set}-${i}`} className="flex-shrink-0 mx-8 md:mx-14 flex items-center justify-center h-20">
                   {/* eslint-disable-next-line @next/next/no-img-element */}

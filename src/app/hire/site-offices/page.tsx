@@ -12,8 +12,8 @@ export const metadata: Metadata = {
 };
 
 const PRODUCTS = [
-    { id: "12x3m-office", name: "12x3m Office", size: "12x3m", capacity: "6-8 desks", desc: "Large open-plan or partitioned office with full electrical and data fit-out.", badge: "POPULAR", img: "/images/products/12x3-office/1.jpg" },
-    { id: "6x3m-office", name: "6x3m Office", size: "6x3m", capacity: "2-4 desks", desc: "Mid-size office ideal for site supervisors and project coordinators.", badge: "", img: "/images/products/6x3-office/1.jpg" },
+    { id: "12x3m-office", name: "12x3m Office", size: "12x3m", capacity: "5-6 desks", desc: "Large open-plan or partitioned office with full electrical and data fit-out.", badge: "POPULAR", img: "/images/products/12x3-office/1.jpg" },
+    { id: "6x3m-office", name: "6x3m Office", size: "6x3m", capacity: "2-3 desks", desc: "Mid-size office ideal for site supervisors and project coordinators.", badge: "", img: "/images/products/6x3-office/1.jpg" },
     { id: "solar-facility", name: "Solar Facility", size: "Custom", capacity: "Off-grid power", desc: "Off-grid solar power system with 20.5kW battery storage, upgradable to 40+ kW. Eliminates diesel generators.", badge: "SOLAR", img: "/images/products/solar-facility/1.jpg", href: "/solar-facility" },
     { id: "6x3m-supervisor-office", name: "6x3m Supervisor Office", size: "6x3m", capacity: "1-2 desks", desc: "Dedicated supervisor workspace with ergonomic furniture and storage.", badge: "", img: "/images/products/6x3m-supervisor-office/1.jpg" },
     { id: "3x3m-office", name: "3x3m Office", size: "3x3m", capacity: "1-2 desks", desc: "Compact single-person office for gatekeepers and security staff.", badge: "", img: "/images/products/3x3-office/1.jpg" },

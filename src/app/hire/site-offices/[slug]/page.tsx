@@ -6,6 +6,7 @@ import { notFound } from "next/navigation";
 import AddToQuoteButton from "@/components/AddToQuoteButton";
 import SuggestedAddOns from "@/components/SuggestedAddOns";
 import CompareProducts from "@/components/CompareProducts";
+import FloorplanViewer from "@/components/FloorplanViewer";
 
 /* ─── Product Data ───────────────────────────────────────────── */
 const PRODUCTS: Record<string, Product> = {
@@ -368,6 +369,7 @@ export default function SiteOfficeDetailPage({ params }: { params: { slug: strin
               </div>
             ))}
           </div>
+          <FloorplanViewer productId={product.slug} />
         </div>
       </section>
 

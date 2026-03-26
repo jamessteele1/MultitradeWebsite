@@ -75,16 +75,6 @@ export default function AblutionsPage() {
         </div>
       </section>
 
-      <section className="py-12 md:py-16" style={{ background: "linear-gradient(135deg, var(--navy), var(--navy-2))" }}>
-        <div className="max-w-4xl mx-auto px-4 text-center">
-          <h2 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight">Need Help Choosing?</h2>
-          <p className="text-white/50 mt-2 serif">Tell us your project requirements and we&apos;ll recommend the best solution.</p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-6">
-            <Link href="/quote" className="px-8 py-3.5 rounded-lg font-semibold text-gray-900 bg-gold hover:brightness-110 flex items-center gap-2">Get a Free Quote →</Link>
-            <a href="tel:0749792333" className="px-8 py-3.5 rounded-lg font-semibold text-white border border-white/20 hover:bg-white/5 flex items-center gap-2">(07) 4979 2333</a>
-          </div>
-        </div>
-      </section>
       <MobileCTA />
     </>
   );

@@ -49,7 +49,7 @@ export default function HomePage() {
                 NEW — Solar-Powered Facility Now Available
               </div>
               <h1 className="text-3xl md:text-5xl lg:text-6xl font-extrabold text-white leading-tight tracking-tight">
-                Portable Buildings<br className="hidden md:block" />
+                Portable Buildings{" "}<br className="hidden md:block" />
                 <span className="gold-text">Built for</span> Industry
               </h1>
             </div>
@@ -165,7 +165,28 @@ export default function HomePage() {
             </p>
           </FadeIn>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+          {/* Mobile: horizontal scroll carousel */}
+          <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 md:hidden scrollbar-hide">
+            {PRODUCTS.map((product, i) => (
+              <Link key={i} href={product.href} className="product-card group relative bg-white rounded-xl overflow-hidden border border-gray-200 snap-start flex-shrink-0 w-[75vw] max-w-[300px] block">
+                <div className="relative h-44 overflow-hidden">
+                  <img src={product.img} alt={product.name} className="product-img w-full h-full object-cover transition-transform duration-700" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                  <div className="absolute top-3 right-3 px-2.5 py-1 rounded-md text-xs font-medium text-white bg-black/40 backdrop-blur-sm">{product.sizes}</div>
+                </div>
+                <div className="p-4">
+                  <h3 className="text-base font-bold text-gray-900">{product.name}</h3>
+                  <p className="text-sm text-gray-500 mt-1 leading-relaxed line-clamp-2">{product.desc}</p>
+                  <div className="mt-3 flex items-center justify-between">
+                    <span className="text-xs font-semibold gold-text tracking-wide">HIRE & SALE</span>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="text-gray-400"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+          {/* Desktop: grid layout */}
+          <div className="hidden md:grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {PRODUCTS.map((product, i) => (
               <FadeIn key={i} delay={0.1 * i}>
               <Link href={product.href} className="product-card group relative bg-white rounded-xl overflow-hidden border border-gray-200 hover:border-gray-300 hover:shadow-xl hover:shadow-black/5 transition-all duration-500 block">
@@ -361,9 +382,9 @@ export default function HomePage() {
                 { name: "Aestec Services", src: "/images/logos/clients/aestec.png" },
                 { name: "Golding", src: "/images/logos/clients/golding.svg" },
               ].map((client, i) => (
-                <div key={`${set}-${i}`} className="flex-shrink-0 mx-6 md:mx-10 flex items-center justify-center h-12">
+                <div key={`${set}-${i}`} className="flex-shrink-0 mx-8 md:mx-14 flex items-center justify-center h-20">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={client.src} alt={client.name} className="h-7 md:h-9 w-auto max-w-[120px] object-contain opacity-40 grayscale hover:opacity-70 hover:grayscale-0 transition-all duration-300" />
+                  <img src={client.src} alt={client.name} className="h-12 md:h-16 w-auto max-w-[160px] object-contain opacity-40 grayscale hover:opacity-70 hover:grayscale-0 transition-all duration-300" />
                 </div>
               ))
             )}

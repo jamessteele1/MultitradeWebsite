@@ -171,7 +171,7 @@ export default function BuyIndexPage() {
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {CUSTOM_CATEGORIES.map((cat, i) => (
               <FadeIn key={i} delay={i * 0.06}>
-                <div className="group bg-white rounded-xl border border-gray-200 overflow-hidden hover:border-gray-300 hover:shadow-xl hover:shadow-black/5 transition-all">
+                <div className="group bg-white rounded-xl border border-gray-200 shadow-lg shadow-black/5 overflow-hidden hover:border-gray-300 hover:shadow-xl hover:shadow-black/10 transition-all">
                   <div className="relative h-48 overflow-hidden">
                     <img
                       src={cat.img}
@@ -304,7 +304,7 @@ export default function BuyIndexPage() {
               <FadeIn key={i} delay={i * 0.06}>
                 <Link
                   href={cat.href}
-                  className="group bg-white rounded-xl border border-gray-200 overflow-hidden hover:border-gray-300 hover:shadow-xl hover:shadow-black/5 transition-all block"
+                  className="group bg-white rounded-xl border border-gray-200 shadow-lg shadow-black/5 overflow-hidden hover:border-gray-300 hover:shadow-xl hover:shadow-black/10 transition-all block"
                 >
                   <div className="relative h-52 overflow-hidden">
                     <img

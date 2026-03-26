@@ -171,7 +171,7 @@ export default function HomePage() {
           {/* Mobile: horizontal scroll carousel */}
           <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 md:hidden scrollbar-hide">
             {PRODUCTS.map((product, i) => (
-              <Link key={i} href={product.href} className="product-card group relative bg-white rounded-xl overflow-hidden border border-gray-200 snap-start flex-shrink-0 w-[75vw] max-w-[300px] block">
+              <Link key={i} href={product.href} className="product-card group relative bg-white rounded-xl overflow-hidden border border-gray-200 shadow-lg shadow-black/5 snap-start flex-shrink-0 w-[75vw] max-w-[300px] block">
                 <div className="relative h-44 overflow-hidden">
                   <img src={product.img} alt={product.name} className="product-img w-full h-full object-cover transition-transform duration-700" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
@@ -192,7 +192,7 @@ export default function HomePage() {
           <div className="hidden md:grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {PRODUCTS.map((product, i) => (
               <FadeIn key={i} delay={0.1 * i}>
-              <Link href={product.href} className="product-card group relative bg-white rounded-xl overflow-hidden border border-gray-200 hover:border-gray-300 hover:shadow-xl hover:shadow-black/5 transition-all duration-500 block">
+              <Link href={product.href} className="product-card group relative bg-white rounded-xl overflow-hidden border border-gray-200 shadow-lg shadow-black/5 hover:border-gray-300 hover:shadow-xl hover:shadow-black/10 transition-all duration-500 block">
                 <div className="relative h-48 md:h-56 overflow-hidden">
                   <img src={product.img} alt={product.name} className="product-img w-full h-full object-cover transition-transform duration-700" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
@@ -372,7 +372,7 @@ export default function HomePage() {
           </FadeIn>
 
           <FadeIn delay={0.1}>
-            <div className="bg-white rounded-xl border border-gray-200 p-6 md:p-8">
+            <div className="bg-white rounded-xl border border-gray-200 shadow-lg shadow-black/5 p-6 md:p-8">
               <ServiceAreaMaps />
             </div>
           </FadeIn>

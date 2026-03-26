@@ -109,7 +109,7 @@ export default function SuggestedAddOns({ category, currentProductId }: Props) {
           {addons.map((addon) => (
             <div
               key={addon.id}
-              className="bg-white rounded-xl border border-gray-200 overflow-hidden hover:border-gray-300 hover:shadow-lg hover:shadow-black/5 transition-all"
+              className="bg-white rounded-xl border border-gray-200 shadow-lg shadow-black/5 overflow-hidden hover:border-gray-300 hover:shadow-xl hover:shadow-black/10 transition-all"
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img

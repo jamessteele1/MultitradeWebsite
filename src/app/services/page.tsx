@@ -41,7 +41,7 @@ export default function ServicesPage() {
         {SERVICES.map((service, i) => (
           <FadeIn key={i}>
             <div className={`grid lg:grid-cols-2 gap-10 items-center ${i % 2 === 1 ? "lg:[direction:rtl] lg:*:[direction:ltr]" : ""}`}>
-              <div className="rounded-2xl overflow-hidden border border-gray-200" style={{ aspectRatio: "16/10" }}>
+              <div className="rounded-2xl overflow-hidden border border-gray-200 shadow-lg shadow-black/5" style={{ aspectRatio: "16/10" }}>
                 <img src={service.img} alt={service.title} className="w-full h-full object-cover" />
               </div>
               <div>
@@ -82,7 +82,7 @@ export default function ServicesPage() {
               { s: "05", t: "Support", d: "Ongoing maintenance and project support." },
             ].map((step, i) => (
               <FadeIn key={i} delay={i * 0.06}>
-                <div className="bg-white rounded-xl border border-gray-200 p-5 h-full">
+                <div className="bg-white rounded-xl border border-gray-200 shadow-lg shadow-black/5 p-5 h-full">
                   <div className="text-3xl font-extrabold gold-text opacity-30 mb-2">{step.s}</div>
                   <h3 className="font-bold text-gray-900 text-sm">{step.t}</h3>
                   <p className="text-xs text-gray-500 mt-1">{step.d}</p>

@@ -11,13 +11,13 @@ export const metadata: Metadata = {
 };
 
 const PRODUCTS = [
-    { name: "20ft Container", size: "20ft (6x2.4m)", capacity: "33 cubic m", desc: "Standard 20ft shipping container for secure on-site storage.", badge: "", img: "/images/products/20ft-container/1.jpg" },
-    { name: "20ft High Cube Container", size: "20ft HC", capacity: "37 cubic m", desc: "Extra height container for taller items and equipment storage.", badge: "", img: "/images/products/20ft-container/1.jpg" },
-    { name: "10ft Container", size: "10ft (3x2.4m)", capacity: "16 cubic m", desc: "Compact container for smaller sites with limited space.", badge: "", img: "/images/products/10ft-container/1.jpg" },
-    { name: "20ft Dangerous Goods Container", size: "20ft DG", capacity: "DG compliant", desc: "Side-opening dangerous goods storage meeting hazmat requirements.", badge: "DG RATED", img: "/images/products/10ft-dg-container/1.jpg" },
-    { name: "10ft Dangerous Goods Container", size: "10ft DG", capacity: "DG compliant", desc: "Compact dangerous goods storage for smaller hazardous material quantities.", badge: "DG RATED", img: "/images/products/10ft-dg-container/1.jpg" },
-    { name: "20ft Shelved Container", size: "20ft", capacity: "Organised", desc: "Container fitted with adjustable heavy-duty shelving for organised storage.", badge: "", img: "/images/products/20ft-shelved-container/1.jpg" },
-    { name: "20ft Riggers Container", size: "20ft", capacity: "Workshop", desc: "Purpose-built workshop with workbench, shelving, and power for rigging teams.", badge: "", img: "/images/products/20ft-container-office/1.jpg" }
+    { id: "20ft-container", name: "20ft Container", size: "20ft (6x2.4m)", capacity: "33 cubic m", desc: "Standard 20ft shipping container for secure on-site storage.", badge: "", img: "/images/products/20ft-container/1.jpg" },
+    { id: "20ft-high-cube-container", name: "20ft High Cube Container", size: "20ft HC", capacity: "37 cubic m", desc: "Extra height container for taller items and equipment storage.", badge: "", img: "/images/products/20ft-container/1.jpg" },
+    { id: "10ft-container", name: "10ft Container", size: "10ft (3x2.4m)", capacity: "16 cubic m", desc: "Compact container for smaller sites with limited space.", badge: "", img: "/images/products/10ft-container/1.jpg" },
+    { id: "20ft-dg-container", name: "20ft Dangerous Goods Container", size: "20ft DG", capacity: "DG compliant", desc: "Side-opening dangerous goods storage meeting hazmat requirements.", badge: "DG RATED", img: "/images/products/10ft-dg-container/1.jpg" },
+    { id: "10ft-dg-container", name: "10ft Dangerous Goods Container", size: "10ft DG", capacity: "DG compliant", desc: "Compact dangerous goods storage for smaller hazardous material quantities.", badge: "DG RATED", img: "/images/products/10ft-dg-container/1.jpg" },
+    { id: "20ft-shelved-container", name: "20ft Shelved Container", size: "20ft", capacity: "Organised", desc: "Container fitted with adjustable heavy-duty shelving for organised storage.", badge: "", img: "/images/products/20ft-shelved-container/1.jpg" },
+    { id: "20ft-riggers-container", name: "20ft Riggers Container", size: "20ft", capacity: "Workshop", desc: "Purpose-built workshop with workbench, shelving, and power for rigging teams.", badge: "", img: "/images/products/20ft-container-office/1.jpg" }
 ];
 
 export default function ContainersPage() {

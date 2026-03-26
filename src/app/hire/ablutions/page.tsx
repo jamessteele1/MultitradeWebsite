@@ -11,13 +11,13 @@ export const metadata: Metadata = {
 };
 
 const PRODUCTS = [
-    { name: "6x3m Toilet Block", size: "6x3m", capacity: "High traffic", desc: "Large toilet block with multiple cubicles, urinals, and hand basins. Male/female configurations.", badge: "", img: "/images/products/6x3-toilet/1.jpg" },
-    { name: "3.6x2.4m Toilet", size: "3.6x2.4m", capacity: "Medium traffic", desc: "Compact toilet unit ideal for smaller sites and construction projects.", badge: "", img: "/images/products/36x24-toilet/1.jpg" },
-    { name: "Solar Toilet", size: "5.45x2.4m", capacity: "Medium traffic", desc: "Completely solar-powered with 2 pans and 2 hand basins. No utility connections required.", badge: "SOLAR", img: "/images/products/solar-toilet-6x24/1.jpg" },
-    { name: "4.2x3m Shower Block", size: "4.2x3m", capacity: "Crew showers", desc: "Dedicated shower facility with hot water system for end-of-shift amenity.", badge: "", img: "/images/products/42x3m-ablution/1.jpg" },
-    { name: "Chemical Toilet", size: "Portable", capacity: "Single use", desc: "Standalone chemical toilet for remote locations with no water connection.", badge: "", img: "/images/products/Chemical Toilet.png" },
-    { name: "PWD Chemical Toilet", size: "Portable", capacity: "Accessible", desc: "Wheelchair accessible chemical toilet meeting PWD compliance requirements.", badge: "ACCESSIBLE", img: "/images/products/Chemical Toilet.png" },
-    { name: "Bathhouse", size: "Custom", capacity: "Large crews", desc: "Change rooms with showers, double-stacked lockers, and bench seating.", badge: "", img: "/images/products/42x3m-ablution/2.jpg" }
+    { id: "6x3m-toilet-block", name: "6x3m Toilet Block", size: "6x3m", capacity: "High traffic", desc: "Large toilet block with multiple cubicles, urinals, and hand basins. Male/female configurations.", badge: "", img: "/images/products/6x3-toilet/1.jpg" },
+    { id: "3-6x2-4m-toilet", name: "3.6x2.4m Toilet", size: "3.6x2.4m", capacity: "Medium traffic", desc: "Compact toilet unit ideal for smaller sites and construction projects.", badge: "", img: "/images/products/36x24-toilet/1.jpg" },
+    { id: "solar-toilet", name: "Solar Toilet", size: "5.45x2.4m", capacity: "Medium traffic", desc: "Completely solar-powered with 2 pans and 2 hand basins. No utility connections required.", badge: "SOLAR", img: "/images/products/solar-toilet-6x24/1.jpg" },
+    { id: "4-2x3m-shower-block", name: "4.2x3m Shower Block", size: "4.2x3m", capacity: "Crew showers", desc: "Dedicated shower facility with hot water system for end-of-shift amenity.", badge: "", img: "/images/products/42x3m-ablution/1.jpg" },
+    { id: "chemical-toilet", name: "Chemical Toilet", size: "Portable", capacity: "Single use", desc: "Standalone chemical toilet for remote locations with no water connection.", badge: "", img: "/images/products/Chemical Toilet.png" },
+    { id: "pwd-chemical-toilet", name: "PWD Chemical Toilet", size: "Portable", capacity: "Accessible", desc: "Wheelchair accessible chemical toilet meeting PWD compliance requirements.", badge: "ACCESSIBLE", img: "/images/products/Chemical Toilet.png" },
+    { id: "bathhouse", name: "Bathhouse", size: "Custom", capacity: "Large crews", desc: "Change rooms with showers, double-stacked lockers, and bench seating.", badge: "", img: "/images/products/42x3m-ablution/2.jpg" }
 ];
 
 export default function AblutionsPage() {

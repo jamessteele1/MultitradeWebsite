@@ -11,13 +11,13 @@ export const metadata: Metadata = {
 };
 
 const PRODUCTS = [
-    { name: "12x3m Office", size: "12x3m", capacity: "6-8 desks", desc: "Large open-plan or partitioned office with full electrical and data fit-out.", badge: "" },
-    { name: "6x3m Office", size: "6x3m", capacity: "2-4 desks", desc: "Mid-size office ideal for site supervisors and project coordinators.", badge: "" },
-    { name: "6x3m Supervisor Office", size: "6x3m", capacity: "1-2 desks", desc: "Dedicated supervisor workspace with ergonomic furniture and storage.", badge: "" },
-    { name: "3x3m Office", size: "3x3m", capacity: "1-2 desks", desc: "Compact single-person office for gatekeepers and security staff.", badge: "" },
-    { name: "20ft Container Office", size: "6x2.4m", capacity: "2-3 desks", desc: "Converted shipping container with full office fit-out. Robust and secure.", badge: "" },
-    { name: "Gatehouse", size: "10.5x3.4m", capacity: "1-2 staff", desc: "Purpose-built security and access control building for site entry points.", badge: "" },
-    { name: "Self-Contained Supervisor Office", size: "6.6x3m", capacity: "1-2 desks", desc: "Office with integrated bathroom. No external connections required.", badge: "SELF-CONTAINED" }
+    { id: "12x3m-office", name: "12x3m Office", size: "12x3m", capacity: "6-8 desks", desc: "Large open-plan or partitioned office with full electrical and data fit-out.", badge: "POPULAR", img: "/images/products/12x3-office/1.jpg" },
+    { id: "6x3m-office", name: "6x3m Office", size: "6x3m", capacity: "2-4 desks", desc: "Mid-size office ideal for site supervisors and project coordinators.", badge: "", img: "/images/products/6x3-office/1.jpg" },
+    { id: "6x3m-supervisor-office", name: "6x3m Supervisor Office", size: "6x3m", capacity: "1-2 desks", desc: "Dedicated supervisor workspace with ergonomic furniture and storage.", badge: "", img: "/images/products/6x3m-supervisor-office/1.jpg" },
+    { id: "3x3m-office", name: "3x3m Office", size: "3x3m", capacity: "1-2 desks", desc: "Compact single-person office for gatekeepers and security staff.", badge: "", img: "/images/products/3x3-office/1.jpg" },
+    { id: "20ft-container-office", name: "20ft Container Office", size: "6x2.4m", capacity: "2-3 desks", desc: "Converted shipping container with full office fit-out. Robust and secure.", badge: "", img: "/images/products/20ft-container-office/1.jpg" },
+    { id: "gatehouse", name: "Gatehouse", size: "10.5x3.4m", capacity: "1-2 staff", desc: "Purpose-built security and access control building for site entry points.", badge: "", img: "/images/products/gatehouse/1.jpg" },
+    { id: "self-contained-supervisor-office", name: "Self-Contained Supervisor Office", size: "6.6x3m", capacity: "1-2 desks", desc: "Office with integrated bathroom. No external connections required.", badge: "SELF-CONTAINED", img: "/images/products/6x3m-supervisor-office/1.jpg" }
 ];
 
 export default function SiteofficesPage() {
@@ -49,6 +49,7 @@ export default function SiteofficesPage() {
               <FadeIn key={i} delay={i * 0.06}>
                 <div className="group bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-xl hover:shadow-black/5 transition-all cursor-pointer">
                   <div className="relative h-48 bg-gray-100 overflow-hidden">
+                    <img src={p.img} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-10" />
                     {p.badge && <span className="absolute top-3 left-3 z-20 px-2.5 py-1 rounded-md text-xs font-bold text-gray-900 bg-gold">{p.badge}</span>}
                     <div className="absolute bottom-3 left-3 z-20 text-white">
@@ -60,7 +61,7 @@ export default function SiteofficesPage() {
                     <p className="text-sm text-gray-600 mb-3 serif">{p.desc}</p>
                     <div className="flex items-center gap-3">
                       <Link href="/quote" className="flex-1 text-center py-2 rounded-lg text-sm font-semibold text-gray-900 bg-gold hover:brightness-110">Get a Quote</Link>
-                      <span className="text-sm font-semibold text-gray-500">Details →</span>
+                      <Link href={`/hire/site-offices/${p.id}`} className="text-sm font-semibold text-gray-500 hover:text-gray-900 transition-colors">Details →</Link>
                     </div>
                   </div>
                 </div>

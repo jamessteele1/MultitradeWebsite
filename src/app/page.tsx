@@ -80,6 +80,60 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ─── WHY MULTITRADE ─── */}
+      <section className="py-16 md:py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center mb-12">
+            <div className="text-xs font-semibold tracking-widest uppercase gold-text mb-3">Why Multitrade</div>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight">Built Different. Built to Last.</h2>
+            <p className="text-gray-500 mt-3 max-w-xl mx-auto serif">
+              We don&apos;t just hire buildings — we design, manufacture, and install them from our own facility in Gladstone.
+            </p>
+          </div>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[
+              {
+                icon: (
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2 20h20"/><path d="M5 20V6a1 1 0 011-1h4a1 1 0 011 1v14"/><path d="M13 20V10a1 1 0 011-1h4a1 1 0 011 1v10"/><path d="M8 9h.01"/><path d="M8 13h.01"/><path d="M16 13h.01"/></svg>
+                ),
+                title: "Own Manufacturing",
+                desc: "Purpose-built factory at our Gladstone HQ. We control quality from raw steel to finished building.",
+              },
+              {
+                icon: (
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="M12 6v6l4 2"/></svg>
+                ),
+                title: "45+ Years Experience",
+                desc: "Established in 1980. Thousands of buildings delivered across Queensland\u2019s toughest project sites.",
+              },
+              {
+                icon: (
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 12l2 2 4-4"/><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/></svg>
+                ),
+                title: "Zero LTI Record",
+                desc: "5+ years with no lost time injuries. Safety isn\u2019t a slogan here — it\u2019s how we operate every day.",
+              },
+              {
+                icon: (
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                ),
+                title: "End-to-End Service",
+                desc: "Design, manufacture, delivery, installation, connection, and ongoing maintenance — all in-house.",
+              },
+            ].map((item, i) => (
+              <div key={i} className="relative p-6 rounded-xl border border-gray-200 hover:border-gray-300 hover:shadow-lg hover:shadow-black/5 transition-all duration-300 group">
+                <div className="w-12 h-12 rounded-lg bg-gold/10 flex items-center justify-center mb-4 gold-text group-hover:bg-gold/20 transition-colors">
+                  {item.icon}
+                </div>
+                <h3 className="text-lg font-bold text-gray-900 mb-2">{item.title}</h3>
+                <p className="text-sm text-gray-500 leading-relaxed">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ─── PRODUCTS ─── */}
       <section className="py-16 md:py-24 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4">
@@ -122,6 +176,142 @@ export default function HomePage() {
       </section>
 
 
+      {/* ─── SERVICES OVERVIEW ─── */}
+      <section className="py-16 md:py-24 bg-white border-t border-gray-200">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="text-center mb-12">
+            <div className="text-xs font-semibold tracking-widest uppercase gold-text mb-3">What We Do</div>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight">More Than Just Hire</h2>
+            <p className="text-gray-500 mt-3 max-w-xl mx-auto serif">
+              Full-service portable building solutions — from a single office to a complete site setup.
+            </p>
+          </div>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            {[
+              {
+                title: "Hire",
+                desc: "Short and long-term hire from QLD\u2019s largest private fleet.",
+                icon: (
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+                ),
+              },
+              {
+                title: "Buy",
+                desc: "New and refurbished buildings available for outright purchase.",
+                icon: (
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
+                ),
+              },
+              {
+                title: "Manufacture",
+                desc: "Custom-built to your specs in our Gladstone factory.",
+                icon: (
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
+                ),
+              },
+              {
+                title: "Install",
+                desc: "Delivery, craning, blocking, and full electrical connection.",
+                icon: (
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+                ),
+              },
+              {
+                title: "Relocate",
+                desc: "Move existing buildings between sites with full logistics support.",
+                icon: (
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                ),
+              },
+            ].map((service, i) => (
+              <Link key={i} href="/services" className="group p-5 rounded-xl border border-gray-200 hover:border-gold/40 hover:shadow-lg hover:shadow-gold/5 transition-all duration-300 text-center">
+                <div className="w-11 h-11 rounded-lg bg-gray-100 group-hover:bg-gold/10 flex items-center justify-center mx-auto mb-3 text-gray-600 group-hover:text-amber-600 transition-colors">
+                  {service.icon}
+                </div>
+                <h3 className="text-base font-bold text-gray-900 mb-1">{service.title}</h3>
+                <p className="text-xs text-gray-500 leading-relaxed">{service.desc}</p>
+              </Link>
+            ))}
+          </div>
+
+          <div className="text-center mt-8">
+            <Link href="/services" className="inline-flex items-center gap-2 text-sm font-semibold gold-text hover:brightness-110 transition-all">
+              Learn more about our services
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── FEATURED PROJECT ─── */}
+      <section className="relative overflow-hidden py-16 md:py-24" style={{ background: "linear-gradient(135deg, var(--navy) 0%, var(--navy-2) 60%, var(--navy-3) 100%)" }}>
+        <div className="absolute inset-0 opacity-5" style={{ backgroundImage: "linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)", backgroundSize: "60px 60px" }} />
+        <div className="relative z-10 max-w-7xl mx-auto px-4">
+          <div className="text-center mb-12">
+            <div className="text-xs font-semibold tracking-widest uppercase gold-text mb-3">Project Spotlight</div>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight">Built for Real Worksites</h2>
+            <p className="text-white/50 mt-3 max-w-xl mx-auto serif">
+              From remote mine sites to major infrastructure projects — we deliver complete site facility solutions.
+            </p>
+          </div>
+
+          <div className="grid lg:grid-cols-2 gap-8 items-center">
+            <div className="relative rounded-xl overflow-hidden shadow-2xl">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/images/products/12x6m-complex/1.jpg"
+                alt="Multi-building complex installation with covered walkway and decking"
+                className="w-full h-72 md:h-96 object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+              <div className="absolute bottom-4 left-4 right-4">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold text-xs font-bold text-gray-900">
+                  MULTI-BUILDING COMPLEX
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-6">
+              <h3 className="text-2xl font-extrabold text-white">Site Office &amp; Crib Complex — Bowen Basin</h3>
+              <p className="text-white/60 serif leading-relaxed">
+                A complete multi-module facility featuring interconnected site offices, crib rooms, and ablution buildings — all designed, manufactured, delivered, and installed by Multitrade. Connected via covered walkways with full electrical and plumbing services.
+              </p>
+
+              <div className="grid grid-cols-2 gap-4">
+                {[
+                  { label: "Scope", value: "6 Buildings" },
+                  { label: "Location", value: "Bowen Basin, QLD" },
+                  { label: "Turnaround", value: "4 Weeks" },
+                  { label: "Services", value: "Full Install" },
+                ].map((stat, i) => (
+                  <div key={i} className="p-3 rounded-lg bg-white/5 border border-white/10">
+                    <div className="text-xs text-white/40 font-medium uppercase tracking-wide">{stat.label}</div>
+                    <div className="text-lg font-bold text-white mt-0.5">{stat.value}</div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                <Link
+                  href="/quote"
+                  className="px-6 py-3 rounded-lg font-semibold text-gray-900 text-center bg-gold hover:brightness-110 transition-all flex items-center justify-center gap-2"
+                >
+                  Scope Your Project
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                </Link>
+                <Link
+                  href="/hire/complexes"
+                  className="px-6 py-3 rounded-lg font-semibold text-white text-center border border-white/20 hover:bg-white/5 transition-all"
+                >
+                  View Complexes
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ─── CLIENT LOGOS ─── */}
       <section className="bg-white py-12 overflow-hidden">
         <div className="text-center mb-8">
@@ -157,34 +347,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ─── CTA ─── */}
-      <section className="py-16 md:py-20" style={{ background: "linear-gradient(135deg, var(--navy), var(--navy-2))" }}>
-        <div className="max-w-4xl mx-auto px-4 text-center">
-          <h2 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight">
-            Your Next Project Starts With Us
-          </h2>
-          <p className="text-white/50 mt-2 serif">
-            45+ years of experience. Queensland&apos;s largest privately owned fleet.
-            Tell us what you need.
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-6">
-            <Link
-              href="/quote"
-              className="px-8 py-3.5 rounded-lg font-semibold text-gray-900 bg-gold hover:brightness-110 transition-all flex items-center gap-2"
-            >
-              Get a Free Quote
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-            </Link>
-            <a
-              href="tel:0749792333"
-              className="px-8 py-3.5 rounded-lg font-semibold text-white border border-white/20 hover:bg-white/5 transition-all flex items-center gap-2"
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6A19.79 19.79 0 012.12 4.18 2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.362 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
-              (07) 4979 2333
-            </a>
-          </div>
-        </div>
-      </section>
+
 
       <MobileCTA />
     </>

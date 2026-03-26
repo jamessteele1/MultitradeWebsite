@@ -26,7 +26,7 @@ export default function ScopeBuilderPage() {
           <h1 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight">
             Describe <span className="gold-text">Your Project</span>
           </h1>
-          <p className="text-white/65 mt-4 max-w-3xl mx-auto serif">
+          <p className="text-white/65 mt-4 max-w-3xl mx-auto">
             Tell us what you need in plain English and MBH Scope Builder will guide you to a practical preliminary recommendation.
           </p>
         </div>

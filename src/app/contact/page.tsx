@@ -18,7 +18,7 @@ export default function ContactPage() {
         <div className="absolute inset-0 opacity-5" style={{ backgroundImage: "linear-gradient(rgba(255,255,255,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.12) 1px,transparent 1px)", backgroundSize: "50px 50px" }} />
         <div className="relative z-10 max-w-7xl mx-auto px-4 py-14 md:py-20 text-center">
           <h1 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight">Get in <span className="gold-text">Touch</span></h1>
-          <p className="text-white/60 mt-4 max-w-lg mx-auto serif">We take every inquiry seriously and are prepared to travel to your site however remote.</p>
+          <p className="text-white/60 mt-4 max-w-lg mx-auto">We take every inquiry seriously and are prepared to travel to your site however remote.</p>
         </div>
       </section>
 

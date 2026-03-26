@@ -43,7 +43,7 @@ export default function ConstructionPage() {
             <h1 className="text-4xl md:text-5xl font-extrabold text-white tracking-tight leading-tight">
               Portable Buildings for <span className="gold-text">Construction</span>
             </h1>
-            <p className="text-white/60 mt-5 text-lg leading-relaxed serif">From residential builds to major commercial developments, Multitrade provides site offices, crib rooms, toilet blocks, and storage containers that keep your construction project running efficiently.</p>
+            <p className="text-white/60 mt-5 text-lg leading-relaxed">From residential builds to major commercial developments, Multitrade provides site offices, crib rooms, toilet blocks, and storage containers that keep your construction project running efficiently.</p>
             <div className="flex flex-col sm:flex-row gap-3 mt-8">
               <Link href="/quote" className="px-8 py-4 rounded-lg font-semibold text-gray-900 bg-gold hover:brightness-110 text-center">Get a Quote →</Link>
               <a href="tel:0749792333" className="px-8 py-4 rounded-lg font-semibold text-white border border-white/20 hover:bg-white/5 text-center">(07) 4979 2333</a>

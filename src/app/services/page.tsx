@@ -32,7 +32,7 @@ export default function ServicesPage() {
           <h1 className="text-4xl md:text-5xl font-extrabold text-white tracking-tight leading-tight max-w-3xl">
             Design. Manufacture. <span className="gold-text">Hire. Install.</span>
           </h1>
-          <p className="text-white/60 mt-5 text-lg max-w-lg serif">End-to-end portable building solutions. One point of contact from project inception to completion.</p>
+          <p className="text-white/60 mt-5 text-lg max-w-lg">End-to-end portable building solutions. One point of contact from project inception to completion.</p>
         </div>
       </section>
 
@@ -47,7 +47,7 @@ export default function ServicesPage() {
               <div>
                 <span className="inline-block px-3 py-1 rounded-full bg-amber-50 border border-amber-200 text-xs font-semibold gold-text mb-4">{service.tag}</span>
                 <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 tracking-tight">{service.title}</h2>
-                <p className="text-gray-600 mt-3 serif">{service.desc}</p>
+                <p className="text-gray-600 mt-3">{service.desc}</p>
                 <div className="grid sm:grid-cols-2 gap-2 mt-6">
                   {service.features.map((f, j) => (
                     <div key={j} className="flex items-center gap-2 text-sm text-gray-700">
@@ -85,7 +85,7 @@ export default function ServicesPage() {
                 <div className="bg-white rounded-xl border border-gray-200 p-5 h-full">
                   <div className="text-3xl font-extrabold gold-text opacity-30 mb-2">{step.s}</div>
                   <h3 className="font-bold text-gray-900 text-sm">{step.t}</h3>
-                  <p className="text-xs text-gray-500 mt-1 serif">{step.d}</p>
+                  <p className="text-xs text-gray-500 mt-1">{step.d}</p>
                 </div>
               </FadeIn>
             ))}
@@ -98,7 +98,7 @@ export default function ServicesPage() {
         <div className="max-w-4xl mx-auto px-4 text-center">
           <FadeIn>
             <h2 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight">Need a Service Quote?</h2>
-            <p className="text-white/50 mt-2 serif">Our team responds within 2 business hours.</p>
+            <p className="text-white/50 mt-2">Our team responds within 2 business hours.</p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-6">
               <Link href="/quote" className="px-8 py-3.5 rounded-lg font-semibold text-gray-900 bg-gold hover:brightness-110">Request a Quote</Link>
               <a href="tel:0749792333" className="px-8 py-3.5 rounded-lg font-semibold text-white border border-white/20 hover:bg-white/5">(07) 4979 2333</a>

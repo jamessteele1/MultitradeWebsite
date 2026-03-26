@@ -70,7 +70,7 @@ export default function HireIndexPage() {
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-tight">
             Portable Building <span className="gold-text">Hire</span>
           </h1>
-          <p className="text-white/60 mt-4 max-w-xl text-base leading-relaxed serif">
+          <p className="text-white/60 mt-4 max-w-xl text-base leading-relaxed">
             Everything your worksite needs — from crib rooms and offices to ablutions, complexes, containers, and ancillary equipment. Mine-spec compliant and delivered across Central Queensland.
           </p>
         </div>
@@ -92,7 +92,7 @@ export default function HireIndexPage() {
                     </div>
                   </div>
                   <div className="p-5">
-                    <p className="text-sm text-gray-600 serif leading-relaxed mb-3">{cat.desc}</p>
+                    <p className="text-sm text-gray-600 leading-relaxed mb-3">{cat.desc}</p>
                     <span className="text-sm font-semibold text-gray-500 group-hover:text-gray-900 flex items-center gap-1 transition-colors">
                       Browse {cat.name}
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>

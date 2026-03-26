@@ -40,7 +40,7 @@ export default function MiningPage() {
             <h1 className="text-4xl md:text-5xl font-extrabold text-white tracking-tight leading-tight">
               Portable Buildings for <span className="gold-text">Mining & Resources</span>
             </h1>
-            <p className="text-white/60 mt-5 text-lg max-w-lg serif">
+            <p className="text-white/60 mt-5 text-lg max-w-lg">
               Trusted by BHP, Rio Tinto, Glencore, and Anglo American. Mine-spec compliant, rapid deployment, across the Bowen Basin and beyond.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 mt-8">
@@ -107,7 +107,7 @@ export default function MiningPage() {
                     </div>
                   </div>
                   <div className="p-4">
-                    <p className="text-sm text-gray-600 mb-3 serif">{p.desc}</p>
+                    <p className="text-sm text-gray-600 mb-3">{p.desc}</p>
                     <Link href="/quote" className="block text-center py-2 rounded-lg text-sm font-semibold text-gray-900 bg-gold hover:brightness-110 transition-all">Get a Quote</Link>
                   </div>
                 </div>
@@ -122,7 +122,7 @@ export default function MiningPage() {
         <div className="max-w-4xl mx-auto px-4">
           <FadeIn>
             <div className="bg-gray-50 rounded-2xl p-8 md:p-12 border border-gray-200">
-              <p className="text-lg text-gray-700 serif leading-relaxed">
+              <p className="text-lg text-gray-700 leading-relaxed">
                 &ldquo;Our site had no power or water available — having an off-grid option was the biggest driver to go solar. The site team love it. There&apos;s no diesel burn compared to the old mobile unit and it&apos;s considerably quieter. Alternative energy and maintaining low carbon emissions is something we&apos;re striving for.&rdquo;
               </p>
               <div className="mt-6"><div className="font-bold text-gray-900 text-sm">Futura Resources</div><div className="text-xs text-gray-500">Solar Facility Client — Remote QLD Mining Operation</div></div>
@@ -161,7 +161,7 @@ export default function MiningPage() {
       <section className="py-12 bg-gray-50 border-t border-gray-200">
         <div className="max-w-4xl mx-auto px-4">
           <h2 className="text-xl font-bold text-gray-900 mb-4">Portable Building Hire for Mining Sites — Queensland</h2>
-          <div className="text-sm text-gray-600 space-y-3 serif">
+          <div className="text-sm text-gray-600 space-y-3">
             <p>Multitrade Building Hire has been the trusted portable building partner for Queensland&apos;s mining and resources sector since 1980. From our yards in Gladstone and Emerald, we provide rapid deployment of mine-spec crib rooms, site offices, ablution blocks, and complexes across the Bowen Basin, Central Highlands, Surat Basin, and beyond.</p>
             <p>As a C-RES BMA Certified company with zero lost time injuries in over 5 years, safety is embedded in our culture. Our fleet — Queensland&apos;s largest privately owned — is maintained to Tier 1 standards with an average age under 5 years.</p>
           </div>

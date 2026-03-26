@@ -3,6 +3,9 @@ import MobileCTA from "@/components/MobileCTA";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import AddToQuoteButton from "@/components/AddToQuoteButton";
+import SuggestedAddOns from "@/components/SuggestedAddOns";
+import CompareProducts from "@/components/CompareProducts";
 
 /* ─── Product Data ───────────────────────────────────────────── */
 const PRODUCTS: Record<string, Product> = {
@@ -242,8 +245,6 @@ export default function CribRoomDetailPage({ params }: { params: { slug: string 
   const product = PRODUCTS[params.slug];
   if (!product) notFound();
 
-  const related = ALL_SLUGS.filter((s) => s !== params.slug).slice(0, 3).map((s) => PRODUCTS[s]);
-
   return (
     <>
       <Header />
@@ -270,9 +271,7 @@ export default function CribRoomDetailPage({ params }: { params: { slug: string 
               <p className="text-white/50 mt-1 text-sm font-medium">{product.tagline}</p>
               <p className="text-white/60 mt-4 text-sm leading-relaxed max-w-lg">{product.description}</p>
               <div className="flex flex-wrap items-center gap-3 mt-6">
-                <Link href="/quote" className="px-6 py-3 rounded-lg font-semibold text-gray-900 bg-gold hover:brightness-110 transition-all flex items-center gap-2">
-                  Get a Quote <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-                </Link>
+                <AddToQuoteButton product={{ id: product.slug, name: product.name, size: product.size, img: product.images[0], category: "crib-rooms" }} />
                 <a href="tel:0749792333" className="px-6 py-3 rounded-lg font-semibold text-white border border-white/20 hover:bg-white/5 transition-all">(07) 4979 2333</a>
                 {product.floorPlan && (
                   <a href={product.floorPlan!} target="_blank" rel="noopener" className="px-4 py-3 rounded-lg text-sm font-medium text-white/70 hover:text-white transition-colors flex items-center gap-1.5">
@@ -369,33 +368,32 @@ export default function CribRoomDetailPage({ params }: { params: { slug: string 
           </div>
         </section>
       )}
-      {/* Related Products */}
-      <section className="py-10 md:py-14 bg-gray-50 border-t border-gray-200">
-        <div className="max-w-7xl mx-auto px-4">
-          <h2 className="text-xl font-bold text-gray-900 mb-5">Other Crib Rooms</h2>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {related.map((r, i) => (
-              <Link key={i} href={`/hire/crib-rooms/${r.slug}`} className="group bg-white rounded-xl border border-gray-200 overflow-hidden hover:border-gray-300 hover:shadow-lg hover:shadow-black/5 transition-all">
-                <div className="relative h-44 overflow-hidden">
-                  <img src={r.images[0]} alt={r.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-                  {r.badge && <span className="absolute top-3 left-3 px-2 py-0.5 rounded text-xs font-bold text-gray-900 bg-gold">{r.badge}</span>}
-                  <div className="absolute bottom-3 left-3 text-white font-bold">{r.name}</div>
-                </div>
-                <div className="p-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className="px-2 py-0.5 rounded bg-gray-100 text-xs font-medium text-gray-600">{r.size}</span>
-                    <span className="px-2 py-0.5 rounded bg-gray-100 text-xs font-medium text-gray-600">{r.capacity}</span>
-                  </div>
-                  <span className="text-sm font-semibold text-gray-500 group-hover:text-gray-900 flex items-center gap-1 transition-colors">
-                    View Details <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-                  </span>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* Suggested Add-Ons */}
+      <SuggestedAddOns category="crib-rooms" currentProductId={product.slug} />
+
+      {/* Compare Products */}
+      <CompareProducts
+        currentSlug={product.slug}
+        products={ALL_SLUGS.map((s) => {
+          const p = PRODUCTS[s];
+          return {
+            id: p.slug,
+            slug: p.slug,
+            name: p.name,
+            size: p.size,
+            capacity: p.capacity,
+            img: p.images[0],
+            category: "crib-rooms" as const,
+            href: `/hire/crib-rooms/${p.slug}`,
+            badge: p.badge,
+            highlights: [
+              p.selfContained ? "Self-contained" : "Requires site connections",
+              p.mobile ? "Mobile / towable" : "Crane delivery",
+              `${Object.keys(p.specifications).length}+ spec items`,
+            ],
+          };
+        })}
+      />
       {/* CTA */}
       <section className="py-14 md:py-20" style={{ background: "linear-gradient(135deg, var(--navy), var(--navy-2))" }}>
         <div className="max-w-4xl mx-auto px-4 text-center">

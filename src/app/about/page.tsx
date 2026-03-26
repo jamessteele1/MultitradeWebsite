@@ -13,7 +13,7 @@ const TIMELINE = [
   { year: "2008", title: "Emerald Yard Established", desc: "Strategic expansion into the Emerald region during the rapid growth of Bowen Basin coal mines. C-RES BMA Certified." },
   { year: "2009", title: "Solar Toilet Development", desc: "Designed and manufactured an environmentally friendly toilet unit operating entirely off solar power." },
   { year: "2013", title: "Mobile Crib Rooms", desc: "Fully towable crib rooms with onboard generators and service tanks developed for remote worksites." },
-  { year: "2023", title: "Solar Facility Launched", desc: "Industry-first off-grid solar power facility with 8.85kW PV and 32.8kWh lithium phosphate battery." },
+  { year: "2023", title: "Solar Facility Launched", desc: "Industry-first off-grid solar power facility with 20.5kW lithium phosphate battery, upgradable to 40+ kW." },
   { year: "2024", title: "Multitrade Homes", desc: "Expanding into residential construction for Central Queensland families, led by Shane Finlay." },
 ];
 

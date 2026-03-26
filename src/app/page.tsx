@@ -366,22 +366,23 @@ export default function HomePage() {
           <div className="marquee-track">
             {[...Array(2)].map((_, set) =>
               [
-                { name: "Glencore", src: "/images/logos/clients/glencore.png" },
                 { name: "Rio Tinto", src: "/images/logos/clients/rio-tinto.png" },
-                { name: "Thiess", src: "/images/logos/clients/thiess.png" },
-                { name: "Coronado", src: "/images/logos/clients/coronado.png" },
-                { name: "Downer", src: "/images/logos/clients/downer.png" },
-                { name: "UGL", src: "/images/logos/clients/ugl.png" },
-                { name: "Monadelphous", src: "/images/logos/clients/monadelphous.png" },
+                { name: "Glencore", src: "/images/logos/clients/glencore.png" },
                 { name: "Fortescue", src: "/images/logos/clients/fortescue.png" },
-                { name: "New Hope Group", src: "/images/logos/clients/new-hope.png" },
-                { name: "Gladstone Ports", src: "/images/logos/clients/gpc.png" },
-                { name: "Fulton Hogan", src: "/images/logos/clients/fulton-hogan.png" },
-                { name: "McCosker", src: "/images/logos/clients/mccosker.png" },
-                { name: "Acciona", src: "/images/logos/clients/acciona.png" },
-                { name: "Aestec Services", src: "/images/logos/clients/aestec.png" },
-                { name: "Golding", src: "/images/logos/clients/golding.svg" },
                 { name: "Alpha HPA", src: "/images/logos/clients/alpha-hpa.png" },
+                { name: "Aurizon", src: "/images/logos/clients/aurizon.png" },
+                { name: "Acciona", src: "/images/logos/clients/acciona.png" },
+                { name: "Downer", src: "/images/logos/clients/downer.png" },
+                { name: "Thiess", src: "/images/logos/clients/thiess.png" },
+                { name: "New Hope Group", src: "/images/logos/clients/new-hope.png" },
+                { name: "Coronado", src: "/images/logos/clients/coronado.png" },
+                { name: "Monadelphous", src: "/images/logos/clients/monadelphous.png" },
+                { name: "UGL", src: "/images/logos/clients/ugl.png" },
+                { name: "Fulton Hogan", src: "/images/logos/clients/fulton-hogan.png" },
+                { name: "Golding", src: "/images/logos/clients/golding.svg" },
+                { name: "Gladstone Ports", src: "/images/logos/clients/gpc.png" },
+                { name: "McCosker", src: "/images/logos/clients/mccosker.png" },
+                { name: "Aestec Services", src: "/images/logos/clients/aestec.png" },
               ].map((client, i) => (
                 <div key={`${set}-${i}`} className="flex-shrink-0 mx-8 md:mx-14 flex items-center justify-center h-20">
                   {/* eslint-disable-next-line @next/next/no-img-element */}

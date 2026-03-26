@@ -148,22 +148,22 @@ export default function Footer() {
 
         {/* Certifications & Bottom bar */}
         <div className="pt-6 border-t border-white/5 space-y-6">
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             {[
               { std: "ISO 9001:2015", label: "Quality Management" },
               { std: "ISO 14001:2015", label: "Environmental Management" },
               { std: "ISO 45001:2018", label: "Health & Safety Management" },
             ].map((c) => (
-              <div key={c.std} className="flex items-center justify-center gap-2.5 px-3 py-3 rounded-xl border border-white/10 bg-white/[0.03]">
+              <div key={c.std} className="flex items-center gap-3 px-4 py-3 rounded-xl border border-white/10 bg-white/[0.03]">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="/images/logos/iso-logo.png"
                   alt="ISO"
-                  className="w-8 h-8 md:w-10 md:h-10 flex-shrink-0 brightness-0 invert opacity-50"
+                  className="w-10 h-10 flex-shrink-0 brightness-0 invert opacity-50"
                 />
-                <div className="min-w-0">
-                  <div className="text-xs md:text-sm font-bold text-white/60 truncate">{c.std}</div>
-                  <div className="text-[10px] md:text-xs text-white/30 truncate">{c.label}</div>
+                <div>
+                  <div className="text-sm font-bold text-white/60">{c.std}</div>
+                  <div className="text-xs text-white/30">{c.label}</div>
                 </div>
               </div>
             ))}

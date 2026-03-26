@@ -1,5 +1,7 @@
 import Header from "@/components/Header";
 import MobileCTA from "@/components/MobileCTA";
+import { FadeIn } from "@/components/FadeIn";
+import { CountUp } from "@/components/CountUp";
 import Link from "next/link";
 
 const PRODUCTS = [
@@ -24,27 +26,42 @@ export default function HomePage() {
       <Header />
 
       {/* ─── HERO ─── */}
-      <section className="relative overflow-hidden" style={{ background: "linear-gradient(135deg, var(--navy) 0%, var(--navy-2) 40%, #2a1f14 100%)" }}>
-        <div className="absolute inset-0 opacity-10" style={{ background: "radial-gradient(circle at 70% 50%, rgba(212,168,67,0.3) 0%, transparent 60%)" }} />
+      <section className="relative overflow-hidden min-h-[75vh] md:min-h-0 flex flex-col md:block">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/images/buildings-web/_CWM6254-Edit-Edit.jpg"
+          alt="Multitrade solar-powered portable building with green fields"
+          className="absolute inset-0 w-full h-full object-cover object-[0%_40%] hidden md:block"
+        />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/images/buildings-web/_CWM6261-Edit.jpg"
+          alt="Multitrade solar-powered portable building with blue sky and green fields"
+          className="absolute inset-0 w-full h-full object-cover object-[center_25%] md:hidden"
+        />
+        <div className="absolute inset-0 hidden md:block" style={{ background: "linear-gradient(to right, rgba(15,27,61,0.95) 0%, rgba(15,27,61,0.8) 50%, rgba(15,27,61,0.5) 100%)" }} />
+        <div className="absolute inset-0 md:hidden" style={{ background: "linear-gradient(to bottom, rgba(15,27,61,0.7) 0%, rgba(15,27,61,0.3) 50%, rgba(15,27,61,0.6) 100%)" }} />
         <div className="absolute inset-0 opacity-5" style={{ backgroundImage: "linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)", backgroundSize: "60px 60px" }} />
 
-        <div className="relative z-10 max-w-7xl mx-auto px-4 py-16 md:py-24 lg:py-32">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 py-12 md:py-24 lg:py-32 flex flex-col justify-between md:block min-h-[inherit]">
           <div className="max-w-3xl">
             <div className="animate-hero">
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-400 text-xs font-medium mb-6">
+              <div className="hidden md:inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-400 text-xs font-medium mb-6">
                 NEW — Solar-Powered Facility Now Available
               </div>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white leading-tight tracking-tight">
-                Portable Buildings{" "}
+              <h1 className="text-3xl md:text-5xl lg:text-6xl font-extrabold text-white leading-tight tracking-tight">
+                Portable Buildings<br className="hidden md:block" />
                 <span className="gold-text">Built for</span> Industry
               </h1>
             </div>
-            <p className="animate-hero-delay text-lg text-gray-400 mt-6 leading-relaxed max-w-lg serif">
+            <p className="animate-hero-delay hidden md:block text-lg text-gray-400 mt-6 leading-relaxed max-w-lg serif">
               Queensland&apos;s largest privately owned fleet. 45+ years delivering
               hire, sale, installation, and custom manufacture of portable
               buildings for mining, construction, and civil projects.
             </p>
-            <div className="animate-hero-delay-2 flex flex-col sm:flex-row gap-3 mt-8">
+          </div>
+          <div className="max-w-3xl">
+            <div className="animate-hero-delay-2 flex flex-col sm:flex-row gap-3 mt-6 md:mt-8">
               <Link
                 href="/quote"
                 className="px-8 py-4 rounded-lg font-semibold text-gray-900 text-center bg-gold hover:brightness-110 transition-all flex items-center justify-center gap-2"
@@ -70,11 +87,13 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 py-8 md:py-0">
           <div className="grid grid-cols-2 md:grid-cols-4 md:divide-x divide-gray-200">
             {STATS.map((stat, i) => (
-              <div key={i} className="text-center py-4 md:py-8">
-                <div className="text-3xl md:text-4xl font-extrabold tracking-tight text-gray-900">{stat.value}</div>
+              <FadeIn key={i} delay={0.1 * i} className="text-center py-4 md:py-8">
+                <div className="text-3xl md:text-4xl font-extrabold tracking-tight text-gray-900">
+                  <CountUp value={stat.value} />
+                </div>
                 <div className="text-sm font-semibold text-gray-800 mt-1">{stat.label}</div>
                 <div className="text-xs text-gray-500">{stat.sub}</div>
-              </div>
+              </FadeIn>
             ))}
           </div>
         </div>
@@ -83,13 +102,13 @@ export default function HomePage() {
       {/* ─── WHY MULTITRADE ─── */}
       <section className="py-16 md:py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="text-center mb-12">
+          <FadeIn className="text-center mb-12">
             <div className="text-xs font-semibold tracking-widest uppercase gold-text mb-3">Why Multitrade</div>
             <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight">Built Different. Built to Last.</h2>
             <p className="text-gray-500 mt-3 max-w-xl mx-auto serif">
               We don&apos;t just hire buildings — we design, manufacture, and install them from our own facility in Gladstone.
             </p>
-          </div>
+          </FadeIn>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[
@@ -122,13 +141,15 @@ export default function HomePage() {
                 desc: "Design, manufacture, delivery, installation, connection, and ongoing maintenance — all in-house.",
               },
             ].map((item, i) => (
-              <div key={i} className="relative p-6 rounded-xl border border-gray-200 hover:border-gray-300 hover:shadow-lg hover:shadow-black/5 transition-all duration-300 group">
-                <div className="w-12 h-12 rounded-lg bg-gold/10 flex items-center justify-center mb-4 gold-text group-hover:bg-gold/20 transition-colors">
-                  {item.icon}
+              <FadeIn key={i} delay={0.1 * i}>
+                <div className="relative p-6 rounded-xl border border-gray-200 hover:border-gray-300 hover:shadow-lg hover:shadow-black/5 transition-all duration-300 group h-full">
+                  <div className="w-12 h-12 rounded-lg bg-gold/10 flex items-center justify-center mb-4 gold-text group-hover:bg-gold/20 transition-colors">
+                    {item.icon}
+                  </div>
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">{item.title}</h3>
+                  <p className="text-sm text-gray-500 leading-relaxed">{item.desc}</p>
                 </div>
-                <h3 className="text-lg font-bold text-gray-900 mb-2">{item.title}</h3>
-                <p className="text-sm text-gray-500 leading-relaxed">{item.desc}</p>
-              </div>
+              </FadeIn>
             ))}
           </div>
         </div>
@@ -137,17 +158,18 @@ export default function HomePage() {
       {/* ─── PRODUCTS ─── */}
       <section className="py-16 md:py-24 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="text-center mb-12">
+          <FadeIn className="text-center mb-12">
             <div className="text-xs font-semibold tracking-widest uppercase gold-text mb-3">Our Fleet</div>
             <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight">Portable Buildings for Every Need</h2>
             <p className="text-gray-500 mt-3 max-w-xl mx-auto serif">
               From single-module offices to multi-building complexes. Hire, buy, or have us custom-manufacture to your specifications.
             </p>
-          </div>
+          </FadeIn>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {PRODUCTS.map((product, i) => (
-              <Link key={i} href={product.href} className="product-card group relative bg-white rounded-xl overflow-hidden border border-gray-200 hover:border-gray-300 hover:shadow-xl hover:shadow-black/5 transition-all duration-500">
+              <FadeIn key={i} delay={0.1 * i}>
+              <Link href={product.href} className="product-card group relative bg-white rounded-xl overflow-hidden border border-gray-200 hover:border-gray-300 hover:shadow-xl hover:shadow-black/5 transition-all duration-500 block">
                 <div className="relative h-48 md:h-56 overflow-hidden">
                   <img src={product.img} alt={product.name} className="product-img w-full h-full object-cover transition-transform duration-700" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
@@ -170,6 +192,7 @@ export default function HomePage() {
                   </div>
                 </div>
               </Link>
+              </FadeIn>
             ))}
           </div>
         </div>
@@ -179,13 +202,13 @@ export default function HomePage() {
       {/* ─── SERVICES OVERVIEW ─── */}
       <section className="py-16 md:py-24 bg-white border-t border-gray-200">
         <div className="max-w-7xl mx-auto px-4">
-          <div className="text-center mb-12">
+          <FadeIn className="text-center mb-12">
             <div className="text-xs font-semibold tracking-widest uppercase gold-text mb-3">What We Do</div>
             <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight">More Than Just Hire</h2>
             <p className="text-gray-500 mt-3 max-w-xl mx-auto serif">
               Full-service portable building solutions — from a single office to a complete site setup.
             </p>
-          </div>
+          </FadeIn>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-4">
             {[
@@ -225,13 +248,15 @@ export default function HomePage() {
                 ),
               },
             ].map((service, i) => (
-              <Link key={i} href="/services" className="group p-5 rounded-xl border border-gray-200 hover:border-gold/40 hover:shadow-lg hover:shadow-gold/5 transition-all duration-300 text-center">
-                <div className="w-11 h-11 rounded-lg bg-gray-100 group-hover:bg-gold/10 flex items-center justify-center mx-auto mb-3 text-gray-600 group-hover:text-amber-600 transition-colors">
-                  {service.icon}
-                </div>
-                <h3 className="text-base font-bold text-gray-900 mb-1">{service.title}</h3>
-                <p className="text-xs text-gray-500 leading-relaxed">{service.desc}</p>
-              </Link>
+              <FadeIn key={i} delay={0.1 * i}>
+                <Link href="/services" className="group p-5 rounded-xl border border-gray-200 hover:border-gold/40 hover:shadow-lg hover:shadow-gold/5 transition-all duration-300 text-center block h-full">
+                  <div className="w-11 h-11 rounded-lg bg-gray-100 group-hover:bg-gold/10 flex items-center justify-center mx-auto mb-3 text-gray-600 group-hover:text-amber-600 transition-colors">
+                    {service.icon}
+                  </div>
+                  <h3 className="text-base font-bold text-gray-900 mb-1">{service.title}</h3>
+                  <p className="text-xs text-gray-500 leading-relaxed">{service.desc}</p>
+                </Link>
+              </FadeIn>
             ))}
           </div>
 
@@ -248,16 +273,16 @@ export default function HomePage() {
       <section className="relative overflow-hidden py-16 md:py-24" style={{ background: "linear-gradient(135deg, var(--navy) 0%, var(--navy-2) 60%, var(--navy-3) 100%)" }}>
         <div className="absolute inset-0 opacity-5" style={{ backgroundImage: "linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)", backgroundSize: "60px 60px" }} />
         <div className="relative z-10 max-w-7xl mx-auto px-4">
-          <div className="text-center mb-12">
+          <FadeIn className="text-center mb-12">
             <div className="text-xs font-semibold tracking-widest uppercase gold-text mb-3">Project Spotlight</div>
             <h2 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight">Built for Real Worksites</h2>
             <p className="text-white/50 mt-3 max-w-xl mx-auto serif">
               From remote mine sites to major infrastructure projects — we deliver complete site facility solutions.
             </p>
-          </div>
+          </FadeIn>
 
           <div className="grid lg:grid-cols-2 gap-8 items-center">
-            <div className="relative rounded-xl overflow-hidden shadow-2xl">
+            <FadeIn delay={0.1} className="relative rounded-xl overflow-hidden shadow-2xl">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src="/images/products/12x6m-complex/1.jpg"
@@ -270,9 +295,9 @@ export default function HomePage() {
                   MULTI-BUILDING COMPLEX
                 </div>
               </div>
-            </div>
+            </FadeIn>
 
-            <div className="space-y-6">
+            <FadeIn delay={0.25} className="space-y-6">
               <h3 className="text-2xl font-extrabold text-white">Site Office &amp; Crib Complex — Bowen Basin</h3>
               <p className="text-white/60 serif leading-relaxed">
                 A complete multi-module facility featuring interconnected site offices, crib rooms, and ablution buildings — all designed, manufactured, delivered, and installed by Multitrade. Connected via covered walkways with full electrical and plumbing services.
@@ -307,16 +332,16 @@ export default function HomePage() {
                   View Complexes
                 </Link>
               </div>
-            </div>
+            </FadeIn>
           </div>
         </div>
       </section>
 
       {/* ─── CLIENT LOGOS ─── */}
       <section className="bg-white py-12 overflow-hidden">
-        <div className="text-center mb-8">
+        <FadeIn className="text-center mb-8">
           <div className="text-xs font-semibold tracking-widest uppercase text-gray-400">Trusted by Industry Leaders</div>
-        </div>
+        </FadeIn>
         <div className="relative overflow-hidden">
           <div className="marquee-track">
             {[...Array(2)].map((_, set) =>

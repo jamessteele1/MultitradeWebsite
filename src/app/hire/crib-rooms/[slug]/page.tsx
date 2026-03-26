@@ -339,7 +339,7 @@ export default function CribRoomDetailPage({ params }: { params: { slug: string 
                   {product.standardInclusions.map((item, i) => (
                     <div key={i} className="flex items-center gap-2 text-sm text-gray-600">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D4A843" strokeWidth="2.5" strokeLinecap="round"><path d="M20 6L9 17l-5-5"/></svg>
-                      <span className=">{item}</span>
+                      <span>{item}</span>
                     </div>
                   ))}
                 </div>

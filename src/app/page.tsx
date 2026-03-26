@@ -381,6 +381,7 @@ export default function HomePage() {
                 { name: "Acciona", src: "/images/logos/clients/acciona.png" },
                 { name: "Aestec Services", src: "/images/logos/clients/aestec.png" },
                 { name: "Golding", src: "/images/logos/clients/golding.svg" },
+                { name: "Alpha HPA", src: "/images/logos/clients/alpha-hpa.png" },
               ].map((client, i) => (
                 <div key={`${set}-${i}`} className="flex-shrink-0 mx-8 md:mx-14 flex items-center justify-center h-20">
                   {/* eslint-disable-next-line @next/next/no-img-element */}

@@ -16,7 +16,7 @@ const config: Config = {
         "navy-3": "#253a6e",
       },
       fontFamily: {
-        display: ["Outfit", "sans-serif"],
+        display: ["Inter", "-apple-system", "BlinkMacSystemFont", "sans-serif"],
         body: ["Source Serif 4", "serif"],
       },
     },

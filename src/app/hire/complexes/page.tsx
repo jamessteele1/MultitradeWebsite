@@ -11,10 +11,10 @@ export const metadata: Metadata = {
 };
 
 const PRODUCTS = [
-    { name: "12x6m Complex", size: "12x6m (72sqm)", capacity: "Up to 24", desc: "Two 12x3m modules combined. Flexible layout — open plan, partitioned, or mixed use.", badge: "", img: "/images/products/12x6m-complex/1.jpg" },
-    { name: "12x9m Complex", size: "12x9m (108sqm)", capacity: "Up to 36", desc: "Three-module facility for major projects. Training rooms, offices, and break areas.", badge: "", img: "/images/products/12x6m-complex/2.jpg" },
-    { name: "12x12m Complex", size: "12x12m (144sqm)", capacity: "Up to 50+", desc: "Our largest standard configuration. Full camp facilities under one roof.", badge: "LARGEST", img: "/images/products/office_complex.jpg" },
-    { name: "Custom Complexes", size: "Custom", capacity: "Unlimited", desc: "Bespoke configurations beyond standard sizes. We design and build to your exact specifications.", badge: "CUSTOM", img: "/images/products/12x6m-complex/1.jpg" }
+    { id: "12x6m-complex", name: "12x6m Complex", size: "12x6m (72sqm)", capacity: "Up to 24", desc: "Two 12x3m modules combined. Flexible layout — open plan, partitioned, or mixed use.", badge: "", img: "/images/products/12x6m-complex/1.jpg" },
+    { id: "12x9m-complex", name: "12x9m Complex", size: "12x9m (108sqm)", capacity: "Up to 36", desc: "Three-module facility for major projects. Training rooms, offices, and break areas.", badge: "", img: "/images/products/12x6m-complex/2.jpg" },
+    { id: "12x12m-complex", name: "12x12m Complex", size: "12x12m (144sqm)", capacity: "Up to 50+", desc: "Our largest standard configuration. Full camp facilities under one roof.", badge: "LARGEST", img: "/images/products/office_complex.jpg" },
+    { id: "custom-complexes", name: "Custom Complexes", size: "Custom", capacity: "Unlimited", desc: "Bespoke configurations beyond standard sizes. We design and build to your exact specifications.", badge: "CUSTOM", img: "/images/products/12x6m-complex/1.jpg" }
 ];
 
 export default function ComplexesPage() {

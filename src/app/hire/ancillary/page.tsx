@@ -11,14 +11,14 @@ export const metadata: Metadata = {
 };
 
 const PRODUCTS = [
-    { name: "5000L Tank & Pump Combo", size: "Skid mounted", capacity: "5000L", desc: "Potable water tank with pump system on a skid-mounted frame for easy deployment.", badge: "", img: "/images/products/5000l-tank-pump/1.jpg" },
-    { name: "6000L Waste Tank", size: "6000L", capacity: "Waste", desc: "Large-capacity waste tank for ablution and crib room waste collection.", badge: "", img: "/images/products/6000l-waste-tank/1.jpg" },
-    { name: "4000L Waste Tank", size: "4000L", capacity: "Waste", desc: "Mid-size waste tank for smaller site requirements.", badge: "", img: "/images/products/4000l-waste-tank/1.jpg" },
-    { name: "12x3m Covered Deck", size: "12x3m", capacity: "Walkway", desc: "Weatherproof covered walkway and deck connecting building modules.", badge: "", img: "/images/products/12x3m-covered-deck/1.jpg" },
-    { name: "40ft Flat Rack", size: "40ft", capacity: "Heavy loads", desc: "Open-sided flat rack for oversized cargo and equipment transport.", badge: "", img: "/images/products/40ft-flat-rack/1.jpg" },
-    { name: "Stair & Landing", size: "Various", capacity: "Access", desc: "Portable stair and landing systems for building access and egress.", badge: "", img: "/images/products/stair-landing/1.jpg" },
-    { name: "Dual Hand Wash Station", size: "Compact", capacity: "2 users", desc: "Standalone hand wash station with hot and cold water for site hygiene.", badge: "", img: "/images/products/dual-hand-wash-station/1.jpg" },
-    { name: "Wash Trough", size: "Various", capacity: "Multiple", desc: "Heavy-duty wash trough for boot wash and equipment cleaning stations.", badge: "", img: "/images/products/wash-trough/1.jpg" }
+    { id: "5000l-tank-pump", name: "5000L Tank & Pump Combo", size: "Skid mounted", capacity: "5000L", desc: "Potable water tank with pump system on a skid-mounted frame for easy deployment.", badge: "", img: "/images/products/5000l-tank-pump/1.jpg" },
+    { id: "6000l-waste-tank", name: "6000L Waste Tank", size: "6000L", capacity: "Waste", desc: "Large-capacity waste tank for ablution and crib room waste collection.", badge: "", img: "/images/products/6000l-waste-tank/1.jpg" },
+    { id: "4000l-waste-tank", name: "4000L Waste Tank", size: "4000L", capacity: "Waste", desc: "Mid-size waste tank for smaller site requirements.", badge: "", img: "/images/products/4000l-waste-tank/1.jpg" },
+    { id: "12x3m-covered-deck", name: "12x3m Covered Deck", size: "12x3m", capacity: "Walkway", desc: "Weatherproof covered walkway and deck connecting building modules.", badge: "", img: "/images/products/12x3m-covered-deck/1.jpg" },
+    { id: "40ft-flat-rack", name: "40ft Flat Rack", size: "40ft", capacity: "Heavy loads", desc: "Open-sided flat rack for oversized cargo and equipment transport.", badge: "", img: "/images/products/40ft-flat-rack/1.jpg" },
+    { id: "stair-landing", name: "Stair & Landing", size: "Various", capacity: "Access", desc: "Portable stair and landing systems for building access and egress.", badge: "", img: "/images/products/stair-landing/1.jpg" },
+    { id: "dual-hand-wash-station", name: "Dual Hand Wash Station", size: "Compact", capacity: "2 users", desc: "Standalone hand wash station with hot and cold water for site hygiene.", badge: "", img: "/images/products/dual-hand-wash-station/1.jpg" },
+    { id: "wash-trough", name: "Wash Trough", size: "Various", capacity: "Multiple", desc: "Heavy-duty wash trough for boot wash and equipment cleaning stations.", badge: "", img: "/images/products/wash-trough/1.jpg" }
 ];
 
 export default function AncillaryPage() {

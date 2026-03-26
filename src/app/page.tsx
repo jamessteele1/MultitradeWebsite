@@ -4,6 +4,9 @@ import { FadeIn } from "@/components/FadeIn";
 import { CountUp } from "@/components/CountUp";
 import { ParallaxVideo } from "@/components/ParallaxVideo";
 import Link from "next/link";
+import dynamic from "next/dynamic";
+
+const ServiceAreaMaps = dynamic(() => import("@/components/ServiceAreaMaps"), { ssr: false });
 
 const PRODUCTS = [
   { name: "Crib Rooms", desc: "Fully equipped lunch rooms with kitchenettes, seating, and air conditioning.", sizes: "6x3m — 12x3m", href: "/hire/crib-rooms", img: "/images/products/12x3-crib-room/1.jpg" },
@@ -354,6 +357,25 @@ export default function HomePage() {
               </div>
             </FadeIn>
           </div>
+        </div>
+      </section>
+
+      {/* ─── WHERE WE OPERATE ─── */}
+      <section className="py-16 md:py-24 bg-gray-50 border-t border-gray-200">
+        <div className="max-w-7xl mx-auto px-4">
+          <FadeIn className="text-center mb-12">
+            <div className="text-xs font-semibold tracking-widest uppercase gold-text mb-3">Where We Operate</div>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight">Two Yards. One Mission.</h2>
+            <p className="text-gray-500 mt-3 max-w-xl mx-auto">
+              Fleet based from Gladstone HQ and our Emerald yard, with sales and delivery Australia-wide.
+            </p>
+          </FadeIn>
+
+          <FadeIn delay={0.1}>
+            <div className="bg-white rounded-xl border border-gray-200 p-6 md:p-8">
+              <ServiceAreaMaps />
+            </div>
+          </FadeIn>
         </div>
       </section>
 

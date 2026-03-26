@@ -85,3 +85,23 @@ html {
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+
+/* Leaflet custom styles */
+.custom-popup .leaflet-popup-content-wrapper {
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  padding: 4px 6px;
+}
+.custom-popup .leaflet-popup-tip {
+  box-shadow: none;
+}
+.city-label {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  font-family: "Inter", sans-serif;
+  font-size: 10px !important;
+  font-weight: 500;
+  color: #9ca3af !important;
+  padding: 0 !important;
+}

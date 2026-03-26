@@ -11,13 +11,13 @@ export const metadata: Metadata = {
 };
 
 const PRODUCTS = [
-    { name: "20ft Container", size: "20ft (6x2.4m)", capacity: "33 cubic m", desc: "Standard 20ft shipping container for secure on-site storage.", badge: "" },
-    { name: "20ft High Cube Container", size: "20ft HC", capacity: "37 cubic m", desc: "Extra height container for taller items and equipment storage.", badge: "" },
-    { name: "10ft Container", size: "10ft (3x2.4m)", capacity: "16 cubic m", desc: "Compact container for smaller sites with limited space.", badge: "" },
-    { name: "20ft Dangerous Goods Container", size: "20ft DG", capacity: "DG compliant", desc: "Side-opening dangerous goods storage meeting hazmat requirements.", badge: "DG RATED" },
-    { name: "10ft Dangerous Goods Container", size: "10ft DG", capacity: "DG compliant", desc: "Compact dangerous goods storage for smaller hazardous material quantities.", badge: "DG RATED" },
-    { name: "20ft Shelved Container", size: "20ft", capacity: "Organised", desc: "Container fitted with adjustable heavy-duty shelving for organised storage.", badge: "" },
-    { name: "20ft Riggers Container", size: "20ft", capacity: "Workshop", desc: "Purpose-built workshop with workbench, shelving, and power for rigging teams.", badge: "" }
+    { name: "20ft Container", size: "20ft (6x2.4m)", capacity: "33 cubic m", desc: "Standard 20ft shipping container for secure on-site storage.", badge: "", img: "/images/products/20ft-container/1.jpg" },
+    { name: "20ft High Cube Container", size: "20ft HC", capacity: "37 cubic m", desc: "Extra height container for taller items and equipment storage.", badge: "", img: "/images/products/20ft-container/1.jpg" },
+    { name: "10ft Container", size: "10ft (3x2.4m)", capacity: "16 cubic m", desc: "Compact container for smaller sites with limited space.", badge: "", img: "/images/products/10ft-container/1.jpg" },
+    { name: "20ft Dangerous Goods Container", size: "20ft DG", capacity: "DG compliant", desc: "Side-opening dangerous goods storage meeting hazmat requirements.", badge: "DG RATED", img: "/images/products/10ft-dg-container/1.jpg" },
+    { name: "10ft Dangerous Goods Container", size: "10ft DG", capacity: "DG compliant", desc: "Compact dangerous goods storage for smaller hazardous material quantities.", badge: "DG RATED", img: "/images/products/10ft-dg-container/1.jpg" },
+    { name: "20ft Shelved Container", size: "20ft", capacity: "Organised", desc: "Container fitted with adjustable heavy-duty shelving for organised storage.", badge: "", img: "/images/products/20ft-shelved-container/1.jpg" },
+    { name: "20ft Riggers Container", size: "20ft", capacity: "Workshop", desc: "Purpose-built workshop with workbench, shelving, and power for rigging teams.", badge: "", img: "/images/products/20ft-container-office/1.jpg" }
 ];
 
 export default function ContainersPage() {
@@ -42,13 +42,15 @@ export default function ContainersPage() {
         </div>
       </section>
 
-      <section className="py-12 md:py-16">
+      <section className="py-12 md:py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4">
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {PRODUCTS.map((p, i) => (
               <FadeIn key={i} delay={i * 0.06}>
                 <div className="group bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-xl hover:shadow-black/5 transition-all cursor-pointer">
                   <div className="relative h-48 bg-gray-100 overflow-hidden">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={p.img} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-10" />
                     {p.badge && <span className="absolute top-3 left-3 z-20 px-2.5 py-1 rounded-md text-xs font-bold text-gray-900 bg-gold">{p.badge}</span>}
                     <div className="absolute bottom-3 left-3 z-20 text-white">

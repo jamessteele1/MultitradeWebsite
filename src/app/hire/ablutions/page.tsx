@@ -11,13 +11,13 @@ export const metadata: Metadata = {
 };
 
 const PRODUCTS = [
-    { name: "6x3m Toilet Block", size: "6x3m", capacity: "High traffic", desc: "Large toilet block with multiple cubicles, urinals, and hand basins. Male/female configurations.", badge: "" },
-    { name: "3.6x2.4m Toilet", size: "3.6x2.4m", capacity: "Medium traffic", desc: "Compact toilet unit ideal for smaller sites and construction projects.", badge: "" },
-    { name: "Solar Toilet", size: "5.45x2.4m", capacity: "Medium traffic", desc: "Completely solar-powered with 2 pans and 2 hand basins. No utility connections required.", badge: "SOLAR" },
-    { name: "4.2x3m Shower Block", size: "4.2x3m", capacity: "Crew showers", desc: "Dedicated shower facility with hot water system for end-of-shift amenity.", badge: "" },
-    { name: "Chemical Toilet", size: "Portable", capacity: "Single use", desc: "Standalone chemical toilet for remote locations with no water connection.", badge: "" },
-    { name: "PWD Chemical Toilet", size: "Portable", capacity: "Accessible", desc: "Wheelchair accessible chemical toilet meeting PWD compliance requirements.", badge: "ACCESSIBLE" },
-    { name: "Bathhouse", size: "Custom", capacity: "Large crews", desc: "Change rooms with showers, double-stacked lockers, and bench seating.", badge: "" }
+    { name: "6x3m Toilet Block", size: "6x3m", capacity: "High traffic", desc: "Large toilet block with multiple cubicles, urinals, and hand basins. Male/female configurations.", badge: "", img: "/images/products/6x3-toilet/1.jpg" },
+    { name: "3.6x2.4m Toilet", size: "3.6x2.4m", capacity: "Medium traffic", desc: "Compact toilet unit ideal for smaller sites and construction projects.", badge: "", img: "/images/products/36x24-toilet/1.jpg" },
+    { name: "Solar Toilet", size: "5.45x2.4m", capacity: "Medium traffic", desc: "Completely solar-powered with 2 pans and 2 hand basins. No utility connections required.", badge: "SOLAR", img: "/images/products/solar-toilet-6x24/1.jpg" },
+    { name: "4.2x3m Shower Block", size: "4.2x3m", capacity: "Crew showers", desc: "Dedicated shower facility with hot water system for end-of-shift amenity.", badge: "", img: "/images/products/42x3m-ablution/1.jpg" },
+    { name: "Chemical Toilet", size: "Portable", capacity: "Single use", desc: "Standalone chemical toilet for remote locations with no water connection.", badge: "", img: "/images/products/Chemical Toilet.png" },
+    { name: "PWD Chemical Toilet", size: "Portable", capacity: "Accessible", desc: "Wheelchair accessible chemical toilet meeting PWD compliance requirements.", badge: "ACCESSIBLE", img: "/images/products/Chemical Toilet.png" },
+    { name: "Bathhouse", size: "Custom", capacity: "Large crews", desc: "Change rooms with showers, double-stacked lockers, and bench seating.", badge: "", img: "/images/products/42x3m-ablution/2.jpg" }
 ];
 
 export default function AblutionsPage() {
@@ -42,13 +42,15 @@ export default function AblutionsPage() {
         </div>
       </section>
 
-      <section className="py-12 md:py-16">
+      <section className="py-12 md:py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4">
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {PRODUCTS.map((p, i) => (
               <FadeIn key={i} delay={i * 0.06}>
                 <div className="group bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-xl hover:shadow-black/5 transition-all cursor-pointer">
                   <div className="relative h-48 bg-gray-100 overflow-hidden">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={p.img} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-10" />
                     {p.badge && <span className="absolute top-3 left-3 z-20 px-2.5 py-1 rounded-md text-xs font-bold text-gray-900 bg-gold">{p.badge}</span>}
                     <div className="absolute bottom-3 left-3 z-20 text-white">

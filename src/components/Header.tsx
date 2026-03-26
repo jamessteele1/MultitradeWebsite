@@ -34,34 +34,12 @@ const NAV_ITEMS = [
   { label: "Contact", href: "/contact" },
 ];
 
-/* Consolidated nav for mobile — fewer top-level items */
+/* Flat mobile nav — bold, simple, no sub-menus */
 const MOBILE_NAV_ITEMS = [
-  {
-    label: "Products",
-    href: "/hire",
-    children: [
-      { label: "Hire", href: "/hire" },
-      { label: "Buy", href: "/buy" },
-      { label: "Crib Rooms", href: "/hire/crib-rooms" },
-      { label: "Site Offices", href: "/hire/site-offices" },
-      { label: "Ablutions & Toilets", href: "/hire/ablutions" },
-      { label: "Complexes", href: "/hire/complexes" },
-      { label: "Containers", href: "/hire/containers" },
-      { label: "Ancillary", href: "/hire/ancillary" },
-      { label: "Solar Facility", href: "/solar-facility" },
-    ],
-  },
+  { label: "Hire", href: "/hire" },
+  { label: "Buy", href: "/buy" },
   { label: "Services", href: "/services" },
-  {
-    label: "Industries",
-    href: "/industries",
-    children: [
-      { label: "Mining & Resources", href: "/industries/mining" },
-      { label: "Construction", href: "/industries/construction" },
-      { label: "Oil & Gas", href: "/industries/oil-gas" },
-      { label: "Civil Infrastructure", href: "/industries/civil" },
-    ],
-  },
+  { label: "Industries", href: "/industries" },
   { label: "Scope Builder", href: "/scope-builder" },
   { label: "About", href: "/about" },
   { label: "Contact", href: "/contact" },
@@ -71,7 +49,7 @@ export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenu, setMobileMenu] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<number | null>(null);
-  const [mobileExpanded, setMobileExpanded] = useState<number | null>(null);
+
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 20);
@@ -167,60 +145,28 @@ export default function Header() {
       {/* Mobile Menu */}
       {mobileMenu && (
         <div className="lg:hidden bg-white border-t border-gray-100 shadow-xl max-h-[80vh] overflow-y-auto">
-          <div className="p-4 space-y-1">
+          <div className="px-6 py-2">
             {MOBILE_NAV_ITEMS.map((item, i) => (
-              <div key={i}>
-                {item.children ? (
-                  <>
-                    <button
-                      onClick={() => setMobileExpanded(mobileExpanded === i ? null : i)}
-                      className="w-full flex items-center justify-between px-4 py-4 text-gray-700 font-medium rounded-lg hover:bg-gray-50 min-h-[52px]"
-                    >
-                      {item.label}
-                      <svg
-                        width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"
-                        className={`transition-transform duration-200 ${mobileExpanded === i ? "rotate-180" : ""}`}
-                      >
-                        <polyline points="6 9 12 15 18 9"/>
-                      </svg>
-                    </button>
-                    {mobileExpanded === i && (
-                      <div className="ml-4 mb-2 space-y-0.5 border-l-2 border-gray-100 pl-3">
-                        {item.children.map((child, j) => (
-                          <Link
-                            key={j}
-                            href={child.href}
-                            className="block px-3 py-3 text-sm text-gray-600 rounded-lg hover:bg-gray-50 min-h-[48px] flex items-center"
-                            onClick={() => setMobileMenu(false)}
-                          >
-                            {child.label}
-                          </Link>
-                        ))}
-                      </div>
-                    )}
-                  </>
-                ) : (
-                  <Link
-                    href={item.href}
-                    className="block px-4 py-4 text-gray-700 font-medium rounded-lg hover:bg-gray-50 min-h-[52px] flex items-center"
-                    onClick={() => setMobileMenu(false)}
-                  >
-                    {item.label}
-                  </Link>
-                )}
-              </div>
+              <Link
+                key={i}
+                href={item.href}
+                className="block py-4 text-2xl font-bold text-gray-900 border-b border-gray-100 last:border-0"
+                onClick={() => setMobileMenu(false)}
+              >
+                {item.label}
+              </Link>
             ))}
-            <div className="pt-3 border-t border-gray-100 mt-3 space-y-2">
+            <div className="pt-5 pb-2 space-y-3">
               <a
                 href="tel:0749792333"
-                className="flex items-center justify-center gap-2 w-full px-5 py-4 rounded-lg text-sm font-semibold text-gray-700 border border-gray-300 min-h-[56px]"
+                className="flex items-center justify-center gap-2 w-full py-4 rounded-lg text-base font-semibold text-gray-700 border border-gray-300 min-h-[56px]"
               >
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6A19.79 19.79 0 012.12 4.18 2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.362 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.338 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
                 (07) 4979 2333
               </a>
               <Link
                 href="/quote"
-                className="block w-full text-center px-5 py-4 rounded-lg text-sm font-semibold text-gray-900 bg-gold min-h-[56px] flex items-center justify-center"
+                className="flex items-center justify-center w-full py-4 rounded-lg text-base font-semibold text-gray-900 bg-gold min-h-[56px]"
                 onClick={() => setMobileMenu(false)}
               >
                 Get a Free Quote

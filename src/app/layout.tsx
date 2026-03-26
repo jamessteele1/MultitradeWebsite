@@ -39,7 +39,7 @@ export default function RootLayout({
     <html lang="en-AU">
       <head>
         <link
-          href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap"
           rel="stylesheet"
         />
       </head>

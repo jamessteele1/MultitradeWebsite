@@ -323,7 +323,7 @@ export default function SiteOfficeDetailPage({ params }: { params: { slug: strin
               </div>
               <h1 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight leading-tight">{product.name}</h1>
               <p className="text-white/50 mt-1 text-sm font-medium">{product.tagline}</p>
-              <p className="text-white/60 mt-4 serif text-sm leading-relaxed max-w-lg">{product.description}</p>
+              <p className="text-white/60 mt-4 text-sm leading-relaxed max-w-lg">{product.description}</p>
               <div className="flex flex-wrap items-center gap-3 mt-6">
                 <Link href="/quote" className="px-6 py-3 rounded-lg font-semibold text-gray-900 bg-gold hover:brightness-110 transition-all flex items-center gap-2">
                   Get a Quote <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
@@ -363,7 +363,7 @@ export default function SiteOfficeDetailPage({ params }: { params: { slug: strin
                   </div>
                   <div>
                     <h3 className="font-bold text-gray-900 text-sm">{f.title}</h3>
-                    <p className="text-sm text-gray-500 mt-1 serif leading-relaxed">{f.desc}</p>
+                    <p className="text-sm text-gray-500 mt-1 leading-relaxed">{f.desc}</p>
                   </div>
                 </div>
               </div>
@@ -383,7 +383,7 @@ export default function SiteOfficeDetailPage({ params }: { params: { slug: strin
                 {Object.entries(product.specifications).map(([key, val], i) => (
                   <div key={i} className={`flex items-start gap-3 px-5 py-3 ${i % 2 === 0 ? "bg-white" : "bg-gray-50/50"}`}>
                     <span className="text-sm font-semibold text-gray-700 w-36 flex-shrink-0">{key}</span>
-                    <span className="text-sm text-gray-600 serif">{val}</span>
+                    <span className="text-sm text-gray-600">{val}</span>
                   </div>
                 ))}
               </div>
@@ -396,7 +396,7 @@ export default function SiteOfficeDetailPage({ params }: { params: { slug: strin
                   {product.standardInclusions.map((item, i) => (
                     <div key={i} className="flex items-center gap-2 text-sm text-gray-600">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D4A843" strokeWidth="2.5" strokeLinecap="round"><path d="M20 6L9 17l-5-5"/></svg>
-                      <span className="serif">{item}</span>
+                      <span className=">{item}</span>
                     </div>
                   ))}
                 </div>
@@ -462,7 +462,7 @@ export default function SiteOfficeDetailPage({ params }: { params: { slug: strin
           <h2 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight">
             Need the {product.name} on Your Site?
           </h2>
-          <p className="text-white/50 mt-2 serif">
+          <p className="text-white/50 mt-2">
             Tell us your location, crew size, and project timeline. We&apos;ll have a quote back to you within 24 hours.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-6">

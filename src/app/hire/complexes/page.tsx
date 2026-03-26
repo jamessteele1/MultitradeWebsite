@@ -35,7 +35,7 @@ export default function ComplexesPage() {
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-tight">
             Building <span className="gold-text">Complexes</span>
           </h1>
-          <p className="text-white/60 mt-4 max-w-lg text-base leading-relaxed serif">Multi-module complexes combining offices, crib rooms, and amenities under one footprint. From 72sqm to 144sqm+, designed for large-scale operations requiring comprehensive site facilities.</p>
+          <p className="text-white/60 mt-4 max-w-lg text-base leading-relaxed">Multi-module complexes combining offices, crib rooms, and amenities under one footprint. From 72sqm to 144sqm+, designed for large-scale operations requiring comprehensive site facilities.</p>
         </div>
       </section>
 
@@ -56,7 +56,7 @@ export default function ComplexesPage() {
                     </div>
                   </div>
                   <div className="p-4">
-                    <p className="text-sm text-gray-600 mb-3 serif">{p.desc}</p>
+                    <p className="text-sm text-gray-600 mb-3">{p.desc}</p>
                     <div className="grid grid-cols-2 gap-2.5">
                       <Link href={`/hire/complexes/${p.id}`} className="text-center py-2.5 rounded-lg text-sm font-semibold text-gray-700 border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all flex items-center justify-center gap-1.5">
                         See Details

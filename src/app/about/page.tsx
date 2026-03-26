@@ -33,7 +33,7 @@ export default function AboutPage() {
           <h1 className="text-4xl md:text-5xl font-extrabold text-white tracking-tight leading-tight max-w-3xl">
             45+ Years Building for <span className="gold-text">Queensland&apos;s Industries</span>
           </h1>
-          <p className="text-white/60 mt-5 text-lg max-w-lg serif">
+          <p className="text-white/60 mt-5 text-lg max-w-lg">
             The Multitrade Group has a long history in Central Queensland. Decades of experience have allowed us to position ourselves as the market leader in portable building solutions.
           </p>
           <div className="flex gap-8 md:gap-12 mt-10">
@@ -53,11 +53,11 @@ export default function AboutPage() {
               <div className="absolute top-6 left-8 text-gray-200 opacity-40 text-6xl font-serif">&ldquo;</div>
               <div className="relative z-10 pl-4 pt-6">
                 <h2 className="text-2xl font-extrabold text-gray-900 tracking-tight mb-6">A Word from Our Director</h2>
-                <div className="space-y-4 text-gray-600 serif">
+                <div className="space-y-4 text-gray-600">
                   <p>Our focus at Multitrade Group has always been on building long-term relationships with our valued clients. We are proud that over time, these have developed through mutual trust, expertise and our proven success.</p>
                   <p>We understand the needs and drivers of our clients in the mining, oil & gas, infrastructure and government sectors — and we deliver on their expectations.</p>
                 </div>
-                <p className="mt-6 text-lg font-semibold italic text-gray-900 serif">&ldquo;We are strong believers in the continuity of our services and we guarantee our professional services from inception to completion.&rdquo;</p>
+                <p className="mt-6 text-lg font-semibold italic text-gray-900">&ldquo;We are strong believers in the continuity of our services and we guarantee our professional services from inception to completion.&rdquo;</p>
                 <div className="mt-4 font-bold text-gray-900">Anthony Groen-Int-Woud</div>
                 <div className="text-sm text-gray-500">Managing Director</div>
               </div>
@@ -83,7 +83,7 @@ export default function AboutPage() {
                   <div className="w-px bg-gray-300 flex-shrink-0 mt-2" style={{ height: "calc(100% + 1rem)" }} />
                   <div className="pb-2">
                     <h3 className="font-bold text-gray-900">{t.title}</h3>
-                    <p className="text-sm text-gray-600 mt-1 serif">{t.desc}</p>
+                    <p className="text-sm text-gray-600 mt-1">{t.desc}</p>
                   </div>
                 </div>
               </FadeIn>
@@ -99,7 +99,7 @@ export default function AboutPage() {
           <FadeIn className="text-center mb-12">
             <div className="text-xs font-semibold tracking-widest uppercase gold-text mb-3">What Drives Us</div>
             <h2 className="text-3xl font-extrabold text-white tracking-tight">Vision & Values</h2>
-            <p className="text-white/50 mt-3 max-w-2xl mx-auto serif">To be the industry leader in the hire & sale of portable building projects, achieving sustainable growth through the quality of our people and the strength of our relationships.</p>
+            <p className="text-white/50 mt-3 max-w-2xl mx-auto">To be the industry leader in the hire & sale of portable building projects, achieving sustainable growth through the quality of our people and the strength of our relationships.</p>
           </FadeIn>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {[
@@ -124,7 +124,7 @@ export default function AboutPage() {
         <div className="max-w-4xl mx-auto px-4 text-center">
           <FadeIn>
             <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 tracking-tight">Your Next Project Starts With Us</h2>
-            <p className="text-gray-500 mt-2 serif">45+ years of experience. Queensland&apos;s largest privately owned fleet.</p>
+            <p className="text-gray-500 mt-2">45+ years of experience. Queensland&apos;s largest privately owned fleet.</p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-6">
               <a href="/quote" className="px-8 py-3.5 rounded-lg font-semibold text-gray-900 bg-gold hover:brightness-110 transition-all">Get a Free Quote</a>
               <a href="tel:0749792333" className="px-8 py-3.5 rounded-lg font-semibold text-gray-700 border border-gray-300 hover:bg-gray-50 transition-all">(07) 4979 2333</a>

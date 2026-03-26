@@ -53,7 +53,7 @@ export default function HomePage() {
                 <span className="gold-text">Built for</span> Industry
               </h1>
             </div>
-            <p className="animate-hero-delay hidden md:block text-lg text-gray-400 mt-6 leading-relaxed max-w-lg serif">
+            <p className="animate-hero-delay hidden md:block text-lg text-gray-400 mt-6 leading-relaxed max-w-lg">
               Queensland&apos;s largest privately owned fleet. 45+ years delivering
               hire, sale, installation, and custom manufacture of portable
               buildings for mining, construction, and civil projects.
@@ -104,7 +104,7 @@ export default function HomePage() {
           <FadeIn className="text-center mb-12">
             <div className="text-xs font-semibold tracking-widest uppercase gold-text mb-3">Why Multitrade</div>
             <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight">Built Different. Built to Last.</h2>
-            <p className="text-gray-500 mt-3 max-w-xl mx-auto serif">
+            <p className="text-gray-500 mt-3 max-w-xl mx-auto">
               We don&apos;t just hire buildings — we design, manufacture, and install them from our own facility in Gladstone.
             </p>
           </FadeIn>
@@ -160,7 +160,7 @@ export default function HomePage() {
           <FadeIn className="text-center mb-12">
             <div className="text-xs font-semibold tracking-widest uppercase gold-text mb-3">Our Fleet</div>
             <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight">Portable Buildings for Every Need</h2>
-            <p className="text-gray-500 mt-3 max-w-xl mx-auto serif">
+            <p className="text-gray-500 mt-3 max-w-xl mx-auto">
               From single-module offices to multi-building complexes. Hire, buy, or have us custom-manufacture to your specifications.
             </p>
           </FadeIn>
@@ -225,7 +225,7 @@ export default function HomePage() {
           <FadeIn className="text-center mb-12">
             <div className="text-xs font-semibold tracking-widest uppercase gold-text mb-3">What We Do</div>
             <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight">More Than Just Hire</h2>
-            <p className="text-gray-500 mt-3 max-w-xl mx-auto serif">
+            <p className="text-gray-500 mt-3 max-w-xl mx-auto">
               Full-service portable building solutions — from a single office to a complete site setup.
             </p>
           </FadeIn>
@@ -296,7 +296,7 @@ export default function HomePage() {
           <FadeIn className="text-center mb-12">
             <div className="text-xs font-semibold tracking-widest uppercase gold-text mb-3">Project Spotlight</div>
             <h2 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight">Built for Real Worksites</h2>
-            <p className="text-white/50 mt-3 max-w-xl mx-auto serif">
+            <p className="text-white/50 mt-3 max-w-xl mx-auto">
               From remote mine sites to major infrastructure projects — we deliver complete site facility solutions.
             </p>
           </FadeIn>
@@ -319,7 +319,7 @@ export default function HomePage() {
 
             <FadeIn delay={0.25} className="space-y-6">
               <h3 className="text-2xl font-extrabold text-white">Site Office &amp; Crib Complex — Bowen Basin</h3>
-              <p className="text-white/60 serif leading-relaxed">
+              <p className="text-white/60 leading-relaxed">
                 A complete multi-module facility featuring interconnected site offices, crib rooms, and ablution buildings — all designed, manufactured, delivered, and installed by Multitrade. Connected via covered walkways with full electrical and plumbing services.
               </p>
 

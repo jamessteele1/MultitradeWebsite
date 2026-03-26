@@ -16,7 +16,7 @@ export default function QuotePage() {
         <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 50% 0%,rgba(212,168,67,.12) 0%,transparent 50%)" }} />
         <div className="relative z-10 max-w-3xl mx-auto px-4 py-14 md:py-20 text-center">
           <h1 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight">Get a <span className="gold-text">Free Quote</span></h1>
-          <p className="text-white/60 mt-4 serif">Tell us about your project. Our team responds within 2 business hours during business days.</p>
+          <p className="text-white/60 mt-4">Tell us about your project. Our team responds within 2 business hours during business days.</p>
         </div>
       </section>
 
@@ -28,7 +28,7 @@ export default function QuotePage() {
                 <div className="text-center py-12">
                   <div className="text-5xl mb-4">✓</div>
                   <h2 className="text-2xl font-bold text-gray-900 mb-2">Quote Request Received</h2>
-                  <p className="text-gray-500 serif">Thank you! Our team will be in touch within 2 business hours.</p>
+                  <p className="text-gray-500">Thank you! Our team will be in touch within 2 business hours.</p>
                   <p className="text-sm text-gray-400 mt-4">Need it sooner? Call us directly:</p>
                   <a href="tel:0749792333" className="text-lg font-bold gold-text hover:underline">(07) 4979 2333</a>
                 </div>

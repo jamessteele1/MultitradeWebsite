@@ -33,7 +33,7 @@ export default function GladstonePage() {
               <h1 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight leading-tight">
                 Portable Building Hire in <span className="gold-text">Gladstone</span>
               </h1>
-              <p className="text-white/60 mt-4 text-lg max-w-lg serif">
+              <p className="text-white/60 mt-4 text-lg max-w-lg">
                 Our headquarters and primary manufacturing facility. Same-day availability on most fleet units. Servicing Gladstone, Curtis Island, Boyne Island, Calliope, and surrounds since 1980.
               </p>
               <div className="flex gap-3 mt-8">
@@ -102,7 +102,7 @@ export default function GladstonePage() {
       <section className="bg-gray-50 border-y border-gray-200 py-10">
         <div className="max-w-4xl mx-auto px-4">
           <h2 className="text-xl font-bold text-gray-900 mb-4">Portable Building Hire Gladstone QLD</h2>
-          <div className="text-sm text-gray-600 space-y-3 serif">
+          <div className="text-sm text-gray-600 space-y-3">
             <p>Multitrade Building Hire has been Gladstone&apos;s trusted portable building provider since 1980. From our headquarters at 6 South Trees Drive, we offer the region&apos;s most comprehensive range of transportable buildings — crib rooms, site offices, ablution blocks, complexes, containers, and Queensland&apos;s first solar-powered portable facility.</p>
             <p>Strategically located in Gladstone&apos;s industrial hub, we&apos;re minutes from Curtis Island LNG operations, the Gladstone Ports precinct, and major alumina and aluminium facilities. Our in-house manufacturing capability means custom portable buildings are designed, built, and compliance-tested without leaving the yard.</p>
           </div>
@@ -114,7 +114,7 @@ export default function GladstonePage() {
         <div className="max-w-4xl mx-auto px-4 text-center">
           <FadeIn>
             <h2 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight">Get a Quote — Gladstone Area</h2>
-            <p className="text-white/50 mt-2 serif">Local team, local knowledge. We respond within 2 hours during business hours.</p>
+            <p className="text-white/50 mt-2">Local team, local knowledge. We respond within 2 hours during business hours.</p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-6">
               <Link href="/quote" className="px-8 py-3.5 rounded-lg font-semibold text-gray-900 bg-gold hover:brightness-110">Get Your Gladstone Quote</Link>
               <a href="tel:0749792333" className="px-8 py-3.5 rounded-lg font-semibold text-white border border-white/20 hover:bg-white/5">(07) 4979 2333</a>

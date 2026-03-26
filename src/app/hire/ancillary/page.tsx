@@ -39,7 +39,7 @@ export default function AncillaryPage() {
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-tight">
             Ancillary <span className="gold-text">Equipment</span>
           </h1>
-          <p className="text-white/60 mt-4 max-w-lg text-base leading-relaxed serif">Supporting equipment and accessories to complete your site setup. Tanks, pumps, covered walkways, flat racks, stairs and landings, and hand wash stations.</p>
+          <p className="text-white/60 mt-4 max-w-lg text-base leading-relaxed">Supporting equipment and accessories to complete your site setup. Tanks, pumps, covered walkways, flat racks, stairs and landings, and hand wash stations.</p>
         </div>
       </section>
 
@@ -60,7 +60,7 @@ export default function AncillaryPage() {
                     </div>
                   </div>
                   <div className="p-4">
-                    <p className="text-sm text-gray-600 mb-3 serif">{p.desc}</p>
+                    <p className="text-sm text-gray-600 mb-3">{p.desc}</p>
                     <div className="grid grid-cols-2 gap-2.5">
                       <Link href={`/hire/ancillary/${p.id}`} className="text-center py-2.5 rounded-lg text-sm font-semibold text-gray-700 border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all flex items-center justify-center gap-1.5">
                         See Details

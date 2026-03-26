@@ -43,7 +43,7 @@ export default function Footer() {
         <div className="flex flex-col md:flex-row items-center justify-between gap-5 pb-10 mb-10 border-b border-white/10">
           <div>
             <h3 className="text-xl font-extrabold text-white tracking-tight">Ready to Get Started?</h3>
-            <p className="text-white/40 text-sm mt-1 serif">Queensland&apos;s largest privately owned portable building fleet.</p>
+            <p className="text-white/40 text-sm mt-1">Queensland&apos;s largest privately owned portable building fleet.</p>
           </div>
           <div className="flex flex-col sm:flex-row gap-3">
             <Link href="/quote" className="px-7 py-3 rounded-lg font-semibold text-sm text-gray-900 bg-gold hover:brightness-110 transition-all text-center">

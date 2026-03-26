@@ -4,7 +4,7 @@ export default function ScopeIntro() {
       <h2 className="text-2xl font-bold text-gray-900 tracking-tight">
         Build a preliminary scope in under 3 minutes
       </h2>
-      <p className="text-gray-600 mt-3 serif">
+      <p className="text-gray-600 mt-3">
         Tell us what you need in plain English and we&apos;ll build a preliminary portable
         building recommendation. The flow is AI-assisted, grounded in MBH products and
         business rules, and designed to ask only the most relevant follow-up questions.

@@ -43,7 +43,7 @@ export default function OilgasPage() {
             <h1 className="text-4xl md:text-5xl font-extrabold text-white tracking-tight leading-tight">
               Portable Buildings for <span className="gold-text">Oil & Gas</span>
             </h1>
-            <p className="text-white/60 mt-5 text-lg leading-relaxed serif">Compliant portable buildings for LNG plants, pipeline projects, CSG operations, and processing facilities. Trusted by Santos GLNG, QGC, Arrow Energy, and major EPC contractors across Queensland.</p>
+            <p className="text-white/60 mt-5 text-lg leading-relaxed">Compliant portable buildings for LNG plants, pipeline projects, CSG operations, and processing facilities. Trusted by Santos GLNG, QGC, Arrow Energy, and major EPC contractors across Queensland.</p>
             <div className="flex flex-col sm:flex-row gap-3 mt-8">
               <Link href="/quote" className="px-8 py-4 rounded-lg font-semibold text-gray-900 bg-gold hover:brightness-110 text-center">Get a Quote →</Link>
               <a href="tel:0749792333" className="px-8 py-4 rounded-lg font-semibold text-white border border-white/20 hover:bg-white/5 text-center">(07) 4979 2333</a>

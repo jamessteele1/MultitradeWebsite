@@ -40,7 +40,7 @@ export default function CribRoomsPage() {
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-tight">
               Crib Rooms & <span className="gold-text">Lunch Rooms</span>
             </h1>
-            <p className="text-white/60 mt-4 max-w-lg serif">
+            <p className="text-white/60 mt-4 max-w-lg">
               Comfortable, fully equipped break facilities for crews of 5 to 2,000. Standard, self-contained, and mobile options. Queensland&apos;s largest privately owned fleet.
             </p>
           </div>
@@ -67,7 +67,7 @@ export default function CribRoomsPage() {
                     {p.selfContained && <span className="px-2 py-1 rounded-md bg-amber-50 text-xs font-medium text-amber-700 border border-amber-200">Self-Contained</span>}
                     {p.mobile && <span className="px-2 py-1 rounded-md bg-green-50 text-xs font-medium text-green-700 border border-green-200">Towable</span>}
                   </div>
-                  <p className="text-sm text-gray-600 mb-3 serif">{p.description}</p>
+                  <p className="text-sm text-gray-600 mb-3">{p.description}</p>
                   <div className="grid grid-cols-2 gap-1.5 mb-4">
                     {p.features.map((f, j) => (
                       <div key={j} className="flex items-center gap-1.5 text-xs text-gray-600">
@@ -95,7 +95,7 @@ export default function CribRoomsPage() {
       <section className="bg-gray-50 border-y border-gray-200 py-10">
         <div className="max-w-4xl mx-auto px-4">
           <h2 className="text-xl font-bold text-gray-900 mb-4">Portable Crib Room Hire — Central Queensland</h2>
-          <div className="text-sm text-gray-600 space-y-3 serif">
+          <div className="text-sm text-gray-600 space-y-3">
             <p>Multitrade Building Hire provides comfortable, fully equipped crib rooms and lunch rooms for mining, construction, and industrial worksites across Queensland. With standard inclusions like kitchen sinks, instant boiling water units, and pie warmers, our units meet even the toughest Tier 1 site requirements.</p>
             <p>Our crib room hire fleet ranges from compact 6x3m units for small crews through to 12x3m facilities seating up to 20 workers. For remote sites without connections, our self-contained and mobile crib rooms come with onboard generators, water tanks, and waste systems.</p>
             <p>With yards in Gladstone and Emerald and over 45 years of experience, we deliver across the Bowen Basin, Central Highlands, Surat Basin, and throughout Central Queensland. All units are mine-spec compliant and backed by our zero lost time injury safety record.</p>

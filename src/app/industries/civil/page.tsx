@@ -43,7 +43,7 @@ export default function CivilPage() {
             <h1 className="text-4xl md:text-5xl font-extrabold text-white tracking-tight leading-tight">
               Portable Buildings for <span className="gold-text">Civil Infrastructure</span>
             </h1>
-            <p className="text-white/60 mt-5 text-lg leading-relaxed serif">Temporary facilities for road construction, bridge projects, water infrastructure, and major civil works. Our mobile crib rooms and towable offices go where the work goes — perfect for linear projects.</p>
+            <p className="text-white/60 mt-5 text-lg leading-relaxed">Temporary facilities for road construction, bridge projects, water infrastructure, and major civil works. Our mobile crib rooms and towable offices go where the work goes — perfect for linear projects.</p>
             <div className="flex flex-col sm:flex-row gap-3 mt-8">
               <Link href="/quote" className="px-8 py-4 rounded-lg font-semibold text-gray-900 bg-gold hover:brightness-110 text-center">Get a Quote →</Link>
               <a href="tel:0749792333" className="px-8 py-4 rounded-lg font-semibold text-white border border-white/20 hover:bg-white/5 text-center">(07) 4979 2333</a>

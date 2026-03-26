@@ -17,7 +17,6 @@ const config: Config = {
       },
       fontFamily: {
         display: ["Inter", "-apple-system", "BlinkMacSystemFont", "sans-serif"],
-        body: ["Source Serif 4", "serif"],
       },
     },
   },

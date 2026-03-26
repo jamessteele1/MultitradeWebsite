@@ -16,9 +16,6 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-.serif {
-  font-family: "Source Serif 4", serif;
-}
 
 .gold-text {
   color: var(--gold);

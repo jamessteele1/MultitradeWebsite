@@ -148,22 +148,34 @@ export default function Footer() {
 
         {/* Certifications & Bottom bar */}
         <div className="pt-6 border-t border-white/5 space-y-6">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             {[
-              { std: "ISO 9001:2015", label: "Quality Management" },
-              { std: "ISO 14001:2015", label: "Environmental Management" },
-              { std: "ISO 45001:2018", label: "Health & Safety Management" },
+              { std: "ISO 9001", year: "2015", label: "Quality Management", color: "#3B82F6" },
+              { std: "ISO 14001", year: "2015", label: "Environmental Management", color: "#22C55E" },
+              { std: "ISO 45001", year: "2018", label: "Health & Safety", color: "#F59E0B" },
             ].map((c) => (
-              <div key={c.std} className="flex items-center gap-3 px-4 py-3 rounded-xl border border-white/10 bg-white/[0.03]">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="/images/logos/iso-logo.png"
-                  alt="ISO"
-                  className="w-10 h-10 flex-shrink-0 brightness-0 invert opacity-50"
-                />
+              <div key={c.std} className="flex items-center gap-4 px-5 py-4 rounded-xl border border-gray-200 bg-white">
+                {/* Circular badge */}
+                <div className="relative flex-shrink-0 w-16 h-16">
+                  <svg viewBox="0 0 80 80" className="w-full h-full">
+                    {/* Outer ring */}
+                    <circle cx="40" cy="40" r="37" fill="none" stroke={c.color} strokeWidth="2.5" opacity="0.5" />
+                    <circle cx="40" cy="40" r="33" fill="none" stroke={c.color} strokeWidth="1" opacity="0.3" />
+                    {/* Inner fill */}
+                    <circle cx="40" cy="40" r="30" fill={c.color} fillOpacity="0.1" />
+                    {/* Checkmark */}
+                    <path d="M28 40 L36 48 L52 32" fill="none" stroke={c.color} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" opacity="0.8" />
+                    {/* "CERTIFIED" arc text at top */}
+                    <path id={`arc-${c.std}`} d="M12,40 a28,28 0 0,1 56,0" fill="none" />
+                    <text fontSize="6" fill="#374151" fillOpacity="0.4" fontWeight="600" letterSpacing="2">
+                      <textPath href={`#arc-${c.std}`} startOffset="50%" textAnchor="middle">CERTIFIED</textPath>
+                    </text>
+                  </svg>
+                </div>
                 <div>
-                  <div className="text-sm font-bold text-white/60">{c.std}</div>
-                  <div className="text-xs text-white/30">{c.label}</div>
+                  <div className="text-base font-extrabold text-gray-800 tracking-tight">{c.std}<span className="text-gray-400 font-semibold">:{c.year}</span></div>
+                  <div className="text-xs text-gray-500 mt-0.5">{c.label}</div>
+                  <div className="text-[10px] text-gray-300 mt-1 uppercase tracking-wider">Certified Company</div>
                 </div>
               </div>
             ))}

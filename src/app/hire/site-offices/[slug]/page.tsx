@@ -41,7 +41,7 @@ const PRODUCTS: Record<string, Product> = {
       "Data": "Cat6 data cabling provisions",
     },
     standardInclusions: [
-      "6–8 × Office Desks", "6–8 × Office Chairs", "2 × Filing Cabinets",
+      "5–6 × Office Desks", "5–6 × Office Chairs", "2 × Filing Cabinets",
       "LED Lighting Throughout", "2 × Reverse Cycle Air Conditioners",
       "Lockable Switchboard with RCD", "GPOs at Each Workstation",
       "1 × First Aid Kit", "1 × Fire Extinguisher", "1 × Fire Blanket",

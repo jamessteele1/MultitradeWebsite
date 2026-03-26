@@ -128,8 +128,8 @@ export default function SolarFacilityPage() {
             <div className="relative rounded-xl overflow-hidden shadow-2xl shadow-black/30">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="/images/products/solar-facility/1.jpg"
-                alt="Multitrade Solar Facility"
+                src="/images/products/solar-facility/hero-exterior.jpg"
+                alt="Multitrade Solar Facility — exterior view"
                 className="w-full h-64 md:h-80 object-cover"
               />
               <div className="absolute top-3 right-3 px-2.5 py-1 rounded-md text-xs font-bold bg-green-500/90 text-white backdrop-blur-sm">
@@ -256,24 +256,53 @@ export default function SolarFacilityPage() {
         </div>
       </section>
 
-      {/* Gallery */}
+      {/* Video */}
       <section className="py-10 md:py-14">
         <div className="max-w-7xl mx-auto px-4">
+          <h2 className="text-xl font-bold text-gray-900 mb-5">
+            See It in Action
+          </h2>
+          <div className="rounded-xl overflow-hidden border border-gray-200 shadow-lg">
+            <video
+              controls
+              playsInline
+              preload="metadata"
+              poster="/images/products/solar-facility/aerial-solar-panels.jpg"
+              className="w-full"
+            >
+              <source
+                src="/images/products/solar-facility/video.mp4"
+                type="video/mp4"
+              />
+            </video>
+          </div>
+        </div>
+      </section>
+
+      {/* Gallery */}
+      <section className="py-10 md:py-14 bg-gray-50 border-y border-gray-200">
+        <div className="max-w-7xl mx-auto px-4">
           <h2 className="text-xl font-bold text-gray-900 mb-5">Gallery</h2>
-          <div className="grid sm:grid-cols-2 gap-4">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {[
-              "/images/products/solar-facility/1.jpg",
-              "/images/products/solar-facility/2.jpg",
+              { src: "/images/products/solar-facility/aerial-solar-panels.jpg", alt: "Aerial view showing solar panels on roof" },
+              { src: "/images/products/solar-facility/exterior-elevated.jpg", alt: "Elevated exterior view with green fields" },
+              { src: "/images/products/solar-facility/exterior-side.jpg", alt: "Side exterior showing water tanks" },
+              { src: "/images/products/solar-facility/battery-bay.jpg", alt: "Battery bay with RedEarth storage and AC unit" },
+              { src: "/images/products/solar-facility/redearth-battery.jpg", alt: "RedEarth lithium phosphate battery close-up" },
+              { src: "/images/products/solar-facility/interior-kitchen.jpg", alt: "Interior kitchen and dining area" },
+              { src: "/images/products/solar-facility/interior-dining.jpg", alt: "Interior dining space with seating" },
+              { src: "/images/products/solar-facility/hero-exterior.jpg", alt: "Full exterior view with blue sky" },
             ].map((img, i) => (
               <div
                 key={i}
-                className="rounded-xl overflow-hidden border border-gray-200"
+                className={`rounded-xl overflow-hidden border border-gray-200 bg-white ${i === 0 ? "sm:col-span-2 lg:col-span-2" : ""}`}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src={img}
-                  alt={`Solar Facility - View ${i + 1}`}
-                  className="w-full h-56 md:h-72 object-cover hover:scale-105 transition-transform duration-700"
+                  src={img.src}
+                  alt={img.alt}
+                  className={`w-full object-cover hover:scale-105 transition-transform duration-700 ${i === 0 ? "h-56 md:h-80" : "h-56 md:h-64"}`}
                 />
               </div>
             ))}

@@ -14,7 +14,7 @@ const MINING_PRODUCTS = [
   { name: "Mobile Crib Room", cat: "Self-Contained", size: "12.5x3m", img: "/images/products/12x3-mobile-crib-room/1.jpg", desc: "Fully towable with 11.2kVA generator and onboard water.", badge: "POPULAR" },
   { name: "12x3m Site Office", cat: "Offices", size: "12x3m", img: "/images/products/12x3-office/1.jpg", desc: "Professional workspace for project management and administration." },
   { name: "6x3m Toilet Block", cat: "Ablutions", size: "6x3m", img: "/images/products/6x3-toilet/1.jpg", desc: "Mine-spec compliant toilet facilities with male/female configurations." },
-  { name: "Solar Facility", cat: "Solar", size: "Custom", img: "/images/products/solar-facility/1.jpg", desc: "Off-grid solar power. 8.85kW PV with 32.8kWh lithium battery.", badge: "NEW" },
+  { name: "Solar Facility", cat: "Solar", size: "Custom", img: "/images/products/solar-facility/1.jpg", desc: "Off-grid solar power. 20.5kW battery storage, upgradable to 40+ kW.", badge: "NEW" },
   { name: "12x12m Complex", cat: "Complexes", size: "12x12m", img: "/images/products/12x6m-complex/1.jpg", desc: "Multi-module complex combining offices, crib rooms, and ablutions." },
 ];
 
@@ -72,7 +72,7 @@ export default function MiningPage() {
             {[
               { t: "Mine-Spec Compliant", d: "Every building meets Tier 1 requirements. Full electrical compliance and safety systems. C-RES BMA certified." },
               { t: "Rapid Deployment", d: "Fleet ready in Gladstone and Emerald yards. Typically 3-5 days to site across the Bowen Basin." },
-              { t: "Off-Grid Solar", d: "Solar Facility with 8.85kW PV and 32.8kWh lithium battery. Eliminate generator costs." },
+              { t: "Off-Grid Solar", d: "Solar Facility with 20.5kW lithium phosphate battery, upgradable to 40+ kW. Eliminate generator costs." },
               { t: "Full Project Support", d: "Design, manufacture, transport, install, maintain. One point of contact from inception to completion." },
             ].map((item, i) => (
               <FadeIn key={i} delay={i * 0.08}>

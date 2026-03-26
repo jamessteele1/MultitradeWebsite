@@ -380,11 +380,13 @@ export default function HomePage() {
       </section>
 
       {/* ─── CLIENT LOGOS ─── */}
-      <section className="bg-white py-12 overflow-hidden">
-        <FadeIn className="text-center mb-8">
+      <section className="bg-white pt-10 pb-6 overflow-hidden">
+        <FadeIn className="text-center mb-6">
           <div className="text-xs font-semibold tracking-widest uppercase text-gray-400">Trusted by Industry Leaders</div>
         </FadeIn>
         <div className="relative overflow-hidden">
+          <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
+          <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
           <div className="marquee-track">
             {[...Array(2)].map((_, set) =>
               [
@@ -406,9 +408,9 @@ export default function HomePage() {
                 { name: "McCosker", src: "/images/logos/clients/mccosker.png" },
                 { name: "Aestec Services", src: "/images/logos/clients/aestec.png" },
               ].map((client, i) => (
-                <div key={`${set}-${i}`} className="flex-shrink-0 mx-8 md:mx-14 flex items-center justify-center h-20">
+                <div key={`${set}-${i}`} className="flex-shrink-0 mx-6 md:mx-12 flex items-center justify-center h-14 md:h-16">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={client.src} alt={client.name} className="h-12 md:h-16 w-auto max-w-[160px] object-contain opacity-40 grayscale hover:opacity-70 hover:grayscale-0 transition-all duration-300" />
+                  <img src={client.src} alt={client.name} className="h-10 md:h-14 w-auto max-w-[140px] object-contain opacity-40 grayscale hover:opacity-70 hover:grayscale-0 transition-all duration-300" />
                 </div>
               ))
             )}

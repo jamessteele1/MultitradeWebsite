@@ -146,42 +146,32 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* ISO Certifications */}
-        <div className="flex flex-wrap items-center justify-center gap-4 py-6 border-t border-white/10">
-          <div className="flex items-center gap-2.5 px-4 py-2 rounded-lg border border-white/10 bg-white/5">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#D4A843" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-            <div>
-              <div className="text-xs font-semibold text-white/70">ISO 9001</div>
-              <div className="text-[10px] text-white/30">Quality Management</div>
+        {/* Certifications & Bottom bar */}
+        <div className="pt-6 border-t border-white/5 space-y-4">
+          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
+            {[
+              { std: "ISO 9001:2015", label: "Quality" },
+              { std: "ISO 14001:2015", label: "Environmental" },
+              { std: "ISO 45001:2018", label: "Health & Safety" },
+            ].map((c) => (
+              <span key={c.std} className="inline-flex items-center gap-1.5 text-[11px] text-white/30">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-white/20"><path d="M9 12l2 2 4-4"/><circle cx="12" cy="12" r="10"/></svg>
+                <span className="text-white/40 font-medium">{c.std}</span>
+                {c.label}
+              </span>
+            ))}
+          </div>
+          <div className="flex flex-col md:flex-row items-center justify-between gap-3">
+            <div className="text-xs text-white/20">
+              © {new Date().getFullYear()} Multitrade Building Hire Pty Ltd. All rights reserved.
             </div>
-          </div>
-          <div className="flex items-center gap-2.5 px-4 py-2 rounded-lg border border-white/10 bg-white/5">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#D4A843" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 22l1-1h3l9-9"/><path d="M3 21v-3l9-9"/><circle cx="16" cy="6" r="4"/><path d="M19 3l2 2"/></svg>
-            <div>
-              <div className="text-xs font-semibold text-white/70">ISO 14001</div>
-              <div className="text-[10px] text-white/30">Environmental</div>
+            <div className="flex items-center gap-4 text-xs text-white/20">
+              <span>Part of the Multitrade Group</span>
+              <span className="hidden sm:inline">·</span>
+              <span className="hidden sm:inline">C-RES BMA Certified</span>
+              <span className="hidden sm:inline">·</span>
+              <span className="hidden sm:inline">0 LTIs in 5+ Years</span>
             </div>
-          </div>
-          <div className="flex items-center gap-2.5 px-4 py-2 rounded-lg border border-white/10 bg-white/5">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#D4A843" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 12l2 2 4-4"/><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-            <div>
-              <div className="text-xs font-semibold text-white/70">ISO 45001</div>
-              <div className="text-[10px] text-white/30">Health & Safety</div>
-            </div>
-          </div>
-        </div>
-
-        {/* Bottom bar */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-3 pt-6 border-t border-white/5">
-          <div className="text-xs text-white/20">
-            © {new Date().getFullYear()} Multitrade Building Hire Pty Ltd. All rights reserved.
-          </div>
-          <div className="flex items-center gap-4 text-xs text-white/20">
-            <span>Part of the Multitrade Group</span>
-            <span className="hidden sm:inline">·</span>
-            <span className="hidden sm:inline">C-RES BMA Certified</span>
-            <span className="hidden sm:inline">·</span>
-            <span className="hidden sm:inline">0 LTIs in 5+ Years</span>
           </div>
         </div>
       </div>

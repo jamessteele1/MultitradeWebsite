@@ -2,6 +2,7 @@ import Header from "@/components/Header";
 import MobileCTA from "@/components/MobileCTA";
 import Link from "next/link";
 import { FadeIn } from "@/components/FadeIn";
+import CatalogueDownload from "@/components/CatalogueDownload";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -347,6 +348,9 @@ export default function BuyIndexPage() {
           </div>
         </div>
       </section>
+
+      {/* Catalogue Download */}
+      <CatalogueDownload />
 
       {/* SEO Content */}
       <section className="bg-gray-50 border-y border-gray-200 py-10">

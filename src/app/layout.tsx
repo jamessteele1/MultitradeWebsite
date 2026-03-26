@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Footer from "@/components/Footer";
+import { QuoteCartProvider } from "@/context/QuoteCartContext";
+import QuoteCartPanel from "@/components/QuoteCartPanel";
 
 export const metadata: Metadata = {
   title: {
@@ -44,8 +46,11 @@ export default function RootLayout({
         />
       </head>
       <body className="font-display antialiased">
-        {children}
-        <Footer />
+        <QuoteCartProvider>
+          {children}
+          <Footer />
+          <QuoteCartPanel />
+        </QuoteCartProvider>
       </body>
     </html>
   );

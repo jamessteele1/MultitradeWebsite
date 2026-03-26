@@ -1,5 +1,6 @@
 import Header from "@/components/Header";
 import MobileCTA from "@/components/MobileCTA";
+import AddToQuoteButton from "@/components/AddToQuoteButton";
 import Link from "next/link";
 import { FadeIn } from "@/components/FadeIn";
 
@@ -65,7 +66,7 @@ export default function ContainersPage() {
                         See Details
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
                       </Link>
-                      <Link href="/quote" className="text-center py-2.5 rounded-lg text-sm font-semibold text-gray-900 bg-gold hover:brightness-110 transition-all">Get a Quote</Link>
+                      <AddToQuoteButton compact product={{ id: p.id, name: p.name, size: p.size, img: p.img, category: "containers" }} />
                     </div>
                   </div>
                 </div>

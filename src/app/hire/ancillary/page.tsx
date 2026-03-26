@@ -11,14 +11,14 @@ export const metadata: Metadata = {
 };
 
 const PRODUCTS = [
-    { name: "5000L Tank & Pump Combo", size: "Skid mounted", capacity: "5000L", desc: "Potable water tank with pump system on a skid-mounted frame for easy deployment.", badge: "" },
-    { name: "6000L Waste Tank", size: "6000L", capacity: "Waste", desc: "Large-capacity waste tank for ablution and crib room waste collection.", badge: "" },
-    { name: "4000L Waste Tank", size: "4000L", capacity: "Waste", desc: "Mid-size waste tank for smaller site requirements.", badge: "" },
-    { name: "12x3m Covered Deck", size: "12x3m", capacity: "Walkway", desc: "Weatherproof covered walkway and deck connecting building modules.", badge: "" },
-    { name: "40ft Flat Rack", size: "40ft", capacity: "Heavy loads", desc: "Open-sided flat rack for oversized cargo and equipment transport.", badge: "" },
-    { name: "Stair & Landing", size: "Various", capacity: "Access", desc: "Portable stair and landing systems for building access and egress.", badge: "" },
-    { name: "Dual Hand Wash Station", size: "Compact", capacity: "2 users", desc: "Standalone hand wash station with hot and cold water for site hygiene.", badge: "" },
-    { name: "Wash Trough", size: "Various", capacity: "Multiple", desc: "Heavy-duty wash trough for boot wash and equipment cleaning stations.", badge: "" }
+    { name: "5000L Tank & Pump Combo", size: "Skid mounted", capacity: "5000L", desc: "Potable water tank with pump system on a skid-mounted frame for easy deployment.", badge: "", img: "/images/products/5000l-tank-pump/1.jpg" },
+    { name: "6000L Waste Tank", size: "6000L", capacity: "Waste", desc: "Large-capacity waste tank for ablution and crib room waste collection.", badge: "", img: "/images/products/6000l-waste-tank/1.jpg" },
+    { name: "4000L Waste Tank", size: "4000L", capacity: "Waste", desc: "Mid-size waste tank for smaller site requirements.", badge: "", img: "/images/products/4000l-waste-tank/1.jpg" },
+    { name: "12x3m Covered Deck", size: "12x3m", capacity: "Walkway", desc: "Weatherproof covered walkway and deck connecting building modules.", badge: "", img: "/images/products/12x3m-covered-deck/1.jpg" },
+    { name: "40ft Flat Rack", size: "40ft", capacity: "Heavy loads", desc: "Open-sided flat rack for oversized cargo and equipment transport.", badge: "", img: "/images/products/40ft-flat-rack/1.jpg" },
+    { name: "Stair & Landing", size: "Various", capacity: "Access", desc: "Portable stair and landing systems for building access and egress.", badge: "", img: "/images/products/stair-landing/1.jpg" },
+    { name: "Dual Hand Wash Station", size: "Compact", capacity: "2 users", desc: "Standalone hand wash station with hot and cold water for site hygiene.", badge: "", img: "/images/products/dual-hand-wash-station/1.jpg" },
+    { name: "Wash Trough", size: "Various", capacity: "Multiple", desc: "Heavy-duty wash trough for boot wash and equipment cleaning stations.", badge: "", img: "/images/products/wash-trough/1.jpg" }
 ];
 
 export default function AncillaryPage() {
@@ -43,13 +43,15 @@ export default function AncillaryPage() {
         </div>
       </section>
 
-      <section className="py-12 md:py-16">
+      <section className="py-12 md:py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4">
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {PRODUCTS.map((p, i) => (
               <FadeIn key={i} delay={i * 0.06}>
                 <div className="group bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-xl hover:shadow-black/5 transition-all cursor-pointer">
                   <div className="relative h-48 bg-gray-100 overflow-hidden">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={p.img} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-10" />
                     {p.badge && <span className="absolute top-3 left-3 z-20 px-2.5 py-1 rounded-md text-xs font-bold text-gray-900 bg-gold">{p.badge}</span>}
                     <div className="absolute bottom-3 left-3 z-20 text-white">
@@ -59,9 +61,12 @@ export default function AncillaryPage() {
                   </div>
                   <div className="p-4">
                     <p className="text-sm text-gray-600 mb-3 serif">{p.desc}</p>
-                    <div className="flex items-center gap-3">
-                      <Link href="/quote" className="flex-1 text-center py-2 rounded-lg text-sm font-semibold text-gray-900 bg-gold hover:brightness-110">Get a Quote</Link>
-                      <span className="text-sm font-semibold text-gray-500">Details →</span>
+                    <div className="grid grid-cols-2 gap-2.5">
+                      <Link href={`/hire/ancillary/${p.id}`} className="text-center py-2.5 rounded-lg text-sm font-semibold text-gray-700 border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all flex items-center justify-center gap-1.5">
+                        See Details
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                      </Link>
+                      <Link href="/quote" className="text-center py-2.5 rounded-lg text-sm font-semibold text-gray-900 bg-gold hover:brightness-110 transition-all">Get a Quote</Link>
                     </div>
                   </div>
                 </div>

@@ -48,8 +48,8 @@ export default function HomePage() {
               <div className="hidden md:inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-400 text-xs font-medium mb-6">
                 NEW — Solar-Powered Facility Now Available
               </div>
-              <h1 className="text-3xl md:text-5xl lg:text-6xl font-extrabold text-white leading-tight tracking-tight">
-                Portable Buildings{" "}<br className="hidden md:block" />
+              <h1 className="text-3xl md:text-5xl lg:text-6xl font-extrabold text-white leading-tight tracking-tight text-center md:text-left">
+                Portable Buildings{" "}<br />
                 <span className="gold-text">Built for</span> Industry
               </h1>
             </div>

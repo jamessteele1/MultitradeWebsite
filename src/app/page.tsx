@@ -2,6 +2,7 @@ import Header from "@/components/Header";
 import MobileCTA from "@/components/MobileCTA";
 import { FadeIn } from "@/components/FadeIn";
 import { CountUp } from "@/components/CountUp";
+import { ParallaxVideo } from "@/components/ParallaxVideo";
 import Link from "next/link";
 
 const PRODUCTS = [
@@ -27,11 +28,9 @@ export default function HomePage() {
 
       {/* ─── HERO ─── */}
       <section className="relative overflow-hidden min-h-[75vh] md:min-h-0 flex flex-col md:block">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src="/images/buildings-web/_CWM6254-Edit-Edit.jpg"
-          alt="Multitrade solar-powered portable building with green fields"
-          className="absolute inset-0 w-full h-full object-cover object-[0%_40%] hidden md:block"
+        <ParallaxVideo
+          src="/images/hero-video.mp4"
+          className="hidden md:block"
         />
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img

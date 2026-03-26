@@ -29,7 +29,14 @@ html {
   scroll-behavior: smooth;
 }
 
-/* Product card hover */
+/* Product card hover — lift + shadow + image zoom */
+.product-card {
+  transition: transform 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease;
+}
+.product-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 20px 40px rgba(0,0,0,0.08), 0 8px 16px rgba(0,0,0,0.04);
+}
 .product-card:hover .product-img {
   transform: scale(1.08);
 }

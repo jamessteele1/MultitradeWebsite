@@ -399,10 +399,11 @@ export default function SolarFacilityPage() {
               controls
               playsInline
               preload="metadata"
+              poster="/images/products/solar-facility/video-poster.jpg"
               className="w-full"
             >
               <source
-                src="/images/products/solar-facility/video.mp4#t=20"
+                src="/images/products/solar-facility/video.mp4"
                 type="video/mp4"
               />
             </video>

@@ -19,7 +19,18 @@ const NAV_ITEMS = [
     ],
   },
   { label: "Buy", href: "/buy" },
-  { label: "Services", href: "/services" },
+  {
+    label: "Install",
+    href: "/install",
+    children: [
+      { label: "Project Management", href: "/install#project-management" },
+      { label: "Portable Building Installation", href: "/install#installation" },
+      { label: "Civil Works", href: "/install#civil-works" },
+      { label: "Building Services", href: "/install#building-services" },
+      { label: "Transport & Logistics", href: "/install#transport" },
+      { label: "Custom Manufacturing", href: "/install#manufacturing" },
+    ],
+  },
   {
     label: "Industries",
     href: "/industries",
@@ -39,7 +50,7 @@ const NAV_ITEMS = [
 const MOBILE_NAV_ITEMS = [
   { label: "Hire", href: "/hire" },
   { label: "Buy", href: "/buy" },
-  { label: "Services", href: "/services" },
+  { label: "Install", href: "/install" },
   { label: "Industries", href: "/industries" },
   { label: "Scope Builder", href: "/scope-builder" },
   { label: "About", href: "/about" },

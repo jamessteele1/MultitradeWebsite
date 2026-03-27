@@ -272,7 +272,7 @@ export default function HomePage() {
               },
             ].map((service, i) => (
               <FadeIn key={i} delay={0.1 * i}>
-                <Link href="/services" className="group p-5 rounded-xl border border-gray-200 hover:border-gold/40 hover:shadow-lg hover:shadow-gold/5 transition-all duration-300 text-center block h-full">
+                <Link href="/install" className="group p-5 rounded-xl border border-gray-200 hover:border-gold/40 hover:shadow-lg hover:shadow-gold/5 transition-all duration-300 text-center block h-full">
                   <div className="w-11 h-11 rounded-lg bg-gray-100 group-hover:bg-gold/10 flex items-center justify-center mx-auto mb-3 text-gray-600 group-hover:text-amber-600 transition-colors">
                     {service.icon}
                   </div>
@@ -284,7 +284,7 @@ export default function HomePage() {
           </div>
 
           <div className="text-center mt-8">
-            <Link href="/services" className="inline-flex items-center gap-2 text-sm font-semibold gold-text hover:brightness-110 transition-all">
+            <Link href="/install" className="inline-flex items-center gap-2 text-sm font-semibold gold-text hover:brightness-110 transition-all">
               Learn more about our services
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
             </Link>

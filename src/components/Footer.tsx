@@ -26,7 +26,7 @@ const LOCATION_LINKS = [
 
 const COMPANY_LINKS = [
   { label: "About Us", href: "/about" },
-  { label: "Services", href: "/services" },
+  { label: "Install", href: "/install" },
   { label: "Solar Facility", href: "/solar-facility" },
   { label: "Contact", href: "/contact" },
   { label: "Get a Quote", href: "/quote" },

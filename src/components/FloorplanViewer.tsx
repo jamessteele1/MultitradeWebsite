@@ -23,6 +23,10 @@ const FLOORPLAN_MAP: Record<string, string> = {
   "3-6x2-4m-toilet": "/images/floorplans/previews/SQF-4384-01-A-3.6x2.4m-Toilet-Floor-Plan.jpg",
   "solar-toilet": "/images/floorplans/previews/SQF-4525-01-A-5.45x2.4m-Solar-Toilet-Floor-Plan.jpg",
   "4-2x3m-shower-block": "/images/floorplans/previews/PJF-654-1106-01-4.2x3.0m-Ablution-Floor-Plan-V2.0.jpg",
+
+  // Solar Facility
+  "solar-facility-12x335": "/images/floorplans/previews/SQF-4586-01-A-12.0x3.35m-Solar-Facility-Floor-Plan.jpg",
+  "solar-facility-9x335": "/images/floorplans/previews/SQF-4641-01-A-9.0x3.35m-Solar-Facility-Floor-Plan.jpg",
 };
 
 export default function FloorplanViewer({ productId }: { productId: string }) {

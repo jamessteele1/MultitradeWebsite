@@ -19,7 +19,7 @@ const PRODUCTS: Record<string, Product> = {
     badge: "POPULAR",
     selfContained: false,
     mobile: false,
-    images: ["/images/products/12x3-office/1.jpg"],
+    images: ["/images/products/12x3-office/1.jpg", "/images/products/12x3-office/2.jpg", "/images/products/12x3-office/3.jpg"],
     floorPlan: "/images/floorplans/SQF-4453-01-A - 12.0x3.0m Office - Floor Plan.pdf",
     description: "The 12.0m × 3.0m Office is a spacious portable workspace designed to accommodate up to 6 workstations. With a full electrical and data fit-out, dual air conditioning units, and commercial-grade construction, this unit is the go-to solution for project management teams on mining, construction, and industrial sites across Central Queensland.",
     features: [
@@ -57,7 +57,7 @@ const PRODUCTS: Record<string, Product> = {
     badge: null,
     selfContained: false,
     mobile: false,
-    images: ["/images/products/6x3-office/1.jpg"],
+    images: ["/images/products/6x3-office/1.jpg", "/images/products/6x3-office/2.jpg", "/images/products/6x3-office/3.jpg"],
     floorPlan: "/images/floorplans/SQF-4370-01-A - 6.0x3.0m Office - Floor Plan.pdf",
     description: "The 6.0m × 3.0m Office is a versatile mid-size portable workspace ideal for site supervisors, project coordinators, and small management teams. Fully climate-controlled with a complete electrical fit-out, this unit delivers a professional and comfortable working environment on any worksite.",
     features: [
@@ -94,7 +94,7 @@ const PRODUCTS: Record<string, Product> = {
     badge: null,
     selfContained: false,
     mobile: false,
-    images: ["/images/products/6x3m-supervisor-office/1.jpg", "/images/products/6x3m-supervisor-office/2.jpg"],
+    images: ["/images/products/6x3m-supervisor-office/1.jpg", "/images/products/6x3m-supervisor-office/2.jpg", "/images/products/6x3m-supervisor-office/3.jpg"],
     floorPlan: "/images/floorplans/SQF-1805-01-B - 6.0x3.0m Supervisors Office - Floor Plan.pdf",
     description: "The 6.0m × 3.0m Supervisor Office is purpose-built for site supervisors and project leaders who need a dedicated, private workspace. Featuring ergonomic furniture, ample storage, and a professional fit-out, this unit provides the focus and functionality required for effective site management.",
     features: [
@@ -131,7 +131,7 @@ const PRODUCTS: Record<string, Product> = {
     badge: null,
     selfContained: false,
     mobile: false,
-    images: ["/images/products/3x3-office/1.jpg"],
+    images: ["/images/products/3x3-office/1.jpg", "/images/products/3x3-office/2.jpg"],
     floorPlan: "/images/floorplans/SQF-4495-01-A - 3.0x3.0m Office - Floor Plan.pdf",
     description: "The 3.0m × 3.0m Office is a compact, single-person portable workspace perfect for gatekeepers, security staff, and weighbridge operators. Despite its small footprint, this unit is fully equipped with air conditioning, a complete electrical fit-out, and durable construction to handle the rigours of remote worksites.",
     features: [
@@ -202,7 +202,7 @@ const PRODUCTS: Record<string, Product> = {
     badge: null,
     selfContained: false,
     mobile: false,
-    images: ["/images/products/gatehouse/1.jpg"],
+    images: ["/images/products/gatehouse/1.jpg", "/images/products/gatehouse/2.jpg", "/images/products/gatehouse/3.jpg", "/images/products/gatehouse/4.jpg"],
     floorPlan: "/images/floorplans/PJF-764-1416-01-2 - 10.5x3.4m Gatehouse - Floor Plan.pdf",
     description: "The 10.5m × 3.4m Gatehouse is a purpose-built security and access control building designed for site entry points. Featuring large windows for maximum visibility, a service counter, and space for access control systems, this unit ensures safe and controlled site access on mining, construction, and industrial projects.",
     features: [

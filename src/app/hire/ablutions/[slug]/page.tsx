@@ -17,7 +17,7 @@ const PRODUCTS: Record<string, Product> = {
     size: "600cm × 300cm",
     capacity: "High traffic",
     badge: null,
-    images: ["/images/products/6x3-toilet/1.jpg", "/images/products/6x3-toilet/2.jpg", "/images/products/6x3-toilet/3.jpg"],
+    images: ["/images/products/6x3-toilet/1.jpg", "/images/products/6x3-toilet/2.jpg", "/images/products/6x3-toilet/3.jpg", "/images/products/6x3-toilet/4.jpg", "/images/products/6x3-toilet/5.jpg", "/images/products/6x3-toilet/6.jpg", "/images/products/6x3-toilet/7.jpg"],
     floorPlan: "/images/floorplans/MBH-6030-TBL-01-A - 6.0x3.0m Toilet Block.pdf",
     description: "The 6.0m × 3.0m Toilet Block is a high-capacity portable amenity designed for busy worksites with large crews. Featuring separate male and female configurations with multiple cubicles, urinals, and hand basins, this unit handles heavy foot traffic while maintaining hygiene standards. Built on a 75mm steel frame with Colorbond cladding, it's tough enough for mining and construction environments.",
     features: [
@@ -52,7 +52,7 @@ const PRODUCTS: Record<string, Product> = {
     size: "360cm × 240cm",
     capacity: "Medium traffic",
     badge: null,
-    images: ["/images/products/36x24-toilet/1.jpg"],
+    images: ["/images/products/36x24-toilet/1.jpg", "/images/products/36x24-toilet/2.jpg", "/images/products/36x24-toilet/3.jpg"],
     floorPlan: "/images/floorplans/MBH-3624-TBL-01-A - 3.6x2.4m Toilet Block.pdf",
     description: "The 3.6m × 2.4m Toilet is a compact, self-contained amenity unit ideal for smaller construction sites, events, and temporary worksites. Despite its compact footprint, this unit provides comfortable toilet and hand washing facilities with separate cubicles. Built to the same heavy-duty standards as our larger units.",
     features: [
@@ -120,7 +120,7 @@ const PRODUCTS: Record<string, Product> = {
     size: "420cm × 300cm",
     capacity: "Crew showers",
     badge: null,
-    images: ["/images/products/42x3m-ablution/1.jpg", "/images/products/42x3m-ablution/2.jpg"],
+    images: ["/images/products/42x3m-ablution/1.jpg", "/images/products/42x3m-ablution/2.jpg", "/images/products/42x3m-ablution/3.jpg"],
     floorPlan: "/images/floorplans/PJF-654-1106-01- 4.2x3.0m Ablution - Floor Plan V2.0.pdf",
     description: "The 4.2m × 3.0m Shower Block is a dedicated shower amenity designed for end-of-shift use by construction, mining, and industrial crews. Featuring multiple shower cubicles with hot water system, this unit provides a clean and comfortable bathing facility. Fibreglass-lined wet areas and stainless steel fixtures ensure durability and easy maintenance.",
     features: [
@@ -215,7 +215,7 @@ const PRODUCTS: Record<string, Product> = {
     size: "Custom",
     capacity: "Large crews",
     badge: null,
-    images: ["/images/products/42x3m-ablution/2.jpg"],
+    images: ["/images/products/42x3m-ablution/2.jpg", "/images/products/42x3m-ablution/bathhouse-1.jpg", "/images/products/42x3m-ablution/bathhouse-2.jpg"],
     floorPlan: null,
     description: "The Bathhouse is a comprehensive change room and shower facility designed for large mining and construction crews. Featuring multiple showers, change rooms with double-stacked lockers, and bench seating, this unit provides a complete end-of-shift amenity. Custom-built to suit your crew size and site requirements, the Bathhouse can be configured as a standalone unit or integrated into a larger camp complex.",
     features: [

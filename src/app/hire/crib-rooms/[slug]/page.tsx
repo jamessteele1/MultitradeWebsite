@@ -19,7 +19,7 @@ const PRODUCTS: Record<string, Product> = {
     badge: "POPULAR",
     selfContained: false,
     mobile: false,
-    images: ["/images/products/12x3-crib-room/1.jpg", "/images/products/12x3-crib-room/2.jpg"],
+    images: ["/images/products/12x3-crib-room/1.jpg", "/images/products/12x3-crib-room/2.jpg", "/images/products/12x3-crib-room/3.jpg", "/images/products/12x3-crib-room/4.jpg"],
     floorPlan: "/images/floorplans/MBH-12030-CRB-01-A-12x3m-Crib-Room.pdf",
     description: "The 12.0m × 3.0m Crib Room is a spacious, fully equipped portable break facility designed to comfortably accommodate up to 30 workers. Built on a 75mm steel frame with Colorbond steel cladding and fully insulated walls and ceiling, this unit delivers a cool, comfortable environment even in Central Queensland's toughest conditions.",
     features: [
@@ -55,7 +55,7 @@ const PRODUCTS: Record<string, Product> = {
     badge: null,
     selfContained: false,
     mobile: false,
-    images: ["/images/products/6x3-crib/1.jpg"],
+    images: ["/images/products/6x3-crib/1.jpg", "/images/products/6x3-crib/2.jpg", "/images/products/6x3-crib/3.jpg"],
     floorPlan: "/images/floorplans/MBH-6030-CRB-01-A-6x3m-Crib-Room.pdf",    description: "The 6.0m × 3.0m Crib Room is a versatile and durable portable break facility designed to provide a comfortable space for up to 15 workers. Equipped with climate control, a convenient kitchenette, and robust steel frame construction, this unit is ideal for smaller crews on mining, construction, and industrial sites.",
     features: [
       { title: "Climate Controlled", desc: "1 × 3.9kW TECO reverse cycle air conditioner for year-round comfort in any conditions." },
@@ -90,7 +90,7 @@ const PRODUCTS: Record<string, Product> = {
     badge: "SELF-CONTAINED",
     selfContained: true,
     mobile: true,
-    images: ["/images/products/12x3-mobile-crib-room/1.jpg", "/images/products/12x3-mobile-crib-room/2.jpg"],
+    images: ["/images/products/12x3-mobile-crib-room/1.jpg", "/images/products/12x3-mobile-crib-room/2.jpg", "/images/products/12x3-mobile-crib-room/3.jpg", "/images/products/12x3-mobile-crib-room/4.jpg", "/images/products/12x3-mobile-crib-room/5.jpg", "/images/products/12x3-mobile-crib-room/6.jpg"],
     floorPlan: "/images/floorplans/SQF-4491-01-A-12.5x3m-Mobile-Crib-Room.pdf",
     description: "The 12.5m × 3.0m Mobile Crib Room is a self-sufficient, fully transportable lunch and break facility built on a heavy-duty trailer with air brakes, suspension, and dual axles. Powered by an 11.2kVA Kubota diesel generator with dual 1000L water tanks, this unit requires zero external connections — just park and go.",
     features: [
@@ -192,7 +192,7 @@ const PRODUCTS: Record<string, Product> = {
     badge: "ACCOMMODATION",
     selfContained: true,
     mobile: false,
-    images: ["/images/products/96x3m-living-quarters/1.jpg", "/images/products/96x3m-living-quarters/2.jpg"],
+    images: ["/images/products/96x3m-living-quarters/1.jpg", "/images/products/96x3m-living-quarters/2.jpg", "/images/products/96x3m-living-quarters/3.jpg", "/images/products/96x3m-living-quarters/4.jpg", "/images/products/96x3m-living-quarters/5.jpg"],
     floorPlan: "/images/floorplans/MBH-9630-CRB-01-9.6x3m-Crib-Room.pdf",
     description: "The 9.6m × 3.0m Living Quarters is a fully self-contained, transportable accommodation unit designed for remote site managers, supervisors, and key personnel. Featuring a private bedroom, ensuite bathroom with shower and toilet, and a full kitchen/living area, this unit delivers genuine comfort and privacy in even the most isolated locations.",
     features: [

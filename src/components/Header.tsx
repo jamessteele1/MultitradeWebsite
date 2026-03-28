@@ -43,7 +43,7 @@ const NAV_ITEMS = [
   },
   {
     label: "Case Studies",
-    href: "/case-studies/gladstone-hockey",
+    href: "/case-studies",
     children: [
       { label: "Gladstone Hockey", href: "/case-studies/gladstone-hockey" },
       { label: "Futura Solar", href: "/case-studies/futura-solar" },

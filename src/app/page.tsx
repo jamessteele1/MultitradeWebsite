@@ -292,15 +292,15 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ─── FEATURED PROJECT ─── */}
+      {/* ─── CASE STUDY ─── */}
       <section className="relative overflow-hidden py-16 md:py-24" style={{ background: "linear-gradient(135deg, var(--navy) 0%, var(--navy-2) 60%, var(--navy-3) 100%)" }}>
         <div className="absolute inset-0 opacity-5" style={{ backgroundImage: "linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)", backgroundSize: "60px 60px" }} />
         <div className="relative z-10 max-w-7xl mx-auto px-4">
           <FadeIn className="text-center mb-12">
-            <div className="text-xs font-semibold tracking-widest uppercase gold-text mb-3">Project Spotlight</div>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight">Built for Real Worksites</h2>
+            <div className="text-xs font-semibold tracking-widest uppercase gold-text mb-3">Case Study</div>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight">Real Projects. Real Results.</h2>
             <p className="text-white/50 mt-3 max-w-xl mx-auto">
-              From remote mine sites to major infrastructure projects — we deliver complete site facility solutions.
+              See how we deliver complete turnkey building solutions for clubs, councils, and industry.
             </p>
           </FadeIn>
 
@@ -308,30 +308,30 @@ export default function HomePage() {
             <FadeIn delay={0.1} className="relative rounded-xl overflow-hidden shadow-2xl">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="/images/products/12x6m-complex/1.jpg"
-                alt="Multi-building complex installation with covered walkway and decking"
+                src="/images/case-studies/gladstone-hockey/hero.jpg"
+                alt="Anthony from Multitrade shaking hands with Brett Ryan at completed Gladstone Hockey amenities building"
                 className="w-full h-72 md:h-96 object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
               <div className="absolute bottom-4 left-4 right-4">
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold text-xs font-bold text-gray-900">
-                  MULTI-BUILDING COMPLEX
+                  GLADSTONE HOCKEY ASSOCIATION
                 </div>
               </div>
             </FadeIn>
 
             <FadeIn delay={0.25} className="space-y-6">
-              <h3 className="text-2xl font-extrabold text-white">Site Office &amp; Crib Complex — Bowen Basin</h3>
+              <h3 className="text-2xl font-extrabold text-white">12×3m Amenities Building — Gladstone Hockey</h3>
               <p className="text-white/60 leading-relaxed">
-                A complete multi-module facility featuring interconnected site offices, crib rooms, and ablution buildings — all designed, manufactured, delivered, and installed by Multitrade. Connected via covered walkways with full electrical and plumbing services.
+                Full turnkey delivery of a custom amenities building for the Gladstone Hockey Association. From design and council approvals through to manufacture, transport, and complete installation — one contractor, start to finish.
               </p>
 
               <div className="grid grid-cols-2 gap-4">
                 {[
-                  { label: "Scope", value: "6 Buildings" },
-                  { label: "Location", value: "Bowen Basin, QLD" },
-                  { label: "Turnaround", value: "4 Weeks" },
-                  { label: "Services", value: "Full Install" },
+                  { label: "Building", value: "12×3m" },
+                  { label: "Value", value: "$210K+" },
+                  { label: "Wind Rating", value: "C2 Rated" },
+                  { label: "Delivery", value: "Turnkey" },
                 ].map((stat, i) => (
                   <div key={i} className="p-3 rounded-lg bg-white/5 border border-white/10">
                     <div className="text-xs text-white/40 font-medium uppercase tracking-wide">{stat.label}</div>
@@ -340,19 +340,24 @@ export default function HomePage() {
                 ))}
               </div>
 
+              <div className="bg-white/5 border border-white/10 rounded-xl p-5">
+                <p className="text-white/70 italic text-sm leading-relaxed">&ldquo;Our thanks and appreciation go out to Multitrade for their workmanship and professionalism in making this happen for us.&rdquo;</p>
+                <p className="text-white/40 text-xs mt-2 font-semibold">— Brett Ryan, Facilities Director</p>
+              </div>
+
               <div className="flex flex-col sm:flex-row gap-3 pt-2">
                 <Link
-                  href="/quote"
+                  href="/case-studies/gladstone-hockey"
                   className="px-6 py-3 rounded-lg font-semibold text-gray-900 text-center bg-gold hover:brightness-110 transition-all flex items-center justify-center gap-2"
                 >
-                  Scope Your Project
+                  Read Full Case Study
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
                 </Link>
                 <Link
-                  href="/hire/complexes"
+                  href="/quote"
                   className="px-6 py-3 rounded-lg font-semibold text-white text-center border border-white/20 hover:bg-white/5 transition-all"
                 >
-                  View Complexes
+                  Get a Quote
                 </Link>
               </div>
             </FadeIn>

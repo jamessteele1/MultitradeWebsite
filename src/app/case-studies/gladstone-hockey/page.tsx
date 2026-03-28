@@ -108,9 +108,7 @@ export default function GladstoneHockeyCaseStudy() {
                 className="w-full h-64 md:h-[32rem] object-cover"
               />
             </div>
-            <p className="text-center text-sm text-gray-500 mt-3 mb-8">
-              Completed amenities building — Gladstone Hockey Fields, 60 Tank Street, Gladstone
-            </p>
+            <div className="mb-8" />
           </FadeIn>
         </div>
       </section>

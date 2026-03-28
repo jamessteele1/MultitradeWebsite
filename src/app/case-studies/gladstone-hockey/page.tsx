@@ -39,11 +39,16 @@ const STEPS = [
 
 const GALLERY = [
   { src: "/images/case-studies/gladstone-hockey/covered-entry.jpg", alt: "PWD-compliant entry under covered walkway" },
+  { src: "/images/case-studies/gladstone-hockey/interior-pwd.jpg", alt: "Interior — PWD accessible toilet with grab rails and S/S basin" },
   { src: "/images/case-studies/gladstone-hockey/walkway.jpg", alt: "Walkway with PWD ramp and tactile indicators" },
-  { src: "/images/case-studies/gladstone-hockey/entry.jpg", alt: "Front entry with Multitrade signage and blue door" },
+  { src: "/images/case-studies/gladstone-hockey/interior-cubicles.jpg", alt: "Interior — ambulant cubicles with grab rails and S/S basins" },
   { src: "/images/case-studies/gladstone-hockey/rear-view.jpg", alt: "Rear view with 315L hot water system and ramp" },
-  { src: "/images/case-studies/gladstone-hockey/side-ramp.jpg", alt: "Side ramp view with red bunting along pathway" },
+  { src: "/images/case-studies/gladstone-hockey/interior-showers.jpg", alt: "Interior — tiled shower cubicles with bench seats" },
+  { src: "/images/case-studies/gladstone-hockey/entry.jpg", alt: "Front entry with Multitrade signage and blue door" },
+  { src: "/images/case-studies/gladstone-hockey/interior-stalls.jpg", alt: "Interior — multiple toilet stalls with S/S basins" },
+  { src: "/images/case-studies/gladstone-hockey/exterior-end.jpg", alt: "End elevation with PWD ramp and landings" },
   { src: "/images/case-studies/gladstone-hockey/canopy-wide.jpg", alt: "Wide angle view with covered canopy and landings" },
+  { src: "/images/case-studies/gladstone-hockey/side-ramp.jpg", alt: "Side ramp view with red bunting along pathway" },
   { src: "/images/case-studies/gladstone-hockey/end-view.jpg", alt: "End view showing hot water system and covered area" },
 ];
 

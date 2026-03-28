@@ -312,7 +312,7 @@ export default function AblutionDetailPage({ params }: { params: { slug: string 
             {/* Right: Image */}
             <div className="relative rounded-xl overflow-hidden shadow-2xl shadow-black/30">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={product.images[0]} alt={product.name} className="w-full h-64 md:h-80 object-cover" />
+              <img src={product.images[0]} alt={product.name} className="w-full h-64 md:h-[28rem] object-cover" />
               {product.badge && (
                 <div className="absolute top-3 right-3 px-2.5 py-1 rounded-md text-xs font-bold bg-amber-500/90 text-white backdrop-blur-sm">
                   {product.badge}

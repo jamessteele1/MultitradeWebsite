@@ -28,6 +28,7 @@ const COMPANY_LINKS = [
   { label: "About Us", href: "/about" },
   { label: "Install", href: "/install" },
   { label: "Case Studies", href: "/case-studies/gladstone-hockey" },
+  { label: "Futura Solar", href: "/case-studies/futura-solar" },
   { label: "Solar Facility", href: "/solar-facility" },
   { label: "Contact", href: "/contact" },
   { label: "Get a Quote", href: "/quote" },

@@ -41,7 +41,14 @@ const NAV_ITEMS = [
       { label: "Civil Infrastructure", href: "/industries/civil" },
     ],
   },
-  { label: "Case Studies", href: "/case-studies/gladstone-hockey" },
+  {
+    label: "Case Studies",
+    href: "/case-studies/gladstone-hockey",
+    children: [
+      { label: "Gladstone Hockey", href: "/case-studies/gladstone-hockey" },
+      { label: "Futura Solar", href: "/case-studies/futura-solar" },
+    ],
+  },
   { label: "Scope Builder", href: "/scope-builder" },
   { label: "About", href: "/about" },
   { label: "Contact", href: "/contact" },
@@ -61,7 +68,14 @@ const MOBILE_NAV_ITEMS: { label: string; href: string; children?: { label: strin
       { label: "Civil Infrastructure", href: "/industries/civil" },
     ],
   },
-  { label: "Case Studies", href: "/case-studies/gladstone-hockey" },
+  {
+    label: "Case Studies",
+    href: "#",
+    children: [
+      { label: "Gladstone Hockey", href: "/case-studies/gladstone-hockey" },
+      { label: "Futura Solar", href: "/case-studies/futura-solar" },
+    ],
+  },
   { label: "Scope Builder", href: "/scope-builder" },
   { label: "About", href: "/about" },
   { label: "Contact", href: "/contact" },

@@ -47,12 +47,20 @@ const NAV_ITEMS = [
   { label: "Contact", href: "/contact" },
 ];
 
-/* Flat mobile nav — bold, simple, no sub-menus */
-const MOBILE_NAV_ITEMS = [
+const MOBILE_NAV_ITEMS: { label: string; href: string; children?: { label: string; href: string }[] }[] = [
   { label: "Hire", href: "/hire" },
   { label: "Buy", href: "/buy" },
   { label: "Install", href: "/install" },
-  { label: "Industries", href: "/industries" },
+  {
+    label: "Industries",
+    href: "#",
+    children: [
+      { label: "Mining & Resources", href: "/industries/mining" },
+      { label: "Construction", href: "/industries/construction" },
+      { label: "Oil & Gas", href: "/industries/oil-gas" },
+      { label: "Civil Infrastructure", href: "/industries/civil" },
+    ],
+  },
   { label: "Case Studies", href: "/case-studies/gladstone-hockey" },
   { label: "Scope Builder", href: "/scope-builder" },
   { label: "About", href: "/about" },
@@ -63,6 +71,7 @@ export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenu, setMobileMenu] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<number | null>(null);
+  const [mobileExpanded, setMobileExpanded] = useState<number | null>(null);
   const { itemCount, openCart } = useQuoteCart();
   const [badgeBounce, setBadgeBounce] = useState(false);
   const [prevCount, setPrevCount] = useState(itemCount);
@@ -186,16 +195,42 @@ export default function Header() {
       {mobileMenu && (
         <div className="lg:hidden bg-white border-t border-gray-100 shadow-xl max-h-[80vh] overflow-y-auto">
           <div className="px-6 py-2">
-            {MOBILE_NAV_ITEMS.map((item, i) => (
-              <Link
-                key={i}
-                href={item.href}
-                className="block py-4 text-2xl font-bold text-gray-900 border-b border-gray-100 last:border-0"
-                onClick={() => setMobileMenu(false)}
-              >
-                {item.label}
-              </Link>
-            ))}
+            {MOBILE_NAV_ITEMS.map((item, i) =>
+              item.children ? (
+                <div key={i} className="border-b border-gray-100">
+                  <button
+                    onClick={() => setMobileExpanded(mobileExpanded === i ? null : i)}
+                    className="flex items-center justify-between w-full py-4 text-2xl font-bold text-gray-900"
+                  >
+                    {item.label}
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className={`transition-transform ${mobileExpanded === i ? "rotate-180" : ""}`}><polyline points="6 9 12 15 18 9"/></svg>
+                  </button>
+                  {mobileExpanded === i && (
+                    <div className="pb-3 pl-4 space-y-1">
+                      {item.children.map((child, j) => (
+                        <Link
+                          key={j}
+                          href={child.href}
+                          className="block py-2 text-base text-gray-600 font-medium"
+                          onClick={() => setMobileMenu(false)}
+                        >
+                          {child.label}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <Link
+                  key={i}
+                  href={item.href}
+                  className="block py-4 text-2xl font-bold text-gray-900 border-b border-gray-100 last:border-0"
+                  onClick={() => setMobileMenu(false)}
+                >
+                  {item.label}
+                </Link>
+              )
+            )}
             <div className="pt-5 pb-2 space-y-3">
               <a
                 href="tel:0749792333"

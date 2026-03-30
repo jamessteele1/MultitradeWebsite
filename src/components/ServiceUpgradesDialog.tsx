@@ -13,19 +13,29 @@ const BOWEN_BASIN_MINES = [
   "Sonoma Mine", "Yarrabee Mine",
 ];
 
+export type ServiceUpgradesResult = {
+  powerType: "site" | "generator";
+  mineSpec: boolean;
+  mineName: string;
+  addWaterTank: boolean;
+};
+
 type Props = {
   open: boolean;
   buildingSize: "12x3" | "6x3" | "3x3" | "other";
-  onConfirm: (data: { powerType: "site" | "generator"; mineSpec: boolean; mineName: string }) => void;
+  /** Show the potable water tank question (for crib rooms & ablutions) */
+  showWaterTank?: boolean;
+  onConfirm: (data: ServiceUpgradesResult) => void;
   onSkip: () => void;
 };
 
-export default function ServiceUpgradesDialog({ open, buildingSize, onConfirm, onSkip }: Props) {
+export default function ServiceUpgradesDialog({ open, buildingSize, showWaterTank = false, onConfirm, onSkip }: Props) {
   const [powerType, setPowerType] = useState<"site" | "generator" | "">("");
   const [mineSpec, setMineSpec] = useState<boolean | null>(null);
   const [mineName, setMineName] = useState("");
   const [mineSearch, setMineSearch] = useState("");
   const [showMineDropdown, setShowMineDropdown] = useState(false);
+  const [waterTank, setWaterTank] = useState<boolean | null>(null);
 
   const plugSize = buildingSize === "12x3" || buildingSize === "other" ? "32amp single phase" : "15amp";
 
@@ -33,10 +43,12 @@ export default function ServiceUpgradesDialog({ open, buildingSize, onConfirm, o
     m.toLowerCase().includes(mineSearch.toLowerCase())
   ).sort();
 
-  const canConfirm =
+  const electricalComplete =
     powerType !== "" &&
     mineSpec !== null &&
     (mineSpec === false || mineName !== "");
+
+  const canConfirm = electricalComplete && (!showWaterTank || waterTank !== null);
 
   const selectMine = (name: string) => {
     setMineName(name);
@@ -52,6 +64,7 @@ export default function ServiceUpgradesDialog({ open, buildingSize, onConfirm, o
       setMineName("");
       setMineSearch("");
       setShowMineDropdown(false);
+      setWaterTank(null);
     }
   }, [open]);
 
@@ -65,8 +78,17 @@ export default function ServiceUpgradesDialog({ open, buildingSize, onConfirm, o
 
   if (!open) return null;
 
-  // Determine current step for visual progress
-  const step = powerType === "" ? 1 : mineSpec === null ? 2 : 3;
+  // Progress steps
+  const totalSteps = showWaterTank ? 4 : 3;
+  const step = powerType === ""
+    ? 1
+    : mineSpec === null
+      ? 2
+      : !electricalComplete
+        ? 2
+        : showWaterTank && waterTank === null
+          ? 3
+          : totalSteps;
 
   return (
     <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center">
@@ -99,9 +121,9 @@ export default function ServiceUpgradesDialog({ open, buildingSize, onConfirm, o
           </div>
           {/* Progress dots */}
           <div className="flex items-center gap-1.5 mt-3">
-            <div className={`h-1 rounded-full flex-1 transition-colors ${step >= 1 ? "bg-amber-500" : "bg-gray-200"}`} />
-            <div className={`h-1 rounded-full flex-1 transition-colors ${step >= 2 ? "bg-amber-500" : "bg-gray-200"}`} />
-            <div className={`h-1 rounded-full flex-1 transition-colors ${step >= 3 ? "bg-amber-500" : "bg-gray-200"}`} />
+            {Array.from({ length: totalSteps }).map((_, i) => (
+              <div key={i} className={`h-1 rounded-full flex-1 transition-colors ${step >= i + 1 ? "bg-amber-500" : "bg-gray-200"}`} />
+            ))}
           </div>
         </div>
 
@@ -262,6 +284,57 @@ export default function ServiceUpgradesDialog({ open, buildingSize, onConfirm, o
               )}
             </div>
           )}
+
+          {/* Step 3: Water Tank — only for crib rooms / ablutions, after electrical complete */}
+          {showWaterTank && electricalComplete && (
+            <div className="animate-[dialogFadeIn_0.2s_ease-out]">
+              <h4 className="font-bold text-gray-900 text-sm mb-1">Potable Water Supply</h4>
+              <p className="text-xs text-gray-500 mb-3">Does this building need a fresh water tank & pump?</p>
+              <div className="space-y-2">
+                <button
+                  onClick={() => setWaterTank(true)}
+                  className={`w-full flex items-start gap-3 p-3 rounded-lg border text-left transition-all ${
+                    waterTank === true
+                      ? "border-amber-500 bg-amber-50/50 ring-1 ring-amber-500/20"
+                      : "border-gray-200 hover:border-gray-300"
+                  }`}
+                >
+                  <div className={`mt-0.5 w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
+                    waterTank === true ? "border-amber-500" : "border-gray-300"
+                  }`}>
+                    {waterTank === true && <div className="w-2.5 h-2.5 rounded-full bg-amber-500" />}
+                  </div>
+                  <div>
+                    <span className="text-sm font-semibold text-gray-900">Yes — Add Water Tank & Pump</span>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      5000L skid-mounted tank with pressure pump. Provides fresh water supply for sinks and appliances.
+                    </p>
+                  </div>
+                </button>
+
+                <button
+                  onClick={() => setWaterTank(false)}
+                  className={`w-full flex items-start gap-3 p-3 rounded-lg border text-left transition-all ${
+                    waterTank === false
+                      ? "border-amber-500 bg-amber-50/50 ring-1 ring-amber-500/20"
+                      : "border-gray-200 hover:border-gray-300"
+                  }`}
+                >
+                  <div className={`mt-0.5 w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
+                    waterTank === false ? "border-amber-500" : "border-gray-300"
+                  }`}>
+                    {waterTank === false && <div className="w-2.5 h-2.5 rounded-full bg-amber-500" />}
+                  </div>
+                  <div>
+                    <span className="text-sm font-semibold text-gray-900">No — Site Has Water Supply</span>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      Building will be connected to existing site water supply.
+                    </p>
+                  </div>
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Footer */}
@@ -275,7 +348,12 @@ export default function ServiceUpgradesDialog({ open, buildingSize, onConfirm, o
           <button
             onClick={() => {
               if (canConfirm && (powerType === "site" || powerType === "generator")) {
-                onConfirm({ powerType, mineSpec: mineSpec ?? false, mineName });
+                onConfirm({
+                  powerType,
+                  mineSpec: mineSpec ?? false,
+                  mineName,
+                  addWaterTank: waterTank === true,
+                });
               }
             }}
             disabled={!canConfirm}

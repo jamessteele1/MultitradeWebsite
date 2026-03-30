@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useQuoteCart, type CartItem, type ServiceUpgrades } from "@/context/QuoteCartContext";
 import { useServiceUpgrades } from "@/context/ServiceUpgradesContext";
-import ServiceUpgradesDialog from "@/components/ServiceUpgradesDialog";
+import ServiceUpgradesDialog, { type ServiceUpgradesResult } from "@/components/ServiceUpgradesDialog";
 
 type Props = {
   product: Omit<CartItem, "quantity" | "duration" | "serviceUpgrades">;
@@ -58,7 +58,12 @@ export default function AddToQuoteButton({ product, className = "", compact = fa
     doAdd();
   };
 
-  const handleConfirm = (data: { powerType: "site" | "generator"; mineSpec: boolean; mineName: string }) => {
+  // Determine if water tank question should show (crib rooms & ablutions, only if tank not already in cart)
+  const showWaterTank =
+    (product.category === "crib-rooms" || product.category === "ablutions") &&
+    !isInCart("5000l-tank-pump");
+
+  const handleConfirm = (data: ServiceUpgradesResult) => {
     setShowDialog(false);
     const upgrades: ServiceUpgrades = {
       powerType: data.powerType,
@@ -74,6 +79,17 @@ export default function AddToQuoteButton({ product, className = "", compact = fa
       });
     }
     doAdd(upgrades);
+
+    // If user opted for a water tank, add it as a separate cart item
+    if (data.addWaterTank) {
+      addItem({
+        id: "5000l-tank-pump",
+        name: "5000L Tank & Pump Combo",
+        size: "Skid mounted",
+        img: "/images/products/5000l-tank-pump/1.jpg",
+        category: "ancillary",
+      });
+    }
   };
 
   const handleSkip = () => {
@@ -160,6 +176,7 @@ export default function AddToQuoteButton({ product, className = "", compact = fa
         <ServiceUpgradesDialog
           open={showDialog}
           buildingSize={buildingSize}
+          showWaterTank={showWaterTank}
           onConfirm={handleConfirm}
           onSkip={handleSkip}
         />

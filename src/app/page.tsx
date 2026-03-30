@@ -5,6 +5,7 @@ import { CountUp } from "@/components/CountUp";
 import { ParallaxVideo } from "@/components/ParallaxVideo";
 import Link from "next/link";
 import dynamic from "next/dynamic";
+import ProductCarousel from "@/components/ProductCarousel";
 
 const ServiceAreaMaps = dynamic(() => import("@/components/ServiceAreaMaps"), { ssr: false });
 
@@ -168,26 +169,8 @@ export default function HomePage() {
             </p>
           </FadeIn>
 
-          {/* Mobile: horizontal scroll carousel */}
-          <div className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4 -mx-4 px-4 md:hidden scrollbar-hide">
-            {PRODUCTS.map((product, i) => (
-              <Link key={i} href={product.href} className="product-card group relative bg-white rounded-xl overflow-hidden border border-gray-200 shadow-lg shadow-black/5 snap-start flex-shrink-0 w-[75vw] max-w-[300px] block">
-                <div className="relative h-44 overflow-hidden">
-                  <img src={product.img} alt={product.name} className="product-img w-full h-full object-cover transition-transform duration-700" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-                  <div className="absolute top-3 right-3 px-2.5 py-1 rounded-md text-xs font-medium text-white bg-black/40 backdrop-blur-sm">{product.sizes}</div>
-                </div>
-                <div className="p-4">
-                  <h3 className="text-base font-bold text-gray-900">{product.name}</h3>
-                  <p className="text-sm text-gray-500 mt-1 leading-relaxed line-clamp-2">{product.desc}</p>
-                  <div className="mt-3 flex items-center justify-between">
-                    <span className="text-xs font-semibold gold-text tracking-wide">HIRE & SALE</span>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="text-gray-400"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
+          {/* Mobile: stacked card carousel */}
+          <ProductCarousel products={PRODUCTS} />
           {/* Desktop: grid layout */}
           <div className="hidden md:grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {PRODUCTS.map((product, i) => (

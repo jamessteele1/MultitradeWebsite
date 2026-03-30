@@ -170,10 +170,6 @@ export default function ProductCarousel({ products }: { products: Product[] }) {
     drag.lastT = now;
 
     // move position proportionally to drag
-    const totalDx = t.clientX - drag.startX;
-    const cardsDragged = -totalDx / PX_PER_CARD;
-    const basePos = Math.round(posRef.current - cardsDragged) + cardsDragged; // anchor to start
-    // actually just update continuously
     posRef.current += -moveDx / PX_PER_CARD;
     setPos(posRef.current);
   };

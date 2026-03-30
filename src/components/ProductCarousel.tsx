@@ -26,11 +26,16 @@ export default function ProductCarousel({ products }: { products: Product[] }) {
   // The scroll starts at the middle set.
   const tripled = [...products, ...products, ...products];
 
+  // The centering offset: snap-center aligns the card's center to the container's center.
+  // scrollLeft when card i is centered = i * CARD_W - (containerWidth - CARD_W) / 2
+  const centerOffset = useRef(0);
+
   // On mount, jump to the middle set (no smooth scroll)
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
-    el.scrollLeft = n * CARD_W;
+    centerOffset.current = (el.clientWidth - CARD_W) / 2;
+    el.scrollLeft = n * CARD_W - centerOffset.current;
   }, [n]);
 
   // Scroll listener: update CSS custom property --si for card transforms
@@ -38,12 +43,13 @@ export default function ProductCarousel({ products }: { products: Product[] }) {
     const el = scrollRef.current;
     if (!el) return;
 
+    centerOffset.current = (el.clientWidth - CARD_W) / 2;
     let raf: number | null = null;
 
     const onScroll = () => {
       if (raf) cancelAnimationFrame(raf);
       raf = requestAnimationFrame(() => {
-        const si = el.scrollLeft / CARD_W;
+        const si = (el.scrollLeft + centerOffset.current) / CARD_W;
         siRef.current = si;
 
         // Update CSS custom property on the cards container
@@ -71,12 +77,13 @@ export default function ProductCarousel({ products }: { products: Product[] }) {
     if (!el) return;
 
     const onScrollEnd = () => {
-      const si = Math.round(el.scrollLeft / CARD_W);
+      const co = centerOffset.current;
+      const si = Math.round((el.scrollLeft + co) / CARD_W);
       if (si < n || si >= 2 * n) {
         // Jump to the equivalent position in the middle set
         const equiv = ((si % n) + n) % n;
         el.style.scrollBehavior = "auto";
-        el.scrollLeft = (n + equiv) * CARD_W;
+        el.scrollLeft = (n + equiv) * CARD_W - co;
         el.style.scrollBehavior = "";
         // Update CSS var immediately
         if (cardsRef.current) {
@@ -141,12 +148,12 @@ export default function ProductCarousel({ products }: { products: Product[] }) {
   const goTo = (idx: number) => {
     const el = scrollRef.current;
     if (!el) return;
-    el.scrollTo({ left: (n + idx) * CARD_W, behavior: "smooth" });
+    el.scrollTo({ left: (n + idx) * CARD_W - centerOffset.current, behavior: "smooth" });
     resetAuto();
   };
 
   return (
-    <div className="md:hidden">
+    <div className="md:hidden overflow-hidden">
       <div className="relative mx-auto" style={{ height: 380 }}>
         {/* Visible 3D cards — absolutely positioned, driven by --si */}
         <div
@@ -163,7 +170,7 @@ export default function ProductCarousel({ products }: { products: Product[] }) {
         <div
           ref={scrollRef}
           className="absolute inset-0 z-[35] flex snap-x snap-mandatory overflow-x-auto overscroll-x-contain"
-          style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch" }}
+          style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch", touchAction: "pan-x pan-y" }}
           onTouchStart={onTouchStart}
           onTouchEnd={onTouchEnd}
         >
@@ -239,13 +246,14 @@ function CarouselCard({ product, index, total }: { product: Product; index: numb
       }
 
       const sgn = Math.sign(raw);
-      const scale = Math.max(1 - abs * 0.14, 0.6);
-      const tx = sgn * Math.min(abs * 180, 60 + abs * 120);
+      const scale = Math.max(1 - abs * 0.18, 0.55);
+      const tx = sgn * Math.min(abs * 240, 80 + abs * 160);
       const ry = sgn * -Math.min(abs * 12, 25);
-      const opacity = Math.max(1 - abs * 0.35, 0);
-      const z = Math.round(30 - abs * 5);
+      const tz = -abs * 80; // push side cards back in Z space
+      const opacity = Math.max(1 - abs * 0.4, 0);
+      const z = Math.round(30 - abs * 10);
 
-      card.style.transform = `translateX(${tx}px) scale(${scale}) rotateY(${ry}deg)`;
+      card.style.transform = `translateX(${tx}px) translateZ(${tz}px) scale(${scale}) rotateY(${ry}deg)`;
       card.style.opacity = String(opacity);
       card.style.zIndex = String(z);
       card.style.pointerEvents = abs < 0.6 ? "auto" : "none";

@@ -102,6 +102,52 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ─── PRODUCTS ─── */}
+      <section className="py-16 md:py-24 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4">
+          <FadeIn className="text-center mb-12">
+            <div className="text-xs font-semibold tracking-widest uppercase gold-text mb-3">Our Fleet</div>
+            <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight">Portable Buildings for Every Need</h2>
+            <p className="text-gray-500 mt-3 max-w-xl mx-auto">
+              From single-module offices to multi-building complexes. Hire, buy, or have us custom-manufacture to your specifications.
+            </p>
+          </FadeIn>
+
+          {/* Mobile: stacked card carousel */}
+          <ProductCarousel products={PRODUCTS} />
+          {/* Desktop: grid layout */}
+          <div className="hidden md:grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+            {PRODUCTS.map((product, i) => (
+              <FadeIn key={i} delay={0.1 * i}>
+              <Link href={product.href} className="product-card group relative bg-white rounded-xl overflow-hidden border border-gray-200 shadow-lg shadow-black/5 hover:border-gray-300 hover:shadow-xl hover:shadow-black/10 transition-all duration-500 block">
+                <div className="relative h-48 md:h-56 overflow-hidden">
+                  <img src={product.img} alt={product.name} className="product-img w-full h-full object-cover transition-transform duration-700" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                  <div className="absolute top-3 right-3 px-2.5 py-1 rounded-md text-xs font-medium text-white bg-black/40 backdrop-blur-sm">{product.sizes}</div>
+                  <div className="product-overlay absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 transition-opacity duration-300">
+                    <span className="px-6 py-3 rounded-lg font-semibold text-sm text-gray-900 bg-gold flex items-center gap-2">
+                      View Range
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                    </span>
+                  </div>
+                </div>
+                <div className="p-5">
+                  <h3 className="text-lg font-bold text-gray-900">{product.name}</h3>
+                  <p className="text-sm text-gray-500 mt-1 leading-relaxed">{product.desc}</p>
+                  <div className="mt-4 flex items-center justify-between">
+                    <span className="text-xs font-semibold gold-text tracking-wide">HIRE & SALE</span>
+                    <span className="text-gray-400 group-hover:text-gray-900 group-hover:translate-x-1 transition-all">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                    </span>
+                  </div>
+                </div>
+              </Link>
+              </FadeIn>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ─── WHY MULTITRADE ─── */}
       <section className="py-16 md:py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4">
@@ -157,53 +203,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
-      {/* ─── PRODUCTS ─── */}
-      <section className="py-16 md:py-24 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4">
-          <FadeIn className="text-center mb-12">
-            <div className="text-xs font-semibold tracking-widest uppercase gold-text mb-3">Our Fleet</div>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight">Portable Buildings for Every Need</h2>
-            <p className="text-gray-500 mt-3 max-w-xl mx-auto">
-              From single-module offices to multi-building complexes. Hire, buy, or have us custom-manufacture to your specifications.
-            </p>
-          </FadeIn>
-
-          {/* Mobile: stacked card carousel */}
-          <ProductCarousel products={PRODUCTS} />
-          {/* Desktop: grid layout */}
-          <div className="hidden md:grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-            {PRODUCTS.map((product, i) => (
-              <FadeIn key={i} delay={0.1 * i}>
-              <Link href={product.href} className="product-card group relative bg-white rounded-xl overflow-hidden border border-gray-200 shadow-lg shadow-black/5 hover:border-gray-300 hover:shadow-xl hover:shadow-black/10 transition-all duration-500 block">
-                <div className="relative h-48 md:h-56 overflow-hidden">
-                  <img src={product.img} alt={product.name} className="product-img w-full h-full object-cover transition-transform duration-700" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-                  <div className="absolute top-3 right-3 px-2.5 py-1 rounded-md text-xs font-medium text-white bg-black/40 backdrop-blur-sm">{product.sizes}</div>
-                  <div className="product-overlay absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 transition-opacity duration-300">
-                    <span className="px-6 py-3 rounded-lg font-semibold text-sm text-gray-900 bg-gold flex items-center gap-2">
-                      View Range
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-                    </span>
-                  </div>
-                </div>
-                <div className="p-5">
-                  <h3 className="text-lg font-bold text-gray-900">{product.name}</h3>
-                  <p className="text-sm text-gray-500 mt-1 leading-relaxed">{product.desc}</p>
-                  <div className="mt-4 flex items-center justify-between">
-                    <span className="text-xs font-semibold gold-text tracking-wide">HIRE & SALE</span>
-                    <span className="text-gray-400 group-hover:text-gray-900 group-hover:translate-x-1 transition-all">
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-                    </span>
-                  </div>
-                </div>
-              </Link>
-              </FadeIn>
-            ))}
-          </div>
-        </div>
-      </section>
-
 
       {/* ─── SERVICES OVERVIEW ─── */}
       <section className="py-16 md:py-24 bg-white border-t border-gray-200">

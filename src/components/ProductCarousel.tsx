@@ -2,6 +2,7 @@
 
 import { useRef, useState, useEffect, useCallback } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 interface Product {
   name: string;
@@ -136,12 +137,29 @@ export default function ProductCarousel({ products }: { products: Product[] }) {
     };
   }, [resetAuto]);
 
-  // Pause auto-advance on touch
-  const onTouchStart = () => {
+  const router = useRouter();
+  const didDrag = useRef(false);
+  const touchStartX = useRef(0);
+
+  // Pause auto-advance on touch, track drag
+  const onTouchStart = (e: React.TouchEvent) => {
     if (autoRef.current) clearTimeout(autoRef.current);
+    didDrag.current = false;
+    touchStartX.current = e.touches[0].clientX;
+  };
+  const onTouchMove = (e: React.TouchEvent) => {
+    if (Math.abs(e.touches[0].clientX - touchStartX.current) > 8) {
+      didDrag.current = true;
+    }
   };
   const onTouchEnd = () => {
     resetAuto();
+  };
+
+  // Tap on scroll layer → navigate to active card
+  const onClick = () => {
+    if (didDrag.current) return;
+    router.push(products[activeIdx].href);
   };
 
   // Dot click: scroll to that card in the middle set
@@ -172,7 +190,9 @@ export default function ProductCarousel({ products }: { products: Product[] }) {
           className="absolute inset-0 z-[35] flex snap-x snap-mandatory overflow-x-auto overscroll-x-contain"
           style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch", touchAction: "pan-x pan-y" }}
           onTouchStart={onTouchStart}
+          onTouchMove={onTouchMove}
           onTouchEnd={onTouchEnd}
+          onClick={onClick}
         >
           {tripled.map((_, i) => (
             <div

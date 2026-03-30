@@ -3,7 +3,7 @@
 export default function MobileCTA() {
   return (
     <>
-      <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-white/95 backdrop-blur-md border-t border-gray-200 px-4 py-3 shadow-2xl shadow-black/10">
+      <div id="mobile-cta" className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-white/95 backdrop-blur-md border-t border-gray-200 px-4 py-3 shadow-2xl shadow-black/10">
         <div className="flex gap-2.5">
           <a
             href="tel:0749792333"

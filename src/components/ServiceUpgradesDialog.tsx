@@ -68,11 +68,15 @@ export default function ServiceUpgradesDialog({ open, buildingSize, showWaterTan
     }
   }, [open]);
 
-  // Prevent body scroll when open
+  // Prevent body scroll and hide MobileCTA when open
   useEffect(() => {
     if (open) {
       document.body.style.overflow = "hidden";
-      return () => { document.body.style.overflow = ""; };
+      document.body.setAttribute("data-dialog-open", "true");
+      return () => {
+        document.body.style.overflow = "";
+        document.body.removeAttribute("data-dialog-open");
+      };
     }
   }, [open]);
 

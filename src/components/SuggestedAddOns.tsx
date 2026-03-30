@@ -68,10 +68,11 @@ function getAddOns(category: string, currentProductId: string): AddOn[] {
   const result: AddOn[] = [];
 
   // Always relevant: stairs, deck, hand wash
+  // Stair & Landing only relevant for ablutions/toilets/shower blocks (paired with waste tanks)
   const priorities =
     category === "ablutions"
       ? ["5000l-tank-pump", "6000l-waste-tank", "stair-landing", "12x3m-covered-deck"]
-      : ["stair-landing", "12x3m-covered-deck", "dual-hand-wash-station", "6x3m-toilet-block", "5000l-tank-pump"];
+      : ["12x3m-covered-deck", "dual-hand-wash-station", "6x3m-toilet-block", "5000l-tank-pump"];
 
   for (const id of priorities) {
     if (id === currentProductId) continue;

@@ -7,6 +7,7 @@ import AddToQuoteButton from "@/components/AddToQuoteButton";
 import SuggestedAddOns from "@/components/SuggestedAddOns";
 import CompareProducts from "@/components/CompareProducts";
 import FloorplanViewer from "@/components/FloorplanViewer";
+import PowerSiteRequirements from "@/components/PowerSiteRequirements";
 
 /* ─── Product Data ───────────────────────────────────────────── */
 const PRODUCTS: Record<string, Product> = {
@@ -19,7 +20,7 @@ const PRODUCTS: Record<string, Product> = {
     badge: "POPULAR",
     selfContained: false,
     mobile: false,
-    images: ["/images/products/12x3-office/1.jpg", "/images/products/12x3-office/2.jpg", "/images/products/12x3-office/3.jpg"],
+    images: ["/images/products/12x3-office/1.jpg", "/images/products/12x3-office/2.jpg", "/images/products/12x3-office/3.jpg", "/images/products/12x3-office/4.jpg"],
     floorPlan: "/images/floorplans/SQF-4453-01-A - 12.0x3.0m Office - Floor Plan.pdf",
     description: "The 12.0m × 3.0m Office is a spacious portable workspace designed to accommodate up to 6 workstations. With a full electrical and data fit-out, dual air conditioning units, and commercial-grade construction, this unit is the go-to solution for project management teams on mining, construction, and industrial sites across Central Queensland.",
     features: [
@@ -369,7 +370,15 @@ export default function SiteOfficeDetailPage({ params }: { params: { slug: strin
               </div>
             ))}
           </div>
-          <FloorplanViewer productId={product.slug} />
+          <div className="flex flex-wrap items-center gap-3 mt-2">
+            <FloorplanViewer productId={product.slug} />
+            {product.floorPlan && (
+              <a href={product.floorPlan!} target="_blank" rel="noopener" className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-700 transition-all">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                Download Floor Plan (PDF)
+              </a>
+            )}
+          </div>
         </div>
       </section>
 
@@ -402,12 +411,6 @@ export default function SiteOfficeDetailPage({ params }: { params: { slug: strin
                   ))}
                 </div>
               </div>
-              {product.floorPlan && (
-                <a href={product.floorPlan!} target="_blank" rel="noopener" className="mt-4 inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-700 transition-all">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-                  Download Floor Plan (PDF)
-                </a>
-              )}
             </div>
           </div>
         </div>
@@ -428,6 +431,11 @@ export default function SiteOfficeDetailPage({ params }: { params: { slug: strin
           </div>
         </section>
       )}
+
+      {/* Power & Site Requirements */}
+      <PowerSiteRequirements
+        buildingSize={product.size.startsWith("12") ? "12x3" : product.size.startsWith("6") ? "6x3" : product.size.startsWith("3") ? "3x3" : "other"}
+      />
 
       {/* Suggested Add-Ons */}
       <SuggestedAddOns category="site-offices" currentProductId={product.slug} />

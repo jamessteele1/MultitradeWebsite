@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useServiceUpgrades } from "@/context/ServiceUpgradesContext";
 
 const BOWEN_BASIN_MINES = [
   "Blackwater Mine",
@@ -42,11 +43,20 @@ type Props = {
 };
 
 export default function PowerSiteRequirements({ buildingSize, onUpdate }: Props) {
+  const serviceCtx = useServiceUpgrades();
   const [powerType, setPowerType] = useState<"site" | "generator" | "">("");
   const [mineSpec, setMineSpec] = useState<boolean | null>(null);
   const [mineName, setMineName] = useState("");
   const [mineSearch, setMineSearch] = useState("");
   const [showMineDropdown, setShowMineDropdown] = useState(false);
+
+  // Sync local state to shared context
+  useEffect(() => {
+    if (serviceCtx) {
+      serviceCtx.update({ powerType, mineSpec, mineName });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [powerType, mineSpec, mineName]);
 
   const plugSize = buildingSize === "12x3" || buildingSize === "other" ? "32amp single phase" : "15amp";
 
@@ -79,7 +89,7 @@ export default function PowerSiteRequirements({ buildingSize, onUpdate }: Props)
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#D4A843" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
           </svg>
-          <h2 className="text-xl font-bold text-gray-900">Power & Site Requirements</h2>
+          <h2 className="text-xl font-bold text-gray-900">Service Upgrades</h2>
         </div>
 
         <div className="grid md:grid-cols-2 gap-6">

@@ -8,6 +8,7 @@ import SuggestedAddOns from "@/components/SuggestedAddOns";
 import CompareProducts from "@/components/CompareProducts";
 import FloorplanViewer from "@/components/FloorplanViewer";
 import PowerSiteRequirements from "@/components/PowerSiteRequirements";
+import { ServiceUpgradesProvider } from "@/context/ServiceUpgradesContext";
 
 /* ─── Product Data ───────────────────────────────────────────── */
 const PRODUCTS: Record<string, Product> = {
@@ -301,8 +302,10 @@ export default function SiteOfficeDetailPage({ params }: { params: { slug: strin
   const product = PRODUCTS[params.slug];
   if (!product) notFound();
 
+  const buildingSize: "12x3" | "6x3" | "3x3" | "other" = product.size.startsWith("12") ? "12x3" : product.size.startsWith("6") ? "6x3" : product.size.startsWith("3") ? "3x3" : "other";
+
   return (
-    <>
+    <ServiceUpgradesProvider>
       <Header />
 
       {/* Hero */}
@@ -328,7 +331,7 @@ export default function SiteOfficeDetailPage({ params }: { params: { slug: strin
               <p className="text-white/50 mt-1 text-sm font-medium">{product.tagline}</p>
               <p className="text-white/60 mt-4 text-sm leading-relaxed max-w-lg">{product.description}</p>
               <div className="flex flex-wrap items-center gap-3 mt-6">
-                <AddToQuoteButton product={{ id: product.slug, name: product.name, size: product.size, img: product.images[0], category: "site-offices" }} />
+                <AddToQuoteButton showServiceUpgrades buildingSize={buildingSize} product={{ id: product.slug, name: product.name, size: product.size, img: product.images[0], category: "site-offices" }} />
                 <a href="tel:0749792333" className="px-6 py-3 rounded-lg font-semibold text-white border border-white/20 hover:bg-white/5 transition-all">(07) 4979 2333</a>
                 {product.floorPlan && (
                   <a href={product.floorPlan!} target="_blank" rel="noopener" className="px-4 py-3 rounded-lg text-sm font-medium text-white/70 hover:text-white transition-colors flex items-center gap-1.5">
@@ -432,10 +435,8 @@ export default function SiteOfficeDetailPage({ params }: { params: { slug: strin
         </section>
       )}
 
-      {/* Power & Site Requirements */}
-      <PowerSiteRequirements
-        buildingSize={product.size.startsWith("12") ? "12x3" : product.size.startsWith("6") ? "6x3" : product.size.startsWith("3") ? "3x3" : "other"}
-      />
+      {/* Service Upgrades */}
+      <PowerSiteRequirements buildingSize={buildingSize} />
 
       {/* Suggested Add-Ons */}
       <SuggestedAddOns category="site-offices" currentProductId={product.slug} />
@@ -487,6 +488,6 @@ export default function SiteOfficeDetailPage({ params }: { params: { slug: strin
       </section>
 
       <MobileCTA />
-    </>
+    </ServiceUpgradesProvider>
   );
 }

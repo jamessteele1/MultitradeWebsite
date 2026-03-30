@@ -63,7 +63,7 @@ export default function ComplexesPage() {
                         See Details
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
                       </Link>
-                      <AddToQuoteButton compact product={{ id: p.id, name: p.name, size: p.size, img: p.img, category: "complexes" }} />
+                      <AddToQuoteButton compact showServiceUpgrades buildingSize={p.size.startsWith("12") ? "12x3" : p.size.startsWith("6") ? "6x3" : p.size.startsWith("3") ? "3x3" : "other"} product={{ id: p.id, name: p.name, size: p.size, img: p.img, category: "complexes" }} />
                     </div>
                   </div>
                 </div>

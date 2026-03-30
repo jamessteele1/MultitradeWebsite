@@ -3,6 +3,12 @@
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
 
 /* ── Types ── */
+export type ServiceUpgrades = {
+  powerType: "site" | "generator";
+  mineSpec: boolean;
+  mineName: string;
+};
+
 export type CartItem = {
   id: string;
   name: string;
@@ -11,13 +17,14 @@ export type CartItem = {
   category: "crib-rooms" | "site-offices" | "ablutions" | "containers" | "complexes" | "ancillary";
   quantity: number;
   duration: "weekly" | "monthly" | "purchase";
+  serviceUpgrades?: ServiceUpgrades;
 };
 
 type QuoteCartContextType = {
   items: CartItem[];
   isOpen: boolean;
   itemCount: number;
-  addItem: (item: Omit<CartItem, "quantity" | "duration">) => void;
+  addItem: (item: Omit<CartItem, "quantity" | "duration">, serviceUpgrades?: ServiceUpgrades) => void;
   removeItem: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
   updateDuration: (id: string, duration: CartItem["duration"]) => void;
@@ -60,13 +67,13 @@ export function QuoteCartProvider({ children }: { children: ReactNode }) {
 
   const itemCount = items.reduce((sum, i) => sum + i.quantity, 0);
 
-  const addItem = useCallback((item: Omit<CartItem, "quantity" | "duration">) => {
+  const addItem = useCallback((item: Omit<CartItem, "quantity" | "duration">, serviceUpgrades?: ServiceUpgrades) => {
     setItems((prev) => {
       const existing = prev.find((i) => i.id === item.id);
       if (existing) {
-        return prev.map((i) => i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i);
+        return prev.map((i) => i.id === item.id ? { ...i, quantity: i.quantity + 1, ...(serviceUpgrades ? { serviceUpgrades } : {}) } : i);
       }
-      return [...prev, { ...item, quantity: 1, duration: "monthly" }];
+      return [...prev, { ...item, quantity: 1, duration: "monthly", ...(serviceUpgrades ? { serviceUpgrades } : {}) }];
     });
     setIsOpen(true);
   }, []);

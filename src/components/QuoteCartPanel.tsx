@@ -129,6 +129,28 @@ export default function QuoteCartPanel() {
                           ))}
                         </select>
                       </div>
+
+                      {/* Service Upgrades details */}
+                      {item.serviceUpgrades && (
+                        <div className="mt-2 p-2 rounded-lg bg-amber-50/60 border border-amber-100">
+                          <div className="flex items-center gap-1.5 mb-1">
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#D4A843" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" /></svg>
+                            <span className="text-[10px] font-bold text-amber-700 uppercase tracking-wide">Service Upgrades</span>
+                          </div>
+                          <div className="space-y-0.5">
+                            <p className="text-[11px] text-gray-600">
+                              <span className="font-medium text-gray-700">Power:</span>{" "}
+                              {item.serviceUpgrades.powerType === "site" ? "Site Power" : "Generator"}
+                            </p>
+                            <p className="text-[11px] text-gray-600">
+                              <span className="font-medium text-gray-700">Mine-Spec:</span>{" "}
+                              {item.serviceUpgrades.mineSpec
+                                ? item.serviceUpgrades.mineName || "Yes"
+                                : "No — Standard"}
+                            </p>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>

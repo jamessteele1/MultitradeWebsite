@@ -98,6 +98,8 @@ export default function CompareProducts({ currentSlug, products }: Props) {
                       )}
                       <AddToQuoteButton
                         compact
+                        showServiceUpgrades={p.category !== "ancillary"}
+                        buildingSize={p.size.startsWith("12") ? "12x3" : p.size.startsWith("6") ? "6x3" : p.size.startsWith("3") ? "3x3" : "other"}
                         product={{
                           id: p.id,
                           name: p.name,

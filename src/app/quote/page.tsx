@@ -62,10 +62,15 @@ export default function QuotePage() {
 
   const buildQuoteSummary = () => {
     return items
-      .map(
-        (item) =>
-          `${item.quantity}x ${item.name} (${item.size}) — ${CATEGORY_LABELS[item.category]} — ${DURATION_LABELS[item.duration]}`
-      )
+      .map((item) => {
+        let line = `${item.quantity}x ${item.name} (${item.size}) — ${CATEGORY_LABELS[item.category]} — ${DURATION_LABELS[item.duration]}`;
+        if (item.serviceUpgrades) {
+          const su = item.serviceUpgrades;
+          line += `\n   Power: ${su.powerType === "site" ? "Site Power" : "Generator"}`;
+          line += `\n   Mine-Spec: ${su.mineSpec ? (su.mineName || "Yes") : "No — Standard"}`;
+        }
+        return line;
+      })
       .join("\n");
   };
 
@@ -94,6 +99,7 @@ export default function QuotePage() {
             category: item.category,
             quantity: item.quantity,
             duration: item.duration,
+            ...(item.serviceUpgrades ? { serviceUpgrades: item.serviceUpgrades } : {}),
           })),
         }),
       });
@@ -396,6 +402,28 @@ export default function QuotePage() {
                                   )}
                                 </select>
                               </div>
+
+                              {/* Service Upgrades details */}
+                              {item.serviceUpgrades && (
+                                <div className="mt-2.5 p-2.5 rounded-lg bg-amber-50/60 border border-amber-100">
+                                  <div className="flex items-center gap-1.5 mb-1.5">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#D4A843" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" /></svg>
+                                    <span className="text-[11px] font-bold text-amber-700 uppercase tracking-wide">Service Upgrades</span>
+                                  </div>
+                                  <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+                                    <p className="text-xs text-gray-600">
+                                      <span className="font-medium text-gray-700">Power:</span>{" "}
+                                      {item.serviceUpgrades.powerType === "site" ? "Site Power" : "Generator"}
+                                    </p>
+                                    <p className="text-xs text-gray-600">
+                                      <span className="font-medium text-gray-700">Mine-Spec:</span>{" "}
+                                      {item.serviceUpgrades.mineSpec
+                                        ? item.serviceUpgrades.mineName || "Yes"
+                                        : "No — Standard"}
+                                    </p>
+                                  </div>
+                                </div>
+                              )}
                             </div>
                           </div>
                         </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 
 const BOWEN_BASIN_MINES = [
   "Blackwater Mine", "Broadmeadow Mine", "Caval Ridge Mine", "Coppabella Mine",
@@ -68,11 +69,15 @@ export default function ServiceUpgradesDialog({ open, buildingSize, showWaterTan
     }
   }, [open]);
 
-  // Prevent body scroll when open
+  // Prevent body scroll and hide MobileCTA when open
   useEffect(() => {
     if (open) {
       document.body.style.overflow = "hidden";
-      return () => { document.body.style.overflow = ""; };
+      document.body.setAttribute("data-dialog-open", "true");
+      return () => {
+        document.body.style.overflow = "";
+        document.body.removeAttribute("data-dialog-open");
+      };
     }
   }, [open]);
 
@@ -90,7 +95,7 @@ export default function ServiceUpgradesDialog({ open, buildingSize, showWaterTan
           ? 3
           : totalSteps;
 
-  return (
+  return createPortal(
     <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center">
       {/* Backdrop */}
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onSkip} />
@@ -369,6 +374,7 @@ export default function ServiceUpgradesDialog({ open, buildingSize, showWaterTan
         </div>
       </div>
 
-    </div>
+    </div>,
+    document.body
   );
 }

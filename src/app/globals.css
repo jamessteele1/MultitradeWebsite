@@ -91,6 +91,11 @@ html {
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* Hide MobileCTA when a dialog is open */
+body[data-dialog-open] #mobile-cta {
+  display: none !important;
+}
+
 /* Line clamp utility */
 .line-clamp-2 {
   display: -webkit-box;

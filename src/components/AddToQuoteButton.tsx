@@ -10,12 +10,12 @@ const NO_UPGRADES = new Set([
   "solar-toilet",
   "chemical-toilet",
   "pwd-chemical-toilet",
+  "12x3m-mobile-crib",
 ]);
 
 // Products that only need mine-spec question (self-contained power/water)
 const MINE_SPEC_ONLY = new Set([
   "self-contained-supervisor-office",
-  "12x3m-mobile-crib",
   "6-6x3m-self-contained",
   "7-2x3m-self-contained",
   "9-6x3m-living-quarters",

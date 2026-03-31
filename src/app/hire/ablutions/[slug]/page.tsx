@@ -54,7 +54,7 @@ const PRODUCTS: Record<string, Product> = {
     size: "360cm × 240cm",
     capacity: "Medium traffic",
     badge: null,
-    images: ["/images/products/36x24-toilet/1.jpg", "/images/products/36x24-toilet/2.jpg", "/images/products/36x24-toilet/3.jpg", "/images/products/36x24-toilet/4.jpg", "/images/products/36x24-toilet/5.jpg", "/images/products/36x24-toilet/6.jpg"],
+    images: ["/images/products/36x24-toilet/1.jpg", "/images/products/36x24-toilet/2.jpg", "/images/products/36x24-toilet/3.jpg", "/images/products/36x24-toilet/4.jpg"],
     floorPlan: "/images/floorplans/MBH-3624-TBL-01-A - 3.6x2.4m Toilet Block.pdf",
     description: "The 3.6m × 2.4m Toilet is a compact, self-contained amenity unit ideal for smaller construction sites, events, and temporary worksites. Despite its compact footprint, this unit provides comfortable toilet and hand washing facilities with separate cubicles. Built to the same heavy-duty standards as our larger units.",
     features: [
@@ -88,7 +88,7 @@ const PRODUCTS: Record<string, Product> = {
     size: "545cm × 240cm",
     capacity: "Medium traffic",
     badge: "SOLAR",
-    images: ["/images/products/solar-toilet-6x24/1.jpg", "/images/products/solar-toilet-6x24/2.jpg", "/images/products/solar-toilet-6x24/3.jpg"],
+    images: ["/images/products/solar-toilet-6x24/1.jpg", "/images/products/solar-toilet-6x24/2.jpg", "/images/products/solar-toilet-6x24/3.jpg", "/images/products/solar-toilet-6x24/4.jpg", "/images/products/solar-toilet-6x24/5.jpg", "/images/products/solar-toilet-6x24/6.jpg", "/images/products/solar-toilet-6x24/7.jpg", "/images/products/solar-toilet-6x24/8.jpg", "/images/products/solar-toilet-6x24/9.jpg", "/images/products/solar-toilet-6x24/10.jpg", "/images/products/solar-toilet-6x24/11.jpg", "/images/products/solar-toilet-6x24/12.jpg"],
     floorPlan: "/images/floorplans/SQF-4525-01-A - 5.45x2.4m Solar Toilet - Floor Plan.pdf",
     description: "The 5.45m × 2.4m Solar Toilet is a completely self-sufficient amenity unit requiring no utility connections whatsoever. Powered entirely by roof-mounted solar panels with battery storage, and equipped with onboard water tanks, this unit can be deployed anywhere — remote pipeline corridors, bushland clearing sites, or temporary access roads. Features 2 pans and 2 hand basins.",
     features: [
@@ -156,7 +156,7 @@ const PRODUCTS: Record<string, Product> = {
     size: "Portable",
     capacity: "Single use",
     badge: null,
-    images: ["/images/products/Chemical Toilet.png"],
+    images: ["/images/products/chemical-toilet/1.jpg", "/images/products/chemical-toilet/2.jpg"],
     floorPlan: null,
     description: "The Chemical Toilet is a standalone, fully portable amenity solution for remote worksites with no water or sewage connections available. Using a self-contained chemical waste system, this unit can be placed anywhere on site and relocated as work progresses. Ideal for pipeline corridors, road construction, remote clearing, and any location where permanent facilities aren't feasible.",
     features: [
@@ -186,7 +186,7 @@ const PRODUCTS: Record<string, Product> = {
     size: "Portable",
     capacity: "Accessible",
     badge: "ACCESSIBLE",
-    images: ["/images/products/Chemical Toilet.png"],
+    images: ["/images/products/pwd-chemical-toilet/1.png"],
     floorPlan: null,
     description: "The PWD (People With Disability) Chemical Toilet is a wheelchair accessible, self-contained portable amenity that meets Australian accessibility compliance requirements. Featuring a wider doorway, internal grab rails, and sufficient turning circle for wheelchair users, this unit ensures all workers and visitors have access to dignified toilet facilities on any worksite.",
     features: [
@@ -217,7 +217,7 @@ const PRODUCTS: Record<string, Product> = {
     size: "Custom",
     capacity: "Large crews",
     badge: null,
-    images: ["/images/products/42x3m-ablution/2.jpg", "/images/products/42x3m-ablution/bathhouse-1.jpg", "/images/products/42x3m-ablution/bathhouse-2.jpg"],
+    images: ["/images/products/42x3m-ablution/bathhouse-1.jpg", "/images/products/42x3m-ablution/bathhouse-2.jpg", "/images/products/42x3m-ablution/2.jpg"],
     floorPlan: null,
     description: "The Bathhouse is a comprehensive change room and shower facility designed for large mining and construction crews. Featuring multiple showers, change rooms with double-stacked lockers, and bench seating, this unit provides a complete end-of-shift amenity. Custom-built to suit your crew size and site requirements, the Bathhouse can be configured as a standalone unit or integrated into a larger camp complex.",
     features: [

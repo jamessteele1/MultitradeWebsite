@@ -20,6 +20,12 @@ export type ServiceUpgradesResult = {
   mineName: string;
   addWaterTank: boolean;
   plugSize?: string;
+  /** Toilet sewer connection — true means connected to sewer, no waste tank needed */
+  sewerConnected?: boolean;
+  /** Auto-add waste tank (4000L or 6000L based on toilet size) */
+  addWasteTank?: boolean;
+  /** Auto-add stair & landing for non-sewer toilets */
+  addStairLanding?: boolean;
 };
 
 type Props = {
@@ -29,17 +35,22 @@ type Props = {
   showWaterTank?: boolean;
   /** Only ask mine-spec question (for self-contained / solar buildings) */
   mineSpecOnly?: boolean;
+  /** Show sewer connection question (for toilet blocks) */
+  showSewerQuestion?: boolean;
+  /** Toilet size for waste tank sizing — "6x3" = 6000L, "3.6x2.4" = 4000L */
+  toiletSize?: "6x3" | "3.6x2.4";
   onConfirm: (data: ServiceUpgradesResult) => void;
   onSkip: () => void;
 };
 
-export default function ServiceUpgradesDialog({ open, buildingSize, showWaterTank = false, mineSpecOnly = false, onConfirm, onSkip }: Props) {
+export default function ServiceUpgradesDialog({ open, buildingSize, showWaterTank = false, mineSpecOnly = false, showSewerQuestion = false, toiletSize, onConfirm, onSkip }: Props) {
   const [powerType, setPowerType] = useState<"site" | "generator" | "">("");
   const [mineSpec, setMineSpec] = useState<boolean | null>(null);
   const [mineName, setMineName] = useState("");
   const [mineSearch, setMineSearch] = useState("");
   const [showMineDropdown, setShowMineDropdown] = useState(false);
   const [waterTank, setWaterTank] = useState<boolean | null>(null);
+  const [sewerConnected, setSewerConnected] = useState<boolean | null>(null);
 
   const plugSize = buildingSize === "12x3" || buildingSize === "other" ? "32amp single phase" : "15amp";
 
@@ -53,7 +64,10 @@ export default function ServiceUpgradesDialog({ open, buildingSize, showWaterTan
     ? mineSpecComplete
     : powerType !== "" && mineSpecComplete;
 
-  const canConfirm = electricalComplete && (!showWaterTank || waterTank !== null);
+  const sewerComplete = !showSewerQuestion || sewerConnected !== null;
+  // Water tank question only shows for non-sewer toilets or non-toilet buildings
+  const effectiveShowWaterTank = showWaterTank && (!showSewerQuestion || sewerConnected === true);
+  const canConfirm = electricalComplete && sewerComplete && (!effectiveShowWaterTank || waterTank !== null);
 
   const selectMine = (name: string) => {
     setMineName(name);
@@ -70,6 +84,7 @@ export default function ServiceUpgradesDialog({ open, buildingSize, showWaterTan
       setMineSearch("");
       setShowMineDropdown(false);
       setWaterTank(null);
+      setSewerConnected(null);
     }
   }, [open]);
 
@@ -88,17 +103,18 @@ export default function ServiceUpgradesDialog({ open, buildingSize, showWaterTan
   if (!open) return null;
 
   // Progress steps
-  const totalSteps = mineSpecOnly ? (1 + (showWaterTank ? 1 : 0)) : (showWaterTank ? 4 : 3);
+  const extraSteps = (showSewerQuestion ? 1 : 0) + (effectiveShowWaterTank ? 1 : 0);
+  const totalSteps = mineSpecOnly ? (1 + extraSteps) : (2 + extraSteps);
   const step = mineSpecOnly
-    ? (!mineSpecComplete ? 1 : showWaterTank && waterTank === null ? 1 : totalSteps)
+    ? (!mineSpecComplete ? 1 : showSewerQuestion && sewerConnected === null ? 2 : effectiveShowWaterTank && waterTank === null ? totalSteps - 1 : totalSteps)
     : powerType === ""
       ? 1
-      : mineSpec === null
+      : !electricalComplete
         ? 2
-        : !electricalComplete
-          ? 2
-          : showWaterTank && waterTank === null
-            ? 3
+        : showSewerQuestion && sewerConnected === null
+          ? 3
+          : effectiveShowWaterTank && waterTank === null
+            ? totalSteps - 1
             : totalSteps;
 
   return createPortal(
@@ -298,8 +314,72 @@ export default function ServiceUpgradesDialog({ open, buildingSize, showWaterTan
             </div>
           )}
 
-          {/* Step 3: Water Tank — only for crib rooms / ablutions, after electrical complete */}
-          {showWaterTank && electricalComplete && (
+          {/* Step: Sewer Connection — only for toilet blocks, after electrical complete */}
+          {showSewerQuestion && electricalComplete && (
+            <div className="animate-[dialogFadeIn_0.2s_ease-out]">
+              <h4 className="font-bold text-gray-900 text-sm mb-1">Sewer Connection</h4>
+              <p className="text-xs text-gray-500 mb-3">Will this toilet be connected to a sewer line?</p>
+              <div className="space-y-2">
+                <button
+                  onClick={() => setSewerConnected(true)}
+                  className={`w-full flex items-start gap-3 p-3 rounded-lg border text-left transition-all ${
+                    sewerConnected === true
+                      ? "border-amber-500 bg-amber-50/50 ring-1 ring-amber-500/20"
+                      : "border-gray-200 hover:border-gray-300"
+                  }`}
+                >
+                  <div className={`mt-0.5 w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
+                    sewerConnected === true ? "border-amber-500" : "border-gray-300"
+                  }`}>
+                    {sewerConnected === true && <div className="w-2.5 h-2.5 rounded-full bg-amber-500" />}
+                  </div>
+                  <div>
+                    <span className="text-sm font-semibold text-gray-900">Yes — Sewer Connected</span>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      Toilet will be plumbed into existing sewer infrastructure. No waste tank required.
+                    </p>
+                  </div>
+                </button>
+
+                <button
+                  onClick={() => setSewerConnected(false)}
+                  className={`w-full flex items-start gap-3 p-3 rounded-lg border text-left transition-all ${
+                    sewerConnected === false
+                      ? "border-amber-500 bg-amber-50/50 ring-1 ring-amber-500/20"
+                      : "border-gray-200 hover:border-gray-300"
+                  }`}
+                >
+                  <div className={`mt-0.5 w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 ${
+                    sewerConnected === false ? "border-amber-500" : "border-gray-300"
+                  }`}>
+                    {sewerConnected === false && <div className="w-2.5 h-2.5 rounded-full bg-amber-500" />}
+                  </div>
+                  <div>
+                    <span className="text-sm font-semibold text-gray-900">No — Needs Waste Tank</span>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      {toiletSize === "6x3"
+                        ? "A 6000L waste tank and stair & landing will be added to your quote."
+                        : "A 4000L waste tank and stair & landing will be added to your quote."}
+                    </p>
+                  </div>
+                </button>
+              </div>
+
+              {sewerConnected === false && (
+                <div className="mt-2 p-2.5 rounded-lg bg-amber-50 border border-amber-100">
+                  <div className="flex items-center gap-2">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#92400e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                    <p className="text-[11px] text-amber-700">
+                      {toiletSize === "6x3" ? "6000L waste tank" : "4000L waste tank"} + stair &amp; landing will be automatically added to your quote.
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Step: Water Tank — only for crib rooms / sewer-connected toilets, after electrical + sewer complete */}
+          {effectiveShowWaterTank && electricalComplete && sewerComplete && (
             <div className="animate-[dialogFadeIn_0.2s_ease-out]">
               <h4 className="font-bold text-gray-900 text-sm mb-1">Potable Water Supply</h4>
               <p className="text-xs text-gray-500 mb-3">Does this building need a fresh water tank & pump?</p>
@@ -368,6 +448,9 @@ export default function ServiceUpgradesDialog({ open, buildingSize, showWaterTan
                   mineName,
                   addWaterTank: waterTank === true,
                   plugSize: mineSpecOnly ? undefined : plugSize,
+                  sewerConnected: showSewerQuestion ? sewerConnected ?? undefined : undefined,
+                  addWasteTank: showSewerQuestion && sewerConnected === false,
+                  addStairLanding: showSewerQuestion && sewerConnected === false,
                 });
               }
             }}

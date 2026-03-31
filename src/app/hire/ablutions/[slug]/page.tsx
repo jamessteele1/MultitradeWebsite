@@ -276,6 +276,10 @@ export default function AblutionDetailPage({ params }: { params: { slug: string 
 
   const buildingSize: "12x3" | "6x3" | "3x3" | "other" = product.size.startsWith("12") ? "12x3" : product.size.startsWith("6") ? "6x3" : product.size.startsWith("3") ? "3x3" : "other";
 
+  // Toilet-specific: sewer connection question + waste tank sizing
+  const isToiletBlock = product.slug === "6x3m-toilet-block" || product.slug === "3-6x2-4m-toilet";
+  const toiletSize: "6x3" | "3.6x2.4" | undefined = product.slug === "6x3m-toilet-block" ? "6x3" : product.slug === "3-6x2-4m-toilet" ? "3.6x2.4" : undefined;
+
   return (
     <ServiceUpgradesProvider>
       <Header />
@@ -303,7 +307,7 @@ export default function AblutionDetailPage({ params }: { params: { slug: string 
               <p className="text-white/50 mt-1 text-sm font-medium">{product.tagline}</p>
               <p className="text-white/60 mt-4 text-sm leading-relaxed max-w-lg">{product.description}</p>
               <div className="flex flex-wrap items-center gap-3 mt-6">
-                <AddToQuoteButton showServiceUpgrades buildingSize={buildingSize} product={{ id: product.slug, name: product.name, size: product.size, img: product.images[0], category: "ablutions" }} />
+                <AddToQuoteButton showServiceUpgrades buildingSize={buildingSize} showSewerQuestion={isToiletBlock} toiletSize={toiletSize} product={{ id: product.slug, name: product.name, size: product.size, img: product.images[0], category: "ablutions" }} />
                 <a href="tel:0749792333" className="px-6 py-3 rounded-lg font-semibold text-white border border-white/20 hover:bg-white/5 transition-all">(07) 4979 2333</a>
                 {product.floorPlan && (
                   <a href={product.floorPlan!} target="_blank" rel="noopener" className="px-4 py-3 rounded-lg text-sm font-medium text-white/70 hover:text-white transition-colors flex items-center gap-1.5">

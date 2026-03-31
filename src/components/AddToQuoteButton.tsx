@@ -31,9 +31,13 @@ type Props = {
   showServiceUpgrades?: boolean;
   /** Building size for plug size logic in the dialog */
   buildingSize?: "12x3" | "6x3" | "3x3" | "other";
+  /** Show sewer connection question (for toilet blocks) */
+  showSewerQuestion?: boolean;
+  /** Toilet size for waste tank sizing — "6x3" = 6000L, "3.6x2.4" = 4000L */
+  toiletSize?: "6x3" | "3.6x2.4";
 };
 
-export default function AddToQuoteButton({ product, className = "", compact = false, showServiceUpgrades = false, buildingSize = "other" }: Props) {
+export default function AddToQuoteButton({ product, className = "", compact = false, showServiceUpgrades = false, buildingSize = "other", showSewerQuestion = false, toiletSize }: Props) {
   const { addItem, isInCart } = useQuoteCart();
   const serviceCtx = useServiceUpgrades();
   const inCart = isInCart(product.id);
@@ -63,6 +67,11 @@ export default function AddToQuoteButton({ product, className = "", compact = fa
 
     // If service upgrades enabled, check if already filled in via inline section
     if (effectiveShowUpgrades) {
+      // For toilets with sewer question, always show dialog even if inline power/mine is complete
+      if (showSewerQuestion) {
+        setShowDialog(true);
+        return;
+      }
       if (serviceCtx?.isComplete) {
         const { powerType, mineSpec, mineName } = serviceCtx.state;
         doAdd({
@@ -94,6 +103,7 @@ export default function AddToQuoteButton({ product, className = "", compact = fa
       mineSpec: data.mineSpec,
       mineName: data.mineName,
       plugSize: data.plugSize,
+      sewerConnected: data.sewerConnected,
     };
     // Also update shared context if available
     if (serviceCtx) {
@@ -112,6 +122,29 @@ export default function AddToQuoteButton({ product, className = "", compact = fa
         name: "5000L Tank & Pump Combo",
         size: "Skid mounted",
         img: "/images/products/5000l-tank-pump/1.jpg",
+        category: "ancillary",
+      });
+    }
+
+    // If toilet not connected to sewer, add waste tank + stair & landing
+    if (data.addWasteTank) {
+      const wasteTankId = toiletSize === "6x3" ? "6000l-waste-tank" : "4000l-waste-tank";
+      const wasteTankName = toiletSize === "6x3" ? "6000L Waste Tank" : "4000L Waste Tank";
+      const wasteTankSize = toiletSize === "6x3" ? "6000L" : "4000L";
+      addItem({
+        id: wasteTankId,
+        name: wasteTankName,
+        size: wasteTankSize,
+        img: `/images/products/${wasteTankId}/1.jpg`,
+        category: "ancillary",
+      });
+    }
+    if (data.addStairLanding) {
+      addItem({
+        id: "stair-landing",
+        name: "Stair & Landing",
+        size: "Various",
+        img: "/images/products/stair-landing/1.jpg",
         category: "ancillary",
       });
     }
@@ -203,6 +236,8 @@ export default function AddToQuoteButton({ product, className = "", compact = fa
           buildingSize={buildingSize}
           showWaterTank={showWaterTank}
           mineSpecOnly={mineSpecOnly}
+          showSewerQuestion={showSewerQuestion}
+          toiletSize={toiletSize}
           onConfirm={handleConfirm}
           onSkip={handleSkip}
         />

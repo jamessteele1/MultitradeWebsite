@@ -53,6 +53,14 @@ const COMMON_ADD_ONS: AddOn[] = [
     desc: "Grey/black water collection for ablutions",
   },
   {
+    id: "4000l-waste-tank",
+    name: "4000L Waste Tank",
+    size: "4000L",
+    img: "/images/products/4000l-waste-tank/1.jpg",
+    category: "ancillary",
+    desc: "Mid-size waste tank for smaller toilet blocks",
+  },
+  {
     id: "6x3m-toilet-block",
     name: "6x3m Toilet Block",
     size: "6x3m",
@@ -62,16 +70,23 @@ const COMMON_ADD_ONS: AddOn[] = [
   },
 ];
 
+// Toilet products that pair with specific waste tanks
+const SMALL_TOILET_IDS = new Set(["3-6x2-4m-toilet"]);
+const LARGE_TOILET_IDS = new Set(["6x3m-toilet-block"]);
+
 // Choose relevant add-ons based on product category
 function getAddOns(category: string, currentProductId: string): AddOn[] {
   const ids = new Set<string>();
   const result: AddOn[] = [];
 
-  // Always relevant: stairs, deck, hand wash
-  // Stair & Landing only relevant for ablutions/toilets/shower blocks (paired with waste tanks)
+  // Pick the right waste tank for toilet products
+  const wasteTankId = SMALL_TOILET_IDS.has(currentProductId)
+    ? "4000l-waste-tank"
+    : "6000l-waste-tank";
+
   const priorities =
     category === "ablutions"
-      ? ["5000l-tank-pump", "6000l-waste-tank", "stair-landing", "12x3m-covered-deck"]
+      ? ["5000l-tank-pump", wasteTankId, "stair-landing", "12x3m-covered-deck"]
       : ["12x3m-covered-deck", "dual-hand-wash-station", "6x3m-toilet-block", "5000l-tank-pump"];
 
   for (const id of priorities) {

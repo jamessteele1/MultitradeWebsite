@@ -8,6 +8,7 @@ export type ServiceUpgrades = {
   mineSpec: boolean;
   mineName: string;
   plugSize?: string;
+  sewerConnected?: boolean;
 };
 
 export type CartItem = {

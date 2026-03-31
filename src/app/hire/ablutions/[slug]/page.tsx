@@ -19,7 +19,7 @@ const PRODUCTS: Record<string, Product> = {
     size: "600cm × 300cm",
     capacity: "High traffic",
     badge: null,
-    images: ["/images/products/6x3-toilet/1.jpg", "/images/products/6x3-toilet/2.jpg", "/images/products/6x3-toilet/3.jpg", "/images/products/6x3-toilet/4.jpg", "/images/products/6x3-toilet/5.jpg", "/images/products/6x3-toilet/6.jpg", "/images/products/6x3-toilet/7.jpg"],
+    images: ["/images/products/6x3-toilet/1.jpg", "/images/products/6x3-toilet/2.jpg", "/images/products/6x3-toilet/3.jpg", "/images/products/6x3-toilet/4.jpg", "/images/products/6x3-toilet/5.jpg", "/images/products/6x3-toilet/6.jpg", "/images/products/6x3-toilet/7.jpg", "/images/products/6x3-toilet/8.jpg"],
     floorPlan: "/images/floorplans/MBH-6030-TBL-01-A - 6.0x3.0m Toilet Block.pdf",
     description: "The 6.0m × 3.0m Toilet Block is a high-capacity portable amenity designed for busy worksites with large crews. Featuring separate male and female configurations with multiple cubicles, urinals, and hand basins, this unit handles heavy foot traffic while maintaining hygiene standards. Built on a 75mm steel frame with Colorbond cladding, it's tough enough for mining and construction environments.",
     features: [
@@ -54,7 +54,7 @@ const PRODUCTS: Record<string, Product> = {
     size: "360cm × 240cm",
     capacity: "Medium traffic",
     badge: null,
-    images: ["/images/products/36x24-toilet/1.jpg", "/images/products/36x24-toilet/2.jpg", "/images/products/36x24-toilet/3.jpg"],
+    images: ["/images/products/36x24-toilet/1.jpg", "/images/products/36x24-toilet/2.jpg", "/images/products/36x24-toilet/3.jpg", "/images/products/36x24-toilet/4.jpg", "/images/products/36x24-toilet/5.jpg", "/images/products/36x24-toilet/6.jpg"],
     floorPlan: "/images/floorplans/MBH-3624-TBL-01-A - 3.6x2.4m Toilet Block.pdf",
     description: "The 3.6m × 2.4m Toilet is a compact, self-contained amenity unit ideal for smaller construction sites, events, and temporary worksites. Despite its compact footprint, this unit provides comfortable toilet and hand washing facilities with separate cubicles. Built to the same heavy-duty standards as our larger units.",
     features: [

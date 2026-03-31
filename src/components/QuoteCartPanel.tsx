@@ -136,6 +136,12 @@ export default function QuoteCartPanel() {
                                 ? item.serviceUpgrades.mineName || "Yes"
                                 : "No — Standard"}
                             </p>
+                            {item.serviceUpgrades.sewerConnected !== undefined && (
+                              <p className="text-[11px] text-gray-600">
+                                <span className="font-medium text-gray-700">Sewer:</span>{" "}
+                                {item.serviceUpgrades.sewerConnected ? "Connected to sewer" : "Waste tank required"}
+                              </p>
+                            )}
                           </div>
                         </div>
                       )}

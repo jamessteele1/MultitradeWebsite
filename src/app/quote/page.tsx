@@ -65,6 +65,9 @@ export default function QuotePage() {
             line += `\n   Power: ${su.powerType === "site" ? "Site Power" : `Generator — ${su.plugSize || "32amp single phase"} Plug Required`}`;
           }
           line += `\n   Mine-Spec: ${su.mineSpec ? (su.mineName || "Yes") : "No — Standard"}`;
+          if (su.sewerConnected !== undefined) {
+            line += `\n   Sewer: ${su.sewerConnected ? "Connected to sewer" : "Waste tank required"}`;
+          }
         }
         return line;
       })
@@ -406,6 +409,12 @@ export default function QuotePage() {
                                         ? item.serviceUpgrades.mineName || "Yes"
                                         : "No — Standard"}
                                     </p>
+                                    {item.serviceUpgrades.sewerConnected !== undefined && (
+                                      <p className="text-xs text-gray-600">
+                                        <span className="font-medium text-gray-700">Sewer:</span>{" "}
+                                        {item.serviceUpgrades.sewerConnected ? "Connected to sewer" : "Waste tank required"}
+                                      </p>
+                                    )}
                                   </div>
                                 </div>
                               )}

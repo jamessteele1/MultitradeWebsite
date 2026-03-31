@@ -13,14 +13,8 @@ const CATEGORY_LABELS: Record<CartItem["category"], string> = {
   ancillary: "Ancillary",
 };
 
-const DURATION_LABELS: Record<CartItem["duration"], string> = {
-  weekly: "Weekly",
-  monthly: "Monthly",
-  purchase: "Purchase",
-};
-
 export default function QuoteCartPanel() {
-  const { items, isOpen, closeCart, removeItem, updateQuantity, updateDuration, clearCart, itemCount } = useQuoteCart();
+  const { items, isOpen, closeCart, removeItem, updateQuantity, clearCart, itemCount } = useQuoteCart();
 
   // Lock body scroll when open
   useEffect(() => {
@@ -118,16 +112,6 @@ export default function QuoteCartPanel() {
                           </button>
                         </div>
 
-                        {/* Duration */}
-                        <select
-                          value={item.duration}
-                          onChange={(e) => updateDuration(item.id, e.target.value as CartItem["duration"])}
-                          className="text-xs font-medium text-gray-600 bg-gray-50 border border-gray-200 rounded-lg px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-gold"
-                        >
-                          {Object.entries(DURATION_LABELS).map(([val, label]) => (
-                            <option key={val} value={val}>{label}</option>
-                          ))}
-                        </select>
                       </div>
 
                       {/* Service Upgrades details */}

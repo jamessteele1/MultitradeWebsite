@@ -17,7 +17,6 @@ export type CartItem = {
   img: string;
   category: "crib-rooms" | "site-offices" | "ablutions" | "containers" | "complexes" | "ancillary";
   quantity: number;
-  duration: "weekly" | "monthly" | "purchase";
   serviceUpgrades?: ServiceUpgrades;
 };
 
@@ -25,10 +24,9 @@ type QuoteCartContextType = {
   items: CartItem[];
   isOpen: boolean;
   itemCount: number;
-  addItem: (item: Omit<CartItem, "quantity" | "duration">, serviceUpgrades?: ServiceUpgrades) => void;
+  addItem: (item: Omit<CartItem, "quantity">, serviceUpgrades?: ServiceUpgrades) => void;
   removeItem: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
-  updateDuration: (id: string, duration: CartItem["duration"]) => void;
   clearCart: () => void;
   openCart: () => void;
   closeCart: () => void;
@@ -68,13 +66,13 @@ export function QuoteCartProvider({ children }: { children: ReactNode }) {
 
   const itemCount = items.reduce((sum, i) => sum + i.quantity, 0);
 
-  const addItem = useCallback((item: Omit<CartItem, "quantity" | "duration">, serviceUpgrades?: ServiceUpgrades) => {
+  const addItem = useCallback((item: Omit<CartItem, "quantity">, serviceUpgrades?: ServiceUpgrades) => {
     setItems((prev) => {
       const existing = prev.find((i) => i.id === item.id);
       if (existing) {
         return prev.map((i) => i.id === item.id ? { ...i, quantity: i.quantity + 1, ...(serviceUpgrades ? { serviceUpgrades } : {}) } : i);
       }
-      return [...prev, { ...item, quantity: 1, duration: "monthly", ...(serviceUpgrades ? { serviceUpgrades } : {}) }];
+      return [...prev, { ...item, quantity: 1, ...(serviceUpgrades ? { serviceUpgrades } : {}) }];
     });
     setIsOpen(true);
   }, []);
@@ -86,10 +84,6 @@ export function QuoteCartProvider({ children }: { children: ReactNode }) {
   const updateQuantity = useCallback((id: string, quantity: number) => {
     if (quantity < 1) return;
     setItems((prev) => prev.map((i) => i.id === id ? { ...i, quantity } : i));
-  }, []);
-
-  const updateDuration = useCallback((id: string, duration: CartItem["duration"]) => {
-    setItems((prev) => prev.map((i) => i.id === id ? { ...i, duration } : i));
   }, []);
 
   const clearCart = useCallback(() => {
@@ -111,7 +105,6 @@ export function QuoteCartProvider({ children }: { children: ReactNode }) {
         addItem,
         removeItem,
         updateQuantity,
-        updateDuration,
         clearCart,
         openCart,
         closeCart,

@@ -3,7 +3,7 @@
 import { createContext, useContext, useState, useCallback, type ReactNode } from "react";
 
 export type ServiceUpgradesState = {
-  powerType: "site" | "generator" | "";
+  powerType: "site" | "generator" | "self-contained" | "";
   mineSpec: boolean | null;
   mineName: string;
 };

@@ -15,10 +15,11 @@ const BOWEN_BASIN_MINES = [
 ];
 
 export type ServiceUpgradesResult = {
-  powerType: "site" | "generator";
+  powerType: "site" | "generator" | "self-contained";
   mineSpec: boolean;
   mineName: string;
   addWaterTank: boolean;
+  plugSize?: string;
 };
 
 type Props = {
@@ -26,11 +27,13 @@ type Props = {
   buildingSize: "12x3" | "6x3" | "3x3" | "other";
   /** Show the potable water tank question (for crib rooms & ablutions) */
   showWaterTank?: boolean;
+  /** Only ask mine-spec question (for self-contained / solar buildings) */
+  mineSpecOnly?: boolean;
   onConfirm: (data: ServiceUpgradesResult) => void;
   onSkip: () => void;
 };
 
-export default function ServiceUpgradesDialog({ open, buildingSize, showWaterTank = false, onConfirm, onSkip }: Props) {
+export default function ServiceUpgradesDialog({ open, buildingSize, showWaterTank = false, mineSpecOnly = false, onConfirm, onSkip }: Props) {
   const [powerType, setPowerType] = useState<"site" | "generator" | "">("");
   const [mineSpec, setMineSpec] = useState<boolean | null>(null);
   const [mineName, setMineName] = useState("");
@@ -44,10 +47,11 @@ export default function ServiceUpgradesDialog({ open, buildingSize, showWaterTan
     m.toLowerCase().includes(mineSearch.toLowerCase())
   ).sort();
 
-  const electricalComplete =
-    powerType !== "" &&
-    mineSpec !== null &&
-    (mineSpec === false || mineName !== "");
+  const mineSpecComplete = mineSpec !== null && (mineSpec === false || mineName !== "");
+
+  const electricalComplete = mineSpecOnly
+    ? mineSpecComplete
+    : powerType !== "" && mineSpecComplete;
 
   const canConfirm = electricalComplete && (!showWaterTank || waterTank !== null);
 
@@ -84,16 +88,18 @@ export default function ServiceUpgradesDialog({ open, buildingSize, showWaterTan
   if (!open) return null;
 
   // Progress steps
-  const totalSteps = showWaterTank ? 4 : 3;
-  const step = powerType === ""
-    ? 1
-    : mineSpec === null
-      ? 2
-      : !electricalComplete
+  const totalSteps = mineSpecOnly ? (1 + (showWaterTank ? 1 : 0)) : (showWaterTank ? 4 : 3);
+  const step = mineSpecOnly
+    ? (!mineSpecComplete ? 1 : showWaterTank && waterTank === null ? 1 : totalSteps)
+    : powerType === ""
+      ? 1
+      : mineSpec === null
         ? 2
-        : showWaterTank && waterTank === null
-          ? 3
-          : totalSteps;
+        : !electricalComplete
+          ? 2
+          : showWaterTank && waterTank === null
+            ? 3
+            : totalSteps;
 
   return createPortal(
     <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center">
@@ -133,8 +139,8 @@ export default function ServiceUpgradesDialog({ open, buildingSize, showWaterTan
         </div>
 
         <div className="p-5 space-y-5">
-          {/* Step 1: Power Connection */}
-          <div>
+          {/* Step 1: Power Connection (skip for self-contained / solar buildings) */}
+          {!mineSpecOnly && (<div>
             <h4 className="font-bold text-gray-900 text-sm mb-1">Power Connection</h4>
             <p className="text-xs text-gray-500 mb-3">How will this building be powered on site?</p>
             <div className="space-y-2">
@@ -194,8 +200,10 @@ export default function ServiceUpgradesDialog({ open, buildingSize, showWaterTan
             )}
           </div>
 
-          {/* Step 2: Mine Spec — only show after power selected */}
-          {powerType !== "" && (
+          )}
+
+          {/* Step 2: Mine Spec — show after power selected, or immediately for mineSpecOnly */}
+          {(mineSpecOnly || powerType !== "") && (
             <div className="animate-[dialogFadeIn_0.2s_ease-out]">
               <h4 className="font-bold text-gray-900 text-sm mb-1">Mine-Spec Electrical</h4>
               <p className="text-xs text-gray-500 mb-3">Does this building require mine-spec electrical compliance?</p>
@@ -352,12 +360,14 @@ export default function ServiceUpgradesDialog({ open, buildingSize, showWaterTan
           </button>
           <button
             onClick={() => {
-              if (canConfirm && (powerType === "site" || powerType === "generator")) {
+              if (canConfirm) {
+                const resolvedPower = mineSpecOnly ? "self-contained" as const : powerType as "site" | "generator";
                 onConfirm({
-                  powerType,
+                  powerType: resolvedPower,
                   mineSpec: mineSpec ?? false,
                   mineName,
                   addWaterTank: waterTank === true,
+                  plugSize: mineSpecOnly ? undefined : plugSize,
                 });
               }
             }}

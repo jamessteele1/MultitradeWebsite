@@ -4,9 +4,10 @@ import { createContext, useContext, useState, useEffect, useCallback, type React
 
 /* ── Types ── */
 export type ServiceUpgrades = {
-  powerType: "site" | "generator";
+  powerType: "site" | "generator" | "self-contained";
   mineSpec: boolean;
   mineName: string;
+  plugSize?: string;
 };
 
 export type CartItem = {

@@ -66,7 +66,9 @@ export default function QuotePage() {
         let line = `${item.quantity}x ${item.name} (${item.size}) — ${CATEGORY_LABELS[item.category]} — ${DURATION_LABELS[item.duration]}`;
         if (item.serviceUpgrades) {
           const su = item.serviceUpgrades;
-          line += `\n   Power: ${su.powerType === "site" ? "Site Power" : "Generator"}`;
+          if (su.powerType !== "self-contained") {
+            line += `\n   Power: ${su.powerType === "site" ? "Site Power" : `Generator — ${su.plugSize || "32amp single phase"} Plug Required`}`;
+          }
           line += `\n   Mine-Spec: ${su.mineSpec ? (su.mineName || "Yes") : "No — Standard"}`;
         }
         return line;
@@ -411,10 +413,14 @@ export default function QuotePage() {
                                     <span className="text-[11px] font-bold text-amber-700 uppercase tracking-wide">Service Upgrades</span>
                                   </div>
                                   <div className="grid grid-cols-2 gap-x-4 gap-y-1">
-                                    <p className="text-xs text-gray-600">
-                                      <span className="font-medium text-gray-700">Power:</span>{" "}
-                                      {item.serviceUpgrades.powerType === "site" ? "Site Power" : "Generator"}
-                                    </p>
+                                    {item.serviceUpgrades.powerType !== "self-contained" && (
+                                      <p className="text-xs text-gray-600">
+                                        <span className="font-medium text-gray-700">Power:</span>{" "}
+                                        {item.serviceUpgrades.powerType === "site"
+                                          ? "Site Power"
+                                          : `Generator — ${item.serviceUpgrades.plugSize || "32amp single phase"} Plug Required`}
+                                      </p>
+                                    )}
                                     <p className="text-xs text-gray-600">
                                       <span className="font-medium text-gray-700">Mine-Spec:</span>{" "}
                                       {item.serviceUpgrades.mineSpec

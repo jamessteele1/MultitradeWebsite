@@ -69,7 +69,7 @@ export default function FuturaSolarCaseStudy() {
           <nav className="flex items-center gap-1.5 text-xs text-white/40 mb-8">
             <a href="/" className="hover:text-white/60">Home</a><span>/</span>
             <a href="/case-studies/gladstone-hockey" className="hover:text-white/60">Case Studies</a><span>/</span>
-            <span className="text-white/80 font-medium">Futura Solar</span>
+            <span className="text-white/80 font-medium">Futura Solar Facilities</span>
           </nav>
           <div className="text-xs font-semibold tracking-widest uppercase gold-text mb-4">Case Study</div>
           <h1 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight leading-tight max-w-3xl">

@@ -92,7 +92,8 @@ const PRODUCTS: Record<string, Product> = {
     badge: "SELF-CONTAINED",
     selfContained: true,
     mobile: true,
-    images: ["/images/products/12x3-mobile-crib-room/1.jpg", "/images/products/12x3-mobile-crib-room/2.jpg", "/images/products/12x3-mobile-crib-room/3.jpg", "/images/products/12x3-mobile-crib-room/4.jpg", "/images/products/12x3-mobile-crib-room/5.jpg", "/images/products/12x3-mobile-crib-room/6.jpg"],
+    images: ["/images/products/12x3-mobile-crib-room/1.jpg", "/images/products/12x3-mobile-crib-room/2.jpg", "/images/products/12x3-mobile-crib-room/3.jpg", "/images/products/12x3-mobile-crib-room/4.jpg", "/images/products/12x3-mobile-crib-room/5.jpg", "/images/products/12x3-mobile-crib-room/6.jpg", "/images/products/12x3-mobile-crib-room/7.jpg", "/images/products/12x3-mobile-crib-room/8.jpg", "/images/products/12x3-mobile-crib-room/9.jpg", "/images/products/12x3-mobile-crib-room/10.jpg", "/images/products/12x3-mobile-crib-room/11.jpg", "/images/products/12x3-mobile-crib-room/12.jpg", "/images/products/12x3-mobile-crib-room/13.jpg", "/images/products/12x3-mobile-crib-room/14.jpg", "/images/products/12x3-mobile-crib-room/15.jpg", "/images/products/12x3-mobile-crib-room/16.jpg", "/images/products/12x3-mobile-crib-room/17.jpg", "/images/products/12x3-mobile-crib-room/18.jpg", "/images/products/12x3-mobile-crib-room/19.jpg", "/images/products/12x3-mobile-crib-room/20.jpg", "/images/products/12x3-mobile-crib-room/21.jpg", "/images/products/12x3-mobile-crib-room/22.jpg"],
+    video: "/images/products/12x3-mobile-crib-room/video.mp4",
     floorPlan: "/images/floorplans/SQF-4491-01-A-12.5x3m-Mobile-Crib-Room.pdf",
     description: "The 12.5m × 3.0m Mobile Crib Room is a self-sufficient, fully transportable lunch and break facility built on a heavy-duty trailer with air brakes, suspension, and dual axles. Powered by an 11.2kVA Kubota diesel generator with dual 1000L water tanks, this unit requires zero external connections — just park and go.",
     features: [
@@ -224,7 +225,7 @@ const PRODUCTS: Record<string, Product> = {
 interface Product {
   name: string; slug: string; tagline: string; size: string; capacity: string;
   badge: string | null; selfContained: boolean; mobile: boolean;
-  images: string[]; floorPlan: string | null; description: string;
+  images: string[]; floorPlan: string | null; video?: string; description: string;
   features: { title: string; desc: string }[];
   specifications: Record<string, string>;
   standardInclusions: string[];
@@ -320,6 +321,25 @@ export default function CribRoomDetailPage({ params }: { params: { slug: string 
           <FloorplanViewer productId={product.slug} />
         </div>
       </section>
+      {/* See It in Action — video section, placed right after features */}
+      {product.video && (
+        <section className="py-10 md:py-14 bg-gray-50 border-y border-gray-200">
+          <div className="max-w-7xl mx-auto px-4">
+            <h2 className="text-xl font-bold text-gray-900 mb-5">See It in Action</h2>
+            <div className="rounded-xl overflow-hidden border border-gray-200 shadow-lg">
+              <video
+                controls
+                playsInline
+                preload="metadata"
+                className="w-full"
+              >
+                <source src={product.video} type="video/mp4" />
+              </video>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* Specifications & Inclusions */}
       <section className="bg-gray-50 border-y border-gray-200 py-10 md:py-14">
         <div className="max-w-7xl mx-auto px-4">

@@ -328,6 +328,27 @@ export default function SolarFacilityPage() {
         </div>
       </section>
 
+      {/* See It in Action — video placed right after key features */}
+      <section className="py-10 md:py-14">
+        <div className="max-w-7xl mx-auto px-4">
+          <h2 className="text-xl font-bold text-gray-900 mb-5">See It in Action</h2>
+          <div className="rounded-xl overflow-hidden border border-gray-200 shadow-lg">
+            <video
+              controls
+              playsInline
+              preload="metadata"
+              poster="/images/products/solar-facility/video-poster.jpg"
+              className="w-full"
+            >
+              <source
+                src="/images/products/solar-facility/video.mp4"
+                type="video/mp4"
+              />
+            </video>
+          </div>
+        </div>
+      </section>
+
       {/* Cost Comparison */}
       <section className="py-10 md:py-14">
         <div className="max-w-7xl mx-auto px-4">
@@ -386,27 +407,6 @@ export default function SolarFacilityPage() {
                 </div>
               ))}
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Video */}
-      <section className="py-10 md:py-14">
-        <div className="max-w-7xl mx-auto px-4">
-          <h2 className="text-xl font-bold text-gray-900 mb-5">See It in Action</h2>
-          <div className="rounded-xl overflow-hidden border border-gray-200 shadow-lg">
-            <video
-              controls
-              playsInline
-              preload="metadata"
-              poster="/images/products/solar-facility/video-poster.jpg"
-              className="w-full"
-            >
-              <source
-                src="/images/products/solar-facility/video.mp4"
-                type="video/mp4"
-              />
-            </video>
           </div>
         </div>
       </section>

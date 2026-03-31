@@ -5,6 +5,24 @@ import { useQuoteCart, type CartItem, type ServiceUpgrades } from "@/context/Quo
 import { useServiceUpgrades } from "@/context/ServiceUpgradesContext";
 import ServiceUpgradesDialog, { type ServiceUpgradesResult } from "@/components/ServiceUpgradesDialog";
 
+// Products that skip service upgrades entirely (self-powered, self-contained, no electrical)
+const NO_UPGRADES = new Set([
+  "solar-toilet",
+  "chemical-toilet",
+  "pwd-chemical-toilet",
+]);
+
+// Products that only need mine-spec question (self-contained power/water)
+const MINE_SPEC_ONLY = new Set([
+  "self-contained-supervisor-office",
+  "12x3m-mobile-crib",
+  "6-6x3m-self-contained",
+  "7-2x3m-self-contained",
+  "9-6x3m-living-quarters",
+  "solar-facility",
+  "bathhouse",
+]);
+
 type Props = {
   product: Omit<CartItem, "quantity" | "duration" | "serviceUpgrades">;
   className?: string;
@@ -21,6 +39,11 @@ export default function AddToQuoteButton({ product, className = "", compact = fa
   const inCart = isInCart(product.id);
   const [animating, setAnimating] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
+
+  // Product-level rules: no upgrades for containers, ancillary, and specific self-contained products
+  const skipUpgrades = product.category === "containers" || product.category === "ancillary" || NO_UPGRADES.has(product.id);
+  const mineSpecOnly = MINE_SPEC_ONLY.has(product.id);
+  const effectiveShowUpgrades = showServiceUpgrades && !skipUpgrades;
 
   const doAdd = (upgrades?: ServiceUpgrades) => {
     addItem(product, upgrades);
@@ -39,7 +62,7 @@ export default function AddToQuoteButton({ product, className = "", compact = fa
     }
 
     // If service upgrades enabled, check if already filled in via inline section
-    if (showServiceUpgrades) {
+    if (effectiveShowUpgrades) {
       if (serviceCtx?.isComplete) {
         const { powerType, mineSpec, mineName } = serviceCtx.state;
         doAdd({
@@ -58,8 +81,9 @@ export default function AddToQuoteButton({ product, className = "", compact = fa
     doAdd();
   };
 
-  // Determine if water tank question should show (crib rooms & ablutions, only if tank not already in cart)
+  // Determine if water tank question should show (regular crib rooms & ablutions only, not self-contained)
   const showWaterTank =
+    !mineSpecOnly &&
     (product.category === "crib-rooms" || product.category === "ablutions") &&
     !isInCart("5000l-tank-pump");
 
@@ -69,6 +93,7 @@ export default function AddToQuoteButton({ product, className = "", compact = fa
       powerType: data.powerType,
       mineSpec: data.mineSpec,
       mineName: data.mineName,
+      plugSize: data.plugSize,
     };
     // Also update shared context if available
     if (serviceCtx) {
@@ -172,11 +197,12 @@ export default function AddToQuoteButton({ product, className = "", compact = fa
   return (
     <>
       {button}
-      {showServiceUpgrades && (
+      {effectiveShowUpgrades && (
         <ServiceUpgradesDialog
           open={showDialog}
           buildingSize={buildingSize}
           showWaterTank={showWaterTank}
+          mineSpecOnly={mineSpecOnly}
           onConfirm={handleConfirm}
           onSkip={handleSkip}
         />

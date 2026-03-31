@@ -138,10 +138,14 @@ export default function QuoteCartPanel() {
                             <span className="text-[10px] font-bold text-amber-700 uppercase tracking-wide">Service Upgrades</span>
                           </div>
                           <div className="space-y-0.5">
-                            <p className="text-[11px] text-gray-600">
-                              <span className="font-medium text-gray-700">Power:</span>{" "}
-                              {item.serviceUpgrades.powerType === "site" ? "Site Power" : "Generator"}
-                            </p>
+                            {item.serviceUpgrades.powerType !== "self-contained" && (
+                              <p className="text-[11px] text-gray-600">
+                                <span className="font-medium text-gray-700">Power:</span>{" "}
+                                {item.serviceUpgrades.powerType === "site"
+                                  ? "Site Power"
+                                  : `Generator — ${item.serviceUpgrades.plugSize || "32amp single phase"} Plug Required`}
+                              </p>
+                            )}
                             <p className="text-[11px] text-gray-600">
                               <span className="font-medium text-gray-700">Mine-Spec:</span>{" "}
                               {item.serviceUpgrades.mineSpec

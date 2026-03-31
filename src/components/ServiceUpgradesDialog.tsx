@@ -65,8 +65,8 @@ export default function ServiceUpgradesDialog({ open, buildingSize, showWaterTan
     : powerType !== "" && mineSpecComplete;
 
   const sewerComplete = !showSewerQuestion || sewerConnected !== null;
-  // Water tank question only shows for non-sewer toilets or non-toilet buildings
-  const effectiveShowWaterTank = showWaterTank && (!showSewerQuestion || sewerConnected === true);
+  // Water tank question shows for crib rooms, ablutions, and toilets (regardless of sewer answer)
+  const effectiveShowWaterTank = showWaterTank;
   const canConfirm = electricalComplete && sewerComplete && (!effectiveShowWaterTank || waterTank !== null);
 
   const selectMine = (name: string) => {

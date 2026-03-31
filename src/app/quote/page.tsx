@@ -16,12 +16,6 @@ const CATEGORY_LABELS: Record<CartItem["category"], string> = {
   ancillary: "Ancillary",
 };
 
-const DURATION_LABELS: Record<CartItem["duration"], string> = {
-  weekly: "Weekly",
-  monthly: "Monthly",
-  purchase: "Purchase",
-};
-
 type FormData = {
   firstName: string;
   lastName: string;
@@ -51,8 +45,9 @@ const INITIAL_FORM: FormData = {
 };
 
 export default function QuotePage() {
-  const { items, removeItem, updateQuantity, updateDuration, clearCart, itemCount } = useQuoteCart();
+  const { items, removeItem, updateQuantity, clearCart, itemCount } = useQuoteCart();
   const [form, setForm] = useState<FormData>(INITIAL_FORM);
+  const [projectNotes, setProjectNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
@@ -61,9 +56,9 @@ export default function QuotePage() {
     setForm((prev) => ({ ...prev, [field]: value }));
 
   const buildQuoteSummary = () => {
-    return items
+    const lines = items
       .map((item) => {
-        let line = `${item.quantity}x ${item.name} (${item.size}) — ${CATEGORY_LABELS[item.category]} — ${DURATION_LABELS[item.duration]}`;
+        let line = `${item.quantity}x ${item.name} (${item.size}) — ${CATEGORY_LABELS[item.category]}`;
         if (item.serviceUpgrades) {
           const su = item.serviceUpgrades;
           if (su.powerType !== "self-contained") {
@@ -74,6 +69,10 @@ export default function QuotePage() {
         return line;
       })
       .join("\n");
+    if (projectNotes.trim()) {
+      return `${lines}\n\n--- Project Notes ---\n${projectNotes.trim()}`;
+    }
+    return lines;
   };
 
   const handleSubmit = async (e: FormEvent) => {
@@ -100,7 +99,6 @@ export default function QuotePage() {
             size: item.size,
             category: item.category,
             quantity: item.quantity,
-            duration: item.duration,
             ...(item.serviceUpgrades ? { serviceUpgrades: item.serviceUpgrades } : {}),
           })),
         }),
@@ -384,25 +382,6 @@ export default function QuotePage() {
                                   </button>
                                 </div>
 
-                                {/* Duration */}
-                                <select
-                                  value={item.duration}
-                                  onChange={(e) =>
-                                    updateDuration(
-                                      item.id,
-                                      e.target.value as CartItem["duration"]
-                                    )
-                                  }
-                                  className="text-xs font-medium text-gray-600 bg-gray-50 border border-gray-200 rounded-lg px-2.5 py-2 focus:outline-none focus:ring-1 focus:ring-gold"
-                                >
-                                  {Object.entries(DURATION_LABELS).map(
-                                    ([val, label]) => (
-                                      <option key={val} value={val}>
-                                        {label}
-                                      </option>
-                                    )
-                                  )}
-                                </select>
                               </div>
 
                               {/* Service Upgrades details */}
@@ -438,6 +417,23 @@ export default function QuotePage() {
                   )}
                 </div>
               </FadeIn>
+
+              {/* ── Project Notes ── */}
+              {items.length > 0 && (
+                <FadeIn delay={0.05}>
+                  <div className="mt-6 bg-white rounded-2xl shadow-xl shadow-black/10 border border-gray-200 p-6 md:p-8">
+                    <h2 className="text-lg font-bold text-gray-900 mb-1">Project Notes</h2>
+                    <p className="text-sm text-gray-400 mb-4">Any details about your project — delivery location, timeline, site access, special requirements.</p>
+                    <textarea
+                      rows={3}
+                      value={projectNotes}
+                      onChange={(e) => setProjectNotes(e.target.value)}
+                      className={`${inputClass} resize-none`}
+                      placeholder="e.g. Need 3 crib rooms delivered to Moranbah mine site by mid-April. Crane access available on site."
+                    />
+                  </div>
+                </FadeIn>
+              )}
 
               {/* ── Customer Details Form ── */}
               <FadeIn delay={0.1}>

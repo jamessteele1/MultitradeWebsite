@@ -106,7 +106,7 @@ const PRODUCTS: Record<string, Product> = {
     size: "12m × 3m",
     capacity: "Walkway / deck",
     badge: null,
-    images: ["/images/products/12x3m-covered-deck/1.jpg", "/images/products/12x3m-covered-deck/2.jpg"],
+    images: ["/images/products/12x3m-covered-deck/1.jpg", "/images/products/12x3m-covered-deck/2.jpg", "/images/products/12x3m-covered-deck/3.jpg", "/images/products/12x3m-covered-deck/4.jpg", "/images/products/12x3m-covered-deck/5.jpg", "/images/products/12x3m-covered-deck/6.jpg", "/images/products/12x3m-covered-deck/7.jpg"],
     description: "The 12x3m Covered Deck is a weatherproof covered walkway and outdoor break area designed to connect portable building modules. Providing shelter from rain, sun, and heat, this deck creates a comfortable transition space between buildings and an outdoor area for crews to take breaks in fresh air while staying protected from the elements.",
     features: [
       { title: "Weather Protection", desc: "Colorbond roofing and steel frame provide shelter from rain, sun, and heat between connected building modules." },

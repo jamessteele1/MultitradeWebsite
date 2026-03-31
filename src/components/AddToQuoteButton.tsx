@@ -24,7 +24,7 @@ const MINE_SPEC_ONLY = new Set([
 ]);
 
 type Props = {
-  product: Omit<CartItem, "quantity" | "duration" | "serviceUpgrades">;
+  product: Omit<CartItem, "quantity" | "serviceUpgrades">;
   className?: string;
   compact?: boolean;
   /** Show the service upgrades dialog before adding to quote */

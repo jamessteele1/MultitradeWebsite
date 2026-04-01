@@ -27,13 +27,13 @@ export const BUILDING_TYPES: BuildingType[] = [
   { id: "solar-toilet",   name: "Solar Toilet",         shortLabel: "Solar Toilet",   widthM: 5.45, depthM: 2.4, color: "#C4B5FD", stroke: "#6D28D9", category: "ablutions",  cartId: "solar-toilet" },
 
   // Covered Decks
-  { id: "12x3-deck",    name: "12x3m Covered Deck",   shortLabel: "12×3 Deck",      widthM: 12,   depthM: 3,   color: "#D2B48C", stroke: "#8B4513", category: "decks" },
-  { id: "6x3-deck",     name: "6x3m Covered Deck",    shortLabel: "6×3 Deck",       widthM: 6,    depthM: 3,   color: "#DEB887", stroke: "#A0522D", category: "decks" },
+  { id: "12x3-deck",    name: "12x3m Covered Deck",   shortLabel: "12×3 Deck",      widthM: 12,   depthM: 3,   color: "#D2B48C", stroke: "#8B4513", category: "decks",     cartId: "12x3m-deck" },
+  { id: "6x3-deck",     name: "6x3m Covered Deck",    shortLabel: "6×3 Deck",       widthM: 6,    depthM: 3,   color: "#DEB887", stroke: "#A0522D", category: "decks",     cartId: "6x3m-deck" },
 
   // Complexes
-  { id: "12x6-complex",  name: "12x6m Complex",        shortLabel: "12×6 Complex",   widthM: 12,   depthM: 6,   color: "#FDE68A", stroke: "#B45309", category: "complexes" },
-  { id: "12x9-complex",  name: "12x9m Complex",        shortLabel: "12×9 Complex",   widthM: 12,   depthM: 9,   color: "#FCD34D", stroke: "#A16207", category: "complexes" },
-  { id: "12x12-complex", name: "12x12m Complex",       shortLabel: "12×12 Complex",  widthM: 12,   depthM: 12,  color: "#FBBF24", stroke: "#92400E", category: "complexes" },
+  { id: "12x6-complex",  name: "12x6m Complex",        shortLabel: "12×6 Complex",   widthM: 12,   depthM: 6,   color: "#FDE68A", stroke: "#B45309", category: "complexes", cartId: "12x6m-complex" },
+  { id: "12x9-complex",  name: "12x9m Complex",        shortLabel: "12×9 Complex",   widthM: 12,   depthM: 9,   color: "#FCD34D", stroke: "#A16207", category: "complexes", cartId: "12x9m-complex" },
+  { id: "12x12-complex", name: "12x12m Complex",       shortLabel: "12×12 Complex",  widthM: 12,   depthM: 12,  color: "#FBBF24", stroke: "#92400E", category: "complexes", cartId: "12x12m-complex" },
 
   // Containers
   { id: "20ft-container", name: "20ft Container",       shortLabel: "20ft Container", widthM: 6,    depthM: 2.4, color: "#E5E7EB", stroke: "#6B7280", category: "containers", cartId: "20ft-container" },

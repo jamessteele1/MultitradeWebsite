@@ -182,6 +182,46 @@ export default function PlannerCanvas({
     );
   }
 
+  // Metre labels at 5m intervals along top edge
+  for (let x = 0; x <= gridW; x += 5) {
+    gridLines.push(
+      <KonvaText
+        key={`lx-${x}`}
+        x={x * ppm - 12}
+        y={-18}
+        text={`${x}m`}
+        fontSize={10}
+        fill={hasMap ? "rgba(255,255,255,0.65)" : "#9CA3AF"}
+        fontFamily="system-ui, sans-serif"
+        width={24}
+        align="center"
+      />,
+    );
+    // Small tick mark
+    gridLines.push(
+      <Line key={`tx-${x}`} points={[x * ppm, -4, x * ppm, 0]} stroke={hasMap ? "rgba(255,255,255,0.5)" : "#D1D5DB"} strokeWidth={0.8} />,
+    );
+  }
+  // Metre labels at 5m intervals along left edge
+  for (let y = 0; y <= gridH; y += 5) {
+    gridLines.push(
+      <KonvaText
+        key={`ly-${y}`}
+        x={-32}
+        y={y * ppm - 5}
+        text={`${y}m`}
+        fontSize={10}
+        fill={hasMap ? "rgba(255,255,255,0.65)" : "#9CA3AF"}
+        fontFamily="system-ui, sans-serif"
+        width={28}
+        align="right"
+      />,
+    );
+    gridLines.push(
+      <Line key={`ty-${y}`} points={[-4, y * ppm, 0, y * ppm]} stroke={hasMap ? "rgba(255,255,255,0.5)" : "#D1D5DB"} strokeWidth={0.8} />,
+    );
+  }
+
   gridLines.push(
     <KonvaText
       key="scale"
@@ -193,6 +233,18 @@ export default function PlannerCanvas({
       fontFamily="system-ui, sans-serif"
     />,
   );
+
+  // Dynamic scale bar — pick a "nice" metre value for a ~80-120px bar
+  const scaleBar = (() => {
+    const niceValues = [0.5, 1, 2, 5, 10, 20, 50, 100];
+    const targetPx = 100;
+    const rawMetres = targetPx / (ppm * zoom);
+    let metres = niceValues[0];
+    for (const v of niceValues) {
+      if (v <= rawMetres * 1.5) metres = v;
+    }
+    return { metres, widthPx: metres * ppm * zoom };
+  })();
 
   // Zoom controls
   const zoomIn = () => setZoom((z) => Math.min(MAX_ZOOM, z + ZOOM_STEP));
@@ -215,6 +267,19 @@ export default function PlannerCanvas({
         <button onClick={zoomIn} className="w-8 h-8 flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded transition-colors" title="Zoom in">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
         </button>
+      </div>
+
+      {/* Scale bar — bottom left */}
+      <div className="absolute bottom-3 left-3 z-10 bg-white/90 backdrop-blur rounded-lg border border-gray-200 shadow-sm px-3 py-2">
+        <div className="flex items-center gap-2">
+          <div className="relative" style={{ width: scaleBar.widthPx }}>
+            <div className="h-[2px] bg-gray-800 w-full" />
+            <div className="absolute left-0 -top-[4px] w-[1.5px] h-[10px] bg-gray-800" />
+            <div className="absolute right-0 -top-[4px] w-[1.5px] h-[10px] bg-gray-800" />
+            <div className="absolute left-1/2 -top-[2px] w-[1px] h-[6px] bg-gray-500 -translate-x-1/2" />
+          </div>
+          <span className="text-[10px] font-semibold text-gray-600 whitespace-nowrap">{scaleBar.metres >= 1 ? `${scaleBar.metres}m` : `${scaleBar.metres * 100}cm`}</span>
+        </div>
       </div>
 
       {/* Map rotation & compass — bottom right */}
@@ -324,6 +389,7 @@ export default function PlannerCanvas({
                   building={b}
                   type={type}
                   isSelected={b.instanceId === selectedId}
+                  isAttached={!!b.parentId}
                   onSelect={() => onSelect(b.instanceId)}
                   onDragEnd={(x, y) => onMove(b.instanceId, x, y)}
                 />

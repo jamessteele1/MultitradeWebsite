@@ -9,11 +9,12 @@ type Props = {
   building: PlacedBuilding;
   type: BuildingType;
   isSelected: boolean;
+  isAttached: boolean;
   onSelect: () => void;
   onDragEnd: (x: number, y: number) => void;
 };
 
-export default function BuildingShape({ building, type, isSelected, onSelect, onDragEnd }: Props) {
+export default function BuildingShape({ building, type, isSelected, isAttached, onSelect, onDragEnd }: Props) {
   const ppm = PIXELS_PER_METRE;
   const w = type.widthM * ppm;
   const h = type.depthM * ppm;
@@ -90,6 +91,20 @@ export default function BuildingShape({ building, type, isSelected, onSelect, on
         </>
       ) : (
         <>
+          {/* Attached indicator */}
+          {isAttached && !isSelected && (
+            <Rect
+              x={-2}
+              y={-2}
+              width={w + 4}
+              height={h + 4}
+              fill="transparent"
+              stroke="#16A34A"
+              strokeWidth={2}
+              cornerRadius={3}
+              dash={[4, 3]}
+            />
+          )}
           {/* Selection border */}
           {isSelected && (
             <Rect
@@ -98,7 +113,7 @@ export default function BuildingShape({ building, type, isSelected, onSelect, on
               width={w + 4}
               height={h + 4}
               fill="transparent"
-              stroke="#2563EB"
+              stroke={isAttached ? "#16A34A" : "#2563EB"}
               strokeWidth={2.5}
               cornerRadius={3}
               dash={[6, 3]}

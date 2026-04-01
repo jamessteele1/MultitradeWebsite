@@ -8,6 +8,7 @@ import { usePlannerState } from "@/lib/site-planner/usePlannerState";
 import { getBuildingType } from "@/lib/site-planner/buildings";
 import { downloadPNG, downloadPDF } from "@/lib/site-planner/exportUtils";
 import { fetchSatelliteImage, type GeoResult } from "@/lib/site-planner/mapUtils";
+import { findDeckSnap } from "@/lib/site-planner/snapUtils";
 import { useQuoteCart } from "@/context/QuoteCartContext";
 import { PIXELS_PER_METRE, CANVAS_WIDTH_M, CANVAS_HEIGHT_M } from "@/lib/site-planner/constants";
 import type { MapData } from "./PlannerCanvas";
@@ -26,6 +27,11 @@ const CART_PRODUCTS: Record<string, { id: string; name: string; size: string; im
   "20ft-container":    { id: "20ft-container",    name: "20ft Container",          size: "6x2.4m",     img: "/images/products/20ft-container/1.jpg",     category: "containers" },
   "5000l-tank-pump":   { id: "5000l-tank-pump",   name: "5000L Water Tank & Pump", size: "Skid mounted", img: "/images/products/5000l-tank-pump/1.jpg",  category: "ancillary" },
   "stair-landing":     { id: "stair-landing",     name: "Stair & Landing",         size: "Various",     img: "/images/products/stair-landing/1.jpg",     category: "ancillary" },
+  "12x3m-deck":        { id: "12x3m-deck",        name: "12x3m Covered Deck",      size: "12x3m",      img: "/images/products/12x3-office/1.jpg",       category: "site-offices" },
+  "6x3m-deck":         { id: "6x3m-deck",         name: "6x3m Covered Deck",       size: "6x3m",       img: "/images/products/6x3-office/1.jpg",        category: "site-offices" },
+  "12x6m-complex":     { id: "12x6m-complex",     name: "12x6m Complex",           size: "12x6m",      img: "/images/products/12x3-office/1.jpg",       category: "site-offices" },
+  "12x9m-complex":     { id: "12x9m-complex",     name: "12x9m Complex",           size: "12x9m",      img: "/images/products/12x3-office/1.jpg",       category: "site-offices" },
+  "12x12m-complex":    { id: "12x12m-complex",    name: "12x12m Complex",          size: "12x12m",     img: "/images/products/12x3-office/1.jpg",       category: "site-offices" },
 };
 
 const PlannerCanvas = dynamic(() => import("./PlannerCanvas"), {
@@ -100,6 +106,32 @@ export default function SitePlannerClient() {
   const handleExportPDF = useCallback(() => {
     if (stageRef.current) downloadPDF(stageRef.current, state.buildings, mapRotation, siteAddress, siteCoords);
   }, [state.buildings, mapRotation, siteAddress, siteCoords]);
+
+  // Building move with deck snap detection
+  const handleBuildingMove = useCallback(
+    (instanceId: string, x: number, y: number) => {
+      const building = state.buildings.find((b) => b.instanceId === instanceId);
+      if (!building) {
+        state.moveBuilding(instanceId, x, y);
+        return;
+      }
+
+      const type = getBuildingType(building.typeId);
+      if (type?.category === "decks") {
+        // Run snap detection for decks
+        const movedDeck = { ...building, x, y };
+        const snapResult = findDeckSnap(movedDeck, type, state.buildings, getBuildingType);
+        if (snapResult) {
+          state.moveBuilding(instanceId, snapResult.x, snapResult.y, snapResult.parentId);
+        } else {
+          state.moveBuilding(instanceId, x, y, null); // detach
+        }
+      } else {
+        state.moveBuilding(instanceId, x, y);
+      }
+    },
+    [state],
+  );
 
   // Custom building drop
   const handleAddCustom = useCallback(
@@ -267,7 +299,7 @@ export default function SitePlannerClient() {
           buildings={state.buildings}
           selectedId={state.selectedId}
           onSelect={state.setSelectedId}
-          onMove={state.moveBuilding}
+          onMove={handleBuildingMove}
           onAdd={state.addBuilding}
           onAddCustom={handleAddCustom}
           stageRef={stageRef}

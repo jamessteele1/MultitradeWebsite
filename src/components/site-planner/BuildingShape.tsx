@@ -24,8 +24,10 @@ export default function BuildingShape({ building, type, isSelected, onSelect, on
 
   return (
     <Group
-      x={building.x * ppm}
-      y={building.y * ppm}
+      x={building.x * ppm + w / 2}
+      y={building.y * ppm + h / 2}
+      offsetX={w / 2}
+      offsetY={h / 2}
       rotation={building.rotation}
       draggable
       onClick={onSelect}
@@ -33,7 +35,7 @@ export default function BuildingShape({ building, type, isSelected, onSelect, on
       onDragStart={onSelect}
       onDragEnd={(e) => {
         const node = e.target;
-        onDragEnd(node.x() / ppm, node.y() / ppm);
+        onDragEnd((node.x() - w / 2) / ppm, (node.y() - h / 2) / ppm);
       }}
     >
       {/* Shadow when selected */}

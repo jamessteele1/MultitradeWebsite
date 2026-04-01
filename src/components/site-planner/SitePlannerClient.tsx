@@ -32,6 +32,7 @@ export default function SitePlannerClient() {
   const [mapOpacity, setMapOpacity] = useState(0.7);
   const [mapRotation, setMapRotation] = useState(0);
   const [mapLoading, setMapLoading] = useState(false);
+  const [sunEnabled, setSunEnabled] = useState(false);
 
   useEffect(() => {
     setIsMobile(window.innerWidth < 768);
@@ -170,6 +171,8 @@ export default function SitePlannerClient() {
         onMapSelect={handleMapSelect}
         onMapOpacityChange={setMapOpacity}
         onMapRemove={handleMapRemove}
+        sunEnabled={sunEnabled}
+        onSunToggle={() => setSunEnabled((prev) => !prev)}
       />
 
       {/* Main content: palette + canvas */}
@@ -187,6 +190,7 @@ export default function SitePlannerClient() {
           mapRotation={mapRotation}
           onMapMove={handleMapMove}
           onMapRotation={setMapRotation}
+          sunDirection={sunEnabled ? mapRotation : null}
         />
       </div>
 

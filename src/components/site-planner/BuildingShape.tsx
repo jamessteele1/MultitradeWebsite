@@ -22,6 +22,11 @@ export default function BuildingShape({ building, type, isSelected, onSelect, on
   const minDim = Math.min(w, h);
   const fontSize = Math.max(9, Math.min(14, minDim * 0.22));
 
+  const setCursor = (cursor: string) => {
+    const stage = document.querySelector("canvas");
+    if (stage) stage.style.cursor = cursor;
+  };
+
   return (
     <Group
       x={building.x * ppm + w / 2}
@@ -32,11 +37,17 @@ export default function BuildingShape({ building, type, isSelected, onSelect, on
       draggable
       onClick={onSelect}
       onTap={onSelect}
-      onDragStart={onSelect}
+      onDragStart={(e) => {
+        setCursor("grabbing");
+        onSelect();
+      }}
       onDragEnd={(e) => {
+        setCursor("grab");
         const node = e.target;
         onDragEnd((node.x() - w / 2) / ppm, (node.y() - h / 2) / ppm);
       }}
+      onMouseEnter={() => setCursor("grab")}
+      onMouseLeave={() => setCursor("default")}
     >
       {/* Shadow when selected */}
       {isSelected && (

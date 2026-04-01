@@ -34,7 +34,13 @@ async function loadImageAsDataUrl(src: string): Promise<string | null> {
   }
 }
 
-export async function downloadPDF(stage: Konva.Stage, buildings: PlacedBuilding[], mapRotation = 0) {
+export async function downloadPDF(
+  stage: Konva.Stage,
+  buildings: PlacedBuilding[],
+  mapRotation = 0,
+  siteAddress?: string,
+  siteCoords?: { lat: number; lng: number },
+) {
   const { jsPDF } = await import("jspdf");
   const pdf = new jsPDF({ orientation: "landscape", unit: "mm", format: "a3" });
 
@@ -58,6 +64,19 @@ export async function downloadPDF(stage: Konva.Stage, buildings: PlacedBuilding[
   pdf.setTextColor(120, 120, 120);
   pdf.text("multitrade.com.au  |  (07) 4979 2333", textStartX, 24);
   pdf.text(new Date().toLocaleDateString("en-AU", { day: "numeric", month: "long", year: "numeric" }), textStartX, 29);
+
+  // Site address and coordinates
+  if (siteAddress) {
+    pdf.setFontSize(10);
+    pdf.setFont("helvetica", "bold");
+    pdf.setTextColor(60, 60, 60);
+    pdf.text(`Site: ${siteAddress}`, textStartX, 35);
+    if (siteCoords) {
+      pdf.setFont("helvetica", "normal");
+      pdf.setTextColor(120, 120, 120);
+      pdf.text(`Coordinates: ${siteCoords.lat.toFixed(6)}, ${siteCoords.lng.toFixed(6)}`, textStartX, 40);
+    }
+  }
 
   // Canvas image
   const dataUrl = stage.toDataURL({ pixelRatio: 2, mimeType: "image/png" });

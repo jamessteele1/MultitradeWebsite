@@ -14,19 +14,50 @@ export function downloadPNG(stage: Konva.Stage) {
   link.click();
 }
 
+/** Load an image as a data URL for embedding in PDF. */
+async function loadImageAsDataUrl(src: string): Promise<string | null> {
+  try {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    await new Promise<void>((resolve, reject) => {
+      img.onload = () => resolve();
+      img.onerror = reject;
+      img.src = src;
+    });
+    const canvas = document.createElement("canvas");
+    canvas.width = img.naturalWidth;
+    canvas.height = img.naturalHeight;
+    canvas.getContext("2d")!.drawImage(img, 0, 0);
+    return canvas.toDataURL("image/png");
+  } catch {
+    return null;
+  }
+}
+
 export async function downloadPDF(stage: Konva.Stage, buildings: PlacedBuilding[]) {
   const { jsPDF } = await import("jspdf");
   const pdf = new jsPDF({ orientation: "landscape", unit: "mm", format: "a3" });
 
-  // Header
+  // Logo
+  const logoDataUrl = await loadImageAsDataUrl("/images/logos/logo-color.png");
+  const logoH = 12; // mm
+  let textStartX = 15;
+  if (logoDataUrl) {
+    // Calculate width from aspect ratio (logo is roughly 3:1)
+    const logoW = logoH * 3;
+    pdf.addImage(logoDataUrl, "PNG", 15, 10, logoW, logoH);
+    textStartX = 15 + logoW + 5;
+  }
+
+  // Header text beside logo
   pdf.setFontSize(18);
   pdf.setFont("helvetica", "bold");
-  pdf.text("Site Layout Plan", 15, 18);
+  pdf.text("Site Layout Plan", textStartX, 18);
   pdf.setFontSize(10);
   pdf.setFont("helvetica", "normal");
   pdf.setTextColor(120, 120, 120);
-  pdf.text("Multitrade Building Hire  |  multitrade.com.au  |  (07) 4979 2333", 15, 25);
-  pdf.text(new Date().toLocaleDateString("en-AU", { day: "numeric", month: "long", year: "numeric" }), 15, 30);
+  pdf.text("multitrade.com.au  |  (07) 4979 2333", textStartX, 24);
+  pdf.text(new Date().toLocaleDateString("en-AU", { day: "numeric", month: "long", year: "numeric" }), textStartX, 29);
 
   // Canvas image
   const dataUrl = stage.toDataURL({ pixelRatio: 2, mimeType: "image/png" });

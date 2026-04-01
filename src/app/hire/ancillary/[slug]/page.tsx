@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import AddToQuoteButton from "@/components/AddToQuoteButton";
 import CompareProducts from "@/components/CompareProducts";
+import SuggestedAddOns from "@/components/SuggestedAddOns";
 import { HeroImage, GalleryGrid } from "@/components/ProductGallery";
 
 /* ─── Product Data ───────────────────────────────────────────── */
@@ -378,6 +379,9 @@ export default function AncillaryDetailPage({ params }: { params: { slug: string
 
       {/* Image Gallery */}
       <GalleryGrid images={product.images} alt={product.name} />
+
+      {/* Suggested Add-Ons */}
+      <SuggestedAddOns category="ancillary" currentProductId={product.slug} />
 
       {/* Compare Products */}
       <CompareProducts

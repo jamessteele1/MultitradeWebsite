@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { createPortal } from "react-dom";
 
 /* ─── Lightbox ──────────────────────────────────────────────── */
@@ -19,6 +19,32 @@ function Lightbox({
 
   const prev = useCallback(() => setCurrent((c) => (c - 1 + images.length) % images.length), [images.length]);
   const next = useCallback(() => setCurrent((c) => (c + 1) % images.length), [images.length]);
+
+  // Touch swipe support
+  const touchStart = useRef<{ x: number; y: number } | null>(null);
+  const swiped = useRef(false);
+  const SWIPE_THRESHOLD = 50;
+
+  const onTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStart.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    swiped.current = false;
+  }, []);
+
+  const onTouchMove = useCallback((e: React.TouchEvent) => {
+    if (!touchStart.current || swiped.current) return;
+    const dx = e.touches[0].clientX - touchStart.current.x;
+    const dy = e.touches[0].clientY - touchStart.current.y;
+    // Only swipe if horizontal movement exceeds vertical (avoid blocking scroll)
+    if (Math.abs(dx) > SWIPE_THRESHOLD && Math.abs(dx) > Math.abs(dy)) {
+      swiped.current = true;
+      if (dx > 0) prev();
+      else next();
+    }
+  }, [prev, next]);
+
+  const onTouchEnd = useCallback(() => {
+    touchStart.current = null;
+  }, []);
 
   useEffect(() => {
     const original = document.body.style.overflow;
@@ -40,6 +66,9 @@ function Lightbox({
     <div
       className="fixed inset-0 z-[200] flex items-center justify-center bg-black/90 backdrop-blur-sm animate-[dialogFadeIn_0.2s_ease-out]"
       onClick={onClose}
+      onTouchStart={onTouchStart}
+      onTouchMove={onTouchMove}
+      onTouchEnd={onTouchEnd}
     >
       {/* Close button */}
       <button

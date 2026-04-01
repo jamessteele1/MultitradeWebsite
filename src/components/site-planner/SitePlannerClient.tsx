@@ -27,8 +27,8 @@ const CART_PRODUCTS: Record<string, { id: string; name: string; size: string; im
   "20ft-container":    { id: "20ft-container",    name: "20ft Container",          size: "6x2.4m",     img: "/images/products/20ft-container/1.jpg",     category: "containers" },
   "5000l-tank-pump":   { id: "5000l-tank-pump",   name: "5000L Water Tank & Pump", size: "Skid mounted", img: "/images/products/5000l-tank-pump/1.jpg",  category: "ancillary" },
   "stair-landing":     { id: "stair-landing",     name: "Stair & Landing",         size: "Various",     img: "/images/products/stair-landing/1.jpg",     category: "ancillary" },
-  "12x3m-deck":        { id: "12x3m-deck",        name: "12x3m Covered Deck",      size: "12x3m",      img: "/images/products/12x3-office/1.jpg",       category: "ancillary" },
-  "6x3m-deck":         { id: "6x3m-deck",         name: "6x3m Covered Deck",       size: "6x3m",       img: "/images/products/6x3-office/1.jpg",        category: "ancillary" },
+  "12x3m-deck":        { id: "12x3m-deck",        name: "12x3m Covered Deck",      size: "12x3m",      img: "/images/products/12x3m-covered-deck/1.jpg", category: "ancillary" },
+  "6x3m-deck":         { id: "6x3m-deck",         name: "6x3m Covered Deck",       size: "6x3m",       img: "/images/products/12x3m-covered-deck/1.jpg", category: "ancillary" },
   "12x6m-complex":     { id: "12x6m-complex",     name: "12x6m Complex",           size: "12x6m",      img: "/images/products/12x3-office/1.jpg",       category: "complexes" },
   "12x9m-complex":     { id: "12x9m-complex",     name: "12x9m Complex",           size: "12x9m",      img: "/images/products/12x3-office/1.jpg",       category: "complexes" },
   "12x12m-complex":    { id: "12x12m-complex",    name: "12x12m Complex",          size: "12x12m",     img: "/images/products/12x3-office/1.jpg",       category: "complexes" },
@@ -63,8 +63,15 @@ export default function SitePlannerClient() {
   const [siteAddress, setSiteAddress] = useState<string | undefined>();
   const [siteCoords, setSiteCoords] = useState<{ lat: number; lng: number } | undefined>();
 
+  // Mobile tap-to-place state
+  const [placingTypeId, setPlacingTypeId] = useState<string | null>(null);
+  const [placingLabel, setPlacingLabel] = useState("");
+
   useEffect(() => {
-    setIsMobile(window.innerWidth < 768);
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
   }, []);
 
   const selectedBuilding = state.buildings.find((b) => b.instanceId === state.selectedId);
@@ -251,18 +258,90 @@ export default function SitePlannerClient() {
     return () => window.removeEventListener("keydown", handler);
   }, [state]);
 
+  // Mobile: select a building type for tap-to-place
+  const handleSelectPlacingType = useCallback((typeId: string, label: string) => {
+    setPlacingTypeId(typeId);
+    setPlacingLabel(label);
+  }, []);
+
+  const handlePlaced = useCallback(() => {
+    // Keep the type selected so user can place multiple — tap the palette item again to deselect
+    // setPlacingTypeId(null);
+  }, []);
+
   if (isMobile) {
     return (
-      <div className="max-w-5xl mx-auto px-4 py-10 text-center">
-        <div className="p-8 rounded-2xl border border-gray-200 bg-white">
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#D4A843" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="mx-auto mb-4">
-            <rect x="2" y="3" width="20" height="14" rx="2" /><line x1="8" y1="21" x2="16" y2="21" /><line x1="12" y1="17" x2="12" y2="21" />
-          </svg>
-          <h2 className="text-xl font-bold text-gray-900">Desktop Recommended</h2>
-          <p className="text-sm text-gray-500 mt-2 max-w-md mx-auto">
-            The site layout planner uses drag-and-drop and works best on a larger screen. Please visit this page on a desktop or laptop.
-          </p>
+      <div className="px-2 py-2 space-y-2 pb-16">
+        {/* Compact mobile toolbar */}
+        <div className="flex items-center gap-1 bg-white rounded-xl border border-gray-200 px-2 py-1.5 overflow-x-auto scrollbar-hide">
+          <button onClick={handleRotate} disabled={!state.selectedId} className="flex-shrink-0 p-2 rounded-lg text-gray-600 disabled:text-gray-300" title="Rotate">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21.5 2v6h-6" /><path d="M21.34 13.5A10 10 0 115.5 3.36L21.5 8" /></svg>
+          </button>
+          <button onClick={handleDelete} disabled={!state.selectedId} className="flex-shrink-0 p-2 rounded-lg text-red-500 disabled:text-gray-300" title="Delete">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" /></svg>
+          </button>
+          <button onClick={state.undo} disabled={!state.canUndo} className="flex-shrink-0 p-2 rounded-lg text-gray-600 disabled:text-gray-300" title="Undo">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 7v6h6" /><path d="M3 13a9 9 0 0115.36-6.36L21 9" /></svg>
+          </button>
+
+          <div className="w-px h-5 bg-gray-200 mx-0.5 flex-shrink-0" />
+
+          <button onClick={handleClear} disabled={state.buildings.length === 0} className="flex-shrink-0 px-2 py-1.5 text-[10px] font-semibold text-gray-600 disabled:text-gray-300 rounded-lg">
+            Clear
+          </button>
+
+          <button onClick={() => setSunEnabled(p => !p)} className={`flex-shrink-0 p-2 rounded-lg ${sunEnabled ? "text-amber-600 bg-amber-50" : "text-gray-600"}`} title="Sun">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="5" /><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" />
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+              <line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" />
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+            </svg>
+          </button>
+
+          <div className="flex-1" />
+
+          <span className="text-[10px] text-gray-400 flex-shrink-0">{state.buildings.length}</span>
+
+          <button onClick={handleExportPDF} disabled={state.buildings.length === 0} className="flex-shrink-0 px-2 py-1.5 text-[10px] font-semibold text-gray-600 disabled:text-gray-300 rounded-lg border border-gray-200">
+            PDF
+          </button>
+          <button onClick={handleGetQuote} disabled={state.buildings.length === 0} className="flex-shrink-0 px-2.5 py-1.5 text-[10px] font-bold bg-gold text-gray-900 rounded-lg disabled:opacity-40">
+            Quote
+          </button>
         </div>
+
+        {/* Canvas */}
+        <div className="rounded-xl border border-gray-200 overflow-hidden" style={{ height: "calc(100vh - 200px)", minHeight: 350 }}>
+          <PlannerCanvas
+            buildings={state.buildings}
+            selectedId={state.selectedId}
+            onSelect={state.setSelectedId}
+            onMove={handleBuildingMove}
+            onAdd={state.addBuilding}
+            onAddCustom={handleAddCustom}
+            stageRef={stageRef}
+            mapData={mapData}
+            mapOpacity={mapOpacity}
+            mapRotation={mapRotation}
+            onMapMove={handleMapMove}
+            onMapRotation={setMapRotation}
+            sunDirection={sunEnabled ? mapRotation : null}
+            annotations={annotations}
+            onAnnotationMove={handleAnnotationMove}
+            placingTypeId={placingTypeId}
+            placingLabel={placingLabel}
+            onPlaced={handlePlaced}
+            isMobile
+          />
+        </div>
+
+        {/* Mobile bottom palette (fixed) */}
+        <BuildingPalette
+          isMobile
+          selectedTypeId={placingTypeId}
+          onSelectType={handleSelectPlacingType}
+        />
       </div>
     );
   }

@@ -49,8 +49,14 @@ const NAV_ITEMS = [
       { label: "Futura Solar Facilities", href: "/case-studies/futura-solar" },
     ],
   },
-  { label: "Scope Builder", href: "/scope-builder" },
-  { label: "Site Planner", href: "/site-planner" },
+  {
+    label: "Tools",
+    href: "/scope-builder",
+    children: [
+      { label: "Scope Builder", href: "/scope-builder" },
+      { label: "Site Planner", href: "/site-planner" },
+    ],
+  },
   { label: "About", href: "/about" },
   { label: "Contact", href: "/contact" },
 ];
@@ -77,8 +83,14 @@ const MOBILE_NAV_ITEMS: { label: string; href: string; children?: { label: strin
       { label: "Futura Solar Facilities", href: "/case-studies/futura-solar" },
     ],
   },
-  { label: "Scope Builder", href: "/scope-builder" },
-  { label: "Site Planner", href: "/site-planner" },
+  {
+    label: "Tools",
+    href: "#",
+    children: [
+      { label: "Scope Builder", href: "/scope-builder" },
+      { label: "Site Planner", href: "/site-planner" },
+    ],
+  },
   { label: "About", href: "/about" },
   { label: "Contact", href: "/contact" },
 ];

@@ -36,6 +36,7 @@ const PRODUCTS = {
   "5000l-tank-pump":   { id: "5000l-tank-pump",   name: "5000L Water Tank & Pump", size: "Skid mounted", img: "/images/products/5000l-tank-pump/1.jpg", category: "ancillary" as const },
   "6000l-waste-tank":  { id: "6000l-waste-tank",  name: "6000L Waste Tank",       size: "6000L",     img: "/images/products/6000l-waste-tank/1.jpg",  category: "ancillary" as const },
   "4000l-waste-tank":  { id: "4000l-waste-tank",  name: "4000L Waste Tank",       size: "4000L",     img: "/images/products/4000l-waste-tank/1.jpg",  category: "ancillary" as const },
+  "stair-landing":     { id: "stair-landing",     name: "Stair & Landing",        size: "Various",   img: "/images/products/stair-landing/1.jpg",     category: "ancillary" as const },
 };
 
 /* ─── Mine Detection ───────────────────────────────────────── */
@@ -143,13 +144,24 @@ function getRecommendations(
     products.push({ ...PRODUCTS["20ft-container"], quantity: 1, reason: "Secure lockable storage for tools and equipment" });
   }
 
-  // Ancillary: Waste tank (toilets + not self-contained + no sewer)
+  // Ancillary: Waste tank + stair & landing (toilets + not self-contained + no sewer)
+  // Quantity matches the number of toilet buildings
   if (facilities.has("toilets") && powerType !== "off-grid" && !sewerConnected) {
     const isLarge = totalCrew > 10;
+    const toiletQty = isLarge ? Math.ceil(totalCrew / 25) : 1;
     products.push({
       ...(isLarge ? PRODUCTS["6000l-waste-tank"] : PRODUCTS["4000l-waste-tank"]),
-      quantity: 1,
-      reason: isLarge ? "Waste collection for 6x3m toilet block" : "Waste collection for 3.6x2.4m toilet",
+      quantity: toiletQty,
+      reason: isLarge
+        ? `Waste collection — 1 per toilet block`
+        : "Waste collection for 3.6x2.4m toilet",
+      isAncillary: true,
+    });
+    // Stair & landing for each waste tank (access for pump-outs)
+    products.push({
+      ...PRODUCTS["stair-landing"],
+      quantity: toiletQty,
+      reason: `Access for waste tank — 1 per tank`,
       isAncillary: true,
     });
   }

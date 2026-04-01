@@ -173,7 +173,7 @@ export async function fetchSatelliteImage(
   lat: number,
   lng: number,
   pixelsPerMetre: number,
-  gridSize = 5,
+  gridSize = 11,
 ): Promise<{ image: HTMLImageElement; scale: number; coverageMetres: number }> {
   // Try QLD Government tiles first (zoom 20→19→18), then Esri as fallback
   const providers: { url: string; zooms: number[] }[] = [

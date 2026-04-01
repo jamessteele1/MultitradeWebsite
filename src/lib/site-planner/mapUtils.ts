@@ -9,21 +9,73 @@ const QLD_TILE_URL =
 const ESRI_TILE_URL =
   "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile";
 
+// QLD bounding box for viewbox biasing (lon1,lat1,lon2,lat2)
+const QLD_VIEWBOX = "138.0,-29.5,154.0,-10.0";
+
+// Headers for Nominatim — they rate-limit requests without Referer
+const NOMINATIM_HEADERS = {
+  Accept: "application/json",
+  Referer: "https://multitrade.com.au",
+};
+
 export type GeoResult = {
   lat: number;
   lng: number;
   displayName: string;
 };
 
+/** Enrich a query with state context if it doesn't already contain it. */
+function enrichQuery(query: string): string {
+  const lower = query.toLowerCase();
+  const hasState = /\b(qld|queensland|nsw|vic|sa|wa|nt|tas|act)\b/.test(lower);
+  const hasCountry = /\b(australia|aus)\b/.test(lower);
+  if (!hasState && !hasCountry) return `${query}, QLD, Australia`;
+  if (!hasCountry) return `${query}, Australia`;
+  return query;
+}
+
 /** Geocode a location string via Nominatim (free, no key). */
 export async function geocodeLocation(query: string): Promise<GeoResult | null> {
+  const enriched = enrichQuery(query);
   try {
+    const params = new URLSearchParams({
+      q: enriched,
+      format: "json",
+      limit: "1",
+      countrycodes: "au",
+      addressdetails: "1",
+      viewbox: QLD_VIEWBOX,
+      bounded: "0", // prefer viewbox but don't exclude outside
+    });
     const res = await fetch(
-      `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1&countrycodes=au`,
-      { headers: { Accept: "application/json" } },
+      `https://nominatim.openstreetmap.org/search?${params}`,
+      { headers: NOMINATIM_HEADERS },
     );
     const data = await res.json();
-    if (!data.length) return null;
+    if (!data.length) {
+      // Retry without enrichment in case it confused the geocoder
+      if (enriched !== query) {
+        const retry = new URLSearchParams({
+          q: query,
+          format: "json",
+          limit: "1",
+          countrycodes: "au",
+          addressdetails: "1",
+        });
+        const res2 = await fetch(
+          `https://nominatim.openstreetmap.org/search?${retry}`,
+          { headers: NOMINATIM_HEADERS },
+        );
+        const data2 = await res2.json();
+        if (!data2.length) return null;
+        return {
+          lat: parseFloat(data2[0].lat),
+          lng: parseFloat(data2[0].lon),
+          displayName: data2[0].display_name,
+        };
+      }
+      return null;
+    }
     return {
       lat: parseFloat(data[0].lat),
       lng: parseFloat(data[0].lon),
@@ -37,18 +89,20 @@ export async function geocodeLocation(query: string): Promise<GeoResult | null> 
 /**
  * Search for address suggestions as user types.
  * Uses Photon (Komoot) for autocomplete with Nominatim as fallback.
- * Builds display names from structured address parts for better readability.
+ * Enriches queries with QLD context for better Australian results.
  */
 export async function searchSuggestions(query: string): Promise<GeoResult[]> {
   if (query.length < 3) return [];
 
+  const enriched = enrichQuery(query);
+
   // Try Photon first — much better partial/autocomplete matching
   try {
     const photonParams = new URLSearchParams({
-      q: query,
+      q: enriched,
       limit: "8",
       lang: "en",
-      lat: "-23.85",  // bias towards QLD
+      lat: "-23.85", // Gladstone QLD — bias towards central QLD
       lon: "151.26",
     });
     const res = await fetch(
@@ -100,18 +154,20 @@ export async function searchSuggestions(query: string): Promise<GeoResult[]> {
     // fall through to Nominatim
   }
 
-  // Fallback: Nominatim with address details for structured display
+  // Fallback: Nominatim with address details and QLD viewbox bias
   try {
     const params = new URLSearchParams({
-      q: query,
+      q: enriched,
       format: "json",
       limit: "6",
       countrycodes: "au",
       addressdetails: "1",
+      viewbox: QLD_VIEWBOX,
+      bounded: "0",
     });
     const res = await fetch(
       `https://nominatim.openstreetmap.org/search?${params}`,
-      { headers: { Accept: "application/json" } },
+      { headers: NOMINATIM_HEADERS },
     );
     const data = await res.json();
     return data.map((item: {
@@ -121,7 +177,6 @@ export async function searchSuggestions(query: string): Promise<GeoResult[]> {
         city?: string; town?: string; state?: string; postcode?: string;
       };
     }) => {
-      // Build cleaner display from address parts if available
       const a = item.address;
       if (a) {
         const parts: string[] = [];
@@ -167,7 +222,9 @@ function latLngToTile(lat: number, lng: number, zoom: number) {
 
 /**
  * Fetch satellite imagery tiles and composite into a single image.
- * Tries QLD Government imagery first (higher res for QLD), falls back to Esri.
+ * Tries QLD Government imagery first, falls back to Esri.
+ * Uses zoom 18 by default for ~840m coverage at 11×11 grid — good balance
+ * of detail vs. area for site planning.
  */
 export async function fetchSatelliteImage(
   lat: number,
@@ -175,10 +232,11 @@ export async function fetchSatelliteImage(
   pixelsPerMetre: number,
   gridSize = 11,
 ): Promise<{ image: HTMLImageElement; scale: number; coverageMetres: number }> {
-  // Try QLD Government tiles first (zoom 20→19→18), then Esri as fallback
+  // Start at zoom 18 for wide coverage (~840m at 11×11)
+  // Only go higher if explicitly needed; lower as fallback
   const providers: { url: string; zooms: number[] }[] = [
-    { url: QLD_TILE_URL, zooms: [20, 19, 18] },
-    { url: ESRI_TILE_URL, zooms: [19, 18, 17] },
+    { url: QLD_TILE_URL, zooms: [18, 19, 17] },
+    { url: ESRI_TILE_URL, zooms: [18, 17, 16] },
   ];
 
   for (const provider of providers) {
@@ -208,7 +266,6 @@ async function fetchTilesAtZoom(
   const ctx = canvas.getContext("2d")!;
 
   let loadedCount = 0;
-  let failedCount = 0;
   const total = gridSize * gridSize;
 
   const loads: Promise<void>[] = [];
@@ -223,20 +280,13 @@ async function fetchTilesAtZoom(
           const img = new Image();
           img.crossOrigin = "anonymous";
           img.onload = () => {
-            // Check if the tile is a valid satellite image (not a placeholder)
-            // Esri returns 256x256 for valid tiles
             if (img.naturalWidth === TILE_SIZE && img.naturalHeight === TILE_SIZE) {
               ctx.drawImage(img, px, py);
               loadedCount++;
-            } else {
-              failedCount++;
             }
             resolve();
           };
-          img.onerror = () => {
-            failedCount++;
-            resolve();
-          };
+          img.onerror = () => resolve();
           img.src = `${tileBaseUrl}/${tileZoom}/${ty}/${tx}`;
         }),
       );
@@ -245,7 +295,7 @@ async function fetchTilesAtZoom(
 
   await Promise.all(loads);
 
-  // If most tiles failed, try a lower zoom
+  // If most tiles failed, try next option
   if (loadedCount < total * 0.5) return null;
 
   const mpp = getMetresPerPixel(lat, tileZoom);

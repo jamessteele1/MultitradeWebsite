@@ -8,9 +8,25 @@ import { usePlannerState } from "@/lib/site-planner/usePlannerState";
 import { getBuildingType } from "@/lib/site-planner/buildings";
 import { downloadPNG, downloadPDF } from "@/lib/site-planner/exportUtils";
 import { fetchSatelliteImage, type GeoResult } from "@/lib/site-planner/mapUtils";
+import { useQuoteCart } from "@/context/QuoteCartContext";
 import { PIXELS_PER_METRE, CANVAS_WIDTH_M, CANVAS_HEIGHT_M } from "@/lib/site-planner/constants";
 import type { MapData } from "./PlannerCanvas";
 import type Konva from "konva";
+
+// Product catalog for mapping planner buildings to cart items
+const CART_PRODUCTS: Record<string, { id: string; name: string; size: string; img: string; category: "site-offices" | "crib-rooms" | "ablutions" | "containers" | "ancillary" }> = {
+  "3x3m-office":       { id: "3x3m-office",       name: "3x3m Office",             size: "3x3m",       img: "/images/products/3x3-office/1.jpg",        category: "site-offices" },
+  "6x3m-office":       { id: "6x3m-office",       name: "6x3m Office",             size: "6x3m",       img: "/images/products/6x3-office/1.jpg",        category: "site-offices" },
+  "12x3m-office":      { id: "12x3m-office",      name: "12x3m Office",            size: "12x3m",      img: "/images/products/12x3-office/1.jpg",       category: "site-offices" },
+  "6x3m-crib-room":    { id: "6x3m-crib-room",    name: "6x3m Crib Room",          size: "6x3m",       img: "/images/products/6x3-crib/1.jpg",          category: "crib-rooms" },
+  "12x3m-crib-room":   { id: "12x3m-crib-room",   name: "12x3m Crib Room",         size: "12x3m",      img: "/images/products/12x3-crib-room/1.jpg",    category: "crib-rooms" },
+  "solar-toilet":      { id: "solar-toilet",      name: "Solar Toilet",            size: "5.45x2.4m",  img: "/images/products/solar-toilet-6x24/1.jpg",  category: "ablutions" },
+  "3-6x2-4m-toilet":   { id: "3-6x2-4m-toilet",   name: "3.6x2.4m Toilet",        size: "3.6x2.4m",   img: "/images/products/36x24-toilet/1.jpg",      category: "ablutions" },
+  "6x3m-toilet-block": { id: "6x3m-toilet-block", name: "6x3m Toilet Block",      size: "6x3m",       img: "/images/products/6x3-toilet/1.jpg",        category: "ablutions" },
+  "20ft-container":    { id: "20ft-container",    name: "20ft Container",          size: "6x2.4m",     img: "/images/products/20ft-container/1.jpg",     category: "containers" },
+  "5000l-tank-pump":   { id: "5000l-tank-pump",   name: "5000L Water Tank & Pump", size: "Skid mounted", img: "/images/products/5000l-tank-pump/1.jpg",  category: "ancillary" },
+  "stair-landing":     { id: "stair-landing",     name: "Stair & Landing",         size: "Various",     img: "/images/products/stair-landing/1.jpg",     category: "ancillary" },
+};
 
 const PlannerCanvas = dynamic(() => import("./PlannerCanvas"), {
   ssr: false,
@@ -29,6 +45,7 @@ export default function SitePlannerClient() {
   const stageRef = useRef<Konva.Stage>(null);
   const [isMobile, setIsMobile] = useState(false);
   const state = usePlannerState();
+  const { addItem, openCart } = useQuoteCart();
 
   // Map state
   const [mapData, setMapData] = useState<MapData | null>(null);
@@ -37,6 +54,8 @@ export default function SitePlannerClient() {
   const [mapLoading, setMapLoading] = useState(false);
   const [sunEnabled, setSunEnabled] = useState(false);
   const [annotations, setAnnotations] = useState<Annotation[]>([]);
+  const [siteAddress, setSiteAddress] = useState<string | undefined>();
+  const [siteCoords, setSiteCoords] = useState<{ lat: number; lng: number } | undefined>();
 
   useEffect(() => {
     setIsMobile(window.innerWidth < 768);
@@ -79,8 +98,8 @@ export default function SitePlannerClient() {
   }, []);
 
   const handleExportPDF = useCallback(() => {
-    if (stageRef.current) downloadPDF(stageRef.current, state.buildings, mapRotation);
-  }, [state.buildings, mapRotation]);
+    if (stageRef.current) downloadPDF(stageRef.current, state.buildings, mapRotation, siteAddress, siteCoords);
+  }, [state.buildings, mapRotation, siteAddress, siteCoords]);
 
   // Custom building drop
   const handleAddCustom = useCallback(
@@ -112,27 +131,34 @@ export default function SitePlannerClient() {
     setAnnotations((prev) => prev.filter((a) => a.id !== id));
   }, []);
 
-  // Get a Quote — open quote page with items from planner
+  // Get a Quote — add planner items to the quote cart (skip custom shapes & utility markers)
   const handleGetQuote = useCallback(() => {
-    // Count items by type
     const counts: Record<string, number> = {};
     for (const b of state.buildings) {
       const type = getBuildingType(b.typeId);
-      if (type?.cartId) {
+      if (type?.cartId && CART_PRODUCTS[type.cartId]) {
         counts[type.cartId] = (counts[type.cartId] || 0) + 1;
       }
     }
-    // Build query string
-    const params = new URLSearchParams();
-    for (const [cartId, qty] of Object.entries(counts)) {
-      params.append("item", `${cartId}:${qty}`);
+
+    if (Object.keys(counts).length === 0) {
+      alert("No quotable items on the planner. Custom shapes and utility markers can't be quoted — add standard buildings first.");
+      return;
     }
-    params.append("from", "planner");
-    window.open(`/quote?${params.toString()}`, "_blank");
-  }, [state.buildings]);
+
+    for (const [cartId, qty] of Object.entries(counts)) {
+      const product = CART_PRODUCTS[cartId];
+      for (let i = 0; i < qty; i++) {
+        addItem(product);
+      }
+    }
+    openCart();
+  }, [state.buildings, addItem, openCart]);
 
   // Map handlers
   const handleMapSelect = useCallback(async (result: GeoResult) => {
+    setSiteAddress(result.displayName);
+    setSiteCoords({ lat: result.lat, lng: result.lng });
     setMapLoading(true);
     try {
       const { image, scale } = await fetchSatelliteImage(

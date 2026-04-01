@@ -20,7 +20,7 @@ const PlannerCanvas = dynamic(() => import("./PlannerCanvas"), {
 });
 
 export default function SitePlannerClient() {
-  const stageRef = useRef<Konva.Stage | null>(null);
+  const stageRef = useRef<Konva.Stage>(null);
   const [isMobile, setIsMobile] = useState(false);
   const state = usePlannerState();
 

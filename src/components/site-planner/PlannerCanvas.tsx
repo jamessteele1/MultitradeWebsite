@@ -21,7 +21,7 @@ type Props = {
   onSelect: (id: string | null) => void;
   onMove: (id: string, x: number, y: number) => void;
   onAdd: (typeId: string, x: number, y: number, label: string) => void;
-  stageRef: React.RefObject<Konva.Stage | null>;
+  stageRef: React.RefObject<Konva.Stage>;
 };
 
 export default function PlannerCanvas({ buildings, selectedId, onSelect, onMove, onAdd, stageRef }: Props) {

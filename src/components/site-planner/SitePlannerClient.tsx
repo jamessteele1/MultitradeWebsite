@@ -7,7 +7,7 @@ import PlannerToolbar from "./PlannerToolbar";
 import { usePlannerState } from "@/lib/site-planner/usePlannerState";
 import { getBuildingType } from "@/lib/site-planner/buildings";
 import { downloadPNG, downloadPDF } from "@/lib/site-planner/exportUtils";
-import { geocodeLocation, fetchSatelliteImage } from "@/lib/site-planner/mapUtils";
+import { fetchSatelliteImage, type GeoResult } from "@/lib/site-planner/mapUtils";
 import { PIXELS_PER_METRE, CANVAS_WIDTH_M, CANVAS_HEIGHT_M } from "@/lib/site-planner/constants";
 import type { MapData } from "./PlannerCanvas";
 import type Konva from "konva";
@@ -67,19 +67,12 @@ export default function SitePlannerClient() {
   }, [state.buildings]);
 
   // Map handlers
-  const handleMapSearch = useCallback(async (query: string) => {
+  const handleMapSelect = useCallback(async (result: GeoResult) => {
     setMapLoading(true);
     try {
-      const location = await geocodeLocation(query);
-      if (!location) {
-        alert("Location not found. Try a more specific address.");
-        setMapLoading(false);
-        return;
-      }
-
       const { image, scale } = await fetchSatelliteImage(
-        location.lat,
-        location.lng,
+        result.lat,
+        result.lng,
         PIXELS_PER_METRE,
       );
 
@@ -163,7 +156,7 @@ export default function SitePlannerClient() {
         hasMap={!!mapData}
         mapOpacity={mapOpacity}
         mapLoading={mapLoading}
-        onMapSearch={handleMapSearch}
+        onMapSelect={handleMapSelect}
         onMapOpacityChange={setMapOpacity}
         onMapRemove={handleMapRemove}
       />

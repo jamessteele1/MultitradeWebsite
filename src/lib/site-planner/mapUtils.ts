@@ -2,13 +2,17 @@ const TILE_SIZE = 256;
 const ESRI_TILE_URL =
   "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile";
 
+export type GeoResult = {
+  lat: number;
+  lng: number;
+  displayName: string;
+};
+
 /** Geocode a location string via Nominatim (free, no key). */
-export async function geocodeLocation(
-  query: string,
-): Promise<{ lat: number; lng: number; displayName: string } | null> {
+export async function geocodeLocation(query: string): Promise<GeoResult | null> {
   try {
     const res = await fetch(
-      `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1`,
+      `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1&countrycodes=au`,
       { headers: { Accept: "application/json" } },
     );
     const data = await res.json();
@@ -20,6 +24,25 @@ export async function geocodeLocation(
     };
   } catch {
     return null;
+  }
+}
+
+/** Search for address suggestions as user types. */
+export async function searchSuggestions(query: string): Promise<GeoResult[]> {
+  if (query.length < 3) return [];
+  try {
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=5&countrycodes=au`,
+      { headers: { Accept: "application/json" } },
+    );
+    const data = await res.json();
+    return data.map((item: { lat: string; lon: string; display_name: string }) => ({
+      lat: parseFloat(item.lat),
+      lng: parseFloat(item.lon),
+      displayName: item.display_name,
+    }));
+  } catch {
+    return [];
   }
 }
 
@@ -40,15 +63,32 @@ function latLngToTile(lat: number, lng: number, zoom: number) {
 
 /**
  * Fetch satellite imagery tiles from Esri and composite into a single image.
- * Returns the image and the scale factor to match the canvas PIXELS_PER_METRE.
+ * Tries zoom 19 first, falls back to 18 if tiles fail.
  */
 export async function fetchSatelliteImage(
   lat: number,
   lng: number,
   pixelsPerMetre: number,
-  tileZoom = 20,
   gridSize = 5,
 ): Promise<{ image: HTMLImageElement; scale: number; coverageMetres: number }> {
+  // Try zoom 19 first (good detail), fall back to 18 (wider coverage)
+  for (const tileZoom of [19, 18]) {
+    const result = await fetchTilesAtZoom(lat, lng, pixelsPerMetre, tileZoom, gridSize);
+    if (result) return result;
+  }
+  // Last resort: zoom 17
+  const fallback = await fetchTilesAtZoom(lat, lng, pixelsPerMetre, 17, gridSize);
+  if (fallback) return fallback;
+  throw new Error("Failed to load satellite imagery at any zoom level");
+}
+
+async function fetchTilesAtZoom(
+  lat: number,
+  lng: number,
+  pixelsPerMetre: number,
+  tileZoom: number,
+  gridSize: number,
+): Promise<{ image: HTMLImageElement; scale: number; coverageMetres: number } | null> {
   const center = latLngToTile(lat, lng, tileZoom);
   const half = Math.floor(gridSize / 2);
 
@@ -57,9 +97,9 @@ export async function fetchSatelliteImage(
   canvas.height = gridSize * TILE_SIZE;
   const ctx = canvas.getContext("2d")!;
 
-  // Fill with dark background in case tiles fail
-  ctx.fillStyle = "#1a1a2e";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  let loadedCount = 0;
+  let failedCount = 0;
+  const total = gridSize * gridSize;
 
   const loads: Promise<void>[] = [];
   for (let dy = -half; dy <= half; dy++) {
@@ -73,10 +113,20 @@ export async function fetchSatelliteImage(
           const img = new Image();
           img.crossOrigin = "anonymous";
           img.onload = () => {
-            ctx.drawImage(img, px, py);
+            // Check if the tile is a valid satellite image (not a placeholder)
+            // Esri returns 256x256 for valid tiles
+            if (img.naturalWidth === TILE_SIZE && img.naturalHeight === TILE_SIZE) {
+              ctx.drawImage(img, px, py);
+              loadedCount++;
+            } else {
+              failedCount++;
+            }
             resolve();
           };
-          img.onerror = () => resolve();
+          img.onerror = () => {
+            failedCount++;
+            resolve();
+          };
           img.src = `${ESRI_TILE_URL}/${tileZoom}/${ty}/${tx}`;
         }),
       );
@@ -85,8 +135,11 @@ export async function fetchSatelliteImage(
 
   await Promise.all(loads);
 
+  // If most tiles failed, try a lower zoom
+  if (loadedCount < total * 0.5) return null;
+
   const mpp = getMetresPerPixel(lat, tileZoom);
-  const scale = pixelsPerMetre * mpp; // canvas pixels per map pixel
+  const scale = pixelsPerMetre * mpp;
   const coverageMetres = gridSize * TILE_SIZE * mpp;
 
   return new Promise((resolve) => {

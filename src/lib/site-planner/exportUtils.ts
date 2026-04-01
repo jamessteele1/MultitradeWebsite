@@ -34,7 +34,7 @@ async function loadImageAsDataUrl(src: string): Promise<string | null> {
   }
 }
 
-export async function downloadPDF(stage: Konva.Stage, buildings: PlacedBuilding[]) {
+export async function downloadPDF(stage: Konva.Stage, buildings: PlacedBuilding[], mapRotation = 0) {
   const { jsPDF } = await import("jspdf");
   const pdf = new jsPDF({ orientation: "landscape", unit: "mm", format: "a3" });
 
@@ -64,6 +64,42 @@ export async function downloadPDF(stage: Konva.Stage, buildings: PlacedBuilding[
   const imgWidth = 390;
   const imgHeight = (stage.height() / stage.width()) * imgWidth;
   pdf.addImage(dataUrl, "PNG", 15, 36, imgWidth, Math.min(imgHeight, 210));
+
+  // North compass — top right of the image area
+  const compassX = 15 + imgWidth - 15; // right side
+  const compassY = 50; // near top of image
+  const compassR = 12; // radius in mm
+  const rotRad = (-mapRotation * Math.PI) / 180;
+
+  // Compass circle
+  pdf.setDrawColor(200, 200, 200);
+  pdf.setLineWidth(0.5);
+  pdf.circle(compassX, compassY, compassR);
+
+  // North arrow (red triangle pointing up, rotated by map rotation)
+  const tipX = compassX + Math.sin(rotRad) * (compassR - 2);
+  const tipY = compassY - Math.cos(rotRad) * (compassR - 2);
+  const leftX = compassX + Math.sin(rotRad + 2.7) * (compassR - 3);
+  const leftY = compassY - Math.cos(rotRad + 2.7) * (compassR - 3);
+  const rightX = compassX + Math.sin(rotRad - 2.7) * (compassR - 3);
+  const rightY = compassY - Math.cos(rotRad - 2.7) * (compassR - 3);
+
+  pdf.setFillColor(239, 68, 68); // red
+  pdf.triangle(tipX, tipY, leftX, leftY, rightX, rightY, "F");
+
+  // South arrow (gray)
+  const sTipX = compassX - Math.sin(rotRad) * (compassR - 2);
+  const sTipY = compassY + Math.cos(rotRad) * (compassR - 2);
+  pdf.setFillColor(180, 180, 180);
+  pdf.triangle(sTipX, sTipY, leftX, leftY, rightX, rightY, "F");
+
+  // "N" label
+  const nLabelX = compassX + Math.sin(rotRad) * (compassR + 4);
+  const nLabelY = compassY - Math.cos(rotRad) * (compassR + 4) + 1.5;
+  pdf.setFontSize(11);
+  pdf.setFont("helvetica", "bold");
+  pdf.setTextColor(239, 68, 68);
+  pdf.text("N", nLabelX, nLabelY, { align: "center" });
 
   // Building legend
   const legendY = 36 + Math.min(imgHeight, 210) + 10;

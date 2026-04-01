@@ -79,8 +79,8 @@ export default function SitePlannerClient() {
   }, []);
 
   const handleExportPDF = useCallback(() => {
-    if (stageRef.current) downloadPDF(stageRef.current, state.buildings);
-  }, [state.buildings]);
+    if (stageRef.current) downloadPDF(stageRef.current, state.buildings, mapRotation);
+  }, [state.buildings, mapRotation]);
 
   // Custom building drop
   const handleAddCustom = useCallback(

@@ -1,4 +1,11 @@
 const TILE_SIZE = 256;
+
+// QLD Government aerial imagery — high-res, free, no API key required
+// CC BY 4.0 — attribution: State of Queensland (Dept of Natural Resources)
+const QLD_TILE_URL =
+  "https://spatial-img.information.qld.gov.au/arcgis/rest/services/Basemaps/LatestStateProgram_AllUsers/ImageServer/tile";
+
+// Fallback for locations outside QLD
 const ESRI_TILE_URL =
   "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile";
 
@@ -62,8 +69,8 @@ function latLngToTile(lat: number, lng: number, zoom: number) {
 }
 
 /**
- * Fetch satellite imagery tiles from Esri and composite into a single image.
- * Tries zoom 19 first, falls back to 18 if tiles fail.
+ * Fetch satellite imagery tiles and composite into a single image.
+ * Tries QLD Government imagery first (higher res for QLD), falls back to Esri.
  */
 export async function fetchSatelliteImage(
   lat: number,
@@ -71,14 +78,19 @@ export async function fetchSatelliteImage(
   pixelsPerMetre: number,
   gridSize = 5,
 ): Promise<{ image: HTMLImageElement; scale: number; coverageMetres: number }> {
-  // Try zoom 19 first (good detail), fall back to 18 (wider coverage)
-  for (const tileZoom of [19, 18]) {
-    const result = await fetchTilesAtZoom(lat, lng, pixelsPerMetre, tileZoom, gridSize);
-    if (result) return result;
+  // Try QLD Government tiles first (zoom 20→19→18), then Esri as fallback
+  const providers: { url: string; zooms: number[] }[] = [
+    { url: QLD_TILE_URL, zooms: [20, 19, 18] },
+    { url: ESRI_TILE_URL, zooms: [19, 18, 17] },
+  ];
+
+  for (const provider of providers) {
+    for (const tileZoom of provider.zooms) {
+      const result = await fetchTilesAtZoom(lat, lng, pixelsPerMetre, tileZoom, gridSize, provider.url);
+      if (result) return result;
+    }
   }
-  // Last resort: zoom 17
-  const fallback = await fetchTilesAtZoom(lat, lng, pixelsPerMetre, 17, gridSize);
-  if (fallback) return fallback;
+
   throw new Error("Failed to load satellite imagery at any zoom level");
 }
 
@@ -88,6 +100,7 @@ async function fetchTilesAtZoom(
   pixelsPerMetre: number,
   tileZoom: number,
   gridSize: number,
+  tileBaseUrl: string = QLD_TILE_URL,
 ): Promise<{ image: HTMLImageElement; scale: number; coverageMetres: number } | null> {
   const center = latLngToTile(lat, lng, tileZoom);
   const half = Math.floor(gridSize / 2);
@@ -127,7 +140,7 @@ async function fetchTilesAtZoom(
             failedCount++;
             resolve();
           };
-          img.src = `${ESRI_TILE_URL}/${tileZoom}/${ty}/${tx}`;
+          img.src = `${tileBaseUrl}/${tileZoom}/${ty}/${tx}`;
         }),
       );
     }

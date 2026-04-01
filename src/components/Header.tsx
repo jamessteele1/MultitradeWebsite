@@ -50,6 +50,7 @@ const NAV_ITEMS = [
     ],
   },
   { label: "Scope Builder", href: "/scope-builder" },
+  { label: "Site Planner", href: "/site-planner" },
   { label: "About", href: "/about" },
   { label: "Contact", href: "/contact" },
 ];
@@ -77,6 +78,7 @@ const MOBILE_NAV_ITEMS: { label: string; href: string; children?: { label: strin
     ],
   },
   { label: "Scope Builder", href: "/scope-builder" },
+  { label: "Site Planner", href: "/site-planner" },
   { label: "About", href: "/about" },
   { label: "Contact", href: "/contact" },
 ];

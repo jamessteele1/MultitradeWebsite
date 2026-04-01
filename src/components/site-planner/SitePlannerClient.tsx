@@ -7,6 +7,9 @@ import PlannerToolbar from "./PlannerToolbar";
 import { usePlannerState } from "@/lib/site-planner/usePlannerState";
 import { getBuildingType } from "@/lib/site-planner/buildings";
 import { downloadPNG, downloadPDF } from "@/lib/site-planner/exportUtils";
+import { geocodeLocation, fetchSatelliteImage } from "@/lib/site-planner/mapUtils";
+import { PIXELS_PER_METRE, CANVAS_WIDTH_M, CANVAS_HEIGHT_M } from "@/lib/site-planner/constants";
+import type { MapData } from "./PlannerCanvas";
 import type Konva from "konva";
 
 // Konva requires window — dynamic import with ssr: false
@@ -23,6 +26,11 @@ export default function SitePlannerClient() {
   const stageRef = useRef<Konva.Stage>(null);
   const [isMobile, setIsMobile] = useState(false);
   const state = usePlannerState();
+
+  // Map state
+  const [mapData, setMapData] = useState<MapData | null>(null);
+  const [mapOpacity, setMapOpacity] = useState(0.7);
+  const [mapLoading, setMapLoading] = useState(false);
 
   useEffect(() => {
     setIsMobile(window.innerWidth < 768);
@@ -57,6 +65,49 @@ export default function SitePlannerClient() {
   const handleExportPDF = useCallback(() => {
     if (stageRef.current) downloadPDF(stageRef.current, state.buildings);
   }, [state.buildings]);
+
+  // Map handlers
+  const handleMapSearch = useCallback(async (query: string) => {
+    setMapLoading(true);
+    try {
+      const location = await geocodeLocation(query);
+      if (!location) {
+        alert("Location not found. Try a more specific address.");
+        setMapLoading(false);
+        return;
+      }
+
+      const { image, scale } = await fetchSatelliteImage(
+        location.lat,
+        location.lng,
+        PIXELS_PER_METRE,
+      );
+
+      // Center the map image on the canvas grid
+      const canvasCenterX = (CANVAS_WIDTH_M * PIXELS_PER_METRE) / 2;
+      const canvasCenterY = (CANVAS_HEIGHT_M * PIXELS_PER_METRE) / 2;
+      const imgDisplayW = image.width * scale;
+      const imgDisplayH = image.height * scale;
+
+      setMapData({
+        image,
+        scale,
+        x: canvasCenterX - imgDisplayW / 2,
+        y: canvasCenterY - imgDisplayH / 2,
+      });
+    } catch {
+      alert("Failed to load satellite imagery. Please try again.");
+    }
+    setMapLoading(false);
+  }, []);
+
+  const handleMapMove = useCallback((x: number, y: number) => {
+    setMapData((prev) => (prev ? { ...prev, x, y } : null));
+  }, []);
+
+  const handleMapRemove = useCallback(() => {
+    setMapData(null);
+  }, []);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -109,10 +160,16 @@ export default function SitePlannerClient() {
         onExportPNG={handleExportPNG}
         onExportPDF={handleExportPDF}
         currentLabel={selectedType?.shortLabel}
+        hasMap={!!mapData}
+        mapOpacity={mapOpacity}
+        mapLoading={mapLoading}
+        onMapSearch={handleMapSearch}
+        onMapOpacityChange={setMapOpacity}
+        onMapRemove={handleMapRemove}
       />
 
       {/* Main content: palette + canvas */}
-      <div className="flex gap-3" style={{ height: "calc(100vh - 280px)", minHeight: 500 }}>
+      <div className="flex gap-3" style={{ height: "calc(100vh - 320px)", minHeight: 500 }}>
         <BuildingPalette />
         <PlannerCanvas
           buildings={state.buildings}
@@ -121,6 +178,9 @@ export default function SitePlannerClient() {
           onMove={state.moveBuilding}
           onAdd={state.addBuilding}
           stageRef={stageRef}
+          mapData={mapData}
+          mapOpacity={mapOpacity}
+          onMapMove={handleMapMove}
         />
       </div>
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, useCallback, useEffect } from "react";
-import { Stage, Layer, Line, Text as KonvaText } from "react-konva";
+import { Stage, Layer, Line, Text as KonvaText, Image as KonvaImage } from "react-konva";
 import BuildingShape from "./BuildingShape";
 import { getBuildingType } from "@/lib/site-planner/buildings";
 import {
@@ -15,6 +15,13 @@ import {
 import type { PlacedBuilding } from "@/lib/site-planner/usePlannerState";
 import type Konva from "konva";
 
+export type MapData = {
+  image: HTMLImageElement;
+  scale: number; // canvas pixels per map pixel
+  x: number; // position in canvas pixels
+  y: number;
+};
+
 type Props = {
   buildings: PlacedBuilding[];
   selectedId: string | null;
@@ -22,25 +29,49 @@ type Props = {
   onMove: (id: string, x: number, y: number) => void;
   onAdd: (typeId: string, x: number, y: number, label: string) => void;
   stageRef: React.RefObject<Konva.Stage>;
+  mapData?: MapData | null;
+  mapOpacity?: number;
+  onMapMove?: (x: number, y: number) => void;
 };
 
-export default function PlannerCanvas({ buildings, selectedId, onSelect, onMove, onAdd, stageRef }: Props) {
+export default function PlannerCanvas({
+  buildings,
+  selectedId,
+  onSelect,
+  onMove,
+  onAdd,
+  stageRef,
+  mapData,
+  mapOpacity = 0.7,
+  onMapMove,
+}: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [dims, setDims] = useState({ w: 800, h: 600 });
   const [zoom, setZoom] = useState(1);
   const [stagePos, setStagePos] = useState({ x: 0, y: 0 });
+  const [initialFit, setInitialFit] = useState(false);
 
   // Resize observer
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
     const ro = new ResizeObserver(([entry]) => {
-      setDims({ w: entry.contentRect.width, h: entry.contentRect.height });
+      const w = entry.contentRect.width;
+      const h = entry.contentRect.height;
+      setDims({ w, h });
+      // Auto-fit zoom on first render so full grid is visible
+      if (!initialFit && w > 0) {
+        const canvasW = CANVAS_WIDTH_M * PIXELS_PER_METRE;
+        const canvasH = CANVAS_HEIGHT_M * PIXELS_PER_METRE;
+        const fitZoom = Math.min(w / canvasW, h / canvasH) * 0.95;
+        setZoom(Math.min(1, fitZoom));
+        setInitialFit(true);
+      }
     });
     ro.observe(el);
     setDims({ w: el.clientWidth, h: el.clientHeight });
     return () => ro.disconnect();
-  }, []);
+  }, [initialFit]);
 
   // Mouse wheel zoom
   const handleWheel = useCallback(
@@ -109,6 +140,7 @@ export default function PlannerCanvas({ buildings, selectedId, onSelect, onMove,
   const gridW = CANVAS_WIDTH_M;
   const gridH = CANVAS_HEIGHT_M;
   const gridLines: React.ReactNode[] = [];
+  const hasMap = !!mapData;
 
   for (let x = 0; x <= gridW; x++) {
     const isMajor = x % 5 === 0;
@@ -116,7 +148,7 @@ export default function PlannerCanvas({ buildings, selectedId, onSelect, onMove,
       <Line
         key={`v${x}`}
         points={[x * ppm, 0, x * ppm, gridH * ppm]}
-        stroke={isMajor ? "#D1D5DB" : "#E5E7EB"}
+        stroke={hasMap ? (isMajor ? "rgba(255,255,255,0.5)" : "rgba(255,255,255,0.2)") : (isMajor ? "#D1D5DB" : "#E5E7EB")}
         strokeWidth={isMajor ? 0.8 : 0.4}
       />,
     );
@@ -127,7 +159,7 @@ export default function PlannerCanvas({ buildings, selectedId, onSelect, onMove,
       <Line
         key={`h${y}`}
         points={[0, y * ppm, gridW * ppm, y * ppm]}
-        stroke={isMajor ? "#D1D5DB" : "#E5E7EB"}
+        stroke={hasMap ? (isMajor ? "rgba(255,255,255,0.5)" : "rgba(255,255,255,0.2)") : (isMajor ? "#D1D5DB" : "#E5E7EB")}
         strokeWidth={isMajor ? 0.8 : 0.4}
       />,
     );
@@ -141,7 +173,7 @@ export default function PlannerCanvas({ buildings, selectedId, onSelect, onMove,
       y={gridH * ppm + 6}
       text="Grid: 1m   |   Bold lines: 5m"
       fontSize={11}
-      fill="#9CA3AF"
+      fill={hasMap ? "rgba(255,255,255,0.7)" : "#9CA3AF"}
       fontFamily="system-ui, sans-serif"
     />,
   );
@@ -193,6 +225,24 @@ export default function PlannerCanvas({ buildings, selectedId, onSelect, onMove,
           onClick={handleStageClick}
           onTap={handleStageClick}
         >
+          {/* Map background layer */}
+          {mapData && (
+            <Layer>
+              <KonvaImage
+                image={mapData.image}
+                x={mapData.x}
+                y={mapData.y}
+                scaleX={mapData.scale}
+                scaleY={mapData.scale}
+                opacity={mapOpacity}
+                draggable
+                onDragEnd={(e) => {
+                  onMapMove?.(e.target.x(), e.target.y());
+                }}
+              />
+            </Layer>
+          )}
+
           {/* Grid layer */}
           <Layer listening={false}>{gridLines}</Layer>
 

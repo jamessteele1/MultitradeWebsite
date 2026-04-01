@@ -34,12 +34,69 @@ export async function geocodeLocation(query: string): Promise<GeoResult | null> 
   }
 }
 
-/** Search for address suggestions as user types. */
+/**
+ * Search for address suggestions as user types.
+ * Uses Photon (powered by OpenStreetMap/Nominatim data) which handles
+ * partial/autocomplete queries much better than raw Nominatim.
+ * Falls back to Nominatim if Photon fails.
+ */
 export async function searchSuggestions(query: string): Promise<GeoResult[]> {
   if (query.length < 3) return [];
+
+  // Try Photon first — better autocomplete for partial addresses
   try {
+    const photonParams = new URLSearchParams({
+      q: query,
+      limit: "6",
+      lang: "en",
+      lat: "-23.85",  // bias towards QLD
+      lon: "151.26",
+      zoom: "18",
+    });
     const res = await fetch(
-      `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=5&countrycodes=au`,
+      `https://photon.komoot.io/api/?${photonParams}`,
+      { headers: { Accept: "application/json" } },
+    );
+    const data = await res.json();
+    if (data.features?.length) {
+      return data.features
+        .filter((f: { properties?: { country?: string } }) =>
+          f.properties?.country === "Australia",
+        )
+        .map((f: {
+          geometry: { coordinates: number[] };
+          properties: { name?: string; street?: string; housenumber?: string; city?: string; state?: string; postcode?: string };
+        }) => {
+          const p = f.properties;
+          const parts: string[] = [];
+          if (p.housenumber && p.street) parts.push(`${p.housenumber} ${p.street}`);
+          else if (p.street) parts.push(p.street);
+          else if (p.name) parts.push(p.name);
+          if (p.city) parts.push(p.city);
+          if (p.state) parts.push(p.state);
+          if (p.postcode) parts.push(p.postcode);
+          return {
+            lat: f.geometry.coordinates[1],
+            lng: f.geometry.coordinates[0],
+            displayName: parts.join(", "),
+          };
+        });
+    }
+  } catch {
+    // fall through to Nominatim
+  }
+
+  // Fallback: Nominatim
+  try {
+    const params = new URLSearchParams({
+      q: query,
+      format: "json",
+      limit: "6",
+      countrycodes: "au",
+      addressdetails: "1",
+    });
+    const res = await fetch(
+      `https://nominatim.openstreetmap.org/search?${params}`,
       { headers: { Accept: "application/json" } },
     );
     const data = await res.json();

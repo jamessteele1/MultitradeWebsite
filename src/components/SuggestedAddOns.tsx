@@ -145,15 +145,14 @@ const RECOMMENDATIONS: Record<string, string[]> = {
   "6x3m-toilet-block": [
     "6000l-waste-tank",       // needs waste collection
     "5000l-tank-pump",        // needs water supply
-    "stair-landing",          // elevated building needs stairs
     "12x3m-crib-room",       // workers need somewhere to eat
     "12x3m-covered-deck",    // connect buildings
   ],
   "3-6x2-4m-toilet": [
     "4000l-waste-tank",       // smaller waste tank for smaller toilet
     "5000l-tank-pump",        // needs water supply
-    "stair-landing",          // elevated building needs stairs
     "6x3m-crib-room",        // workers need somewhere to eat
+    "12x3m-covered-deck",
   ],
   "solar-toilet": [
     "6x3m-crib-room",        // self-contained, so suggest complementary buildings
@@ -188,14 +187,14 @@ const RECOMMENDATIONS: Record<string, string[]> = {
 
   // ─── Crib Rooms ───
   "12x3m-crib-room": [
+    "5000l-tank-pump",        // needs potable water supply
     "6x3m-toilet-block",     // workers need toilets
     "12x3m-covered-deck",    // connect crib to toilet
-    "stair-landing",
     "12x3m-office",          // complement with office space
   ],
   "6x3m-crib-room": [
+    "5000l-tank-pump",        // needs potable water supply
     "3-6x2-4m-toilet",       // smaller toilet for smaller crib
-    "stair-landing",
     "12x3m-covered-deck",
     "6x3m-office",
   ],
@@ -227,33 +226,33 @@ const RECOMMENDATIONS: Record<string, string[]> = {
 
   // ─── Site Offices ───
   "12x3m-office": [
+    "5000l-tank-pump",        // needs potable water supply
     "6x3m-toilet-block",     // office workers need toilets
     "12x3m-crib-room",       // and somewhere to eat
     "12x3m-covered-deck",    // connect buildings
-    "stair-landing",
   ],
   "6x3m-office": [
+    "5000l-tank-pump",        // needs potable water supply
     "3-6x2-4m-toilet",       // smaller toilet for smaller office setup
     "6x3m-crib-room",
-    "stair-landing",
     "12x3m-covered-deck",
   ],
   "6x3m-supervisor-office": [
+    "5000l-tank-pump",        // needs potable water supply
     "3-6x2-4m-toilet",
     "6x3m-crib-room",
-    "stair-landing",
     "12x3m-covered-deck",
   ],
   "3x3m-office": [
     "chemical-toilet",        // small site = portable toilet
     "6x3m-crib-room",
-    "stair-landing",
+    "5000l-tank-pump",
     "dual-hand-wash-station",
   ],
   "20ft-container-office": [
     "chemical-toilet",
     "6x3m-crib-room",
-    "stair-landing",
+    "5000l-tank-pump",
     "dual-hand-wash-station",
   ],
   "gatehouse": [
@@ -274,13 +273,13 @@ const RECOMMENDATIONS: Record<string, string[]> = {
     "6x3m-office",
     "chemical-toilet",
     "6x3m-crib-room",
-    "stair-landing",
+    "dual-hand-wash-station",
   ],
   "20ft-high-cube-container": [
     "6x3m-office",
     "chemical-toilet",
     "6x3m-crib-room",
-    "stair-landing",
+    "dual-hand-wash-station",
   ],
   "10ft-container": [
     "6x3m-office",
@@ -304,7 +303,7 @@ const RECOMMENDATIONS: Record<string, string[]> = {
     "6x3m-office",
     "chemical-toilet",
     "6x3m-crib-room",
-    "stair-landing",
+    "dual-hand-wash-station",
   ],
   "20ft-riggers-container": [
     "6x3m-office",
@@ -330,13 +329,13 @@ const RECOMMENDATIONS: Record<string, string[]> = {
     "3-6x2-4m-toilet",
     "5000l-tank-pump",
     "6x3m-crib-room",
-    "stair-landing",
+    "12x3m-covered-deck",
   ],
   "12x3m-covered-deck": [
     "12x3m-crib-room",
     "6x3m-toilet-block",
     "12x3m-office",
-    "stair-landing",
+    "5000l-tank-pump",
   ],
   "40ft-flat-rack": [
     "6x3m-office",
@@ -354,13 +353,13 @@ const RECOMMENDATIONS: Record<string, string[]> = {
     "chemical-toilet",
     "6x3m-crib-room",
     "6x3m-office",
-    "stair-landing",
+    "5000l-tank-pump",
   ],
   "wash-trough": [
     "6x3m-toilet-block",
     "6x3m-crib-room",
     "dual-hand-wash-station",
-    "stair-landing",
+    "5000l-tank-pump",
   ],
 };
 

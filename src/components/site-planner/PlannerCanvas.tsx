@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, useCallback, useEffect } from "react";
-import { Stage, Layer, Line, Text as KonvaText, Image as KonvaImage } from "react-konva";
+import { Stage, Layer, Line, Text as KonvaText, Image as KonvaImage, Circle, Arrow } from "react-konva";
 import BuildingShape from "./BuildingShape";
 import { getBuildingType } from "@/lib/site-planner/buildings";
 import {
@@ -34,6 +34,7 @@ type Props = {
   mapRotation?: number;
   onMapMove?: (x: number, y: number) => void;
   onMapRotation?: (degrees: number) => void;
+  sunDirection?: number | null; // degrees, 0 = north, null = hidden
 };
 
 export default function PlannerCanvas({
@@ -48,6 +49,7 @@ export default function PlannerCanvas({
   mapRotation = 0,
   onMapMove,
   onMapRotation,
+  sunDirection,
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [dims, setDims] = useState({ w: 800, h: 600 });
@@ -322,6 +324,99 @@ export default function PlannerCanvas({
               );
             })}
           </Layer>
+
+          {/* Sun direction overlay */}
+          {sunDirection !== null && sunDirection !== undefined && (() => {
+            const canvasW = CANVAS_WIDTH_M * ppm;
+            const canvasH = CANVAS_HEIGHT_M * ppm;
+            const cx = canvasW / 2;
+            const cy = canvasH / 2;
+            const rad = (sunDirection * Math.PI) / 180;
+            // Sun position: edge of canvas in the sun's direction
+            const radius = Math.min(canvasW, canvasH) * 0.45;
+            const sunX = cx + Math.sin(rad) * radius;
+            const sunY = cy - Math.cos(rad) * radius;
+            // Shadow lines across the canvas (parallel lines perpendicular to sun direction)
+            const shadowLines: React.ReactNode[] = [];
+            const lineLen = Math.max(canvasW, canvasH) * 1.5;
+            const perpRad = rad + Math.PI / 2;
+            const perpDx = Math.cos(perpRad);
+            const perpDy = Math.sin(perpRad);
+            const shadowDx = Math.sin(rad);
+            const shadowDy = -Math.cos(rad);
+            for (let i = -8; i <= 8; i++) {
+              const offsetDist = i * 40;
+              const baseCx = cx + perpDx * offsetDist;
+              const baseCy = cy + perpDy * offsetDist;
+              shadowLines.push(
+                <Line
+                  key={`sunray-${i}`}
+                  points={[
+                    baseCx - shadowDx * lineLen / 2,
+                    baseCy - shadowDy * lineLen / 2,
+                    baseCx + shadowDx * lineLen / 2,
+                    baseCy + shadowDy * lineLen / 2,
+                  ]}
+                  stroke="rgba(251, 191, 36, 0.15)"
+                  strokeWidth={2}
+                  dash={[12, 8]}
+                />,
+              );
+            }
+            // Sun rays from sun position
+            const rayCount = 12;
+            const rayLines: React.ReactNode[] = [];
+            for (let i = 0; i < rayCount; i++) {
+              const angle = (i / rayCount) * Math.PI * 2;
+              const innerR = 18;
+              const outerR = 28;
+              rayLines.push(
+                <Line
+                  key={`ray-${i}`}
+                  points={[
+                    sunX + Math.cos(angle) * innerR,
+                    sunY + Math.sin(angle) * innerR,
+                    sunX + Math.cos(angle) * outerR,
+                    sunY + Math.sin(angle) * outerR,
+                  ]}
+                  stroke="#F59E0B"
+                  strokeWidth={2}
+                  lineCap="round"
+                />,
+              );
+            }
+            return (
+              <Layer listening={false} opacity={0.8}>
+                {shadowLines}
+                {/* Sun circle */}
+                <Circle x={sunX} y={sunY} radius={14} fill="#FCD34D" stroke="#F59E0B" strokeWidth={2} />
+                {rayLines}
+                {/* Direction arrow from sun toward center */}
+                <Arrow
+                  points={[
+                    sunX + shadowDx * 35,
+                    sunY + shadowDy * 35,
+                    sunX + shadowDx * 80,
+                    sunY + shadowDy * 80,
+                  ]}
+                  fill="#F59E0B"
+                  stroke="#F59E0B"
+                  strokeWidth={2}
+                  pointerLength={8}
+                  pointerWidth={6}
+                />
+                <KonvaText
+                  x={sunX - 20}
+                  y={sunY - 32}
+                  text="☀"
+                  fontSize={16}
+                  fill="#F59E0B"
+                  width={40}
+                  align="center"
+                />
+              </Layer>
+            );
+          })()}
         </Stage>
       </div>
     </div>

@@ -3,6 +3,8 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { searchSuggestions, geocodeLocation, type GeoResult } from "@/lib/site-planner/mapUtils";
 
+type Annotation = { id: string; x: number; y: number; text: string };
+
 type Props = {
   selectedId: string | null;
   canUndo: boolean;
@@ -27,6 +29,12 @@ type Props = {
   // Sun direction
   sunEnabled: boolean;
   onSunToggle: () => void;
+  // Quote
+  onGetQuote: () => void;
+  // Annotations
+  onAddAnnotation: (text: string) => void;
+  annotations: Annotation[];
+  onDeleteAnnotation: (id: string) => void;
 };
 
 export default function PlannerToolbar({
@@ -51,6 +59,10 @@ export default function PlannerToolbar({
   onMapRemove,
   sunEnabled,
   onSunToggle,
+  onGetQuote,
+  onAddAnnotation,
+  annotations,
+  onDeleteAnnotation,
 }: Props) {
   const [editingLabel, setEditingLabel] = useState(false);
   const [labelText, setLabelText] = useState("");
@@ -58,6 +70,8 @@ export default function PlannerToolbar({
   const [suggestions, setSuggestions] = useState<GeoResult[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [searchingAddr, setSearchingAddr] = useState(false);
+  const [addingNote, setAddingNote] = useState(false);
+  const [noteText, setNoteText] = useState("");
   const suggestionsRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
   const hasSelection = selectedId !== null;
@@ -70,6 +84,14 @@ export default function PlannerToolbar({
   const confirmLabel = () => {
     if (labelText.trim()) onLabel(labelText.trim());
     setEditingLabel(false);
+  };
+
+  const confirmNote = () => {
+    if (noteText.trim()) {
+      onAddAnnotation(noteText.trim());
+      setNoteText("");
+      setAddingNote(false);
+    }
   };
 
   // Debounced address search
@@ -97,7 +119,6 @@ export default function PlannerToolbar({
     onMapSelect(result);
   };
 
-  // Enter key: geocode the typed query directly (for addresses not in suggestions)
   const handleSearchKeyDown = useCallback(async (e: React.KeyboardEvent) => {
     if (e.key !== "Enter" || !mapQuery.trim()) return;
     e.preventDefault();
@@ -200,35 +221,73 @@ export default function PlannerToolbar({
 
         <div className="w-px h-6 bg-gray-200 mx-1" />
 
-        {/* Sun direction toggle */}
-        <button
-          onClick={onSunToggle}
-          className={sunEnabled ? `${btnBase} bg-amber-50 border border-amber-300 text-amber-700` : btnActive}
-          title={sunEnabled ? "Hide sun overlay" : "Show sun overlay (north-facing)"}
-        >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="5" />
-            <line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" />
-            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
-            <line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" />
-            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
-          </svg>
-          Sun
-        </button>
+        {/* Sun & Note */}
+        <div className="flex items-center gap-1.5">
+          <button
+            onClick={onSunToggle}
+            className={sunEnabled ? `${btnBase} bg-amber-50 border border-amber-300 text-amber-700` : btnActive}
+            title={sunEnabled ? "Hide sun overlay" : "Show sun overlay"}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="5" />
+              <line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" />
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+              <line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" />
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+            </svg>
+            Sun
+          </button>
+
+          {addingNote ? (
+            <div className="flex items-center gap-1">
+              <input
+                autoFocus
+                value={noteText}
+                onChange={(e) => setNoteText(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && confirmNote()}
+                className="w-36 px-2 py-1.5 text-xs rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                placeholder="Note text..."
+              />
+              <button onClick={confirmNote} className={`${btnBase} bg-amber-100 text-amber-800 border border-amber-200`}>
+                Add
+              </button>
+              <button onClick={() => setAddingNote(false)} className={`${btnBase} text-gray-500`}>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+              </button>
+            </div>
+          ) : (
+            <button onClick={() => setAddingNote(true)} className={btnActive} title="Add a note to the canvas">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+                <line x1="12" y1="18" x2="12" y2="12" />
+                <line x1="9" y1="15" x2="15" y2="15" />
+              </svg>
+              Note
+            </button>
+          )}
+        </div>
 
         {/* Spacer */}
         <div className="flex-1" />
 
-        {/* Export */}
+        {/* Export & Quote */}
         <div className="flex items-center gap-1.5">
           <span className="text-[11px] text-gray-400 mr-1">{buildingCount} building{buildingCount !== 1 ? "s" : ""}</span>
           <button onClick={onExportPNG} disabled={buildingCount === 0} className={buildingCount > 0 ? `${btnBase} border border-gray-200 text-gray-700 hover:bg-gray-100` : btnDisabled}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
             PNG
           </button>
-          <button onClick={onExportPDF} disabled={buildingCount === 0} className={buildingCount > 0 ? `${btnBase} bg-gold text-gray-900 hover:brightness-110` : btnDisabled}>
+          <button onClick={onExportPDF} disabled={buildingCount === 0} className={buildingCount > 0 ? `${btnBase} border border-gray-200 text-gray-700 hover:bg-gray-100` : btnDisabled}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><polyline points="14 2 14 8 20 8" /></svg>
-            Export PDF
+            PDF
+          </button>
+          <button onClick={onGetQuote} disabled={buildingCount === 0} className={buildingCount > 0 ? `${btnBase} bg-gold text-gray-900 hover:brightness-110` : btnDisabled}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M9 17H5a2 2 0 00-2 2 2 2 0 002 2h2a2 2 0 002-2zm12-2h-4a2 2 0 00-2 2 2 2 0 002 2h2a2 2 0 002-2z" />
+              <polyline points="9 11 12 14 22 4" />
+            </svg>
+            Get a Quote
           </button>
         </div>
       </div>
@@ -260,7 +319,6 @@ export default function PlannerToolbar({
             </div>
           </div>
 
-          {/* Suggestions dropdown */}
           {showSuggestions && suggestions.length > 0 && (
             <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-lg border border-gray-200 shadow-lg z-50 overflow-hidden">
               {suggestions.map((s, i) => (
@@ -309,6 +367,25 @@ export default function PlannerToolbar({
           </>
         )}
       </div>
+
+      {/* Annotations list (if any) */}
+      {annotations.length > 0 && (
+        <div className="flex items-center gap-2 flex-wrap bg-white rounded-xl border border-gray-200 px-4 py-2">
+          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Notes:</span>
+          {annotations.map((a) => (
+            <div key={a.id} className="flex items-center gap-1 px-2 py-1 bg-red-50 rounded-lg border border-red-200">
+              <span className="text-[10px] text-red-700 font-medium max-w-[120px] truncate">{a.text}</span>
+              <button
+                onClick={() => onDeleteAnnotation(a.id)}
+                className="text-red-400 hover:text-red-600"
+                title="Delete note"
+              >
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

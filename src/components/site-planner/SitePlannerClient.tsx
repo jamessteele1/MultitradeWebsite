@@ -12,7 +12,6 @@ import { PIXELS_PER_METRE, CANVAS_WIDTH_M, CANVAS_HEIGHT_M } from "@/lib/site-pl
 import type { MapData } from "./PlannerCanvas";
 import type Konva from "konva";
 
-// Konva requires window — dynamic import with ssr: false
 const PlannerCanvas = dynamic(() => import("./PlannerCanvas"), {
   ssr: false,
   loading: () => (
@@ -21,6 +20,10 @@ const PlannerCanvas = dynamic(() => import("./PlannerCanvas"), {
     </div>
   ),
 });
+
+type Annotation = { id: string; x: number; y: number; text: string };
+
+let annotationCounter = 0;
 
 export default function SitePlannerClient() {
   const stageRef = useRef<Konva.Stage>(null);
@@ -33,6 +36,7 @@ export default function SitePlannerClient() {
   const [mapRotation, setMapRotation] = useState(0);
   const [mapLoading, setMapLoading] = useState(false);
   const [sunEnabled, setSunEnabled] = useState(false);
+  const [annotations, setAnnotations] = useState<Annotation[]>([]);
 
   useEffect(() => {
     setIsMobile(window.innerWidth < 768);
@@ -64,7 +68,10 @@ export default function SitePlannerClient() {
   );
 
   const handleClear = useCallback(() => {
-    if (confirm("Remove all buildings from the canvas?")) state.clearAll();
+    if (confirm("Remove all buildings from the canvas?")) {
+      state.clearAll();
+      setAnnotations([]);
+    }
   }, [state]);
 
   const handleExportPNG = useCallback(() => {
@@ -73,6 +80,55 @@ export default function SitePlannerClient() {
 
   const handleExportPDF = useCallback(() => {
     if (stageRef.current) downloadPDF(stageRef.current, state.buildings);
+  }, [state.buildings]);
+
+  // Custom building drop
+  const handleAddCustom = useCallback(
+    (widthM: number, depthM: number, x: number, y: number, label: string) => {
+      const typeId = `custom-${widthM}x${depthM}`;
+      state.addBuilding(typeId, x, y, label);
+    },
+    [state],
+  );
+
+  // Annotations
+  const handleAddAnnotation = useCallback((text: string) => {
+    const ppm = PIXELS_PER_METRE;
+    const cx = (CANVAS_WIDTH_M * ppm) / 2;
+    const cy = (CANVAS_HEIGHT_M * ppm) / 2;
+    setAnnotations((prev) => [
+      ...prev,
+      { id: `note-${Date.now()}-${++annotationCounter}`, x: cx, y: cy, text },
+    ]);
+  }, []);
+
+  const handleAnnotationMove = useCallback((id: string, x: number, y: number) => {
+    setAnnotations((prev) =>
+      prev.map((a) => (a.id === id ? { ...a, x, y } : a)),
+    );
+  }, []);
+
+  const handleDeleteAnnotation = useCallback((id: string) => {
+    setAnnotations((prev) => prev.filter((a) => a.id !== id));
+  }, []);
+
+  // Get a Quote — open quote page with items from planner
+  const handleGetQuote = useCallback(() => {
+    // Count items by type
+    const counts: Record<string, number> = {};
+    for (const b of state.buildings) {
+      const type = getBuildingType(b.typeId);
+      if (type?.cartId) {
+        counts[type.cartId] = (counts[type.cartId] || 0) + 1;
+      }
+    }
+    // Build query string
+    const params = new URLSearchParams();
+    for (const [cartId, qty] of Object.entries(counts)) {
+      params.append("item", `${cartId}:${qty}`);
+    }
+    params.append("from", "planner");
+    window.open(`/quote?${params.toString()}`, "_blank");
   }, [state.buildings]);
 
   // Map handlers
@@ -85,7 +141,6 @@ export default function SitePlannerClient() {
         PIXELS_PER_METRE,
       );
 
-      // Center the map image on the canvas grid
       const canvasCenterX = (CANVAS_WIDTH_M * PIXELS_PER_METRE) / 2;
       const canvasCenterY = (CANVAS_HEIGHT_M * PIXELS_PER_METRE) / 2;
       const imgDisplayW = image.width * scale;
@@ -173,6 +228,10 @@ export default function SitePlannerClient() {
         onMapRemove={handleMapRemove}
         sunEnabled={sunEnabled}
         onSunToggle={() => setSunEnabled((prev) => !prev)}
+        onGetQuote={handleGetQuote}
+        onAddAnnotation={handleAddAnnotation}
+        annotations={annotations}
+        onDeleteAnnotation={handleDeleteAnnotation}
       />
 
       {/* Main content: palette + canvas */}
@@ -184,6 +243,7 @@ export default function SitePlannerClient() {
           onSelect={state.setSelectedId}
           onMove={state.moveBuilding}
           onAdd={state.addBuilding}
+          onAddCustom={handleAddCustom}
           stageRef={stageRef}
           mapData={mapData}
           mapOpacity={mapOpacity}
@@ -191,6 +251,8 @@ export default function SitePlannerClient() {
           onMapMove={handleMapMove}
           onMapRotation={setMapRotation}
           sunDirection={sunEnabled ? mapRotation : null}
+          annotations={annotations}
+          onAnnotationMove={handleAnnotationMove}
         />
       </div>
 

@@ -15,7 +15,7 @@ import type { MapData } from "./PlannerCanvas";
 import type Konva from "konva";
 
 // Product catalog for mapping planner buildings to cart items
-const CART_PRODUCTS: Record<string, { id: string; name: string; size: string; img: string; category: "site-offices" | "crib-rooms" | "ablutions" | "containers" | "ancillary" }> = {
+const CART_PRODUCTS: Record<string, { id: string; name: string; size: string; img: string; category: "site-offices" | "crib-rooms" | "ablutions" | "containers" | "ancillary" | "complexes" }> = {
   "3x3m-office":       { id: "3x3m-office",       name: "3x3m Office",             size: "3x3m",       img: "/images/products/3x3-office/1.jpg",        category: "site-offices" },
   "6x3m-office":       { id: "6x3m-office",       name: "6x3m Office",             size: "6x3m",       img: "/images/products/6x3-office/1.jpg",        category: "site-offices" },
   "12x3m-office":      { id: "12x3m-office",      name: "12x3m Office",            size: "12x3m",      img: "/images/products/12x3-office/1.jpg",       category: "site-offices" },
@@ -27,11 +27,11 @@ const CART_PRODUCTS: Record<string, { id: string; name: string; size: string; im
   "20ft-container":    { id: "20ft-container",    name: "20ft Container",          size: "6x2.4m",     img: "/images/products/20ft-container/1.jpg",     category: "containers" },
   "5000l-tank-pump":   { id: "5000l-tank-pump",   name: "5000L Water Tank & Pump", size: "Skid mounted", img: "/images/products/5000l-tank-pump/1.jpg",  category: "ancillary" },
   "stair-landing":     { id: "stair-landing",     name: "Stair & Landing",         size: "Various",     img: "/images/products/stair-landing/1.jpg",     category: "ancillary" },
-  "12x3m-deck":        { id: "12x3m-deck",        name: "12x3m Covered Deck",      size: "12x3m",      img: "/images/products/12x3-office/1.jpg",       category: "site-offices" },
-  "6x3m-deck":         { id: "6x3m-deck",         name: "6x3m Covered Deck",       size: "6x3m",       img: "/images/products/6x3-office/1.jpg",        category: "site-offices" },
-  "12x6m-complex":     { id: "12x6m-complex",     name: "12x6m Complex",           size: "12x6m",      img: "/images/products/12x3-office/1.jpg",       category: "site-offices" },
-  "12x9m-complex":     { id: "12x9m-complex",     name: "12x9m Complex",           size: "12x9m",      img: "/images/products/12x3-office/1.jpg",       category: "site-offices" },
-  "12x12m-complex":    { id: "12x12m-complex",    name: "12x12m Complex",          size: "12x12m",     img: "/images/products/12x3-office/1.jpg",       category: "site-offices" },
+  "12x3m-deck":        { id: "12x3m-deck",        name: "12x3m Covered Deck",      size: "12x3m",      img: "/images/products/12x3-office/1.jpg",       category: "ancillary" },
+  "6x3m-deck":         { id: "6x3m-deck",         name: "6x3m Covered Deck",       size: "6x3m",       img: "/images/products/6x3-office/1.jpg",        category: "ancillary" },
+  "12x6m-complex":     { id: "12x6m-complex",     name: "12x6m Complex",           size: "12x6m",      img: "/images/products/12x3-office/1.jpg",       category: "complexes" },
+  "12x9m-complex":     { id: "12x9m-complex",     name: "12x9m Complex",           size: "12x9m",      img: "/images/products/12x3-office/1.jpg",       category: "complexes" },
+  "12x12m-complex":    { id: "12x12m-complex",    name: "12x12m Complex",          size: "12x12m",     img: "/images/products/12x3-office/1.jpg",       category: "complexes" },
 };
 
 const PlannerCanvas = dynamic(() => import("./PlannerCanvas"), {

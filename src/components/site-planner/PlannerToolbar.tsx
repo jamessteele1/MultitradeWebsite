@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { searchSuggestions, type GeoResult } from "@/lib/site-planner/mapUtils";
+import { searchSuggestions, geocodeLocation, type GeoResult } from "@/lib/site-planner/mapUtils";
 
 type Props = {
   selectedId: string | null;
@@ -91,6 +91,22 @@ export default function PlannerToolbar({
     setShowSuggestions(false);
     onMapSelect(result);
   };
+
+  // Enter key: geocode the typed query directly (for addresses not in suggestions)
+  const handleSearchKeyDown = useCallback(async (e: React.KeyboardEvent) => {
+    if (e.key !== "Enter" || !mapQuery.trim()) return;
+    e.preventDefault();
+    setShowSuggestions(false);
+    setSearchingAddr(true);
+    const result = await geocodeLocation(mapQuery);
+    setSearchingAddr(false);
+    if (result) {
+      setMapQuery(result.displayName.split(",").slice(0, 2).join(","));
+      onMapSelect(result);
+    } else {
+      alert("Address not found. Try adding the suburb or state (e.g. '6 South Trees Drive, Gladstone QLD').");
+    }
+  }, [mapQuery, onMapSelect]);
 
   // Close suggestions on click outside
   useEffect(() => {
@@ -208,8 +224,9 @@ export default function PlannerToolbar({
               <input
                 value={mapQuery}
                 onChange={(e) => handleQueryChange(e.target.value)}
+                onKeyDown={handleSearchKeyDown}
                 onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
-                placeholder="Type an address to load satellite map..."
+                placeholder="Type an address and press Enter..."
                 className="w-full px-3 py-1.5 text-xs rounded-lg border border-gray-200 focus:outline-none focus:ring-1 focus:ring-amber-500 focus:border-amber-500 pr-8"
               />
               {(searchingAddr || mapLoading) && (

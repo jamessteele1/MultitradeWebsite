@@ -36,22 +36,20 @@ export async function geocodeLocation(query: string): Promise<GeoResult | null> 
 
 /**
  * Search for address suggestions as user types.
- * Uses Photon (powered by OpenStreetMap/Nominatim data) which handles
- * partial/autocomplete queries much better than raw Nominatim.
- * Falls back to Nominatim if Photon fails.
+ * Uses Photon (Komoot) for autocomplete with Nominatim as fallback.
+ * Builds display names from structured address parts for better readability.
  */
 export async function searchSuggestions(query: string): Promise<GeoResult[]> {
   if (query.length < 3) return [];
 
-  // Try Photon first — better autocomplete for partial addresses
+  // Try Photon first — much better partial/autocomplete matching
   try {
     const photonParams = new URLSearchParams({
       q: query,
-      limit: "6",
+      limit: "8",
       lang: "en",
       lat: "-23.85",  // bias towards QLD
       lon: "151.26",
-      zoom: "18",
     });
     const res = await fetch(
       `https://photon.komoot.io/api/?${photonParams}`,
@@ -59,34 +57,50 @@ export async function searchSuggestions(query: string): Promise<GeoResult[]> {
     );
     const data = await res.json();
     if (data.features?.length) {
-      return data.features
+      const results = data.features
         .filter((f: { properties?: { country?: string } }) =>
           f.properties?.country === "Australia",
         )
         .map((f: {
           geometry: { coordinates: number[] };
-          properties: { name?: string; street?: string; housenumber?: string; city?: string; state?: string; postcode?: string };
+          properties: {
+            osm_key?: string; osm_value?: string; type?: string;
+            name?: string; street?: string; housenumber?: string;
+            city?: string; county?: string; state?: string; postcode?: string;
+          };
         }) => {
           const p = f.properties;
           const parts: string[] = [];
-          if (p.housenumber && p.street) parts.push(`${p.housenumber} ${p.street}`);
-          else if (p.street) parts.push(p.street);
-          else if (p.name) parts.push(p.name);
+
+          // Build a readable address from structured parts
+          if (p.housenumber && p.street) {
+            parts.push(`${p.housenumber} ${p.street}`);
+          } else if (p.name && p.street) {
+            parts.push(`${p.name}, ${p.street}`);
+          } else if (p.street) {
+            parts.push(p.street);
+          } else if (p.name) {
+            parts.push(p.name);
+          }
           if (p.city) parts.push(p.city);
+          else if (p.county) parts.push(p.county);
           if (p.state) parts.push(p.state);
           if (p.postcode) parts.push(p.postcode);
+
           return {
             lat: f.geometry.coordinates[1],
             lng: f.geometry.coordinates[0],
-            displayName: parts.join(", "),
+            displayName: parts.join(", ") || "Unknown location",
           };
         });
+
+      if (results.length > 0) return results.slice(0, 6);
     }
   } catch {
     // fall through to Nominatim
   }
 
-  // Fallback: Nominatim
+  // Fallback: Nominatim with address details for structured display
   try {
     const params = new URLSearchParams({
       q: query,
@@ -100,11 +114,37 @@ export async function searchSuggestions(query: string): Promise<GeoResult[]> {
       { headers: { Accept: "application/json" } },
     );
     const data = await res.json();
-    return data.map((item: { lat: string; lon: string; display_name: string }) => ({
-      lat: parseFloat(item.lat),
-      lng: parseFloat(item.lon),
-      displayName: item.display_name,
-    }));
+    return data.map((item: {
+      lat: string; lon: string; display_name: string;
+      address?: {
+        house_number?: string; road?: string; suburb?: string;
+        city?: string; town?: string; state?: string; postcode?: string;
+      };
+    }) => {
+      // Build cleaner display from address parts if available
+      const a = item.address;
+      if (a) {
+        const parts: string[] = [];
+        if (a.house_number && a.road) parts.push(`${a.house_number} ${a.road}`);
+        else if (a.road) parts.push(a.road);
+        if (a.suburb) parts.push(a.suburb);
+        if (a.city || a.town) parts.push((a.city || a.town)!);
+        if (a.state) parts.push(a.state);
+        if (a.postcode) parts.push(a.postcode);
+        if (parts.length > 0) {
+          return {
+            lat: parseFloat(item.lat),
+            lng: parseFloat(item.lon),
+            displayName: parts.join(", "),
+          };
+        }
+      }
+      return {
+        lat: parseFloat(item.lat),
+        lng: parseFloat(item.lon),
+        displayName: item.display_name,
+      };
+    });
   } catch {
     return [];
   }

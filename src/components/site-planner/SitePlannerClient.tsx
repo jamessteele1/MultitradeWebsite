@@ -30,6 +30,7 @@ export default function SitePlannerClient() {
   // Map state
   const [mapData, setMapData] = useState<MapData | null>(null);
   const [mapOpacity, setMapOpacity] = useState(0.7);
+  const [mapRotation, setMapRotation] = useState(0);
   const [mapLoading, setMapLoading] = useState(false);
 
   useEffect(() => {
@@ -107,6 +108,7 @@ export default function SitePlannerClient() {
 
   const handleMapRemove = useCallback(() => {
     setMapData(null);
+    setMapRotation(0);
   }, []);
 
   // Keyboard shortcuts
@@ -182,7 +184,9 @@ export default function SitePlannerClient() {
           stageRef={stageRef}
           mapData={mapData}
           mapOpacity={mapOpacity}
+          mapRotation={mapRotation}
           onMapMove={handleMapMove}
+          onMapRotation={setMapRotation}
         />
       </div>
 

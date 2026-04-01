@@ -51,7 +51,7 @@ export default function SitePlannerClient() {
   const stageRef = useRef<Konva.Stage>(null);
   const [isMobile, setIsMobile] = useState(false);
   const state = usePlannerState();
-  const { addItem, openCart } = useQuoteCart();
+  const { addItem, openCart, items: cartItems, updateQuantity } = useQuoteCart();
 
   // Map state
   const [mapData, setMapData] = useState<MapData | null>(null);
@@ -180,12 +180,18 @@ export default function SitePlannerClient() {
 
     for (const [cartId, qty] of Object.entries(counts)) {
       const product = CART_PRODUCTS[cartId];
-      for (let i = 0; i < qty; i++) {
+      const existing = cartItems.find((i) => i.id === cartId);
+      if (existing) {
+        // Set exact quantity rather than adding on top
+        updateQuantity(cartId, qty);
+      } else {
+        // Add once, then set quantity if > 1
         addItem(product);
+        if (qty > 1) updateQuantity(cartId, qty);
       }
     }
     openCart();
-  }, [state.buildings, addItem, openCart]);
+  }, [state.buildings, addItem, openCart, cartItems, updateQuantity]);
 
   // Map handlers
   const handleMapSelect = useCallback(async (result: GeoResult) => {

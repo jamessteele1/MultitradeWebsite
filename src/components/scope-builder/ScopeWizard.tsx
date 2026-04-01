@@ -3,7 +3,6 @@
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { useQuoteCart } from "@/context/QuoteCartContext";
 import type { ServiceUpgrades } from "@/context/QuoteCartContext";
-import Link from "next/link";
 
 /* ─── Types ────────────────────────────────────────────────── */
 
@@ -61,46 +60,67 @@ function detectMiningContext(location: string): boolean {
 
 function getRecommendations(
   facilities: Set<Facility>,
-  headcount: number,
+  totalCrew: number,
+  officeWorkers: number,
   powerType: "site" | "generator" | "off-grid",
   sewerConnected: boolean,
   waterAvailable: boolean,
 ): RecommendedProduct[] {
   const products: RecommendedProduct[] = [];
 
-  // Office
+  // Office — sized by office workers (desk count), not total crew
   if (facilities.has("office")) {
-    if (headcount <= 1) {
+    const deskCount = officeWorkers;
+    if (deskCount <= 1) {
       products.push({ ...PRODUCTS["3x3m-office"], quantity: 1, reason: "1 desk for single occupant" });
-    } else if (headcount <= 3) {
-      products.push({ ...PRODUCTS["6x3m-office"], quantity: 1, reason: `2–4 desks for ${headcount} people` });
+    } else if (deskCount <= 3) {
+      products.push({ ...PRODUCTS["6x3m-office"], quantity: 1, reason: `2–4 desks for ${deskCount} office workers` });
+    } else if (deskCount <= 6) {
+      products.push({ ...PRODUCTS["12x3m-office"], quantity: 1, reason: `5–6 desks for ${deskCount} office workers` });
     } else {
-      products.push({ ...PRODUCTS["12x3m-office"], quantity: 1, reason: `5–6 desks for your management team` });
-    }
-  }
-
-  // Crib
-  if (facilities.has("crib")) {
-    if (headcount <= 12) {
-      products.push({ ...PRODUCTS["6x3m-crib-room"], quantity: 1, reason: `12 seats — suits ${headcount} workers` });
-    } else {
-      const qty = Math.ceil(headcount / 24);
+      const qty = Math.ceil(deskCount / 6);
       products.push({
-        ...PRODUCTS["12x3m-crib-room"],
+        ...PRODUCTS["12x3m-office"],
         quantity: qty,
-        reason: qty > 1 ? `${qty} units for ${headcount} workers (24 seats each)` : `24 seats for ${headcount} workers`,
+        reason: `${qty} offices for ${deskCount} office workers (6 desks each)`,
       });
     }
   }
 
-  // Toilets
+  // Crib — sized by total crew (everyone needs a seat for breaks)
+  if (facilities.has("crib")) {
+    if (totalCrew <= 12) {
+      products.push({ ...PRODUCTS["6x3m-crib-room"], quantity: 1, reason: `12 seats — suits ${totalCrew} workers` });
+    } else {
+      const qty = Math.ceil(totalCrew / 24);
+      products.push({
+        ...PRODUCTS["12x3m-crib-room"],
+        quantity: qty,
+        reason: qty > 1 ? `${qty} units for ${totalCrew} workers (24 seats each)` : `24 seats for ${totalCrew} workers`,
+      });
+    }
+  }
+
+  // Toilets — sized by total crew using QLD WHS toilet-to-personnel ratios
+  // 3.6x2.4m: 1M + 1F + 1 urinal — covers ~10 workers
+  // 6x3m:     3M + 1 urinal + 2F  — covers ~25 workers
   if (facilities.has("toilets")) {
     if (powerType === "off-grid") {
       products.push({ ...PRODUCTS["solar-toilet"], quantity: 1, reason: "Self-contained — no connections needed", isSelfContained: true });
-    } else if (headcount <= 12) {
-      products.push({ ...PRODUCTS["3-6x2-4m-toilet"], quantity: 1, reason: `Compact toilet for ${headcount} workers` });
+    } else if (totalCrew <= 10) {
+      products.push({ ...PRODUCTS["3-6x2-4m-toilet"], quantity: 1, reason: `1M + 1F + urinal — suits up to 10 workers` });
+    } else if (totalCrew <= 15) {
+      // Between the two sizes — recommend 2x small or 1x large
+      products.push({ ...PRODUCTS["6x3m-toilet-block"], quantity: 1, reason: `3M + urinal + 2F — suits ${totalCrew} workers` });
     } else {
-      products.push({ ...PRODUCTS["6x3m-toilet-block"], quantity: 1, reason: `High-capacity toilet for ${headcount} workers` });
+      const qty = Math.ceil(totalCrew / 25);
+      products.push({
+        ...PRODUCTS["6x3m-toilet-block"],
+        quantity: qty,
+        reason: qty > 1
+          ? `${qty} blocks for ${totalCrew} workers (3M + urinal + 2F each)`
+          : `3M + urinal + 2F — suits up to 25 workers`,
+      });
     }
   }
 
@@ -111,7 +131,7 @@ function getRecommendations(
 
   // Ancillary: Waste tank (toilets + not self-contained + no sewer)
   if (facilities.has("toilets") && powerType !== "off-grid" && !sewerConnected) {
-    const isLarge = headcount > 12;
+    const isLarge = totalCrew > 10;
     products.push({
       ...(isLarge ? PRODUCTS["6000l-waste-tank"] : PRODUCTS["4000l-waste-tank"]),
       quantity: 1,
@@ -171,7 +191,8 @@ const STEP_LABELS: Record<StepId, string> = {
 export default function ScopeWizard() {
   const [stepIndex, setStepIndex] = useState(0);
   const [facilities, setFacilities] = useState<Set<Facility>>(new Set());
-  const [headcount, setHeadcount] = useState(15);
+  const [totalCrew, setTotalCrew] = useState(15);
+  const [officeWorkers, setOfficeWorkers] = useState(3);
   const [location, setLocation] = useState("");
   const [duration, setDuration] = useState("");
   const [hireOrBuy, setHireOrBuy] = useState<"hire" | "buy" | "unsure">("hire");
@@ -183,9 +204,11 @@ export default function ScopeWizard() {
   const [sewerConnected, setSewerConnected] = useState(false);
   const [waterAvailable, setWaterAvailable] = useState(true);
   const [quantityOverrides, setQuantityOverrides] = useState<Record<string, number>>({});
-  const [addedToQuote, setAddedToQuote] = useState(false);
 
-  const { addItem, closeCart } = useQuoteCart();
+  const { addItem, isInCart } = useQuoteCart();
+
+  // Whether we need separate office headcount (office + at least one crew facility)
+  const needsOfficeSplit = facilities.has("office") && (facilities.has("crib") || facilities.has("toilets"));
 
   // Dynamic steps based on selections
   const steps = useMemo<StepId[]>(() => {
@@ -200,10 +223,13 @@ export default function ScopeWizard() {
 
   const currentStep = steps[stepIndex] || "facilities";
 
+  // For office-only (no crib/toilets), office workers = total crew
+  const effectiveOfficeWorkers = needsOfficeSplit ? officeWorkers : totalCrew;
+
   // Recommendations update live
   const recommendations = useMemo(
-    () => getRecommendations(facilities, headcount, powerType, sewerConnected, waterAvailable),
-    [facilities, headcount, powerType, sewerConnected, waterAvailable],
+    () => getRecommendations(facilities, totalCrew, effectiveOfficeWorkers, powerType, sewerConnected, waterAvailable),
+    [facilities, totalCrew, effectiveOfficeWorkers, powerType, sewerConnected, waterAvailable],
   );
 
   const mainProducts = recommendations.filter((r) => !r.isAncillary);
@@ -214,15 +240,20 @@ export default function ScopeWizard() {
     if (detectMiningContext(location)) setMineSpec(true);
   }, [location]);
 
+  // Keep office workers <= total crew
+  useEffect(() => {
+    if (officeWorkers > totalCrew) setOfficeWorkers(totalCrew);
+  }, [totalCrew, officeWorkers]);
+
   // Navigation
   const canProceed = useMemo(() => {
     switch (currentStep) {
       case "facilities": return facilities.size > 0;
-      case "headcount": return headcount > 0;
+      case "headcount": return totalCrew > 0;
       case "details": return location.trim().length > 0 && duration.length > 0;
       default: return true;
     }
-  }, [currentStep, facilities, headcount, location, duration]);
+  }, [currentStep, facilities, totalCrew, location, duration]);
 
   const goNext = useCallback(() => setStepIndex((s) => Math.min(s + 1, steps.length - 1)), [steps.length]);
   const goBack = useCallback(() => setStepIndex((s) => Math.max(s - 1, 0)), []);
@@ -238,48 +269,30 @@ export default function ScopeWizard() {
   const getQty = (rec: RecommendedProduct) => quantityOverrides[rec.id] ?? rec.quantity;
   const setQty = (id: string, qty: number) => setQuantityOverrides((prev) => ({ ...prev, [id]: Math.max(1, qty) }));
 
-  // Add all to quote
-  const handleAddToQuote = useCallback(() => {
+  // Add a single product to the cart
+  const handleAddProduct = useCallback((rec: RecommendedProduct) => {
+    const su = getServiceUpgrades(rec, powerType, mineSpec, mineName, sewerConnected);
+    const qty = quantityOverrides[rec.id] ?? rec.quantity;
+    for (let i = 0; i < qty; i++) {
+      addItem({ id: rec.id, name: rec.name, size: rec.size, img: rec.img, category: rec.category }, su);
+    }
+  }, [powerType, mineSpec, mineName, sewerConnected, quantityOverrides, addItem]);
+
+  // Add all remaining (not yet in cart) products
+  const handleAddAll = useCallback(() => {
     for (const rec of recommendations) {
-      const su = getServiceUpgrades(rec, powerType, mineSpec, mineName, sewerConnected);
-      const qty = quantityOverrides[rec.id] ?? rec.quantity;
-      for (let i = 0; i < qty; i++) {
-        addItem({ id: rec.id, name: rec.name, size: rec.size, img: rec.img, category: rec.category }, su);
+      if (!isInCart(rec.id)) {
+        handleAddProduct(rec);
       }
     }
-    closeCart();
-    setAddedToQuote(true);
-  }, [recommendations, powerType, mineSpec, mineName, sewerConnected, quantityOverrides, addItem, closeCart]);
+  }, [recommendations, isInCart, handleAddProduct]);
+
+  const allInCart = recommendations.length > 0 && recommendations.every((r) => isInCart(r.id));
 
   // Mine name filter
   const filteredMines = BOWEN_BASIN_MINES.filter((m) => m.toLowerCase().includes(mineSearch.toLowerCase())).sort();
 
   const inputClass = "w-full px-4 py-3 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent";
-
-  /* ── Success State ── */
-  if (addedToQuote) {
-    const totalItems = recommendations.reduce((sum, r) => sum + (quantityOverrides[r.id] ?? r.quantity), 0);
-    return (
-      <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-8 md:p-12 text-center">
-        <div className="w-20 h-20 rounded-full bg-green-50 flex items-center justify-center mx-auto mb-5">
-          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="2.5" strokeLinecap="round"><path d="M20 6L9 17l-5-5" /></svg>
-        </div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">{totalItems} Item{totalItems !== 1 ? "s" : ""} Added to Your Quote</h2>
-        <p className="text-gray-500">Your recommended setup has been added. Review your quote and submit when ready.</p>
-        <div className="flex flex-col sm:flex-row gap-3 justify-center mt-8">
-          <Link href="/quote" className="px-6 py-3 rounded-lg font-semibold text-gray-900 bg-gold hover:brightness-110 transition-all">
-            Review Your Quote
-          </Link>
-          <button
-            onClick={() => { setAddedToQuote(false); setStepIndex(0); setFacilities(new Set()); setQuantityOverrides({}); }}
-            className="px-6 py-3 rounded-lg font-semibold border border-gray-300 text-gray-700 hover:bg-gray-50 transition-colors"
-          >
-            Build Another Setup
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   /* ── Wizard Layout ── */
   return (
@@ -365,50 +378,114 @@ export default function ScopeWizard() {
           {currentStep === "headcount" && (
             <div>
               <h2 className="text-xl font-bold text-gray-900">How many people on site?</h2>
-              <p className="text-sm text-gray-500 mt-1">Total workers including office staff. This sizes your buildings.</p>
+              <p className="text-sm text-gray-500 mt-1">
+                {needsOfficeSplit
+                  ? "Total crew for crib & toilet sizing, plus how many need desk space."
+                  : facilities.has("office")
+                    ? "How many people need desk space in the office?"
+                    : "Total workers on site. This sizes your buildings."
+                }
+              </p>
 
-              <div className="flex items-center justify-center gap-4 mt-8">
-                <button
-                  onClick={() => setHeadcount(Math.max(1, headcount - 1))}
-                  className="w-12 h-12 rounded-xl border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50 transition-colors"
-                >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12" /></svg>
-                </button>
-                <input
-                  type="number"
-                  min={1}
-                  value={headcount}
-                  onChange={(e) => setHeadcount(Math.max(1, Number(e.target.value) || 1))}
-                  className="w-24 text-center text-3xl font-bold text-gray-900 border-b-2 border-gray-200 focus:border-amber-500 focus:outline-none py-2"
-                />
-                <button
-                  onClick={() => setHeadcount(headcount + 1)}
-                  className="w-12 h-12 rounded-xl border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50 transition-colors"
-                >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
-                </button>
-              </div>
-
-              <div className="flex flex-wrap justify-center gap-2 mt-5">
-                {[5, 10, 15, 20, 30, 50].map((n) => (
+              {/* Total crew */}
+              <div className="mt-8">
+                {needsOfficeSplit && (
+                  <label className="block text-sm font-bold text-gray-700 mb-3">Total crew on site</label>
+                )}
+                <div className="flex items-center justify-center gap-4">
                   <button
-                    key={n}
-                    onClick={() => setHeadcount(n)}
-                    className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
-                      headcount === n
-                        ? "bg-amber-500 text-white"
-                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                    }`}
+                    onClick={() => setTotalCrew(Math.max(1, totalCrew - 1))}
+                    className="w-12 h-12 rounded-xl border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50 transition-colors"
                   >
-                    {n}
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12" /></svg>
                   </button>
-                ))}
+                  <input
+                    type="number"
+                    min={1}
+                    value={totalCrew}
+                    onChange={(e) => setTotalCrew(Math.max(1, Number(e.target.value) || 1))}
+                    className="w-24 text-center text-3xl font-bold text-gray-900 border-b-2 border-gray-200 focus:border-amber-500 focus:outline-none py-2"
+                  />
+                  <button
+                    onClick={() => setTotalCrew(totalCrew + 1)}
+                    className="w-12 h-12 rounded-xl border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-gray-50 transition-colors"
+                  >
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+                  </button>
+                </div>
+
+                <div className="flex flex-wrap justify-center gap-2 mt-4">
+                  {[5, 10, 15, 20, 30, 50].map((n) => (
+                    <button
+                      key={n}
+                      onClick={() => setTotalCrew(n)}
+                      className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+                        totalCrew === n
+                          ? "bg-amber-500 text-white"
+                          : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                      }`}
+                    >
+                      {n}
+                    </button>
+                  ))}
+                </div>
               </div>
+
+              {/* Office workers (only when both office + crew facilities are selected) */}
+              {needsOfficeSplit && (
+                <div className="mt-8 p-5 rounded-xl bg-blue-50/50 border border-blue-100">
+                  <label className="block text-sm font-bold text-gray-700 mb-1">
+                    How many need desk space?
+                  </label>
+                  <p className="text-xs text-gray-500 mb-4">
+                    Supervisors, admin, project managers — this sizes your office independently.
+                  </p>
+                  <div className="flex items-center justify-center gap-4">
+                    <button
+                      onClick={() => setOfficeWorkers(Math.max(1, officeWorkers - 1))}
+                      className="w-10 h-10 rounded-lg border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-white transition-colors"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12" /></svg>
+                    </button>
+                    <input
+                      type="number"
+                      min={1}
+                      max={totalCrew}
+                      value={officeWorkers}
+                      onChange={(e) => setOfficeWorkers(Math.min(totalCrew, Math.max(1, Number(e.target.value) || 1)))}
+                      className="w-20 text-center text-2xl font-bold text-gray-900 border-b-2 border-gray-200 focus:border-blue-500 focus:outline-none py-2 bg-transparent"
+                    />
+                    <button
+                      onClick={() => setOfficeWorkers(Math.min(totalCrew, officeWorkers + 1))}
+                      className="w-10 h-10 rounded-lg border border-gray-200 flex items-center justify-center text-gray-500 hover:bg-white transition-colors"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+                    </button>
+                  </div>
+                  <div className="flex flex-wrap justify-center gap-2 mt-3">
+                    {[1, 2, 3, 5, 8].filter(n => n <= totalCrew).map((n) => (
+                      <button
+                        key={n}
+                        onClick={() => setOfficeWorkers(n)}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                          officeWorkers === n
+                            ? "bg-blue-500 text-white"
+                            : "bg-white text-gray-600 hover:bg-gray-100 border border-gray-200"
+                        }`}
+                      >
+                        {n}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Live sizing preview */}
               {mainProducts.length > 0 && (
                 <div className="mt-8 p-4 rounded-xl bg-gray-50 border border-gray-100">
-                  <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">Recommended for {headcount} workers</h3>
+                  <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-3">
+                    Recommended for {totalCrew} workers{needsOfficeSplit ? ` (${officeWorkers} in office)` : ""}
+                  </h3>
                   <div className="space-y-2">
                     {mainProducts.map((r) => (
                       <div key={r.id} className="flex items-center gap-3">
@@ -485,71 +562,79 @@ export default function ScopeWizard() {
                   </div>
                 </div>
 
-                {/* Mine-spec (auto-detected or manual) */}
-                {mineSpec && (
-                  <div className="p-4 rounded-xl bg-amber-50 border border-amber-200">
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center gap-2">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#D4A843" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" /></svg>
-                        <span className="text-sm font-bold text-amber-800">Mine-Spec Electrical Required</span>
-                      </div>
-                      <button
-                        onClick={() => { setMineSpec(false); setMineName(""); setMineSearch(""); }}
-                        className="text-xs text-amber-600 hover:text-amber-800 font-medium"
-                      >
-                        Not a mine site
-                      </button>
-                    </div>
-                    <div className="relative">
-                      <input
-                        type="text"
-                        value={mineSearch}
-                        onChange={(e) => { setMineSearch(e.target.value); setMineName(""); setShowMineDropdown(true); }}
-                        onFocus={() => setShowMineDropdown(true)}
-                        placeholder="Type mine name to search..."
-                        className={inputClass}
-                      />
-                      {showMineDropdown && mineSearch.length > 0 && (
-                        <div className="absolute z-20 top-full left-0 right-0 mt-1 bg-white rounded-lg border border-gray-200 shadow-xl max-h-48 overflow-y-auto">
-                          {filteredMines.length > 0 ? (
-                            filteredMines.map((mine) => (
+                {/* Mine-spec toggle */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Is this a mine site?</label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      onClick={() => { setMineSpec(false); setMineName(""); setMineSearch(""); }}
+                      className={`p-3 rounded-lg border text-center transition-all ${
+                        !mineSpec
+                          ? "border-amber-500 bg-amber-50/50 ring-1 ring-amber-500/20"
+                          : "border-gray-200 hover:border-gray-300"
+                      }`}
+                    >
+                      <span className="text-sm font-semibold text-gray-900">No — Standard Electrical</span>
+                      <p className="text-xs text-gray-500 mt-0.5">Standard electrical fit-out</p>
+                    </button>
+                    <button
+                      onClick={() => setMineSpec(true)}
+                      className={`p-3 rounded-lg border text-center transition-all ${
+                        mineSpec
+                          ? "border-amber-500 bg-amber-50/50 ring-1 ring-amber-500/20"
+                          : "border-gray-200 hover:border-gray-300"
+                      }`}
+                    >
+                      <span className="text-sm font-semibold text-gray-900">Yes — Mine Site</span>
+                      <p className="text-xs text-gray-500 mt-0.5">Mine-spec electrical required</p>
+                    </button>
+                  </div>
+
+                  {/* Mine name dropdown — shown when mine-spec is selected */}
+                  {mineSpec && (
+                    <div className="mt-3 p-4 rounded-xl bg-amber-50 border border-amber-200">
+                      <label className="block text-sm font-medium text-amber-800 mb-2">Which mine?</label>
+                      <div className="relative">
+                        <input
+                          type="text"
+                          value={mineSearch}
+                          onChange={(e) => { setMineSearch(e.target.value); setMineName(""); setShowMineDropdown(true); }}
+                          onFocus={() => setShowMineDropdown(true)}
+                          placeholder="Type mine name to search..."
+                          className={inputClass}
+                        />
+                        {showMineDropdown && mineSearch.length > 0 && (
+                          <div className="absolute z-20 top-full left-0 right-0 mt-1 bg-white rounded-lg border border-gray-200 shadow-xl max-h-48 overflow-y-auto">
+                            {filteredMines.length > 0 ? (
+                              filteredMines.map((mine) => (
+                                <button
+                                  key={mine}
+                                  onClick={() => { setMineName(mine); setMineSearch(mine); setShowMineDropdown(false); }}
+                                  className="w-full text-left px-3 py-2 text-sm hover:bg-amber-50 transition-colors"
+                                >
+                                  {mine}
+                                </button>
+                              ))
+                            ) : (
                               <button
-                                key={mine}
-                                onClick={() => { setMineName(mine); setMineSearch(mine); setShowMineDropdown(false); }}
-                                className="w-full text-left px-3 py-2 text-sm hover:bg-amber-50 transition-colors"
+                                onClick={() => { setMineName(mineSearch); setShowMineDropdown(false); }}
+                                className="w-full text-left px-3 py-2 text-sm text-amber-700 hover:bg-amber-50"
                               >
-                                {mine}
+                                Use &ldquo;{mineSearch}&rdquo;
                               </button>
-                            ))
-                          ) : (
-                            <button
-                              onClick={() => { setMineName(mineSearch); setShowMineDropdown(false); }}
-                              className="w-full text-left px-3 py-2 text-sm text-amber-700 hover:bg-amber-50"
-                            >
-                              Use &ldquo;{mineSearch}&rdquo;
-                            </button>
-                          )}
+                            )}
+                          </div>
+                        )}
+                      </div>
+                      {mineName && (
+                        <div className="mt-2 flex items-center gap-1.5 text-xs text-green-700 font-medium">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M20 6L9 17l-5-5" /></svg>
+                          {mineName}
                         </div>
                       )}
                     </div>
-                    {mineName && (
-                      <div className="mt-2 flex items-center gap-1.5 text-xs text-green-700 font-medium">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M20 6L9 17l-5-5" /></svg>
-                        {mineName}
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {!mineSpec && (
-                  <button
-                    onClick={() => setMineSpec(true)}
-                    className="text-sm text-gray-500 hover:text-gray-700 flex items-center gap-1.5 transition-colors"
-                  >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" /></svg>
-                    This is a mine site — I need mine-spec electrical
-                  </button>
-                )}
+                  )}
+                </div>
               </div>
             </div>
           )}
@@ -662,36 +747,61 @@ export default function ScopeWizard() {
             <div>
               <h2 className="text-xl font-bold text-gray-900">Your Recommended Setup</h2>
               <p className="text-sm text-gray-500 mt-1">
-                {headcount} workers in {location} for {duration}.
+                {totalCrew} workers{needsOfficeSplit ? ` (${officeWorkers} in office)` : ""} in {location} for {duration}.
                 {mineSpec && ` Mine-spec electrical${mineName ? ` (${mineName})` : ""}.`}
-                {" "}Adjust quantities below.
               </p>
 
               {/* Main buildings */}
               {mainProducts.length > 0 && (
                 <div className="mt-6 space-y-3">
                   <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wide">Buildings</h3>
-                  {mainProducts.map((rec) => (
-                    <div key={rec.id} className="flex gap-4 p-4 rounded-xl border border-gray-200 hover:border-gray-300 transition-colors">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={rec.img} alt={rec.name} className="w-20 h-20 rounded-lg object-cover flex-shrink-0" />
-                      <div className="flex-1 min-w-0">
-                        <h4 className="text-sm font-bold text-gray-900">{rec.name}</h4>
-                        <p className="text-xs text-gray-500 mt-0.5">{rec.size} &middot; {rec.reason}</p>
-                        <div className="flex items-center gap-2 mt-3">
-                          <div className="flex items-center rounded-lg border border-gray-200 overflow-hidden">
-                            <button onClick={() => setQty(rec.id, getQty(rec) - 1)} className="px-2.5 py-1.5 text-gray-500 hover:bg-gray-50 disabled:opacity-30" disabled={getQty(rec) <= 1}>
-                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12" /></svg>
-                            </button>
-                            <span className="px-3 py-1.5 text-sm font-semibold text-gray-900 min-w-[32px] text-center">{getQty(rec)}</span>
-                            <button onClick={() => setQty(rec.id, getQty(rec) + 1)} className="px-2.5 py-1.5 text-gray-500 hover:bg-gray-50">
-                              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+                  {mainProducts.map((rec) => {
+                    const inCart = isInCart(rec.id);
+                    return (
+                      <div key={rec.id} className={`flex gap-4 p-4 rounded-xl border transition-colors ${inCart ? "border-green-200 bg-green-50/30" : "border-gray-200 hover:border-gray-300"}`}>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={rec.img} alt={rec.name} className="w-20 h-20 rounded-lg object-cover flex-shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <h4 className="text-sm font-bold text-gray-900">{rec.name}</h4>
+                          <p className="text-xs text-gray-500 mt-0.5">{rec.size} &middot; {rec.reason}</p>
+                          <div className="flex items-center gap-3 mt-3">
+                            {!inCart && (
+                              <div className="flex items-center rounded-lg border border-gray-200 overflow-hidden">
+                                <button onClick={() => setQty(rec.id, getQty(rec) - 1)} className="px-2.5 py-1.5 text-gray-500 hover:bg-gray-50 disabled:opacity-30" disabled={getQty(rec) <= 1}>
+                                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12" /></svg>
+                                </button>
+                                <span className="px-3 py-1.5 text-sm font-semibold text-gray-900 min-w-[32px] text-center">{getQty(rec)}</span>
+                                <button onClick={() => setQty(rec.id, getQty(rec) + 1)} className="px-2.5 py-1.5 text-gray-500 hover:bg-gray-50">
+                                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+                                </button>
+                              </div>
+                            )}
+                            <button
+                              onClick={() => handleAddProduct(rec)}
+                              disabled={inCart}
+                              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                                inCart
+                                  ? "bg-green-50 text-green-700 border border-green-200 cursor-default"
+                                  : "bg-gold/10 text-amber-700 border border-gold/30 hover:bg-gold/20"
+                              }`}
+                            >
+                              {inCart ? (
+                                <>
+                                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"><path d="M20 6L9 17l-5-5" /></svg>
+                                  In Quote
+                                </>
+                              ) : (
+                                <>
+                                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                  Add to Quote
+                                </>
+                              )}
                             </button>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
 
@@ -699,27 +809,53 @@ export default function ScopeWizard() {
               {ancillaryProducts.length > 0 && (
                 <div className="mt-6 space-y-3">
                   <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wide">Supporting Equipment</h3>
-                  {ancillaryProducts.map((rec) => (
-                    <div key={rec.id} className="flex gap-4 p-4 rounded-xl border border-gray-100 bg-gray-50">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={rec.img} alt={rec.name} className="w-16 h-16 rounded-lg object-cover flex-shrink-0" />
-                      <div className="flex-1 min-w-0">
-                        <h4 className="text-sm font-bold text-gray-900">{rec.name}</h4>
-                        <p className="text-xs text-gray-500 mt-0.5">{rec.reason}</p>
-                        <div className="flex items-center gap-2 mt-2">
-                          <div className="flex items-center rounded-lg border border-gray-200 bg-white overflow-hidden">
-                            <button onClick={() => setQty(rec.id, getQty(rec) - 1)} className="px-2 py-1 text-gray-500 hover:bg-gray-50 disabled:opacity-30" disabled={getQty(rec) <= 1}>
-                              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12" /></svg>
-                            </button>
-                            <span className="px-2.5 py-1 text-xs font-semibold text-gray-900 min-w-[24px] text-center">{getQty(rec)}</span>
-                            <button onClick={() => setQty(rec.id, getQty(rec) + 1)} className="px-2 py-1 text-gray-500 hover:bg-gray-50">
-                              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+                  {ancillaryProducts.map((rec) => {
+                    const inCart = isInCart(rec.id);
+                    return (
+                      <div key={rec.id} className={`flex gap-4 p-4 rounded-xl border ${inCart ? "border-green-200 bg-green-50/30" : "border-gray-100 bg-gray-50"}`}>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={rec.img} alt={rec.name} className="w-16 h-16 rounded-lg object-cover flex-shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <h4 className="text-sm font-bold text-gray-900">{rec.name}</h4>
+                          <p className="text-xs text-gray-500 mt-0.5">{rec.reason}</p>
+                          <div className="flex items-center gap-3 mt-2">
+                            {!inCart && (
+                              <div className="flex items-center rounded-lg border border-gray-200 bg-white overflow-hidden">
+                                <button onClick={() => setQty(rec.id, getQty(rec) - 1)} className="px-2 py-1 text-gray-500 hover:bg-gray-50 disabled:opacity-30" disabled={getQty(rec) <= 1}>
+                                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12" /></svg>
+                                </button>
+                                <span className="px-2.5 py-1 text-xs font-semibold text-gray-900 min-w-[24px] text-center">{getQty(rec)}</span>
+                                <button onClick={() => setQty(rec.id, getQty(rec) + 1)} className="px-2 py-1 text-gray-500 hover:bg-gray-50">
+                                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+                                </button>
+                              </div>
+                            )}
+                            <button
+                              onClick={() => handleAddProduct(rec)}
+                              disabled={inCart}
+                              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                                inCart
+                                  ? "bg-green-50 text-green-700 border border-green-200 cursor-default"
+                                  : "bg-gold/10 text-amber-700 border border-gold/30 hover:bg-gold/20"
+                              }`}
+                            >
+                              {inCart ? (
+                                <>
+                                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"><path d="M20 6L9 17l-5-5" /></svg>
+                                  In Quote
+                                </>
+                              ) : (
+                                <>
+                                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                  Add to Quote
+                                </>
+                              )}
                             </button>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
 
@@ -741,15 +877,27 @@ export default function ScopeWizard() {
                 </div>
               </div>
 
-              {/* Add to quote CTA */}
-              <button
-                onClick={handleAddToQuote}
-                className="w-full mt-6 py-4 rounded-lg font-semibold text-gray-900 bg-gold hover:brightness-110 transition-all text-base"
-              >
-                Add All to Quote
-              </button>
+              {/* Add all / review CTA */}
+              {allInCart ? (
+                <div className="mt-6 text-center">
+                  <div className="flex items-center justify-center gap-2 text-green-700 mb-3">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M20 6L9 17l-5-5" /></svg>
+                    <span className="font-semibold">All items added to your quote</span>
+                  </div>
+                  <a href="/quote" className="inline-block px-6 py-3 rounded-lg font-semibold text-gray-900 bg-gold hover:brightness-110 transition-all">
+                    Review Your Quote
+                  </a>
+                </div>
+              ) : (
+                <button
+                  onClick={handleAddAll}
+                  className="w-full mt-6 py-4 rounded-lg font-semibold text-gray-900 bg-gold hover:brightness-110 transition-all text-base"
+                >
+                  Add All to Quote
+                </button>
+              )}
               <p className="text-xs text-gray-400 text-center mt-2">
-                You can adjust quantities and add notes on the quote review page.
+                Items are added to your quote cart. You can adjust quantities and add notes on the quote review page.
               </p>
             </div>
           )}

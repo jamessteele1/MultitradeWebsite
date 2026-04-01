@@ -202,10 +202,6 @@ export default function PlannerCanvas({
     setStagePos({ x: 0, y: 0 });
   };
 
-  // Map center for rotation pivot (used by buildings layer too)
-  const canvasCenterX = (CANVAS_WIDTH_M * ppm) / 2;
-  const canvasCenterY = (CANVAS_HEIGHT_M * ppm) / 2;
-
   return (
     <div className="relative flex-1 bg-white rounded-xl border border-gray-200 overflow-hidden">
       {/* Zoom controls */}
@@ -317,73 +313,55 @@ export default function PlannerCanvas({
           {/* Grid layer */}
           <Layer listening={false}>{gridLines}</Layer>
 
-          {/* Buildings layer — rotates with map */}
+          {/* Buildings layer */}
           <Layer>
-            <Group
-              x={canvasCenterX}
-              y={canvasCenterY}
-              offsetX={canvasCenterX}
-              offsetY={canvasCenterY}
-              rotation={hasMap ? mapRotation : 0}
-            >
-              {buildings.map((b) => {
-                const type = getBuildingType(b.typeId);
-                if (!type) return null;
-                return (
-                  <BuildingShape
-                    key={b.instanceId}
-                    building={b}
-                    type={type}
-                    isSelected={b.instanceId === selectedId}
-                    onSelect={() => onSelect(b.instanceId)}
-                    onDragEnd={(x, y) => onMove(b.instanceId, x, y)}
-                  />
-                );
-              })}
-            </Group>
+            {buildings.map((b) => {
+              const type = getBuildingType(b.typeId);
+              if (!type) return null;
+              return (
+                <BuildingShape
+                  key={b.instanceId}
+                  building={b}
+                  type={type}
+                  isSelected={b.instanceId === selectedId}
+                  onSelect={() => onSelect(b.instanceId)}
+                  onDragEnd={(x, y) => onMove(b.instanceId, x, y)}
+                />
+              );
+            })}
           </Layer>
 
           {/* Annotations layer */}
           {annotations.length > 0 && (
             <Layer>
-              <Group
-                x={canvasCenterX}
-                y={canvasCenterY}
-                offsetX={canvasCenterX}
-                offsetY={canvasCenterY}
-                rotation={hasMap ? mapRotation : 0}
-              >
-                {annotations.map((a) => (
-                  <Group
-                    key={a.id}
-                    x={a.x}
-                    y={a.y}
-                    draggable
-                    onDragEnd={(e) => {
-                      onAnnotationMove?.(a.id, e.target.x(), e.target.y());
-                    }}
-                  >
-                    {/* Pin dot */}
-                    <Circle x={0} y={0} radius={4} fill="#EF4444" stroke="#fff" strokeWidth={1.5} />
-                    {/* Text background */}
-                    <Line
-                      points={[0, 0, 8, -12]}
-                      stroke="#EF4444"
-                      strokeWidth={1.5}
-                    />
-                    <KonvaText
-                      x={10}
-                      y={-20}
-                      text={a.text}
-                      fontSize={12}
-                      fontStyle="bold"
-                      fontFamily="system-ui, sans-serif"
-                      fill="#1F2937"
-                      padding={4}
-                    />
-                  </Group>
-                ))}
-              </Group>
+              {annotations.map((a) => (
+                <Group
+                  key={a.id}
+                  x={a.x}
+                  y={a.y}
+                  draggable
+                  onDragEnd={(e) => {
+                    onAnnotationMove?.(a.id, e.target.x(), e.target.y());
+                  }}
+                >
+                  <Circle x={0} y={0} radius={4} fill="#EF4444" stroke="#fff" strokeWidth={1.5} />
+                  <Line
+                    points={[0, 0, 8, -12]}
+                    stroke="#EF4444"
+                    strokeWidth={1.5}
+                  />
+                  <KonvaText
+                    x={10}
+                    y={-20}
+                    text={a.text}
+                    fontSize={12}
+                    fontStyle="bold"
+                    fontFamily="system-ui, sans-serif"
+                    fill="#1F2937"
+                    padding={4}
+                  />
+                </Group>
+              ))}
             </Layer>
           )}
 

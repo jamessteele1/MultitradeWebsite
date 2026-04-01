@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { searchSuggestions, type GeoResult } from "@/lib/site-planner/mapUtils";
 
 type Props = {
   selectedId: string | null;
@@ -18,7 +19,7 @@ type Props = {
   hasMap: boolean;
   mapOpacity: number;
   mapLoading: boolean;
-  onMapSearch: (query: string) => void;
+  onMapSelect: (result: GeoResult) => void;
   onMapOpacityChange: (opacity: number) => void;
   onMapRemove: () => void;
 };
@@ -38,13 +39,18 @@ export default function PlannerToolbar({
   hasMap,
   mapOpacity,
   mapLoading,
-  onMapSearch,
+  onMapSelect,
   onMapOpacityChange,
   onMapRemove,
 }: Props) {
   const [editingLabel, setEditingLabel] = useState(false);
   const [labelText, setLabelText] = useState("");
   const [mapQuery, setMapQuery] = useState("");
+  const [suggestions, setSuggestions] = useState<GeoResult[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [searchingAddr, setSearchingAddr] = useState(false);
+  const suggestionsRef = useRef<HTMLDivElement>(null);
+  const debounceRef = useRef<ReturnType<typeof setTimeout>>();
   const hasSelection = selectedId !== null;
 
   const startLabelEdit = () => {
@@ -57,9 +63,41 @@ export default function PlannerToolbar({
     setEditingLabel(false);
   };
 
-  const handleMapSubmit = () => {
-    if (mapQuery.trim()) onMapSearch(mapQuery.trim());
+  // Debounced address search
+  const handleQueryChange = useCallback((value: string) => {
+    setMapQuery(value);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    if (value.length < 3) {
+      setSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
+    setSearchingAddr(true);
+    debounceRef.current = setTimeout(async () => {
+      const results = await searchSuggestions(value);
+      setSuggestions(results);
+      setShowSuggestions(results.length > 0);
+      setSearchingAddr(false);
+    }, 400);
+  }, []);
+
+  const handleSelectSuggestion = (result: GeoResult) => {
+    setMapQuery(result.displayName.split(",").slice(0, 2).join(","));
+    setSuggestions([]);
+    setShowSuggestions(false);
+    onMapSelect(result);
   };
+
+  // Close suggestions on click outside
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (suggestionsRef.current && !suggestionsRef.current.contains(e.target as Node)) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
 
   const btnBase = "flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-colors";
   const btnActive = `${btnBase} border border-gray-200 text-gray-700 hover:bg-gray-100`;
@@ -145,29 +183,46 @@ export default function PlannerToolbar({
           <line x1="16" y1="6" x2="16" y2="22" />
         </svg>
 
-        <div className="flex items-center gap-1.5 flex-1 max-w-md">
-          <input
-            value={mapQuery}
-            onChange={(e) => setMapQuery(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && handleMapSubmit()}
-            placeholder="Search location for satellite map..."
-            className="flex-1 px-3 py-1.5 text-xs rounded-lg border border-gray-200 focus:outline-none focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
-          />
-          <button
-            onClick={handleMapSubmit}
-            disabled={!mapQuery.trim() || mapLoading}
-            className={`${btnBase} ${mapQuery.trim() && !mapLoading ? "bg-gray-900 text-white hover:bg-gray-800" : "bg-gray-100 text-gray-300 cursor-not-allowed"}`}
-          >
-            {mapLoading ? (
-              <div className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-            ) : (
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" /></svg>
-            )}
-            {mapLoading ? "Loading..." : "Load Map"}
-          </button>
+        <div className="relative flex-1 max-w-lg" ref={suggestionsRef}>
+          <div className="flex items-center gap-1.5">
+            <div className="relative flex-1">
+              <input
+                value={mapQuery}
+                onChange={(e) => handleQueryChange(e.target.value)}
+                onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
+                placeholder="Type an address to load satellite map..."
+                className="w-full px-3 py-1.5 text-xs rounded-lg border border-gray-200 focus:outline-none focus:ring-1 focus:ring-amber-500 focus:border-amber-500 pr-8"
+              />
+              {(searchingAddr || mapLoading) && (
+                <div className="absolute right-2.5 top-1/2 -translate-y-1/2">
+                  <div className="w-3.5 h-3.5 border-2 border-gray-200 border-t-amber-500 rounded-full animate-spin" />
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Suggestions dropdown */}
+          {showSuggestions && suggestions.length > 0 && (
+            <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-lg border border-gray-200 shadow-lg z-50 overflow-hidden">
+              {suggestions.map((s, i) => (
+                <button
+                  key={i}
+                  onClick={() => handleSelectSuggestion(s)}
+                  className="w-full px-3 py-2 text-left text-xs text-gray-700 hover:bg-amber-50 hover:text-gray-900 border-b border-gray-50 last:border-0 transition-colors"
+                >
+                  <span className="font-medium">{s.displayName.split(",")[0]}</span>
+                  <span className="text-gray-400">{s.displayName.split(",").slice(1).join(",")}</span>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
-        {hasMap && (
+        {mapLoading && (
+          <span className="text-[10px] text-amber-600 font-medium">Loading satellite tiles...</span>
+        )}
+
+        {hasMap && !mapLoading && (
           <>
             <div className="w-px h-5 bg-gray-200" />
             <div className="flex items-center gap-2">
@@ -189,9 +244,9 @@ export default function PlannerToolbar({
               title="Remove map"
             >
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
-              Remove Map
+              Remove
             </button>
-            <span className="text-[10px] text-gray-400 italic">Drag the map on canvas to reposition</span>
+            <span className="text-[10px] text-gray-400 italic hidden xl:inline">Drag map to reposition</span>
           </>
         )}
       </div>

@@ -93,7 +93,7 @@ const CATALOGUE: Record<string, AddOn> = {
   // Crib Rooms
   "12x3m-crib-room": {
     id: "12x3m-crib-room", name: "12x3m Crib Room", size: "12x3m",
-    img: "/images/products/12x3-crib/1.jpg", category: "crib-rooms",
+    img: "/images/products/12x3-crib-room/1.jpg", category: "crib-rooms",
     desc: "Large crib room for up to 30 workers with full kitchen facilities.",
     href: "/hire/crib-rooms/12x3m-crib-room",
   },

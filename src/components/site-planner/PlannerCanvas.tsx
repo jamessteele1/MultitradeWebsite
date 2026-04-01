@@ -38,6 +38,11 @@ type Props = {
   sunDirection?: number | null;
   annotations?: { id: string; x: number; y: number; text: string }[];
   onAnnotationMove?: (id: string, x: number, y: number) => void;
+  /** Mobile: building type ID queued for tap-to-place */
+  placingTypeId?: string | null;
+  placingLabel?: string;
+  onPlaced?: () => void;
+  isMobile?: boolean;
 };
 
 export default function PlannerCanvas({
@@ -56,6 +61,10 @@ export default function PlannerCanvas({
   sunDirection,
   annotations = [],
   onAnnotationMove,
+  placingTypeId,
+  placingLabel,
+  onPlaced,
+  isMobile,
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [dims, setDims] = useState({ w: 800, h: 600 });
@@ -142,15 +151,89 @@ export default function PlannerCanvas({
     [zoom, stagePos, onAdd, onAddCustom],
   );
 
-  // Click on empty space deselects
+  // Click/tap on empty space — place building (mobile) or deselect
   const handleStageClick = useCallback(
     (e: Konva.KonvaEventObject<MouseEvent>) => {
-      if (e.target === e.target.getStage()) {
-        onSelect(null);
+      if (e.target !== e.target.getStage()) return;
+
+      // Mobile tap-to-place
+      if (placingTypeId && onPlaced) {
+        const stage = stageRef.current;
+        if (!stage) return;
+        const pointer = stage.getPointerPosition();
+        if (!pointer) return;
+        const x = (pointer.x - stagePos.x) / zoom / PIXELS_PER_METRE;
+        const y = (pointer.y - stagePos.y) / zoom / PIXELS_PER_METRE;
+
+        const customMatch = placingTypeId.match(/^custom-(\d+(?:\.\d+)?)x(\d+(?:\.\d+)?)$/);
+        if (customMatch && onAddCustom) {
+          const w = parseFloat(customMatch[1]);
+          const d = parseFloat(customMatch[2]);
+          onAddCustom(w, d, x - w / 2, y - d / 2, placingLabel || `${w}×${d}m`);
+        } else {
+          const type = getBuildingType(placingTypeId);
+          if (type) {
+            onAdd(placingTypeId, x - type.widthM / 2, y - type.depthM / 2, placingLabel || type.shortLabel);
+          }
+        }
+        onPlaced();
+        return;
       }
+
+      onSelect(null);
     },
-    [onSelect],
+    [onSelect, placingTypeId, placingLabel, onPlaced, stageRef, stagePos, zoom, onAdd, onAddCustom],
   );
+
+  // Pinch-to-zoom for touch
+  const lastDist = useRef(0);
+  const lastCenter = useRef({ x: 0, y: 0 });
+  const handleTouchMove = useCallback(
+    (e: Konva.KonvaEventObject<TouchEvent>) => {
+      const touch = e.evt.touches;
+      if (touch.length !== 2) return;
+      e.evt.preventDefault();
+
+      const p1 = { x: touch[0].clientX, y: touch[0].clientY };
+      const p2 = { x: touch[1].clientX, y: touch[1].clientY };
+      const dist = Math.sqrt((p2.x - p1.x) ** 2 + (p2.y - p1.y) ** 2);
+      const center = { x: (p1.x + p2.x) / 2, y: (p1.y + p2.y) / 2 };
+
+      if (lastDist.current === 0) {
+        lastDist.current = dist;
+        lastCenter.current = center;
+        return;
+      }
+
+      const scale = dist / lastDist.current;
+      const newZoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, zoom * scale));
+
+      const stage = stageRef.current;
+      if (stage) {
+        const container = containerRef.current;
+        if (container) {
+          const rect = container.getBoundingClientRect();
+          const pointTo = {
+            x: (center.x - rect.left - stagePos.x) / zoom,
+            y: (center.y - rect.top - stagePos.y) / zoom,
+          };
+          setZoom(newZoom);
+          setStagePos({
+            x: center.x - rect.left - pointTo.x * newZoom,
+            y: center.y - rect.top - pointTo.y * newZoom,
+          });
+        }
+      }
+
+      lastDist.current = dist;
+      lastCenter.current = center;
+    },
+    [zoom, stagePos, stageRef],
+  );
+
+  const handleTouchEnd = useCallback(() => {
+    lastDist.current = 0;
+  }, []);
 
   // Grid lines
   const ppm = PIXELS_PER_METRE;
@@ -256,6 +339,13 @@ export default function PlannerCanvas({
 
   return (
     <div className="relative flex-1 bg-white rounded-xl border border-gray-200 overflow-hidden">
+      {/* Tap-to-place indicator */}
+      {placingTypeId && isMobile && (
+        <div className="absolute top-3 left-1/2 -translate-x-1/2 z-20 px-4 py-2 bg-amber-500 text-white text-xs font-bold rounded-full shadow-lg animate-pulse">
+          Tap canvas to place · {placingLabel}
+        </div>
+      )}
+
       {/* Zoom controls */}
       <div className="absolute top-3 right-3 z-10 flex items-center gap-1 bg-white/90 backdrop-blur rounded-lg border border-gray-200 shadow-sm px-1 py-1">
         <button onClick={zoomOut} className="w-8 h-8 flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded transition-colors" title="Zoom out">
@@ -349,6 +439,8 @@ export default function PlannerCanvas({
           onWheel={handleWheel}
           onClick={handleStageClick}
           onTap={handleStageClick}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
         >
           {/* Map background layer */}
           {mapData && (() => {

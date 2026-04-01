@@ -31,7 +31,9 @@ type Props = {
   stageRef: React.RefObject<Konva.Stage>;
   mapData?: MapData | null;
   mapOpacity?: number;
+  mapRotation?: number;
   onMapMove?: (x: number, y: number) => void;
+  onMapRotation?: (degrees: number) => void;
 };
 
 export default function PlannerCanvas({
@@ -43,7 +45,9 @@ export default function PlannerCanvas({
   stageRef,
   mapData,
   mapOpacity = 0.7,
+  mapRotation = 0,
   onMapMove,
+  onMapRotation,
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [dims, setDims] = useState({ w: 800, h: 600 });
@@ -201,6 +205,54 @@ export default function PlannerCanvas({
         </button>
       </div>
 
+      {/* Map rotation & compass — bottom right */}
+      {hasMap && (
+        <div className="absolute bottom-3 right-3 z-10 flex flex-col items-center gap-2">
+          {/* North compass */}
+          <div className="w-12 h-12 rounded-full bg-white/90 backdrop-blur border border-gray-200 shadow-sm flex items-center justify-center" title={`North: ${mapRotation === 0 ? "up" : `${Math.round(mapRotation)}° rotated`}`}>
+            <svg width="32" height="32" viewBox="0 0 32 32" style={{ transform: `rotate(${-mapRotation}deg)`, transition: "transform 0.2s" }}>
+              <polygon points="16,4 20,18 16,15 12,18" fill="#EF4444" stroke="#DC2626" strokeWidth="0.5" />
+              <polygon points="16,28 12,18 16,21 20,18" fill="#9CA3AF" stroke="#6B7280" strokeWidth="0.5" />
+              <text x="16" y="3" textAnchor="middle" fontSize="7" fontWeight="bold" fill="#EF4444" style={{ transform: `rotate(${mapRotation}deg)`, transformOrigin: "16px 16px" }}>N</text>
+            </svg>
+          </div>
+
+          {/* Rotation control */}
+          <div className="bg-white/90 backdrop-blur rounded-lg border border-gray-200 shadow-sm p-2 flex flex-col items-center gap-1.5">
+            <span className="text-[9px] text-gray-500 font-medium">Map Rotation</span>
+            <input
+              type="range"
+              min="-180"
+              max="180"
+              step="1"
+              value={mapRotation}
+              onChange={(e) => onMapRotation?.(parseFloat(e.target.value))}
+              className="w-20 h-1 accent-amber-500"
+              style={{ writingMode: "horizontal-tb" }}
+            />
+            <div className="flex items-center gap-1">
+              <input
+                type="number"
+                value={Math.round(mapRotation)}
+                onChange={(e) => onMapRotation?.(parseFloat(e.target.value) || 0)}
+                className="w-12 px-1 py-0.5 text-[10px] text-center rounded border border-gray-200 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                min={-180}
+                max={180}
+              />
+              <span className="text-[9px] text-gray-400">°</span>
+            </div>
+            {mapRotation !== 0 && (
+              <button
+                onClick={() => onMapRotation?.(0)}
+                className="text-[9px] text-amber-600 hover:text-amber-700 font-medium"
+              >
+                Reset
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
       <div
         ref={containerRef}
         className="w-full h-full min-h-[500px]"
@@ -226,22 +278,29 @@ export default function PlannerCanvas({
           onTap={handleStageClick}
         >
           {/* Map background layer */}
-          {mapData && (
-            <Layer>
-              <KonvaImage
-                image={mapData.image}
-                x={mapData.x}
-                y={mapData.y}
-                scaleX={mapData.scale}
-                scaleY={mapData.scale}
-                opacity={mapOpacity}
-                draggable
-                onDragEnd={(e) => {
-                  onMapMove?.(e.target.x(), e.target.y());
-                }}
-              />
-            </Layer>
-          )}
+          {mapData && (() => {
+            const imgW = mapData.image.width * mapData.scale;
+            const imgH = mapData.image.height * mapData.scale;
+            return (
+              <Layer>
+                <KonvaImage
+                  image={mapData.image}
+                  x={mapData.x + imgW / 2}
+                  y={mapData.y + imgH / 2}
+                  offsetX={mapData.image.width / 2}
+                  offsetY={mapData.image.height / 2}
+                  scaleX={mapData.scale}
+                  scaleY={mapData.scale}
+                  rotation={mapRotation}
+                  opacity={mapOpacity}
+                  draggable
+                  onDragEnd={(e) => {
+                    onMapMove?.(e.target.x() - imgW / 2, e.target.y() - imgH / 2);
+                  }}
+                />
+              </Layer>
+            );
+          })()}
 
           {/* Grid layer */}
           <Layer listening={false}>{gridLines}</Layer>

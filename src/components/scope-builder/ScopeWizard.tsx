@@ -161,7 +161,7 @@ function getRecommendations(
     products.push({
       ...PRODUCTS["stair-landing"],
       quantity: toiletQty,
-      reason: `Access for waste tank — 1 per tank`,
+      reason: `Access to toilet — 1 per waste tank`,
       isAncillary: true,
     });
   }

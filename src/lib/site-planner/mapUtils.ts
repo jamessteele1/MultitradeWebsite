@@ -103,16 +103,19 @@ export async function fetchSatelliteImage(
   lat: number,
   lng: number,
   pixelsPerMetre: number,
-  gridSize = 11,
+  gridSize = 15,
 ): Promise<{ image: HTMLImageElement; scale: number; coverageMetres: number }> {
-  const providers: { url: string; zooms: number[] }[] = [
-    { url: QLD_TILE_URL, zooms: [18, 19, 17] },
-    { url: ESRI_TILE_URL, zooms: [18, 17, 16] },
+  // Try highest resolution first (zoom 20 = ~15cm/px in QLD) with large grid for coverage
+  const providers: { url: string; zooms: number[]; grids: number[] }[] = [
+    { url: QLD_TILE_URL, zooms: [20, 19, 18], grids: [21, 17, 13] },
+    { url: ESRI_TILE_URL, zooms: [19, 18, 17], grids: [17, 13, 11] },
   ];
 
   for (const provider of providers) {
-    for (const tileZoom of provider.zooms) {
-      const result = await fetchTilesAtZoom(lat, lng, pixelsPerMetre, tileZoom, gridSize, provider.url);
+    for (let i = 0; i < provider.zooms.length; i++) {
+      const tileZoom = provider.zooms[i];
+      const grid = provider.grids[i] || gridSize;
+      const result = await fetchTilesAtZoom(lat, lng, pixelsPerMetre, tileZoom, grid, provider.url);
       if (result) return result;
     }
   }

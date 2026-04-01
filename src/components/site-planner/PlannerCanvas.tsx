@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, useCallback, useEffect } from "react";
-import { Stage, Layer, Line, Text as KonvaText, Image as KonvaImage, Circle, Arrow } from "react-konva";
+import { Stage, Layer, Line, Text as KonvaText, Image as KonvaImage, Circle, Arrow, Group } from "react-konva";
 import BuildingShape from "./BuildingShape";
 import { getBuildingType } from "@/lib/site-planner/buildings";
 import {
@@ -28,13 +28,16 @@ type Props = {
   onSelect: (id: string | null) => void;
   onMove: (id: string, x: number, y: number) => void;
   onAdd: (typeId: string, x: number, y: number, label: string) => void;
+  onAddCustom?: (widthM: number, depthM: number, x: number, y: number, label: string) => void;
   stageRef: React.RefObject<Konva.Stage>;
   mapData?: MapData | null;
   mapOpacity?: number;
   mapRotation?: number;
   onMapMove?: (x: number, y: number) => void;
   onMapRotation?: (degrees: number) => void;
-  sunDirection?: number | null; // degrees, 0 = north, null = hidden
+  sunDirection?: number | null;
+  annotations?: { id: string; x: number; y: number; text: string }[];
+  onAnnotationMove?: (id: string, x: number, y: number) => void;
 };
 
 export default function PlannerCanvas({
@@ -43,6 +46,7 @@ export default function PlannerCanvas({
   onSelect,
   onMove,
   onAdd,
+  onAddCustom,
   stageRef,
   mapData,
   mapOpacity = 0.7,
@@ -50,6 +54,8 @@ export default function PlannerCanvas({
   onMapMove,
   onMapRotation,
   sunDirection,
+  annotations = [],
+  onAnnotationMove,
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [dims, setDims] = useState({ w: 800, h: 600 });
@@ -65,7 +71,6 @@ export default function PlannerCanvas({
       const w = entry.contentRect.width;
       const h = entry.contentRect.height;
       setDims({ w, h });
-      // Auto-fit zoom on first render so full grid is visible
       if (!initialFit && w > 0) {
         const canvasW = CANVAS_WIDTH_M * PIXELS_PER_METRE;
         const canvasH = CANVAS_HEIGHT_M * PIXELS_PER_METRE;
@@ -113,10 +118,9 @@ export default function PlannerCanvas({
       e.preventDefault();
       const typeId = e.dataTransfer.getData("buildingTypeId");
       const label = e.dataTransfer.getData("buildingLabel");
+      const customWidth = e.dataTransfer.getData("customWidth");
+      const customDepth = e.dataTransfer.getData("customDepth");
       if (!typeId) return;
-
-      const type = getBuildingType(typeId);
-      if (!type) return;
 
       const container = containerRef.current;
       if (!container) return;
@@ -125,10 +129,17 @@ export default function PlannerCanvas({
       const x = (e.clientX - rect.left - stagePos.x) / zoom / PIXELS_PER_METRE;
       const y = (e.clientY - rect.top - stagePos.y) / zoom / PIXELS_PER_METRE;
 
-      // Center the building on the drop point
-      onAdd(typeId, x - type.widthM / 2, y - type.depthM / 2, label);
+      if (customWidth && customDepth && onAddCustom) {
+        const w = parseFloat(customWidth);
+        const d = parseFloat(customDepth);
+        onAddCustom(w, d, x - w / 2, y - d / 2, label || `${w}×${d}m`);
+      } else {
+        const type = getBuildingType(typeId);
+        if (!type) return;
+        onAdd(typeId, x - type.widthM / 2, y - type.depthM / 2, label);
+      }
     },
-    [zoom, stagePos, onAdd],
+    [zoom, stagePos, onAdd, onAddCustom],
   );
 
   // Click on empty space deselects
@@ -171,7 +182,6 @@ export default function PlannerCanvas({
     );
   }
 
-  // Scale indicator
   gridLines.push(
     <KonvaText
       key="scale"
@@ -192,6 +202,10 @@ export default function PlannerCanvas({
     setStagePos({ x: 0, y: 0 });
   };
 
+  // Map center for rotation pivot (used by buildings layer too)
+  const canvasCenterX = (CANVAS_WIDTH_M * ppm) / 2;
+  const canvasCenterY = (CANVAS_HEIGHT_M * ppm) / 2;
+
   return (
     <div className="relative flex-1 bg-white rounded-xl border border-gray-200 overflow-hidden">
       {/* Zoom controls */}
@@ -210,7 +224,6 @@ export default function PlannerCanvas({
       {/* Map rotation & compass — bottom right */}
       {hasMap && (
         <div className="absolute bottom-3 right-3 z-10 flex flex-col items-center gap-2">
-          {/* North compass */}
           <div className="w-12 h-12 rounded-full bg-white/90 backdrop-blur border border-gray-200 shadow-sm flex items-center justify-center" title={`North: ${mapRotation === 0 ? "up" : `${Math.round(mapRotation)}° rotated`}`}>
             <svg width="32" height="32" viewBox="0 0 32 32" style={{ transform: `rotate(${-mapRotation}deg)`, transition: "transform 0.2s" }}>
               <polygon points="16,4 20,18 16,15 12,18" fill="#EF4444" stroke="#DC2626" strokeWidth="0.5" />
@@ -218,8 +231,6 @@ export default function PlannerCanvas({
               <text x="16" y="3" textAnchor="middle" fontSize="7" fontWeight="bold" fill="#EF4444" style={{ transform: `rotate(${mapRotation}deg)`, transformOrigin: "16px 16px" }}>N</text>
             </svg>
           </div>
-
-          {/* Rotation control */}
           <div className="bg-white/90 backdrop-blur rounded-lg border border-gray-200 shadow-sm p-2 flex flex-col items-center gap-1.5">
             <span className="text-[9px] text-gray-500 font-medium">Map Rotation</span>
             <input
@@ -230,7 +241,6 @@ export default function PlannerCanvas({
               value={mapRotation}
               onChange={(e) => onMapRotation?.(parseFloat(e.target.value))}
               className="w-20 h-1 accent-amber-500"
-              style={{ writingMode: "horizontal-tb" }}
             />
             <div className="flex items-center gap-1">
               <input
@@ -307,23 +317,75 @@ export default function PlannerCanvas({
           {/* Grid layer */}
           <Layer listening={false}>{gridLines}</Layer>
 
-          {/* Buildings layer */}
+          {/* Buildings layer — rotates with map */}
           <Layer>
-            {buildings.map((b) => {
-              const type = getBuildingType(b.typeId);
-              if (!type) return null;
-              return (
-                <BuildingShape
-                  key={b.instanceId}
-                  building={b}
-                  type={type}
-                  isSelected={b.instanceId === selectedId}
-                  onSelect={() => onSelect(b.instanceId)}
-                  onDragEnd={(x, y) => onMove(b.instanceId, x, y)}
-                />
-              );
-            })}
+            <Group
+              x={canvasCenterX}
+              y={canvasCenterY}
+              offsetX={canvasCenterX}
+              offsetY={canvasCenterY}
+              rotation={hasMap ? mapRotation : 0}
+            >
+              {buildings.map((b) => {
+                const type = getBuildingType(b.typeId);
+                if (!type) return null;
+                return (
+                  <BuildingShape
+                    key={b.instanceId}
+                    building={b}
+                    type={type}
+                    isSelected={b.instanceId === selectedId}
+                    onSelect={() => onSelect(b.instanceId)}
+                    onDragEnd={(x, y) => onMove(b.instanceId, x, y)}
+                  />
+                );
+              })}
+            </Group>
           </Layer>
+
+          {/* Annotations layer */}
+          {annotations.length > 0 && (
+            <Layer>
+              <Group
+                x={canvasCenterX}
+                y={canvasCenterY}
+                offsetX={canvasCenterX}
+                offsetY={canvasCenterY}
+                rotation={hasMap ? mapRotation : 0}
+              >
+                {annotations.map((a) => (
+                  <Group
+                    key={a.id}
+                    x={a.x}
+                    y={a.y}
+                    draggable
+                    onDragEnd={(e) => {
+                      onAnnotationMove?.(a.id, e.target.x(), e.target.y());
+                    }}
+                  >
+                    {/* Pin dot */}
+                    <Circle x={0} y={0} radius={4} fill="#EF4444" stroke="#fff" strokeWidth={1.5} />
+                    {/* Text background */}
+                    <Line
+                      points={[0, 0, 8, -12]}
+                      stroke="#EF4444"
+                      strokeWidth={1.5}
+                    />
+                    <KonvaText
+                      x={10}
+                      y={-20}
+                      text={a.text}
+                      fontSize={12}
+                      fontStyle="bold"
+                      fontFamily="system-ui, sans-serif"
+                      fill="#1F2937"
+                      padding={4}
+                    />
+                  </Group>
+                ))}
+              </Group>
+            </Layer>
+          )}
 
           {/* Sun direction overlay */}
           {sunDirection !== null && sunDirection !== undefined && (() => {
@@ -332,22 +394,23 @@ export default function PlannerCanvas({
             const cx = canvasW / 2;
             const cy = canvasH / 2;
             const rad = (sunDirection * Math.PI) / 180;
-            // Sun position: edge of canvas in the sun's direction
             const radius = Math.min(canvasW, canvasH) * 0.45;
             const sunX = cx + Math.sin(rad) * radius;
             const sunY = cy - Math.cos(rad) * radius;
-            // Shadow lines across the canvas (parallel lines perpendicular to sun direction)
-            const shadowLines: React.ReactNode[] = [];
             const lineLen = Math.max(canvasW, canvasH) * 1.5;
             const perpRad = rad + Math.PI / 2;
             const perpDx = Math.cos(perpRad);
             const perpDy = Math.sin(perpRad);
             const shadowDx = Math.sin(rad);
             const shadowDy = -Math.cos(rad);
-            for (let i = -8; i <= 8; i++) {
-              const offsetDist = i * 40;
+
+            const shadowLines: React.ReactNode[] = [];
+            // More prominent shadow lines with gradient opacity
+            for (let i = -12; i <= 12; i++) {
+              const offsetDist = i * 30;
               const baseCx = cx + perpDx * offsetDist;
               const baseCy = cy + perpDy * offsetDist;
+              const opacity = 0.35 - Math.abs(i) * 0.02;
               shadowLines.push(
                 <Line
                   key={`sunray-${i}`}
@@ -357,61 +420,82 @@ export default function PlannerCanvas({
                     baseCx + shadowDx * lineLen / 2,
                     baseCy + shadowDy * lineLen / 2,
                   ]}
-                  stroke="rgba(251, 191, 36, 0.15)"
-                  strokeWidth={2}
-                  dash={[12, 8]}
+                  stroke={`rgba(251, 191, 36, ${Math.max(0.05, opacity)})`}
+                  strokeWidth={3}
+                  dash={[16, 10]}
                 />,
               );
             }
-            // Sun rays from sun position
-            const rayCount = 12;
+
+            // Sun rays
             const rayLines: React.ReactNode[] = [];
-            for (let i = 0; i < rayCount; i++) {
-              const angle = (i / rayCount) * Math.PI * 2;
-              const innerR = 18;
-              const outerR = 28;
+            for (let i = 0; i < 12; i++) {
+              const angle = (i / 12) * Math.PI * 2;
               rayLines.push(
                 <Line
                   key={`ray-${i}`}
                   points={[
-                    sunX + Math.cos(angle) * innerR,
-                    sunY + Math.sin(angle) * innerR,
-                    sunX + Math.cos(angle) * outerR,
-                    sunY + Math.sin(angle) * outerR,
+                    sunX + Math.cos(angle) * 22,
+                    sunY + Math.sin(angle) * 22,
+                    sunX + Math.cos(angle) * 34,
+                    sunY + Math.sin(angle) * 34,
                   ]}
                   stroke="#F59E0B"
-                  strokeWidth={2}
+                  strokeWidth={3}
                   lineCap="round"
                 />,
               );
             }
+
+            // Shadow band (semi-transparent fill on one side)
+            const bandWidth = 400;
+            const bandOffset = bandWidth / 2;
+            const shadowBand = [
+              cx + perpDx * bandOffset - shadowDx * lineLen / 2,
+              cy + perpDy * bandOffset - shadowDy * lineLen / 2,
+              cx + perpDx * bandOffset + shadowDx * lineLen / 2,
+              cy + perpDy * bandOffset + shadowDy * lineLen / 2,
+              cx + perpDx * (bandOffset + 200) + shadowDx * lineLen / 2,
+              cy + perpDy * (bandOffset + 200) + shadowDy * lineLen / 2,
+              cx + perpDx * (bandOffset + 200) - shadowDx * lineLen / 2,
+              cy + perpDy * (bandOffset + 200) - shadowDy * lineLen / 2,
+            ];
+
             return (
-              <Layer listening={false} opacity={0.8}>
+              <Layer listening={false}>
+                {/* Shadow band on one side */}
+                <Line
+                  points={shadowBand}
+                  fill="rgba(0, 0, 0, 0.06)"
+                  closed
+                />
                 {shadowLines}
-                {/* Sun circle */}
-                <Circle x={sunX} y={sunY} radius={14} fill="#FCD34D" stroke="#F59E0B" strokeWidth={2} />
+                {/* Sun glow */}
+                <Circle x={sunX} y={sunY} radius={24} fill="rgba(251, 191, 36, 0.2)" />
+                <Circle x={sunX} y={sunY} radius={18} fill="#FCD34D" stroke="#F59E0B" strokeWidth={2.5} />
                 {rayLines}
-                {/* Direction arrow from sun toward center */}
+                {/* Direction arrow */}
                 <Arrow
                   points={[
-                    sunX + shadowDx * 35,
-                    sunY + shadowDy * 35,
-                    sunX + shadowDx * 80,
-                    sunY + shadowDy * 80,
+                    sunX + shadowDx * 40,
+                    sunY + shadowDy * 40,
+                    sunX + shadowDx * 90,
+                    sunY + shadowDy * 90,
                   ]}
                   fill="#F59E0B"
                   stroke="#F59E0B"
-                  strokeWidth={2}
-                  pointerLength={8}
-                  pointerWidth={6}
+                  strokeWidth={3}
+                  pointerLength={10}
+                  pointerWidth={8}
                 />
                 <KonvaText
-                  x={sunX - 20}
-                  y={sunY - 32}
-                  text="☀"
-                  fontSize={16}
-                  fill="#F59E0B"
-                  width={40}
+                  x={sunX - 25}
+                  y={sunY - 40}
+                  text="☀ Sun"
+                  fontSize={13}
+                  fontStyle="bold"
+                  fill="#B45309"
+                  width={50}
                   align="center"
                 />
               </Layer>

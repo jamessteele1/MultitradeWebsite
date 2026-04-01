@@ -43,6 +43,13 @@ export default function SitePlannerClient() {
     if (state.selectedId) state.rotateBuilding(state.selectedId);
   }, [state]);
 
+  const handleRotateTo = useCallback(
+    (degrees: number) => {
+      if (state.selectedId) state.rotateBuildingTo(state.selectedId, degrees);
+    },
+    [state],
+  );
+
   const handleDelete = useCallback(() => {
     if (state.selectedId) state.removeBuilding(state.selectedId);
   }, [state]);
@@ -153,6 +160,8 @@ export default function SitePlannerClient() {
         onExportPNG={handleExportPNG}
         onExportPDF={handleExportPDF}
         currentLabel={selectedType?.shortLabel}
+        currentRotation={selectedBuilding?.rotation}
+        onRotateTo={handleRotateTo}
         hasMap={!!mapData}
         mapOpacity={mapOpacity}
         mapLoading={mapLoading}
@@ -179,7 +188,7 @@ export default function SitePlannerClient() {
 
       {/* Keyboard shortcuts hint */}
       <div className="flex items-center gap-4 text-[11px] text-gray-400 px-1">
-        <span><kbd className="px-1.5 py-0.5 rounded bg-gray-100 border border-gray-200 text-gray-500 font-mono text-[10px]">R</kbd> Rotate</span>
+        <span><kbd className="px-1.5 py-0.5 rounded bg-gray-100 border border-gray-200 text-gray-500 font-mono text-[10px]">R</kbd> Rotate 90°</span>
         <span><kbd className="px-1.5 py-0.5 rounded bg-gray-100 border border-gray-200 text-gray-500 font-mono text-[10px]">Del</kbd> Delete</span>
         <span><kbd className="px-1.5 py-0.5 rounded bg-gray-100 border border-gray-200 text-gray-500 font-mono text-[10px]">⌘Z</kbd> Undo</span>
         <span>Scroll to zoom · Drag canvas to pan</span>

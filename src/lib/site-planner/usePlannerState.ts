@@ -8,7 +8,7 @@ export type PlacedBuilding = {
   typeId: string;
   x: number; // metres
   y: number; // metres
-  rotation: 0 | 90;
+  rotation: number;
   label: string;
 };
 
@@ -93,7 +93,21 @@ export function usePlannerState() {
         pushUndo(prev);
         return prev.map((b) =>
           b.instanceId === instanceId
-            ? { ...b, rotation: b.rotation === 0 ? 90 : 0 }
+            ? { ...b, rotation: (Math.round(b.rotation / 90) * 90 + 90) % 360 }
+            : b,
+        );
+      });
+    },
+    [pushUndo],
+  );
+
+  const rotateBuildingTo = useCallback(
+    (instanceId: string, degrees: number) => {
+      setBuildings((prev) => {
+        pushUndo(prev);
+        return prev.map((b) =>
+          b.instanceId === instanceId
+            ? { ...b, rotation: ((degrees % 360) + 360) % 360 }
             : b,
         );
       });
@@ -145,6 +159,7 @@ export function usePlannerState() {
     addBuilding,
     moveBuilding,
     rotateBuilding,
+    rotateBuildingTo,
     labelBuilding,
     removeBuilding,
     clearAll,

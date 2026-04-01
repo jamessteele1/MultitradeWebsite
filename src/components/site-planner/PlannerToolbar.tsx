@@ -15,6 +15,8 @@ type Props = {
   onExportPNG: () => void;
   onExportPDF: () => void;
   currentLabel?: string;
+  currentRotation?: number;
+  onRotateTo: (degrees: number) => void;
   // Map props
   hasMap: boolean;
   mapOpacity: number;
@@ -36,6 +38,8 @@ export default function PlannerToolbar({
   onExportPNG,
   onExportPDF,
   currentLabel,
+  currentRotation,
+  onRotateTo,
   hasMap,
   mapOpacity,
   mapLoading,
@@ -111,8 +115,23 @@ export default function PlannerToolbar({
         <div className="flex items-center gap-1.5">
           <button onClick={onRotate} disabled={!hasSelection} className={hasSelection ? btnActive : btnDisabled} title="Rotate 90°">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21.5 2v6h-6" /><path d="M21.34 13.5A10 10 0 115.5 3.36L21.5 8" /></svg>
-            Rotate
+            90°
           </button>
+
+          {hasSelection && (
+            <div className="flex items-center gap-1">
+              <input
+                type="number"
+                value={Math.round(currentRotation ?? 0)}
+                onChange={(e) => onRotateTo(parseFloat(e.target.value) || 0)}
+                className="w-14 px-1.5 py-1.5 text-xs text-center rounded-lg border border-gray-200 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                title="Rotation degrees"
+                min={0}
+                max={359}
+              />
+              <span className="text-[10px] text-gray-400">deg</span>
+            </div>
+          )}
 
           {editingLabel ? (
             <div className="flex items-center gap-1">

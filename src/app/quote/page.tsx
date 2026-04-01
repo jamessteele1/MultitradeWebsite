@@ -5,7 +5,8 @@ import MobileCTA from "@/components/MobileCTA";
 import { FadeIn } from "@/components/FadeIn";
 import { useQuoteCart, type CartItem } from "@/context/QuoteCartContext";
 import Link from "next/link";
-import { useState, type FormEvent } from "react";
+import { useState, useCallback, type FormEvent } from "react";
+import STANDARD_INCLUSIONS from "@/data/standardInclusions";
 
 const CATEGORY_LABELS: Record<CartItem["category"], string> = {
   "crib-rooms": "Crib Room",
@@ -47,10 +48,28 @@ const INITIAL_FORM: FormData = {
 export default function QuotePage() {
   const { items, removeItem, updateQuantity, clearCart, itemCount } = useQuoteCart();
   const [form, setForm] = useState<FormData>(INITIAL_FORM);
-  const [projectNotes, setProjectNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState("");
+  const [expandedInclusions, setExpandedInclusions] = useState<Set<string>>(new Set());
+  const [productNotes, setProductNotes] = useState<Record<string, string>>({});
+  const [expandedNotes, setExpandedNotes] = useState<Set<string>>(new Set());
+
+  const toggleInclusions = useCallback((id: string) => {
+    setExpandedInclusions((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  }, []);
+
+  const toggleNotes = useCallback((id: string) => {
+    setExpandedNotes((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  }, []);
 
   const set = (field: keyof FormData, value: string) =>
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -69,12 +88,13 @@ export default function QuotePage() {
             line += `\n   Sewer: ${su.sewerConnected ? "Connected to sewer" : "Waste tank required"}`;
           }
         }
+        const note = productNotes[item.id]?.trim();
+        if (note) {
+          line += `\n   Note: ${note}`;
+        }
         return line;
       })
       .join("\n");
-    if (projectNotes.trim()) {
-      return `${lines}\n\n--- Project Notes ---\n${projectNotes.trim()}`;
-    }
     return lines;
   };
 
@@ -281,7 +301,13 @@ export default function QuotePage() {
                     </div>
                   ) : (
                     <div className="divide-y divide-gray-100">
-                      {items.map((item) => (
+                      {items.map((item) => {
+                        const inclusions = STANDARD_INCLUSIONS[item.id] || [];
+                        const isIncExpanded = expandedInclusions.has(item.id);
+                        const isNoteExpanded = expandedNotes.has(item.id);
+                        const noteValue = productNotes[item.id] || "";
+
+                        return (
                         <div key={item.id} className="px-6 py-4">
                           <div className="flex gap-4">
                             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -320,7 +346,7 @@ export default function QuotePage() {
                                 </button>
                               </div>
 
-                              <div className="flex items-center gap-3 mt-3">
+                              <div className="flex items-center gap-2 mt-3">
                                 {/* Quantity */}
                                 <div className="flex items-center rounded-lg border border-gray-200 overflow-hidden">
                                   <button
@@ -333,21 +359,7 @@ export default function QuotePage() {
                                     disabled={item.quantity <= 1}
                                     className="px-2.5 py-1.5 text-gray-500 hover:bg-gray-50 disabled:opacity-30 transition-colors"
                                   >
-                                    <svg
-                                      width="12"
-                                      height="12"
-                                      viewBox="0 0 24 24"
-                                      fill="none"
-                                      stroke="currentColor"
-                                      strokeWidth="2.5"
-                                    >
-                                      <line
-                                        x1="5"
-                                        y1="12"
-                                        x2="19"
-                                        y2="12"
-                                      />
-                                    </svg>
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="5" y1="12" x2="19" y2="12" /></svg>
                                   </button>
                                   <span className="px-3 py-1.5 text-sm font-semibold text-gray-900 min-w-[32px] text-center">
                                     {item.quantity}
@@ -361,31 +373,47 @@ export default function QuotePage() {
                                     }
                                     className="px-2.5 py-1.5 text-gray-500 hover:bg-gray-50 transition-colors"
                                   >
-                                    <svg
-                                      width="12"
-                                      height="12"
-                                      viewBox="0 0 24 24"
-                                      fill="none"
-                                      stroke="currentColor"
-                                      strokeWidth="2.5"
-                                    >
-                                      <line
-                                        x1="12"
-                                        y1="5"
-                                        x2="12"
-                                        y2="19"
-                                      />
-                                      <line
-                                        x1="5"
-                                        y1="12"
-                                        x2="19"
-                                        y2="12"
-                                      />
-                                    </svg>
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
                                   </button>
                                 </div>
 
+                                {/* Add Note button */}
+                                <button
+                                  onClick={() => toggleNotes(item.id)}
+                                  className={`flex items-center gap-1 px-2.5 py-1.5 rounded-lg border text-xs font-medium transition-all ${
+                                    isNoteExpanded || noteValue
+                                      ? "border-amber-300 bg-amber-50 text-amber-700"
+                                      : "border-gray-200 text-gray-500 hover:border-gray-300 hover:text-gray-600"
+                                  }`}
+                                >
+                                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>
+                                  {noteValue ? "Edit Note" : "Add Note"}
+                                </button>
                               </div>
+
+                              {/* Per-product note */}
+                              {isNoteExpanded && (
+                                <div className="mt-2.5">
+                                  <textarea
+                                    rows={2}
+                                    value={noteValue}
+                                    onChange={(e) => setProductNotes((prev) => ({ ...prev, [item.id]: e.target.value }))}
+                                    className="w-full px-3 py-2 rounded-lg border border-gray-200 text-xs focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent resize-none placeholder:text-gray-400"
+                                    placeholder={`e.g. Need bookshelves added, extra chairs, specific configuration...`}
+                                  />
+                                </div>
+                              )}
+
+                              {/* Show note preview when collapsed */}
+                              {!isNoteExpanded && noteValue && (
+                                <button
+                                  onClick={() => toggleNotes(item.id)}
+                                  className="mt-2 flex items-start gap-1.5 text-xs text-amber-700 hover:text-amber-800 transition-colors"
+                                >
+                                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="mt-0.5 flex-shrink-0"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" /><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" /></svg>
+                                  <span className="italic line-clamp-1">&ldquo;{noteValue}&rdquo;</span>
+                                </button>
+                              )}
 
                               {/* Service Upgrades details */}
                               {item.serviceUpgrades && (
@@ -418,31 +446,51 @@ export default function QuotePage() {
                                   </div>
                                 </div>
                               )}
+
+                              {/* Standard Inclusions */}
+                              {inclusions.length > 0 && (
+                                <div className="mt-2.5">
+                                  <button
+                                    onClick={() => toggleInclusions(item.id)}
+                                    className="flex items-center gap-1.5 text-xs font-medium text-gray-500 hover:text-gray-700 transition-colors"
+                                  >
+                                    <svg
+                                      width="10"
+                                      height="10"
+                                      viewBox="0 0 24 24"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      strokeWidth="2.5"
+                                      strokeLinecap="round"
+                                      className={`transition-transform ${isIncExpanded ? "rotate-90" : ""}`}
+                                    >
+                                      <polyline points="9 18 15 12 9 6" />
+                                    </svg>
+                                    Standard Inclusions ({inclusions.length} items)
+                                  </button>
+                                  {isIncExpanded && (
+                                    <div className="mt-2 p-2.5 rounded-lg bg-gray-50 border border-gray-100">
+                                      <ul className="grid grid-cols-2 gap-x-4 gap-y-1">
+                                        {inclusions.map((inc, i) => (
+                                          <li key={i} className="text-xs text-gray-600 flex items-start gap-1.5">
+                                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="3" strokeLinecap="round" className="mt-0.5 flex-shrink-0"><path d="M20 6L9 17l-5-5" /></svg>
+                                            {inc}
+                                          </li>
+                                        ))}
+                                      </ul>
+                                    </div>
+                                  )}
+                                </div>
+                              )}
                             </div>
                           </div>
                         </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   )}
                 </div>
               </FadeIn>
-
-              {/* ── Project Notes ── */}
-              {items.length > 0 && (
-                <FadeIn delay={0.05}>
-                  <div className="mt-6 bg-white rounded-2xl shadow-xl shadow-black/10 border border-gray-200 p-6 md:p-8">
-                    <h2 className="text-lg font-bold text-gray-900 mb-1">Project Notes</h2>
-                    <p className="text-sm text-gray-400 mb-4">Any details about your project — delivery location, timeline, site access, special requirements.</p>
-                    <textarea
-                      rows={3}
-                      value={projectNotes}
-                      onChange={(e) => setProjectNotes(e.target.value)}
-                      className={`${inputClass} resize-none`}
-                      placeholder="e.g. Need 3 crib rooms delivered to Moranbah mine site by mid-April. Crane access available on site."
-                    />
-                  </div>
-                </FadeIn>
-              )}
 
               {/* ── Customer Details Form ── */}
               <FadeIn delay={0.1}>

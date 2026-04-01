@@ -9,6 +9,7 @@ import CompareProducts from "@/components/CompareProducts";
 import FloorplanViewer from "@/components/FloorplanViewer";
 import PowerSiteRequirements from "@/components/PowerSiteRequirements";
 import { ServiceUpgradesProvider } from "@/context/ServiceUpgradesContext";
+import { HeroImage, GalleryGrid } from "@/components/ProductGallery";
 
 /* ─── Product Data ───────────────────────────────────────────── */
 const PRODUCTS: Record<string, Product> = {
@@ -342,14 +343,7 @@ export default function SiteOfficeDetailPage({ params }: { params: { slug: strin
               </div>
             </div>
             {/* Right: Image */}
-            <div className="relative rounded-xl overflow-hidden shadow-2xl shadow-black/30">
-              <img src={product.images[0]} alt={product.name} className="w-full h-64 md:h-80 object-cover" />
-              {product.selfContained && (
-                <div className="absolute top-3 right-3 px-2.5 py-1 rounded-md text-xs font-bold bg-amber-500/90 text-white backdrop-blur-sm">
-                  SELF-CONTAINED
-                </div>
-              )}
-            </div>
+            <HeroImage images={product.images} alt={product.name} badge={product.selfContained ? "SELF-CONTAINED" : null} />
           </div>
         </div>
       </section>
@@ -419,21 +413,8 @@ export default function SiteOfficeDetailPage({ params }: { params: { slug: strin
         </div>
       </section>
 
-      {/* Image Gallery (if multiple images) */}
-      {product.images.length > 1 && (
-        <section className="py-10 md:py-14">
-          <div className="max-w-7xl mx-auto px-4">
-            <h2 className="text-xl font-bold text-gray-900 mb-5">Gallery</h2>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {product.images.map((img, i) => (
-                <div key={i} className="rounded-xl overflow-hidden border border-gray-200">
-                  <img src={img} alt={`${product.name} - View ${i + 1}`} className="w-full h-56 object-cover hover:scale-105 transition-transform duration-700" />
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
+      {/* Image Gallery */}
+      <GalleryGrid images={product.images} alt={product.name} />
 
       {/* Service Upgrades */}
       <PowerSiteRequirements buildingSize={buildingSize} />

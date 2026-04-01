@@ -5,6 +5,8 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import AddToQuoteButton from "@/components/AddToQuoteButton";
 import CompareProducts from "@/components/CompareProducts";
+import SuggestedAddOns from "@/components/SuggestedAddOns";
+import { HeroImage, GalleryGrid } from "@/components/ProductGallery";
 
 /* ─── Product Data ───────────────────────────────────────────── */
 const PRODUCTS: Record<string, Product> = {
@@ -303,15 +305,7 @@ export default function ContainerDetailPage({ params }: { params: { slug: string
                 <a href="tel:0749792333" className="px-6 py-3 rounded-lg font-semibold text-white border border-white/20 hover:bg-white/5 transition-all">(07) 4979 2333</a>
               </div>
             </div>
-            <div className="relative rounded-xl overflow-hidden shadow-2xl shadow-black/30">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={product.images[0]} alt={product.name} className="w-full h-64 md:h-80 object-cover" />
-              {product.badge && (
-                <div className="absolute top-3 right-3 px-2.5 py-1 rounded-md text-xs font-bold bg-amber-500/90 text-white backdrop-blur-sm">
-                  {product.badge}
-                </div>
-              )}
-            </div>
+            <HeroImage images={product.images} alt={product.name} badge={product.badge} />
           </div>
         </div>
       </section>
@@ -370,22 +364,11 @@ export default function ContainerDetailPage({ params }: { params: { slug: string
         </div>
       </section>
 
-      {/* Image Gallery (if multiple images) */}
-      {product.images.length > 1 && (
-        <section className="py-10 md:py-14">
-          <div className="max-w-7xl mx-auto px-4">
-            <h2 className="text-xl font-bold text-gray-900 mb-5">Gallery</h2>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {product.images.map((img, i) => (
-                <div key={i} className="rounded-xl overflow-hidden border border-gray-200">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={img} alt={`${product.name} - View ${i + 1}`} className="w-full h-56 object-cover hover:scale-105 transition-transform duration-700" />
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-      )}
+      {/* Image Gallery */}
+      <GalleryGrid images={product.images} alt={product.name} />
+
+      {/* Suggested Add-Ons */}
+      <SuggestedAddOns category="containers" currentProductId={product.slug} />
 
       {/* Compare Products */}
       <CompareProducts

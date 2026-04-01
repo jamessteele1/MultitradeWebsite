@@ -69,35 +69,49 @@ function getRecommendations(
   const products: RecommendedProduct[] = [];
 
   // Office — sized by office workers (desk count), not total crew
+  // 3x3m = 1 desk, 6x3m = 2–4 desks, 12x3m = 5–6 desks
   if (facilities.has("office")) {
-    const deskCount = officeWorkers;
-    if (deskCount <= 1) {
+    const d = officeWorkers;
+    if (d <= 1) {
       products.push({ ...PRODUCTS["3x3m-office"], quantity: 1, reason: "1 desk for single occupant" });
-    } else if (deskCount <= 3) {
-      products.push({ ...PRODUCTS["6x3m-office"], quantity: 1, reason: `2–4 desks for ${deskCount} office workers` });
-    } else if (deskCount <= 6) {
-      products.push({ ...PRODUCTS["12x3m-office"], quantity: 1, reason: `5–6 desks for ${deskCount} office workers` });
+    } else if (d <= 4) {
+      products.push({ ...PRODUCTS["6x3m-office"], quantity: 1, reason: `2–4 desks for ${d} office workers` });
+    } else if (d <= 6) {
+      products.push({ ...PRODUCTS["12x3m-office"], quantity: 1, reason: `5–6 desks for ${d} office workers` });
     } else {
-      const qty = Math.ceil(deskCount / 6);
-      products.push({
-        ...PRODUCTS["12x3m-office"],
-        quantity: qty,
-        reason: `${qty} offices for ${deskCount} office workers (6 desks each)`,
-      });
+      // Mix 12x3m (6 desks) and 6x3m (4 desks) to cover the count
+      const large = Math.floor(d / 6);
+      const remainder = d - large * 6;
+      if (large > 0) {
+        products.push({ ...PRODUCTS["12x3m-office"], quantity: large, reason: `${large > 1 ? `${large} offices` : "Office"} — 6 desks each` });
+      }
+      if (remainder > 0 && remainder <= 4) {
+        products.push({ ...PRODUCTS["6x3m-office"], quantity: 1, reason: remainder === 1 ? `Extra desk for remaining worker` : `2–4 desks for remaining ${remainder} workers` });
+      } else if (remainder > 4) {
+        products.push({ ...PRODUCTS["12x3m-office"], quantity: 1, reason: `5–6 desks for remaining ${remainder} workers` });
+      }
     }
   }
 
   // Crib — sized by total crew (everyone needs a seat for breaks)
+  // 6x3m = 12 seats, 12x3m = 24 seats
   if (facilities.has("crib")) {
     if (totalCrew <= 12) {
       products.push({ ...PRODUCTS["6x3m-crib-room"], quantity: 1, reason: `12 seats — suits ${totalCrew} workers` });
+    } else if (totalCrew <= 24) {
+      products.push({ ...PRODUCTS["12x3m-crib-room"], quantity: 1, reason: `24 seats for ${totalCrew} workers` });
     } else {
-      const qty = Math.ceil(totalCrew / 24);
-      products.push({
-        ...PRODUCTS["12x3m-crib-room"],
-        quantity: qty,
-        reason: qty > 1 ? `${qty} units for ${totalCrew} workers (24 seats each)` : `24 seats for ${totalCrew} workers`,
-      });
+      // Mix 12x3m (24 seats) and 6x3m (12 seats) to cover the count
+      const large = Math.floor(totalCrew / 24);
+      const remainder = totalCrew - large * 24;
+      if (large > 0) {
+        products.push({ ...PRODUCTS["12x3m-crib-room"], quantity: large, reason: `${large > 1 ? `${large} cribs` : "Crib"} — 24 seats each` });
+      }
+      if (remainder > 0 && remainder <= 12) {
+        products.push({ ...PRODUCTS["6x3m-crib-room"], quantity: 1, reason: `12 seats for remaining ${remainder} workers` });
+      } else if (remainder > 12) {
+        products.push({ ...PRODUCTS["12x3m-crib-room"], quantity: 1, reason: `24 seats for remaining ${remainder} workers` });
+      }
     }
   }
 

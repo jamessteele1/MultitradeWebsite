@@ -277,6 +277,11 @@ export default function AblutionDetailPage({ params }: { params: { slug: string 
 
   const buildingSize: "12x3" | "6x3" | "3x3" | "other" = product.size.startsWith("12") ? "12x3" : product.size.startsWith("6") ? "6x3" : product.size.startsWith("3") ? "3x3" : "other";
 
+  // Self-contained products don't need power connection or mine-spec options
+  // (they have their own power/genset/battery and are already mine-spec)
+  const SELF_CONTAINED_SLUGS = new Set(["solar-toilet", "chemical-toilet", "pwd-chemical-toilet"]);
+  const isSelfContained = SELF_CONTAINED_SLUGS.has(product.slug);
+
   // Toilet-specific: sewer connection question + waste tank sizing
   const isToiletBlock = product.slug === "6x3m-toilet-block" || product.slug === "3-6x2-4m-toilet";
   const toiletSize: "6x3" | "3.6x2.4" | undefined = product.slug === "6x3m-toilet-block" ? "6x3" : product.slug === "3-6x2-4m-toilet" ? "3.6x2.4" : undefined;
@@ -390,8 +395,8 @@ export default function AblutionDetailPage({ params }: { params: { slug: string 
       {/* Image Gallery */}
       <GalleryGrid images={product.images} alt={product.name} />
 
-      {/* Service Upgrades */}
-      <PowerSiteRequirements buildingSize={buildingSize} />
+      {/* Service Upgrades — hidden for self-contained products (own power/already mine-spec) */}
+      {!isSelfContained && <PowerSiteRequirements buildingSize={buildingSize} />}
 
       {/* Suggested Add-Ons */}
       <SuggestedAddOns category="ablutions" currentProductId={product.slug} />

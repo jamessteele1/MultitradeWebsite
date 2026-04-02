@@ -47,6 +47,7 @@ const NAV_ITEMS = [
     children: [
       { label: "Gladstone Hockey", href: "/case-studies/gladstone-hockey" },
       { label: "Futura Solar Facilities", href: "/case-studies/futura-solar" },
+      { label: "Alpha HPA", href: "/case-studies/alpha-hpa" },
     ],
   },
   {
@@ -81,6 +82,7 @@ const MOBILE_NAV_ITEMS: { label: string; href: string; children?: { label: strin
     children: [
       { label: "Gladstone Hockey", href: "/case-studies/gladstone-hockey" },
       { label: "Futura Solar Facilities", href: "/case-studies/futura-solar" },
+      { label: "Alpha HPA", href: "/case-studies/alpha-hpa" },
     ],
   },
   {

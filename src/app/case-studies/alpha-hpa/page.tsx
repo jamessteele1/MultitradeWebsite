@@ -37,11 +37,14 @@ const STEPS = [
 ];
 
 const GALLERY = [
-  { src: "/images/case-studies/alpha-hpa/exterior-angle.jpg", alt: "12×9m office complex — exterior angle view with entry ramps and yellow safety railings" },
-  { src: "/images/case-studies/alpha-hpa/exterior-front.jpg", alt: "Front elevation with dual entry ramps and security windows" },
-  { src: "/images/case-studies/alpha-hpa/exterior-rear.jpg", alt: "Rear three-quarter view showing the full complex with air conditioning units" },
-  { src: "/images/case-studies/alpha-hpa/interior-office.jpg", alt: "Interior — open-plan office with workstation partitions and desks" },
-  { src: "/images/case-studies/alpha-hpa/exterior-side.jpg", alt: "Side elevation showing building raised on custom steel beam foundations" },
+  { src: "/images/case-studies/alpha-hpa/IMG_4019.jpg", alt: "Corner view showing AC units, yellow safety ramp, and custom steel beam foundations" },
+  { src: "/images/case-studies/alpha-hpa/IMG_4020.jpg", alt: "Front elevation with windows, dual entry ramps and yellow safety railings" },
+  { src: "/images/case-studies/alpha-hpa/IMG_4022.jpg", alt: "Rear three-quarter view showing the full complex with entry ramps at both ends" },
+  { src: "/images/case-studies/alpha-hpa/IMG_4023.jpg", alt: "Interior — open-plan office with blue workstation partitions and desks" },
+  { src: "/images/case-studies/alpha-hpa/IMG_4025-2.jpg", alt: "Exterior angle view with Multitrade signage, ramp and steel beam foundations" },
+  { src: "/images/case-studies/alpha-hpa/IMG_4026.jpg", alt: "12×9m office complex — exterior view at Alpha HPA Yarwun" },
+  { src: "/images/case-studies/alpha-hpa/IMG_4027.jpg", alt: "Office complex exterior — Alpha HPA Yarwun facility" },
+  { src: "/images/case-studies/alpha-hpa/IMG_4028.jpg", alt: "Office complex — Alpha HPA Yarwun site" },
 ];
 
 const WHY_CHOOSE = [
@@ -95,7 +98,7 @@ export default function AlphaHPACaseStudy() {
             <div className="relative rounded-xl overflow-hidden shadow-2xl shadow-black/20 -mt-8">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="/images/case-studies/alpha-hpa/exterior-front.jpg"
+                src="/images/case-studies/alpha-hpa/IMG_4020.jpg"
                 alt="12×9m office complex at Alpha HPA Yarwun — front elevation with dual entry ramps"
                 className="w-full h-64 md:h-[32rem] object-cover"
               />
@@ -139,14 +142,14 @@ export default function AlphaHPACaseStudy() {
             <FadeIn>
               <div className="rounded-xl overflow-hidden">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/images/case-studies/alpha-hpa/exterior-angle.jpg" alt="Office complex exterior — angle view with entry ramps" className="w-full h-72 object-cover hover:scale-105 transition-transform duration-700" />
+                <img src="/images/case-studies/alpha-hpa/IMG_4019.jpg" alt="Office complex exterior — angle view with entry ramps" className="w-full h-72 object-cover hover:scale-105 transition-transform duration-700" />
               </div>
               <p className="text-xs text-gray-500 mt-2">Exterior — showing raised foundations and dual access ramps with safety railings</p>
             </FadeIn>
             <FadeIn delay={0.1}>
               <div className="rounded-xl overflow-hidden">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/images/case-studies/alpha-hpa/exterior-rear.jpg" alt="Office complex rear three-quarter view" className="w-full h-72 object-cover hover:scale-105 transition-transform duration-700" />
+                <img src="/images/case-studies/alpha-hpa/IMG_4022.jpg" alt="Office complex rear three-quarter view" className="w-full h-72 object-cover hover:scale-105 transition-transform duration-700" />
               </div>
               <p className="text-xs text-gray-500 mt-2">Three-quarter view — full complex with air conditioning and entry ramps at both ends</p>
             </FadeIn>
@@ -233,14 +236,14 @@ export default function AlphaHPACaseStudy() {
             <FadeIn>
               <div className="rounded-xl overflow-hidden">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/images/case-studies/alpha-hpa/interior-office.jpg" alt="Interior — open-plan office with workstation partitions" className="w-full h-72 object-cover hover:scale-105 transition-transform duration-700" />
+                <img src="/images/case-studies/alpha-hpa/IMG_4023.jpg" alt="Interior — open-plan office with workstation partitions" className="w-full h-72 object-cover hover:scale-105 transition-transform duration-700" />
               </div>
               <p className="text-xs text-gray-500 mt-2">Interior — open-plan office layout with workstation partitions, ready for the operations team</p>
             </FadeIn>
             <FadeIn delay={0.1}>
               <div className="rounded-xl overflow-hidden">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/images/case-studies/alpha-hpa/exterior-side.jpg" alt="Side view showing building on custom steel foundations" className="w-full h-72 object-cover hover:scale-105 transition-transform duration-700" />
+                <img src="/images/case-studies/alpha-hpa/IMG_4025-2.jpg" alt="Side view showing building on custom steel foundations" className="w-full h-72 object-cover hover:scale-105 transition-transform duration-700" />
               </div>
               <p className="text-xs text-gray-500 mt-2">Side elevation — building raised on custom steel beam foundations over the swale drain</p>
             </FadeIn>

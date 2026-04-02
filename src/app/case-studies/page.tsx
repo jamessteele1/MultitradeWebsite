@@ -43,7 +43,7 @@ const CASE_STUDIES = [
     title: "12×9m Office Complex",
     client: "Alpha HPA",
     location: "Yarwun, Central QLD",
-    image: "/images/case-studies/alpha-hpa/exterior-front.jpg",
+    image: "/images/case-studies/alpha-hpa/IMG_4020.jpg",
     tags: ["Turnkey", "Custom Engineering", "Resources"],
     summary: "A 12×9m office complex with custom-engineered foundations over a swale drain — delivered ahead of schedule for Alpha HPA's Stage 2 operational readiness team.",
     stats: [

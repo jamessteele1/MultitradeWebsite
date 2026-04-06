@@ -1,6 +1,7 @@
 import Header from "@/components/Header";
 import MobileCTA from "@/components/MobileCTA";
 import { FadeIn } from "@/components/FadeIn";
+import { ClickableImage, ClickableGalleryGrid } from "@/components/ClickableGallery";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -96,11 +97,15 @@ export default function AlphaHPACaseStudy() {
         <div className="max-w-7xl mx-auto px-4 -mt-0">
           <FadeIn>
             <div className="relative rounded-xl overflow-hidden shadow-2xl shadow-black/20 -mt-8">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <ClickableImage
                 src="/images/case-studies/alpha-hpa/IMG_4020.jpg"
                 alt="12×9m office complex at Alpha HPA Yarwun — front elevation with dual entry ramps"
                 className="w-full h-64 md:h-[32rem] object-cover"
+                allImages={[
+                  { src: "/images/case-studies/alpha-hpa/IMG_4020.jpg", alt: "Front elevation with dual entry ramps" },
+                  ...GALLERY,
+                ]}
+                index={0}
               />
             </div>
             <div className="mb-8" />
@@ -141,15 +146,25 @@ export default function AlphaHPACaseStudy() {
           <div className="grid md:grid-cols-2 gap-4">
             <FadeIn>
               <div className="rounded-xl overflow-hidden">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/images/case-studies/alpha-hpa/IMG_4019.jpg" alt="Office complex exterior — angle view with entry ramps" className="w-full h-72 object-cover hover:scale-105 transition-transform duration-700" />
+                <ClickableImage
+                  src="/images/case-studies/alpha-hpa/IMG_4019.jpg"
+                  alt="Office complex exterior — angle view with entry ramps"
+                  className="w-full h-72 object-cover hover:scale-105 transition-transform duration-700"
+                  allImages={[{ src: "/images/case-studies/alpha-hpa/IMG_4020.jpg", alt: "Hero" }, ...GALLERY]}
+                  index={1}
+                />
               </div>
               <p className="text-xs text-gray-500 mt-2">Exterior — showing raised foundations and dual access ramps with safety railings</p>
             </FadeIn>
             <FadeIn delay={0.1}>
               <div className="rounded-xl overflow-hidden">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/images/case-studies/alpha-hpa/IMG_4022.jpg" alt="Office complex rear three-quarter view" className="w-full h-72 object-cover hover:scale-105 transition-transform duration-700" />
+                <ClickableImage
+                  src="/images/case-studies/alpha-hpa/IMG_4022.jpg"
+                  alt="Office complex rear three-quarter view"
+                  className="w-full h-72 object-cover hover:scale-105 transition-transform duration-700"
+                  allImages={[{ src: "/images/case-studies/alpha-hpa/IMG_4020.jpg", alt: "Hero" }, ...GALLERY]}
+                  index={3}
+                />
               </div>
               <p className="text-xs text-gray-500 mt-2">Three-quarter view — full complex with air conditioning and entry ramps at both ends</p>
             </FadeIn>
@@ -235,15 +250,25 @@ export default function AlphaHPACaseStudy() {
           <div className="grid md:grid-cols-2 gap-4">
             <FadeIn>
               <div className="rounded-xl overflow-hidden">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/images/case-studies/alpha-hpa/IMG_4023.jpg" alt="Interior — open-plan office with workstation partitions" className="w-full h-72 object-cover hover:scale-105 transition-transform duration-700" />
+                <ClickableImage
+                  src="/images/case-studies/alpha-hpa/IMG_4023.jpg"
+                  alt="Interior — open-plan office with workstation partitions"
+                  className="w-full h-72 object-cover hover:scale-105 transition-transform duration-700"
+                  allImages={[{ src: "/images/case-studies/alpha-hpa/IMG_4020.jpg", alt: "Hero" }, ...GALLERY]}
+                  index={4}
+                />
               </div>
               <p className="text-xs text-gray-500 mt-2">Interior — open-plan office layout with workstation partitions, ready for the operations team</p>
             </FadeIn>
             <FadeIn delay={0.1}>
               <div className="rounded-xl overflow-hidden">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/images/case-studies/alpha-hpa/IMG_4025-2.jpg" alt="Side view showing building on custom steel foundations" className="w-full h-72 object-cover hover:scale-105 transition-transform duration-700" />
+                <ClickableImage
+                  src="/images/case-studies/alpha-hpa/IMG_4025-2.jpg"
+                  alt="Side view showing building on custom steel foundations"
+                  className="w-full h-72 object-cover hover:scale-105 transition-transform duration-700"
+                  allImages={[{ src: "/images/case-studies/alpha-hpa/IMG_4020.jpg", alt: "Hero" }, ...GALLERY]}
+                  index={5}
+                />
               </div>
               <p className="text-xs text-gray-500 mt-2">Side elevation — building raised on custom steel beam foundations over the swale drain</p>
             </FadeIn>
@@ -276,16 +301,7 @@ export default function AlphaHPACaseStudy() {
             <div className="text-xs font-semibold tracking-widest uppercase gold-text mb-3">Gallery</div>
             <h2 className="text-2xl font-extrabold text-gray-900 tracking-tight">The Finished Product</h2>
           </FadeIn>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {GALLERY.map((img, i) => (
-              <FadeIn key={i} delay={i * 0.06}>
-                <div className="rounded-xl overflow-hidden">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={img.src} alt={img.alt} className="w-full h-56 object-cover hover:scale-105 transition-transform duration-700" />
-                </div>
-              </FadeIn>
-            ))}
-          </div>
+          <ClickableGalleryGrid images={GALLERY} columns={3} />
         </div>
       </section>
 

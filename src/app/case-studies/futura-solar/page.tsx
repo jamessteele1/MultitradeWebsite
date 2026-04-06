@@ -1,6 +1,7 @@
 import Header from "@/components/Header";
 import MobileCTA from "@/components/MobileCTA";
 import { FadeIn } from "@/components/FadeIn";
+import { ClickableImage, ClickableGalleryGrid } from "@/components/ClickableGallery";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -99,11 +100,15 @@ export default function FuturaSolarCaseStudy() {
         <div className="max-w-7xl mx-auto px-4 -mt-0">
           <FadeIn>
             <div className="relative rounded-xl overflow-hidden shadow-2xl shadow-black/20 -mt-8">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <ClickableImage
                 src="/images/case-studies/futura-solar/hero.jpg"
                 alt="Solar Site Office deployed at Wilton Coal Mine with covered walkway and signage"
                 className="w-full h-64 md:h-[32rem] object-cover"
+                allImages={[
+                  { src: "/images/case-studies/futura-solar/hero.jpg", alt: "Solar Site Office at Wilton Coal Mine" },
+                  ...GALLERY,
+                ]}
+                index={0}
               />
             </div>
             <div className="mb-8" />
@@ -145,15 +150,25 @@ export default function FuturaSolarCaseStudy() {
           <div className="grid md:grid-cols-2 gap-4">
             <FadeIn>
               <div className="rounded-xl overflow-hidden">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/images/case-studies/futura-solar/signage-front.jpg" alt="Solar Site Office at Wilton Coal Mine with Multitrade signage" className="w-full h-72 object-cover hover:scale-105 transition-transform duration-700" />
+                <ClickableImage
+                  src="/images/case-studies/futura-solar/signage-front.jpg"
+                  alt="Solar Site Office at Wilton Coal Mine with Multitrade signage"
+                  className="w-full h-72 object-cover hover:scale-105 transition-transform duration-700"
+                  allImages={[{ src: "/images/case-studies/futura-solar/hero.jpg", alt: "Hero" }, ...GALLERY]}
+                  index={2}
+                />
               </div>
               <p className="text-xs text-gray-500 mt-2">Solar Site Office deployed at Wilton Coal Mine &mdash; Futura Resources</p>
             </FadeIn>
             <FadeIn delay={0.1}>
               <div className="rounded-xl overflow-hidden">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/images/case-studies/futura-solar/battery-end-onsite.jpg" alt="Battery bay end with Solar Facility branding" className="w-full h-72 object-cover hover:scale-105 transition-transform duration-700" />
+                <ClickableImage
+                  src="/images/case-studies/futura-solar/battery-end-onsite.jpg"
+                  alt="Battery bay end with Solar Facility branding"
+                  className="w-full h-72 object-cover hover:scale-105 transition-transform duration-700"
+                  allImages={[{ src: "/images/case-studies/futura-solar/hero.jpg", alt: "Hero" }, ...GALLERY]}
+                  index={3}
+                />
               </div>
               <p className="text-xs text-gray-500 mt-2">Battery bay end &mdash; RedEarth power system with covered outdoor break area</p>
             </FadeIn>
@@ -245,16 +260,7 @@ export default function FuturaSolarCaseStudy() {
             <div className="text-xs font-semibold tracking-widest uppercase gold-text mb-3">Gallery</div>
             <h2 className="text-2xl font-extrabold text-gray-900 tracking-tight">The Solar Site Office</h2>
           </FadeIn>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {GALLERY.map((img, i) => (
-              <FadeIn key={i} delay={i * 0.06}>
-                <div className="rounded-xl overflow-hidden">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={img.src} alt={img.alt} className="w-full h-56 object-cover hover:scale-105 transition-transform duration-700" />
-                </div>
-              </FadeIn>
-            ))}
-          </div>
+          <ClickableGalleryGrid images={GALLERY} columns={3} />
         </div>
       </section>
 

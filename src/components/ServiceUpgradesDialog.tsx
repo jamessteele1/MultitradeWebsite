@@ -177,7 +177,7 @@ export default function ServiceUpgradesDialog({ open, buildingSize, showWaterTan
                   <span className="text-sm font-semibold text-gray-900">Site Power</span>
                   <span className="ml-1.5 text-[10px] font-medium px-1.5 py-0.5 bg-green-100 text-green-700 rounded">STANDARD</span>
                   <p className="text-xs text-gray-500 mt-0.5">
-                    Hardwired to existing site power supply. Standard {plugSize} connection included.
+                    Hardwired to existing site power supply.
                   </p>
                 </div>
               </button>

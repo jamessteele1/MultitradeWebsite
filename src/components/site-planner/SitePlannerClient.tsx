@@ -3,6 +3,7 @@
 import { useRef, useCallback, useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import BuildingPalette from "./BuildingPalette";
+import BuildingSelectionPopup from "./BuildingSelectionPopup";
 import PlannerToolbar from "./PlannerToolbar";
 import { usePlannerState } from "@/lib/site-planner/usePlannerState";
 import { getBuildingType } from "@/lib/site-planner/buildings";
@@ -63,9 +64,10 @@ export default function SitePlannerClient() {
   const [siteAddress, setSiteAddress] = useState<string | undefined>();
   const [siteCoords, setSiteCoords] = useState<{ lat: number; lng: number } | undefined>();
 
-  // Mobile tap-to-place state
+  // Tap/click-to-place state (mobile + desktop popup)
   const [placingTypeId, setPlacingTypeId] = useState<string | null>(null);
   const [placingLabel, setPlacingLabel] = useState("");
+  const [buildingPopupOpen, setBuildingPopupOpen] = useState(false);
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);
@@ -258,22 +260,51 @@ export default function SitePlannerClient() {
     return () => window.removeEventListener("keydown", handler);
   }, [state]);
 
-  // Mobile: select a building type for tap-to-place
+  // Select a building type for click/tap-to-place (mobile + desktop)
   const handleSelectPlacingType = useCallback((typeId: string, label: string) => {
     setPlacingTypeId(typeId);
     setPlacingLabel(label);
   }, []);
 
   const handlePlaced = useCallback(() => {
-    // Keep the type selected so user can place multiple — tap the palette item again to deselect
-    // setPlacingTypeId(null);
+    // Keep the type selected so user can place multiple — click the cancel button or press Escape to stop
   }, []);
+
+  const handleCancelPlacing = useCallback(() => {
+    setPlacingTypeId(null);
+    setPlacingLabel("");
+  }, []);
+
+  // Escape key to cancel placement mode
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && placingTypeId) {
+        e.preventDefault();
+        handleCancelPlacing();
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [placingTypeId, handleCancelPlacing]);
 
   if (isMobile) {
     return (
       <div className="px-2 py-2 space-y-2 pb-16">
         {/* Compact mobile toolbar */}
         <div className="flex items-center gap-1 bg-white rounded-xl border border-gray-200 px-2 py-1.5 overflow-x-auto scrollbar-hide">
+          {/* Add Building button */}
+          <button
+            onClick={() => setBuildingPopupOpen(true)}
+            className="flex-shrink-0 flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-amber-500 text-white text-[10px] font-bold"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
+              <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            Add
+          </button>
+
+          <div className="w-px h-5 bg-gray-200 mx-0.5 flex-shrink-0" />
+
           <button onClick={handleRotate} disabled={!state.selectedId} className="flex-shrink-0 p-2 rounded-lg text-gray-600 disabled:text-gray-300" title="Rotate">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21.5 2v6h-6" /><path d="M21.34 13.5A10 10 0 115.5 3.36L21.5 8" /></svg>
           </button>
@@ -311,8 +342,23 @@ export default function SitePlannerClient() {
           </button>
         </div>
 
+        {/* Placement mode banner */}
+        {placingTypeId && (
+          <div className="flex items-center justify-between px-3 py-2 bg-amber-50 border border-amber-200 rounded-xl">
+            <span className="text-xs font-semibold text-amber-800">
+              Tap canvas to place: {placingLabel}
+            </span>
+            <button
+              onClick={handleCancelPlacing}
+              className="px-2.5 py-1 text-[10px] font-bold text-amber-700 bg-amber-100 rounded-lg border border-amber-300"
+            >
+              Cancel
+            </button>
+          </div>
+        )}
+
         {/* Canvas */}
-        <div className="rounded-xl border border-gray-200 overflow-hidden" style={{ height: "calc(100vh - 200px)", minHeight: 350 }}>
+        <div className="rounded-xl border border-gray-200 overflow-hidden" style={{ height: placingTypeId ? "calc(100vh - 200px)" : "calc(100vh - 160px)", minHeight: 350 }}>
           <PlannerCanvas
             buildings={state.buildings}
             selectedId={state.selectedId}
@@ -336,11 +382,14 @@ export default function SitePlannerClient() {
           />
         </div>
 
-        {/* Mobile bottom palette (fixed) */}
-        <BuildingPalette
-          isMobile
-          selectedTypeId={placingTypeId}
-          onSelectType={handleSelectPlacingType}
+        {/* Building selection popup */}
+        <BuildingSelectionPopup
+          open={buildingPopupOpen}
+          onClose={() => setBuildingPopupOpen(false)}
+          onSelect={handleSelectPlacingType}
+          onAddCustom={(w, d, label) => {
+            handleSelectPlacingType(`custom-${w}x${d}`, label);
+          }}
         />
       </div>
     );

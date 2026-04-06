@@ -1,6 +1,7 @@
 import type Konva from "konva";
 import type { PlacedBuilding } from "./usePlannerState";
 import { getBuildingType } from "./buildings";
+import { PIXELS_PER_METRE, CANVAS_WIDTH_M, CANVAS_HEIGHT_M } from "./constants";
 
 export function exportToPNG(stage: Konva.Stage): string {
   return stage.toDataURL({ pixelRatio: 2, mimeType: "image/png" });
@@ -80,10 +81,20 @@ export async function downloadPDF(
     }
   }
 
-  // Canvas image
-  const dataUrl = stage.toDataURL({ pixelRatio: 2, mimeType: "image/png" });
+  // Canvas image — export the grid area at its native aspect ratio
+  // so the PDF is correct regardless of viewport size (mobile vs desktop)
+  const gridW = CANVAS_WIDTH_M * PIXELS_PER_METRE;
+  const gridH = CANVAS_HEIGHT_M * PIXELS_PER_METRE;
+  const dataUrl = stage.toDataURL({
+    pixelRatio: 2,
+    mimeType: "image/png",
+    x: 0,
+    y: 0,
+    width: gridW,
+    height: gridH,
+  });
   const imgWidth = 390;
-  const imgHeight = (stage.height() / stage.width()) * imgWidth;
+  const imgHeight = (gridH / gridW) * imgWidth;
   pdf.addImage(dataUrl, "PNG", 15, 36, imgWidth, Math.min(imgHeight, 210));
 
   // North compass — top right of the image area

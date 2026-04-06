@@ -53,7 +53,7 @@
     "seo_description": "Proven change room design delivered for other operations in Queensland. available for hire or purchase. 45+ years experience.",
     "seo_content": [
       "Multitrade Building Hire designs and manufactures custom change room buildings for other operations across Queensland. With over 45 years of experience delivering portable buildings to sites across the Bowen Basin, Central Queensland, Gladstone, Emerald, Central Highlands, and Surat Basin, we have the expertise to design a change room that meets your specific requirements.",
-      "Every change room we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution \u2014 from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
+      "Every change room we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution — from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
     ],
     "image": "/images/products/12x3-crib-room/1.jpg",
     "badge": "Custom Build",
@@ -125,7 +125,7 @@
     "seo_description": "Proven cool room / cold storage design delivered for other operations in Queensland. 8 x 2.4, available for hire or purchase. 45+ years experience.",
     "seo_content": [
       "Multitrade Building Hire designs and manufactures custom cool room / cold storage buildings for other operations across Queensland. With over 45 years of experience delivering portable buildings to sites across the Bowen Basin, Central Queensland, Gladstone, Emerald, Central Highlands, and Surat Basin, we have the expertise to design a cool room / cold storage that meets your specific requirements.",
-      "Every cool room / cold storage we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution \u2014 from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
+      "Every cool room / cold storage we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution — from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
     ],
     "image": "/images/products/10ft-container/1.jpg",
     "badge": "Proven Design",
@@ -192,7 +192,7 @@
     "seo_description": "Proven workshop / warehouse design delivered for construction operations in Queensland. available for hire or purchase. 45+ years experience.",
     "seo_content": [
       "Multitrade Building Hire designs and manufactures custom workshop / warehouse buildings for construction operations across Queensland. With over 45 years of experience delivering portable buildings to sites across the Bowen Basin, Central Queensland, Gladstone, Emerald, Central Highlands, and Surat Basin, we have the expertise to design a workshop / warehouse that meets your specific requirements.",
-      "Every workshop / warehouse we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution \u2014 from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
+      "Every workshop / warehouse we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution — from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
     ],
     "image": "/images/products/10ft-container/1.jpg",
     "badge": "Custom Build",
@@ -258,7 +258,7 @@
     "seo_description": "Proven custom lookout design delivered for other operations in Queensland. 12x3m, available for hire or purchase. 45+ years experience.",
     "seo_content": [
       "Multitrade Building Hire designs and manufactures custom custom lookout buildings for other operations across Queensland. With over 45 years of experience delivering portable buildings to sites across the Bowen Basin, Central Queensland, Gladstone, Emerald, Central Highlands, and Surat Basin, we have the expertise to design a custom lookout that meets your specific requirements.",
-      "Every custom lookout we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution \u2014 from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
+      "Every custom lookout we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution — from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
     ],
     "image": "/images/products/12x3-office/1.jpg",
     "badge": "Proven Design",
@@ -325,7 +325,7 @@
     "seo_description": "Proven dna testing room design delivered for other operations in Queensland. 6x3m, available for hire or purchase. 45+ years experience.",
     "seo_content": [
       "Multitrade Building Hire designs and manufactures custom dna testing room buildings for other operations across Queensland. With over 45 years of experience delivering portable buildings to sites across the Bowen Basin, Central Queensland, Gladstone, Emerald, Central Highlands, and Surat Basin, we have the expertise to design a dna testing room that meets your specific requirements.",
-      "Every dna testing room we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution \u2014 from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
+      "Every dna testing room we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution — from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
     ],
     "image": "/images/products/12x3-crib-room/1.jpg",
     "badge": "Proven Design",
@@ -338,12 +338,13 @@
     ]
   },
   {
-    "id": "Q210167",
+    "id": "Q220515",
     "category": "Gatehouse / Security",
-    "industry": "Government",
-    "dimensions": "6x3m",
+    "industry": "Construction",
+    "dimensions": "10.5x3.4m",
     "rooms": [
-      "Security Office"
+      "Gatehouse Office",
+      "WC"
     ],
     "keywords": [
       "access control",
@@ -351,61 +352,78 @@
       "entry point",
       "security",
       "gatehouse",
-      "guard house"
+      "guard house",
+      "boom gate",
+      "generator",
+      "self-contained"
     ],
-    "slug": "/buy/projects/6x3m-gatehouse---security-government",
-    "title": "6x3m Security Office",
+    "slug": "/buy/projects/10-5x3-4m-gatehouse---security-construction",
+    "title": "10.5x3.4m Gatehouse",
     "available_as": [
       "hire",
       "purchase",
       "custom"
     ],
-    "year": "2021",
+    "year": "2023",
     "has_page": true,
-    "summary": "Purpose-built 6x3m gatehouse / security designed for a government infrastructure project. Security Office delivered turnkey by Multitrade Building Hire with full installation and connection. Configured with security office areas.",
-    "brief": "A government infrastructure project required a gatehouse and security checkpoint to control site access. The building needed to provide clear visibility in all directions, boom gate control provisions, and a comfortable workspace for security personnel working around the clock.",
-    "delivered": "A 6x3m portable building configured as a gatehouse / security.  The layout includes security office areas. Manufactured at our Gladstone facility with full quality control checks and delivered to site ready for immediate use. The building was installed, connected to site services, and handed over with complete documentation.",
+    "summary": "Purpose-built 10.5×3.4m gatehouse with integrated 9kVa diesel generator, designed for a major construction contractor. Features full-height glazing for 360-degree visibility, dedicated WC, kitchenette with ZIP boiling water unit, commercial glass entry door, and N3 wind rating — fully self-contained for remote site access control.",
+    "brief": "A major construction contractor required a self-contained gatehouse to manage site access on a large-scale project. The building needed to operate independently with its own power generation, provide clear sightlines for vehicle and pedestrian monitoring, and include amenities for security personnel working extended shifts — all engineered to N3 wind rating for coastal Queensland conditions.",
+    "delivered": "A 10.5×3.4m portable gatehouse with 75mm steel frame construction, 2400mm ceiling height, and full Colorbond cladding in Deep Ocean with Surfmist roof. The layout includes a large open gatehouse office with four 900×1200mm sliding glass windows for maximum visibility, a commercial glass aluminium entry door, dedicated WC with hand basin, and a 1500mm kitchenette bench with single bowl sink and 3L ZIP boiling water unit. Power is supplied by an integrated Kubota GL9000-AU-B 9kVa diesel generator housed in a covered chassis extension with lockable mesh cage. The building includes 5.0kw MHI inverter reverse cycle split system air conditioning, full LED lighting (internal and external), sound-reducing wall batts to the generator wall, and a comprehensive electrical fitout with ATS, distribution switchboard, and weatherproof external GPOs.",
     "features": [
-      "360-degree visibility windows",
-      "Boom gate control provisions",
-      "CCTV monitoring provisions",
-      "Split-system air conditioning",
-      "Workstation bench and storage",
-      "Internal and external lighting",
-      "Vinyl flooring throughout",
-      "Data and communications cabling",
-      "240V power with RCD protection",
-      "Fire extinguisher mounting",
-      "Lockable entry and exit doors",
-      "Insulated wall and ceiling panels"
+      "4× full-height sliding glass windows for 360° visibility",
+      "Commercial glass aluminium framed entry door",
+      "Integrated Kubota 9kVa diesel generator (8hr runtime)",
+      "Covered chassis extension with lockable mesh cage",
+      "ATS (automatic transfer switch) for power management",
+      "5.0kw MHI inverter reverse cycle air conditioning",
+      "1500mm kitchenette bench with sink & ZIP boiling unit",
+      "Dedicated WC with toilet, hand basin & mirror",
+      "Sound-reducing wall batts to generator wall",
+      "Full LED lighting — internal and external",
+      "Colorbond Deep Ocean cladding, Surfmist roof",
+      "N3 wind-rated steel frame construction"
     ],
     "specs": {
       "Building Type": "Gatehouse / Security",
-      "Dimensions": "6x3m",
+      "Dimensions": "10.5×3.4m",
       "Internal Height": "2,400mm",
-      "Wind Classification": "N3",
-      "Air Conditioning": "Split-system",
-      "Power": "240V single phase",
-      "Flooring": "Commercial vinyl",
-      "Wall Linings": "Melamine-faced panels",
-      "Industry": "Government",
-      "Region": "Gladstone, QLD",
-      "Configuration": "Security Office"
+      "Wind Classification": "N3 (W41N)",
+      "Structure": "75mm steel frame, 150×75mm PFC bearers",
+      "Air Conditioning": "5.0kw MHI inverter split system",
+      "Power": "Kubota 9kVa diesel generator (integrated)",
+      "Flooring": "2mm commercial vinyl (R10 in wet areas)",
+      "Wall Linings": "Pre-finished plywood with PVC joiners",
+      "Roof Cladding": "Colorbond Trimdek",
+      "Wall Cladding": "Colorbond Panelrib (horizontal)",
+      "Colour": "Deep Ocean / Surfmist roof",
+      "Industry": "Construction",
+      "Region": "Queensland",
+      "Configuration": "Gatehouse office, WC, kitchenette, generator"
     },
-    "seo_title": "6x3m Security Office | Custom Portable Building | Multitrade",
-    "seo_description": "Proven gatehouse / security design delivered for government operations in Queensland. 6x3m, available for hire or purchase. 45+ years experience.",
+    "seo_title": "10.5x3.4m Gatehouse | Self-Contained Security Building | Multitrade",
+    "seo_description": "Custom 10.5x3.4m gatehouse with integrated 9kVa generator, full glazing, WC & kitchenette. N3 wind rated, built for construction sites. Hire or purchase.",
     "seo_content": [
-      "Multitrade Building Hire designs and manufactures custom gatehouse / security buildings for government operations across Queensland. With over 45 years of experience delivering portable buildings to sites across the Bowen Basin, Central Queensland, Gladstone, Emerald, Central Highlands, and Surat Basin, we have the expertise to design a gatehouse / security that meets your specific requirements.",
-      "Every gatehouse / security we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution \u2014 from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
+      "This 10.5×3.4m gatehouse was purpose-built for a major construction contractor requiring a fully self-contained access control building. Featuring an integrated 9kVa diesel generator with automatic transfer switch, the building operates independently on remote sites without external power. Four full-height sliding glass windows provide 360-degree visibility for vehicle and pedestrian monitoring, while the commercial glass aluminium entry door gives a professional appearance at the site entrance.",
+      "Multitrade Building Hire designs and manufactures custom gatehouses and security buildings for construction, mining, government, and resource operations across Queensland. From compact 4.5m guard huts to large-format gatehouses with integrated power, we engineer every building to meet your site’s wind rating, operational requirements, and compliance standards. Contact us to request a proposal based on this proven design."
     ],
-    "image": "/images/products/12x3-office/1.jpg",
+    "image": "/images/bespoke-categories/gatehouse/exterior-side.jpg",
     "badge": "Proven Design",
-    "region": "Gladstone, QLD",
+    "region": "Queensland",
     "wind_rating": "N3",
     "similar_slugs": [
       "/buy/projects/7-2x3-0-gatehouse---security-resources",
       "/buy/projects/4-5x3m-gatehouse---security-mining",
       "/buy/projects/5-75x3-4m-control-room-queensland"
+    ],
+    "gallery": [
+      "/images/bespoke-categories/gatehouse/exterior-wide.jpg",
+      "/images/bespoke-categories/gatehouse/generator-cage.jpg",
+      "/images/bespoke-categories/gatehouse/glass-entry-door.jpg",
+      "/images/bespoke-categories/gatehouse/interior-office.jpg",
+      "/images/bespoke-categories/gatehouse/interior-entry.jpg",
+      "/images/bespoke-categories/gatehouse/interior-wc.jpg",
+      "/images/bespoke-categories/gatehouse/crane-placement.jpg",
+      "/images/bespoke-categories/gatehouse/exterior-end-stairs.jpg"
     ]
   },
   {
@@ -467,7 +485,7 @@
     "seo_description": "Proven bathhouse design delivered for mining operations in Queensland. available for hire or purchase. 45+ years experience.",
     "seo_content": [
       "Multitrade Building Hire designs and manufactures custom bathhouse buildings for mining operations across Queensland. With over 45 years of experience delivering portable buildings to sites across the Bowen Basin, Central Queensland, Gladstone, Emerald, Central Highlands, and Surat Basin, we have the expertise to design a bathhouse that meets your specific requirements.",
-      "Every bathhouse we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution \u2014 from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
+      "Every bathhouse we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution — from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
     ],
     "image": "/images/products/12x6m-complex/1.jpg",
     "badge": "Custom Build",
@@ -538,7 +556,7 @@
     "seo_description": "Proven bathhouse design delivered for mining operations in Queensland. available for hire or purchase. 45+ years experience.",
     "seo_content": [
       "Multitrade Building Hire designs and manufactures custom bathhouse buildings for mining operations across Queensland. With over 45 years of experience delivering portable buildings to sites across the Bowen Basin, Central Queensland, Gladstone, Emerald, Central Highlands, and Surat Basin, we have the expertise to design a bathhouse that meets your specific requirements.",
-      "Every bathhouse we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution \u2014 from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
+      "Every bathhouse we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution — from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
     ],
     "image": "/images/products/12x6m-complex/1.jpg",
     "badge": "Custom Build",
@@ -610,7 +628,7 @@
     "seo_description": "Proven pwd accessible facility design delivered for mining operations in Queensland. 14.4x18 , available for hire or purchase. 45+ years experience.",
     "seo_content": [
       "Multitrade Building Hire designs and manufactures custom pwd accessible facility buildings for mining operations across Queensland. With over 45 years of experience delivering portable buildings to sites across the Bowen Basin, Central Queensland, Gladstone, Emerald, Central Highlands, and Surat Basin, we have the expertise to design a pwd accessible facility that meets your specific requirements.",
-      "Every pwd accessible facility we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution \u2014 from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
+      "Every pwd accessible facility we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution — from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
     ],
     "image": "/images/products/6x3-toilet/1.jpg",
     "badge": "Proven Design",
@@ -685,7 +703,7 @@
     "seo_description": "Proven large format crib design delivered for mining operations in Queensland. 6x 14.4, available for hire or purchase. 45+ years experience.",
     "seo_content": [
       "Multitrade Building Hire designs and manufactures custom large format crib buildings for mining operations across Queensland. With over 45 years of experience delivering portable buildings to sites across the Bowen Basin, Central Queensland, Gladstone, Emerald, Central Highlands, and Surat Basin, we have the expertise to design a large format crib that meets your specific requirements. Also known as a donga or site crib, these buildings are essential for worker welfare on remote projects.",
-      "Every large format crib we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution \u2014 from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
+      "Every large format crib we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution — from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
     ],
     "image": "/images/products/12x3-crib-room/1.jpg",
     "badge": "Proven Design",
@@ -757,7 +775,7 @@
     "seo_description": "Proven pwd accessible facility design delivered for mining operations in Queensland. 14.4x18 , available for hire or purchase. 45+ years experience.",
     "seo_content": [
       "Multitrade Building Hire designs and manufactures custom pwd accessible facility buildings for mining operations across Queensland. With over 45 years of experience delivering portable buildings to sites across the Bowen Basin, Central Queensland, Gladstone, Emerald, Central Highlands, and Surat Basin, we have the expertise to design a pwd accessible facility that meets your specific requirements.",
-      "Every pwd accessible facility we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution \u2014 from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
+      "Every pwd accessible facility we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution — from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
     ],
     "image": "/images/products/6x3-toilet/1.jpg",
     "badge": "Proven Design",
@@ -824,7 +842,7 @@
     "seo_description": "Proven laboratory design delivered for other operations in Queensland. available for hire or purchase. 45+ years experience.",
     "seo_content": [
       "Multitrade Building Hire designs and manufactures custom laboratory buildings for other operations across Queensland. With over 45 years of experience delivering portable buildings to sites across the Bowen Basin, Central Queensland, Gladstone, Emerald, Central Highlands, and Surat Basin, we have the expertise to design a laboratory that meets your specific requirements.",
-      "Every laboratory we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution \u2014 from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
+      "Every laboratory we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution — from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
     ],
     "image": "/images/products/12x3-office/1.jpg",
     "badge": "Custom Build",
@@ -899,7 +917,7 @@
     "seo_description": "Proven custom build design delivered for mining operations in Queensland. 12x3 M, available for hire or purchase. 45+ years experience.",
     "seo_content": [
       "Multitrade Building Hire designs and manufactures custom custom build buildings for mining operations across Queensland. With over 45 years of experience delivering portable buildings to sites across the Bowen Basin, Central Queensland, Gladstone, Emerald, Central Highlands, and Surat Basin, we have the expertise to design a custom build that meets your specific requirements.",
-      "Every custom build we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution \u2014 from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
+      "Every custom build we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution — from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
     ],
     "image": "/images/products/12x3-crib-room/1.jpg",
     "badge": "Proven Design",
@@ -969,7 +987,7 @@
     "seo_description": "Proven large format complex design delivered for other operations in Queensland. 15x12m, available for hire or purchase. 45+ years experience.",
     "seo_content": [
       "Multitrade Building Hire designs and manufactures custom large format complex buildings for other operations across Queensland. With over 45 years of experience delivering portable buildings to sites across the Bowen Basin, Central Queensland, Gladstone, Emerald, Central Highlands, and Surat Basin, we have the expertise to design a large format complex that meets your specific requirements.",
-      "Every large format complex we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution \u2014 from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
+      "Every large format complex we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution — from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
     ],
     "image": "/images/products/12x6m-complex/1.jpg",
     "badge": "Proven Design",
@@ -1039,7 +1057,7 @@
     "seo_description": "Proven large format office design delivered for mining operations in Queensland. 14.4 x 18m, available for hire or purchase. 45+ years experience.",
     "seo_content": [
       "Multitrade Building Hire designs and manufactures custom large format office buildings for mining operations across Queensland. With over 45 years of experience delivering portable buildings to sites across the Bowen Basin, Central Queensland, Gladstone, Emerald, Central Highlands, and Surat Basin, we have the expertise to design a large format office that meets your specific requirements.",
-      "Every large format office we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution \u2014 from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
+      "Every large format office we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution — from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
     ],
     "image": "/images/products/12x3-office/1.jpg",
     "badge": "Proven Design",
@@ -1109,7 +1127,7 @@
     "seo_description": "Proven large format office design delivered for mining operations in Queensland. 14.4 x 18m, available for hire or purchase. 45+ years experience.",
     "seo_content": [
       "Multitrade Building Hire designs and manufactures custom large format office buildings for mining operations across Queensland. With over 45 years of experience delivering portable buildings to sites across the Bowen Basin, Central Queensland, Gladstone, Emerald, Central Highlands, and Surat Basin, we have the expertise to design a large format office that meets your specific requirements.",
-      "Every large format office we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution \u2014 from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
+      "Every large format office we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution — from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
     ],
     "image": "/images/products/12x3-office/1.jpg",
     "badge": "Proven Design",
@@ -1180,7 +1198,7 @@
     "seo_description": "Proven server room design delivered for mining operations in Queensland. available for hire or purchase. 45+ years experience.",
     "seo_content": [
       "Multitrade Building Hire designs and manufactures custom server room buildings for mining operations across Queensland. With over 45 years of experience delivering portable buildings to sites across the Bowen Basin, Central Queensland, Gladstone, Emerald, Central Highlands, and Surat Basin, we have the expertise to design a server room that meets your specific requirements.",
-      "Every server room we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution \u2014 from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
+      "Every server room we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution — from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
     ],
     "image": "/images/products/12x3-office/1.jpg",
     "badge": "Custom Build",
@@ -1251,7 +1269,7 @@
     "seo_description": "Proven server room design delivered for mining operations in Queensland. available for hire or purchase. 45+ years experience.",
     "seo_content": [
       "Multitrade Building Hire designs and manufactures custom server room buildings for mining operations across Queensland. With over 45 years of experience delivering portable buildings to sites across the Bowen Basin, Central Queensland, Gladstone, Emerald, Central Highlands, and Surat Basin, we have the expertise to design a server room that meets your specific requirements.",
-      "Every server room we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution \u2014 from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
+      "Every server room we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution — from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
     ],
     "image": "/images/products/12x3-office/1.jpg",
     "badge": "Custom Build",
@@ -1323,7 +1341,7 @@
     "seo_description": "Proven server room design delivered for mining operations in Queensland. 12x3.4 , available for hire or purchase. 45+ years experience.",
     "seo_content": [
       "Multitrade Building Hire designs and manufactures custom server room buildings for mining operations across Queensland. With over 45 years of experience delivering portable buildings to sites across the Bowen Basin, Central Queensland, Gladstone, Emerald, Central Highlands, and Surat Basin, we have the expertise to design a server room that meets your specific requirements.",
-      "Every server room we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution \u2014 from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
+      "Every server room we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution — from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
     ],
     "image": "/images/products/12x3-office/1.jpg",
     "badge": "Proven Design",
@@ -1393,7 +1411,7 @@
     "seo_description": "Proven classroom design delivered for other operations in Queensland. available for hire or purchase. 45+ years experience.",
     "seo_content": [
       "Multitrade Building Hire designs and manufactures custom classroom buildings for other operations across Queensland. With over 45 years of experience delivering portable buildings to sites across the Bowen Basin, Central Queensland, Gladstone, Emerald, Central Highlands, and Surat Basin, we have the expertise to design a classroom that meets your specific requirements.",
-      "Every classroom we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution \u2014 from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
+      "Every classroom we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution — from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
     ],
     "image": "/images/products/12x3-office/1.jpg",
     "badge": "Custom Build",
@@ -1465,7 +1483,7 @@
     "seo_description": "Proven kitchen / mess design delivered for other operations in Queensland. 12x3.4 , available for hire or purchase. 45+ years experience.",
     "seo_content": [
       "Multitrade Building Hire designs and manufactures custom kitchen / mess buildings for other operations across Queensland. With over 45 years of experience delivering portable buildings to sites across the Bowen Basin, Central Queensland, Gladstone, Emerald, Central Highlands, and Surat Basin, we have the expertise to design a kitchen / mess that meets your specific requirements.",
-      "Every kitchen / mess we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution \u2014 from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
+      "Every kitchen / mess we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution — from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
     ],
     "image": "/images/products/12x3-crib-room/1.jpg",
     "badge": "Proven Design",
@@ -1536,7 +1554,7 @@
     "seo_description": "Proven bathhouse design delivered for mining operations in Queensland. 12x10.2m, available for hire or purchase. 45+ years experience.",
     "seo_content": [
       "Multitrade Building Hire designs and manufactures custom bathhouse buildings for mining operations across Queensland. With over 45 years of experience delivering portable buildings to sites across the Bowen Basin, Central Queensland, Gladstone, Emerald, Central Highlands, and Surat Basin, we have the expertise to design a bathhouse that meets your specific requirements.",
-      "Every bathhouse we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution \u2014 from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
+      "Every bathhouse we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution — from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
     ],
     "image": "/images/products/12x6m-complex/1.jpg",
     "badge": "Proven Design",
@@ -1603,7 +1621,7 @@
     "seo_description": "Proven container office conversion design delivered for mining operations in Queensland. available for hire or purchase. 45+ years experience.",
     "seo_content": [
       "Multitrade Building Hire designs and manufactures custom container office conversion buildings for mining operations across Queensland. With over 45 years of experience delivering portable buildings to sites across the Bowen Basin, Central Queensland, Gladstone, Emerald, Central Highlands, and Surat Basin, we have the expertise to design a container office conversion that meets your specific requirements.",
-      "Every container office conversion we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution \u2014 from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
+      "Every container office conversion we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution — from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
     ],
     "image": "/images/products/10ft-container/1.jpg",
     "badge": "Custom Build",
@@ -1673,7 +1691,7 @@
     "seo_description": "Proven control room design delivered for other operations in Queensland. 5.75x3.4m, available for hire or purchase. 45+ years experience.",
     "seo_content": [
       "Multitrade Building Hire designs and manufactures custom control room buildings for other operations across Queensland. With over 45 years of experience delivering portable buildings to sites across the Bowen Basin, Central Queensland, Gladstone, Emerald, Central Highlands, and Surat Basin, we have the expertise to design a control room that meets your specific requirements.",
-      "Every control room we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution \u2014 from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
+      "Every control room we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution — from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
     ],
     "image": "/images/products/12x3-office/1.jpg",
     "badge": "Proven Design",
@@ -1743,7 +1761,7 @@
     "seo_description": "Proven control room design delivered for other operations in Queensland. 5.75x3.4m, available for hire or purchase. 45+ years experience.",
     "seo_content": [
       "Multitrade Building Hire designs and manufactures custom control room buildings for other operations across Queensland. With over 45 years of experience delivering portable buildings to sites across the Bowen Basin, Central Queensland, Gladstone, Emerald, Central Highlands, and Surat Basin, we have the expertise to design a control room that meets your specific requirements.",
-      "Every control room we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution \u2014 from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
+      "Every control room we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution — from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
     ],
     "image": "/images/products/12x3-office/1.jpg",
     "badge": "Proven Design",
@@ -1815,7 +1833,7 @@
     "seo_description": "Proven bathhouse design delivered for mining operations in Queensland. available for hire or purchase. 45+ years experience.",
     "seo_content": [
       "Multitrade Building Hire designs and manufactures custom bathhouse buildings for mining operations across Queensland. With over 45 years of experience delivering portable buildings to sites across the Bowen Basin, Central Queensland, Gladstone, Emerald, Central Highlands, and Surat Basin, we have the expertise to design a bathhouse that meets your specific requirements.",
-      "Every bathhouse we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution \u2014 from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
+      "Every bathhouse we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution — from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
     ],
     "image": "/images/products/12x6m-complex/1.jpg",
     "badge": "Custom Build",
@@ -1887,7 +1905,7 @@
     "seo_description": "Proven d&a testing room design delivered for mining operations in Queensland. available for hire or purchase. 45+ years experience.",
     "seo_content": [
       "Multitrade Building Hire designs and manufactures custom d&a testing room buildings for mining operations across Queensland. With over 45 years of experience delivering portable buildings to sites across the Bowen Basin, Central Queensland, Gladstone, Emerald, Central Highlands, and Surat Basin, we have the expertise to design a d&a testing room that meets your specific requirements.",
-      "Every d&a testing room we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution \u2014 from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
+      "Every d&a testing room we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution — from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
     ],
     "image": "/images/products/12x3-crib-room/1.jpg",
     "badge": "Custom Build",
@@ -1960,7 +1978,7 @@
     "seo_description": "Proven first aid room design delivered for mining operations in Queensland. 12x3.4m, available for hire or purchase. 45+ years experience.",
     "seo_content": [
       "Multitrade Building Hire designs and manufactures custom first aid room buildings for mining operations across Queensland. With over 45 years of experience delivering portable buildings to sites across the Bowen Basin, Central Queensland, Gladstone, Emerald, Central Highlands, and Surat Basin, we have the expertise to design a first aid room that meets your specific requirements.",
-      "Every first aid room we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution \u2014 from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
+      "Every first aid room we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution — from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
     ],
     "image": "/images/products/12x3-crib-room/1.jpg",
     "badge": "Proven Design",
@@ -2027,7 +2045,7 @@
     "seo_description": "Proven container office conversion design delivered for resources operations in Queensland. available for hire or purchase. 45+ years experience.",
     "seo_content": [
       "Multitrade Building Hire designs and manufactures custom container office conversion buildings for resources operations across Queensland. With over 45 years of experience delivering portable buildings to sites across the Bowen Basin, Central Queensland, Gladstone, Emerald, Central Highlands, and Surat Basin, we have the expertise to design a container office conversion that meets your specific requirements.",
-      "Every container office conversion we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution \u2014 from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
+      "Every container office conversion we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution — from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
     ],
     "image": "/images/products/10ft-container/1.jpg",
     "badge": "Custom Build",
@@ -2063,51 +2081,64 @@
     ],
     "year": "2024",
     "has_page": true,
-    "summary": "Purpose-built 12x3m amenities / club building designed for a commercial operation in Queensland. Amenities delivered turnkey by Multitrade Building Hire with full installation and connection. Configured with amenities areas.",
-    "brief": "The client required a purpose-built portable building for a commercial operation in Queensland. The facility needed to be manufactured to specific dimensions and configurations, designed for the unique operational requirements of the project site.",
-    "delivered": "A 12x3m portable building configured as a amenities / club building.  The layout includes amenities areas. Manufactured at our Gladstone facility with full quality control checks and delivered to site ready for immediate use. The building was installed, connected to site services, and handed over with complete documentation.",
+    "summary": "Custom 12x3m amenities building delivered as a full turnkey project for the Gladstone Hockey Association. Features 7 toilets (including PWD and ambulant-compliant), 4 tiled showers, PWD-compliant ramp and landings, C2 wind-rated steel frame — designed, manufactured, transported, and installed by Multitrade Building Hire.",
+    "brief": "The Gladstone Hockey Association needed to replace an ageing amenities block that had reached the end of its serviceable life. The existing facility was structurally compromised with failing plumbing and no longer met the standard expected by players, coaches, or visiting officials. Traditional construction was ruled out due to cost and complexity — the club needed a turnkey solution delivered quickly, within budget, and without disrupting the playing season.",
+    "delivered": "Multitrade designed, manufactured, and installed a custom 12×3m amenities building — purpose-built to the club’s brief, compliant with Gladstone Regional Council requirements, and engineered to C2 wind rating. The full turnkey scope included council planning approvals, geotechnical testing, a new 12×6m concrete slab, crane delivery and placement, PWD-compliant external ramp and landings, electrical connection to the existing facility, and plumbing tie-in to council mains. The building features 7 toilets (including 2 ambulant and 1 PWD), 4 tiled showers, 5 stainless-steel basins, a 315L hot water system, bench seats, and coat hooks — fully DDA compliant.",
     "features": [
-      "Split-system air conditioning",
-      "Vinyl flooring throughout",
-      "Insulated wall and ceiling panels",
-      "240V power with RCD protection",
-      "LED internal lighting",
-      "Lockable entry door",
-      "Fire extinguisher mounting",
-      "Compliant electrical switchboard",
-      "External power connection point",
-      "Window with security screen",
-      "Data cabling provisions",
-      "Mine-spec construction standard"
+      "7 toilets incl. PWD & ambulant-compliant",
+      "4 tiled shower cubicles with bench seats",
+      "5 stainless-steel hand basins",
+      "315L hot water system",
+      "C2 wind-rated steel frame construction",
+      "PWD-compliant ramp & landings (1:14 grade)",
+      "Full DDA compliance to Australian Standards",
+      "Council planning approvals managed",
+      "New 12×6m concrete slab",
+      "Crane delivery — single-lift placement",
+      "Electrical & plumbing connection to mains",
+      "Turnkey delivery — one contractor start to finish"
     ],
     "specs": {
       "Building Type": "Amenities / Club Building",
-      "Dimensions": "12x3m",
+      "Dimensions": "12×3m",
       "Internal Height": "2,400mm",
-      "Wind Classification": "B",
-      "Air Conditioning": "Split-system",
+      "Wind Classification": "C2",
+      "Structure": "Steel frame, C2 wind rated",
       "Power": "240V single phase",
-      "Flooring": "Commercial vinyl",
-      "Wall Linings": "Melamine-faced panels",
-      "Industry": "Other",
-      "Region": "Central Queensland",
-      "Configuration": "Amenities"
+      "Flooring": "Tiled wet areas",
+      "Wall Linings": "Tiled wet areas, melamine panels",
+      "Hot Water": "315L hot water system",
+      "Accessibility": "Full DDA — PWD toilet, ambulant stalls, ramp",
+      "Industry": "Community / Sporting",
+      "Region": "Gladstone, QLD",
+      "Configuration": "7 toilets, 4 showers, 5 basins"
     },
-    "seo_title": "12x3m Amenities | Custom Portable Building | Multitrade",
-    "seo_description": "Proven amenities / club building design delivered for other operations in Queensland. 12x3m, available for hire or purchase. 45+ years experience.",
+    "seo_title": "12x3m Amenities Building | Gladstone Hockey | Multitrade",
+    "seo_description": "Custom 12x3m amenities building delivered for the Gladstone Hockey Association — 7 toilets, 4 showers, PWD compliant, C2 wind rated. Full turnkey by Multitrade.",
     "seo_content": [
-      "Multitrade Building Hire designs and manufactures custom amenities / club building buildings for other operations across Queensland. With over 45 years of experience delivering portable buildings to sites across the Bowen Basin, Central Queensland, Gladstone, Emerald, Central Highlands, and Surat Basin, we have the expertise to design a amenities / club building that meets your specific requirements.",
-      "Every amenities / club building we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution \u2014 from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
+      "This 12×3m amenities building was designed and delivered as a full turnkey project for the Gladstone Hockey Association. The club needed to replace an ageing facility that was no longer fit for purpose, and Multitrade Building Hire managed the entire project — from initial design and council approvals through to manufacture, transport, crane placement, and full services connection. The result is a modern, fully DDA-compliant amenities building featuring 7 toilets, 4 tiled showers, and PWD-accessible facilities.",
+      "Multitrade Building Hire designs and manufactures custom amenities and club buildings for sporting organisations, community groups, and commercial operations across Queensland. With over 45 years of experience and our manufacturing facility in Gladstone, we deliver turnkey solutions — one contractor from brief to handover. Contact us to request a proposal based on this proven design."
     ],
-    "image": "/images/products/12x3-crib-room/1.jpg",
+    "image": "/images/case-studies/gladstone-hockey/hero.jpg",
     "badge": "Proven Design",
-    "region": "Central Queensland",
-    "wind_rating": "B",
+    "region": "Gladstone, QLD",
+    "wind_rating": "C2",
     "similar_slugs": [
       "/buy/projects/change-room-queensland",
       "/buy/projects/8x2-4-cool-room---cold-storage-queensland",
       "/buy/projects/workshop---warehouse-construction"
-    ]
+    ],
+    "gallery": [
+      "/images/case-studies/gladstone-hockey/entry.jpg",
+      "/images/case-studies/gladstone-hockey/walkway.jpg",
+      "/images/case-studies/gladstone-hockey/interior-pwd.jpg",
+      "/images/case-studies/gladstone-hockey/interior-cubicles.jpg",
+      "/images/case-studies/gladstone-hockey/interior-showers.jpg",
+      "/images/case-studies/gladstone-hockey/rear-view.jpg",
+      "/images/case-studies/gladstone-hockey/canopy-wide.jpg",
+      "/images/case-studies/gladstone-hockey/exterior-end.jpg"
+    ],
+    "case_study": "/case-studies/gladstone-hockey"
   },
   {
     "id": "Q250488",
@@ -2171,7 +2202,7 @@
     "seo_description": "Proven custom build design delivered for mining operations in Queensland. available for hire or purchase. 45+ years experience.",
     "seo_content": [
       "Multitrade Building Hire designs and manufactures custom custom build buildings for mining operations across Queensland. With over 45 years of experience delivering portable buildings to sites across the Bowen Basin, Central Queensland, Gladstone, Emerald, Central Highlands, and Surat Basin, we have the expertise to design a custom build that meets your specific requirements.",
-      "Every custom build we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution \u2014 from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
+      "Every custom build we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution — from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
     ],
     "image": "/images/products/12x3-crib-room/1.jpg",
     "badge": "Custom Build",
@@ -2243,7 +2274,7 @@
     "seo_description": "Proven first aid room design delivered for mining operations in Queensland. 15x3.4m, available for hire or purchase. 45+ years experience.",
     "seo_content": [
       "Multitrade Building Hire designs and manufactures custom first aid room buildings for mining operations across Queensland. With over 45 years of experience delivering portable buildings to sites across the Bowen Basin, Central Queensland, Gladstone, Emerald, Central Highlands, and Surat Basin, we have the expertise to design a first aid room that meets your specific requirements.",
-      "Every first aid room we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution \u2014 from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
+      "Every first aid room we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution — from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
     ],
     "image": "/images/products/12x3-crib-room/1.jpg",
     "badge": "Proven Design",
@@ -2314,7 +2345,7 @@
     "seo_description": "Proven pwd accessible facility design delivered for resources operations in Queensland. 3x3m, available for hire or purchase. 45+ years experience.",
     "seo_content": [
       "Multitrade Building Hire designs and manufactures custom pwd accessible facility buildings for resources operations across Queensland. With over 45 years of experience delivering portable buildings to sites across the Bowen Basin, Central Queensland, Gladstone, Emerald, Central Highlands, and Surat Basin, we have the expertise to design a pwd accessible facility that meets your specific requirements.",
-      "Every pwd accessible facility we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution \u2014 from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
+      "Every pwd accessible facility we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution — from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
     ],
     "image": "/images/products/6x3-toilet/1.jpg",
     "badge": "Proven Design",
@@ -2386,7 +2417,7 @@
     "seo_description": "Proven double stack / stackable design delivered for resources operations in Queensland. available for hire or purchase. 45+ years experience.",
     "seo_content": [
       "Multitrade Building Hire designs and manufactures custom double stack / stackable buildings for resources operations across Queensland. With over 45 years of experience delivering portable buildings to sites across the Bowen Basin, Central Queensland, Gladstone, Emerald, Central Highlands, and Surat Basin, we have the expertise to design a double stack / stackable that meets your specific requirements.",
-      "Every double stack / stackable we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution \u2014 from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
+      "Every double stack / stackable we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution — from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
     ],
     "image": "/images/products/12x6m-complex/1.jpg",
     "badge": "Custom Build",
@@ -2462,7 +2493,7 @@
     "seo_description": "Proven first aid room design delivered for other operations in Queensland. available for hire or purchase. 45+ years experience.",
     "seo_content": [
       "Multitrade Building Hire designs and manufactures custom first aid room buildings for other operations across Queensland. With over 45 years of experience delivering portable buildings to sites across the Bowen Basin, Central Queensland, Gladstone, Emerald, Central Highlands, and Surat Basin, we have the expertise to design a first aid room that meets your specific requirements.",
-      "Every first aid room we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution \u2014 from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
+      "Every first aid room we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution — from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
     ],
     "image": "/images/products/12x3-crib-room/1.jpg",
     "badge": "Custom Build",
@@ -2529,7 +2560,7 @@
     "seo_description": "Proven nap room design delivered for construction operations in Queensland. available for hire or purchase. 45+ years experience.",
     "seo_content": [
       "Multitrade Building Hire designs and manufactures custom nap room buildings for construction operations across Queensland. With over 45 years of experience delivering portable buildings to sites across the Bowen Basin, Central Queensland, Gladstone, Emerald, Central Highlands, and Surat Basin, we have the expertise to design a nap room that meets your specific requirements.",
-      "Every nap room we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution \u2014 from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
+      "Every nap room we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution — from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
     ],
     "image": "/images/products/12x3-crib-room/1.jpg",
     "badge": "Custom Build",
@@ -2600,7 +2631,7 @@
     "seo_description": "Proven double stack / stackable design delivered for mining operations in Queensland. 12x12m, available for hire or purchase. 45+ years experience.",
     "seo_content": [
       "Multitrade Building Hire designs and manufactures custom double stack / stackable buildings for mining operations across Queensland. With over 45 years of experience delivering portable buildings to sites across the Bowen Basin, Central Queensland, Gladstone, Emerald, Central Highlands, and Surat Basin, we have the expertise to design a double stack / stackable that meets your specific requirements.",
-      "Every double stack / stackable we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution \u2014 from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
+      "Every double stack / stackable we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution — from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
     ],
     "image": "/images/products/12x6m-complex/1.jpg",
     "badge": "Proven Design",
@@ -2667,7 +2698,7 @@
     "seo_description": "Proven gymnasium design delivered for mining operations in Queensland. available for hire or purchase. 45+ years experience.",
     "seo_content": [
       "Multitrade Building Hire designs and manufactures custom gymnasium buildings for mining operations across Queensland. With over 45 years of experience delivering portable buildings to sites across the Bowen Basin, Central Queensland, Gladstone, Emerald, Central Highlands, and Surat Basin, we have the expertise to design a gymnasium that meets your specific requirements.",
-      "Every gymnasium we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution \u2014 from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
+      "Every gymnasium we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution — from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
     ],
     "image": "/images/products/12x6m-complex/1.jpg",
     "badge": "Custom Build",
@@ -2736,7 +2767,7 @@
     "seo_description": "Proven large format complex design delivered for mining operations in Queensland. 12x18m, available for hire or purchase. 45+ years experience.",
     "seo_content": [
       "Multitrade Building Hire designs and manufactures custom large format complex buildings for mining operations across Queensland. With over 45 years of experience delivering portable buildings to sites across the Bowen Basin, Central Queensland, Gladstone, Emerald, Central Highlands, and Surat Basin, we have the expertise to design a large format complex that meets your specific requirements.",
-      "Every large format complex we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution \u2014 from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
+      "Every large format complex we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution — from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
     ],
     "image": "/images/products/12x6m-complex/1.jpg",
     "badge": "Proven Design",
@@ -2805,7 +2836,7 @@
     "seo_description": "Proven large format complex design delivered for other operations in Queensland. 12x18m, available for hire or purchase. 45+ years experience.",
     "seo_content": [
       "Multitrade Building Hire designs and manufactures custom large format complex buildings for other operations across Queensland. With over 45 years of experience delivering portable buildings to sites across the Bowen Basin, Central Queensland, Gladstone, Emerald, Central Highlands, and Surat Basin, we have the expertise to design a large format complex that meets your specific requirements.",
-      "Every large format complex we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution \u2014 from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
+      "Every large format complex we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution — from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
     ],
     "image": "/images/products/12x6m-complex/1.jpg",
     "badge": "Proven Design",
@@ -2876,7 +2907,7 @@
     "seo_description": "Proven d&a testing room design delivered for mining operations in Queensland. 7.2x3m, available for hire or purchase. 45+ years experience.",
     "seo_content": [
       "Multitrade Building Hire designs and manufactures custom d&a testing room buildings for mining operations across Queensland. With over 45 years of experience delivering portable buildings to sites across the Bowen Basin, Central Queensland, Gladstone, Emerald, Central Highlands, and Surat Basin, we have the expertise to design a d&a testing room that meets your specific requirements.",
-      "Every d&a testing room we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution \u2014 from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
+      "Every d&a testing room we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution — from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
     ],
     "image": "/images/products/12x3-crib-room/1.jpg",
     "badge": "Proven Design",
@@ -2947,7 +2978,7 @@
     "seo_description": "Proven accommodation / village design delivered for construction operations in Queensland. 6x3m, available for hire or purchase. 45+ years experience.",
     "seo_content": [
       "Multitrade Building Hire designs and manufactures custom accommodation / village buildings for construction operations across Queensland. With over 45 years of experience delivering portable buildings to sites across the Bowen Basin, Central Queensland, Gladstone, Emerald, Central Highlands, and Surat Basin, we have the expertise to design a accommodation / village that meets your specific requirements. Also known as a donga or site crib, these buildings are essential for worker welfare on remote projects.",
-      "Every accommodation / village we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution \u2014 from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
+      "Every accommodation / village we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution — from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
     ],
     "image": "/images/products/12x6m-complex/1.jpg",
     "badge": "Proven Design",
@@ -3019,7 +3050,7 @@
     "seo_description": "Proven large format crib design delivered for government operations in Queensland. 12x15m, available for hire or purchase. 45+ years experience.",
     "seo_content": [
       "Multitrade Building Hire designs and manufactures custom large format crib buildings for government operations across Queensland. With over 45 years of experience delivering portable buildings to sites across the Bowen Basin, Central Queensland, Gladstone, Emerald, Central Highlands, and Surat Basin, we have the expertise to design a large format crib that meets your specific requirements. Also known as a donga or site crib, these buildings are essential for worker welfare on remote projects.",
-      "Every large format crib we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution \u2014 from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
+      "Every large format crib we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution — from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
     ],
     "image": "/images/products/12x3-crib-room/1.jpg",
     "badge": "Proven Design",
@@ -3092,7 +3123,7 @@
     "seo_description": "Proven first aid room design delivered for mining operations in Queensland. 12x12m, available for hire or purchase. 45+ years experience.",
     "seo_content": [
       "Multitrade Building Hire designs and manufactures custom first aid room buildings for mining operations across Queensland. With over 45 years of experience delivering portable buildings to sites across the Bowen Basin, Central Queensland, Gladstone, Emerald, Central Highlands, and Surat Basin, we have the expertise to design a first aid room that meets your specific requirements.",
-      "Every first aid room we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution \u2014 from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
+      "Every first aid room we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution — from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
     ],
     "image": "/images/products/12x3-crib-room/1.jpg",
     "badge": "Proven Design",
@@ -3162,7 +3193,7 @@
     "seo_description": "Proven training room design delivered for resources operations in Queensland. 12x9m, available for hire or purchase. 45+ years experience.",
     "seo_content": [
       "Multitrade Building Hire designs and manufactures custom training room buildings for resources operations across Queensland. With over 45 years of experience delivering portable buildings to sites across the Bowen Basin, Central Queensland, Gladstone, Emerald, Central Highlands, and Surat Basin, we have the expertise to design a training room that meets your specific requirements.",
-      "Every training room we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution \u2014 from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
+      "Every training room we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution — from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
     ],
     "image": "/images/products/12x3-office/1.jpg",
     "badge": "Proven Design",
@@ -3233,7 +3264,7 @@
     "seo_description": "Proven cool room / cold storage design delivered for construction operations in Queensland. available for hire or purchase. 45+ years experience.",
     "seo_content": [
       "Multitrade Building Hire designs and manufactures custom cool room / cold storage buildings for construction operations across Queensland. With over 45 years of experience delivering portable buildings to sites across the Bowen Basin, Central Queensland, Gladstone, Emerald, Central Highlands, and Surat Basin, we have the expertise to design a cool room / cold storage that meets your specific requirements.",
-      "Every cool room / cold storage we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution \u2014 from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
+      "Every cool room / cold storage we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution — from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
     ],
     "image": "/images/products/10ft-container/1.jpg",
     "badge": "Custom Build",
@@ -3306,7 +3337,7 @@
     "seo_description": "Proven first aid room design delivered for mining operations in Queensland. 12x9m, available for hire or purchase. 45+ years experience.",
     "seo_content": [
       "Multitrade Building Hire designs and manufactures custom first aid room buildings for mining operations across Queensland. With over 45 years of experience delivering portable buildings to sites across the Bowen Basin, Central Queensland, Gladstone, Emerald, Central Highlands, and Surat Basin, we have the expertise to design a first aid room that meets your specific requirements.",
-      "Every first aid room we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution \u2014 from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
+      "Every first aid room we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution — from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
     ],
     "image": "/images/products/12x3-crib-room/1.jpg",
     "badge": "Proven Design",
@@ -3374,7 +3405,7 @@
     "seo_description": "Proven d&a testing room design delivered for construction operations in Queensland. available for hire or purchase. 45+ years experience.",
     "seo_content": [
       "Multitrade Building Hire designs and manufactures custom d&a testing room buildings for construction operations across Queensland. With over 45 years of experience delivering portable buildings to sites across the Bowen Basin, Central Queensland, Gladstone, Emerald, Central Highlands, and Surat Basin, we have the expertise to design a d&a testing room that meets your specific requirements.",
-      "Every d&a testing room we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution \u2014 from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
+      "Every d&a testing room we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution — from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
     ],
     "image": "/images/products/12x3-crib-room/1.jpg",
     "badge": "Custom Build",
@@ -3446,14 +3477,14 @@
     "seo_description": "Proven gatehouse / security design delivered for resources operations in Queensland. 7.2x3.0 , available for hire or purchase. 45+ years experience.",
     "seo_content": [
       "Multitrade Building Hire designs and manufactures custom gatehouse / security buildings for resources operations across Queensland. With over 45 years of experience delivering portable buildings to sites across the Bowen Basin, Central Queensland, Gladstone, Emerald, Central Highlands, and Surat Basin, we have the expertise to design a gatehouse / security that meets your specific requirements.",
-      "Every gatehouse / security we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution \u2014 from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
+      "Every gatehouse / security we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution — from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
     ],
     "image": "/images/products/12x3-office/1.jpg",
     "badge": "Proven Design",
     "region": "Central Queensland",
     "wind_rating": "C2",
     "similar_slugs": [
-      "/buy/projects/6x3m-gatehouse---security-government",
+      "/buy/projects/10-5x3-4m-gatehouse---security-construction",
       "/buy/projects/4-5x3m-gatehouse---security-mining",
       "/buy/projects/5-75x3-4m-control-room-queensland"
     ]
@@ -3520,7 +3551,7 @@
     "seo_description": "Proven cool room / cold storage design delivered for other operations in Queensland. available for hire or purchase. 45+ years experience.",
     "seo_content": [
       "Multitrade Building Hire designs and manufactures custom cool room / cold storage buildings for other operations across Queensland. With over 45 years of experience delivering portable buildings to sites across the Bowen Basin, Central Queensland, Gladstone, Emerald, Central Highlands, and Surat Basin, we have the expertise to design a cool room / cold storage that meets your specific requirements.",
-      "Every cool room / cold storage we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution \u2014 from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
+      "Every cool room / cold storage we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution — from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
     ],
     "image": "/images/products/10ft-container/1.jpg",
     "badge": "Custom Build",
@@ -3590,7 +3621,7 @@
     "seo_description": "Proven custom build design delivered for mining operations in Queensland. 12x3m, available for hire or purchase. 45+ years experience.",
     "seo_content": [
       "Multitrade Building Hire designs and manufactures custom custom build buildings for mining operations across Queensland. With over 45 years of experience delivering portable buildings to sites across the Bowen Basin, Central Queensland, Gladstone, Emerald, Central Highlands, and Surat Basin, we have the expertise to design a custom build that meets your specific requirements.",
-      "Every custom build we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution \u2014 from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
+      "Every custom build we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution — from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
     ],
     "image": "/images/products/12x3-crib-room/1.jpg",
     "badge": "Proven Design",
@@ -3662,14 +3693,14 @@
     "seo_description": "Proven gatehouse / security design delivered for mining operations in Queensland. 4.5x3m, available for hire or purchase. 45+ years experience.",
     "seo_content": [
       "Multitrade Building Hire designs and manufactures custom gatehouse / security buildings for mining operations across Queensland. With over 45 years of experience delivering portable buildings to sites across the Bowen Basin, Central Queensland, Gladstone, Emerald, Central Highlands, and Surat Basin, we have the expertise to design a gatehouse / security that meets your specific requirements.",
-      "Every gatehouse / security we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution \u2014 from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
+      "Every gatehouse / security we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution — from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
     ],
     "image": "/images/products/12x3-office/1.jpg",
     "badge": "Proven Design",
     "region": "Central Highlands, QLD",
     "wind_rating": "C2",
     "similar_slugs": [
-      "/buy/projects/6x3m-gatehouse---security-government",
+      "/buy/projects/10-5x3-4m-gatehouse---security-construction",
       "/buy/projects/7-2x3-0-gatehouse---security-resources",
       "/buy/projects/5-75x3-4m-control-room-queensland"
     ]
@@ -3734,7 +3765,7 @@
     "seo_description": "Proven first aid room design delivered for other operations in Queensland. 12x3m, available for hire or purchase. 45+ years experience.",
     "seo_content": [
       "Multitrade Building Hire designs and manufactures custom first aid room buildings for other operations across Queensland. With over 45 years of experience delivering portable buildings to sites across the Bowen Basin, Central Queensland, Gladstone, Emerald, Central Highlands, and Surat Basin, we have the expertise to design a first aid room that meets your specific requirements.",
-      "Every first aid room we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution \u2014 from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
+      "Every first aid room we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution — from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
     ],
     "image": "/images/products/12x3-crib-room/1.jpg",
     "badge": "Proven Design",
@@ -3800,7 +3831,7 @@
     "seo_description": "Proven switch room design delivered for energy operations in Queensland. available for hire or purchase. 45+ years experience.",
     "seo_content": [
       "Multitrade Building Hire designs and manufactures custom switch room buildings for energy operations across Queensland. With over 45 years of experience delivering portable buildings to sites across the Bowen Basin, Central Queensland, Gladstone, Emerald, Central Highlands, and Surat Basin, we have the expertise to design a switch room that meets your specific requirements.",
-      "Every switch room we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution \u2014 from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
+      "Every switch room we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution — from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
     ],
     "image": "/images/products/12x3-office/1.jpg",
     "badge": "Custom Build",
@@ -3870,7 +3901,7 @@
     "seo_description": "Proven gender ablution design delivered for mining operations in Queensland. available for hire or purchase. 45+ years experience.",
     "seo_content": [
       "Multitrade Building Hire designs and manufactures custom gender ablution buildings for mining operations across Queensland. With over 45 years of experience delivering portable buildings to sites across the Bowen Basin, Central Queensland, Gladstone, Emerald, Central Highlands, and Surat Basin, we have the expertise to design a gender ablution that meets your specific requirements.",
-      "Every gender ablution we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution \u2014 from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
+      "Every gender ablution we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution — from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
     ],
     "image": "/images/products/6x3-toilet/1.jpg",
     "badge": "Custom Build",
@@ -3943,7 +3974,7 @@
     "seo_description": "Proven bathhouse design delivered for mining operations in Queensland. 2 x 12, available for hire or purchase. 45+ years experience.",
     "seo_content": [
       "Multitrade Building Hire designs and manufactures custom bathhouse buildings for mining operations across Queensland. With over 45 years of experience delivering portable buildings to sites across the Bowen Basin, Central Queensland, Gladstone, Emerald, Central Highlands, and Surat Basin, we have the expertise to design a bathhouse that meets your specific requirements.",
-      "Every bathhouse we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution \u2014 from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
+      "Every bathhouse we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution — from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
     ],
     "image": "/images/products/12x6m-complex/1.jpg",
     "badge": "Proven Design",
@@ -4017,7 +4048,7 @@
     "seo_description": "Proven control room design delivered for resources operations in Queensland. available for hire or purchase. 45+ years experience.",
     "seo_content": [
       "Multitrade Building Hire designs and manufactures custom control room buildings for resources operations across Queensland. With over 45 years of experience delivering portable buildings to sites across the Bowen Basin, Central Queensland, Gladstone, Emerald, Central Highlands, and Surat Basin, we have the expertise to design a control room that meets your specific requirements.",
-      "Every control room we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution \u2014 from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
+      "Every control room we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution — from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
     ],
     "image": "/images/products/12x3-office/1.jpg",
     "badge": "Custom Build",
@@ -4092,7 +4123,7 @@
     "seo_description": "Proven accommodation / village design delivered for mining operations in Queensland. available for hire or purchase. 45+ years experience.",
     "seo_content": [
       "Multitrade Building Hire designs and manufactures custom accommodation / village buildings for mining operations across Queensland. With over 45 years of experience delivering portable buildings to sites across the Bowen Basin, Central Queensland, Gladstone, Emerald, Central Highlands, and Surat Basin, we have the expertise to design a accommodation / village that meets your specific requirements. Also known as a donga or site crib, these buildings are essential for worker welfare on remote projects.",
-      "Every accommodation / village we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution \u2014 from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
+      "Every accommodation / village we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution — from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
     ],
     "image": "/images/products/12x6m-complex/1.jpg",
     "badge": "Custom Build",
@@ -4162,7 +4193,7 @@
     "seo_description": "Proven gender ablution design delivered for mining operations in Queensland. available for hire or purchase. 45+ years experience.",
     "seo_content": [
       "Multitrade Building Hire designs and manufactures custom gender ablution buildings for mining operations across Queensland. With over 45 years of experience delivering portable buildings to sites across the Bowen Basin, Central Queensland, Gladstone, Emerald, Central Highlands, and Surat Basin, we have the expertise to design a gender ablution that meets your specific requirements.",
-      "Every gender ablution we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution \u2014 from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
+      "Every gender ablution we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution — from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
     ],
     "image": "/images/products/6x3-toilet/1.jpg",
     "badge": "Custom Build",
@@ -4230,7 +4261,7 @@
     "seo_description": "Proven kitchen / mess design delivered for mining operations in Queensland. available for hire or purchase. 45+ years experience.",
     "seo_content": [
       "Multitrade Building Hire designs and manufactures custom kitchen / mess buildings for mining operations across Queensland. With over 45 years of experience delivering portable buildings to sites across the Bowen Basin, Central Queensland, Gladstone, Emerald, Central Highlands, and Surat Basin, we have the expertise to design a kitchen / mess that meets your specific requirements.",
-      "Every kitchen / mess we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution \u2014 from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
+      "Every kitchen / mess we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution — from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
     ],
     "image": "/images/products/12x3-crib-room/1.jpg",
     "badge": "Custom Build",

@@ -1544,12 +1544,13 @@
     "has_page": false
   },
   {
-    "id": "Q210167",
+    "id": "Q220515",
     "category": "Gatehouse / Security",
-    "industry": "Government",
-    "dimensions": "6x3m",
+    "industry": "Construction",
+    "dimensions": "10.5x3.4m",
     "rooms": [
-      "Security Office"
+      "Gatehouse Office",
+      "WC"
     ],
     "keywords": [
       "access control",
@@ -1557,16 +1558,19 @@
       "entry point",
       "security",
       "gatehouse",
-      "guard house"
+      "guard house",
+      "boom gate",
+      "generator",
+      "self-contained"
     ],
-    "slug": "/buy/projects/6x3m-gatehouse---security-government",
-    "title": "Security Office",
+    "slug": "/buy/projects/10-5x3-4m-gatehouse---security-construction",
+    "title": "10.5x3.4m Gatehouse",
     "available_as": [
       "hire",
       "purchase",
       "custom"
     ],
-    "year": "2021",
+    "year": "2023",
     "has_page": true
   },
   {

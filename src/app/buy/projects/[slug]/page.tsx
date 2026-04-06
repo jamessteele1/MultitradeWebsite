@@ -6,6 +6,7 @@ import ProposalCTA from "@/components/buy/ProposalCTA";
 import SpecsTable from "@/components/buy/SpecsTable";
 import SimilarProjects from "@/components/buy/SimilarProjects";
 import SidebarProposalCard from "@/components/buy/SidebarProposalCard";
+import ProjectGallery from "@/components/buy/ProjectGallery";
 import bespokePages from "@/data/bespoke-pages.json";
 import type { Metadata } from "next";
 
@@ -41,6 +42,11 @@ export default async function ProjectPage({ params }: PageProps) {
     (p) => p.slug === `/buy/projects/${slug}`
   );
   if (!project) notFound();
+
+  // Extract optional fields that only some projects have
+  const projectAny = project as Record<string, unknown>;
+  const galleryImages = Array.isArray(projectAny.gallery) ? projectAny.gallery as string[] : null;
+  const caseStudyLink = typeof projectAny.case_study === "string" ? projectAny.case_study : null;
 
   const quickSpecs = [
     { label: "Dimensions", value: project.dimensions || "Custom" },
@@ -88,23 +94,31 @@ export default async function ProjectPage({ params }: PageProps) {
         <div className="max-w-7xl mx-auto px-4 py-8 md:py-12">
           <div className="grid md:grid-cols-2 gap-8 md:gap-12">
             {/* Left: Image */}
-            <div className="relative rounded-xl overflow-hidden bg-gray-100 aspect-[4/3]">
-              <img
-                src={project.image}
-                alt={project.title}
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute top-3 left-3">
-                <span
-                  className={`px-2.5 py-1 rounded-md text-xs font-bold ${
-                    project.badge === "Proven Design"
-                      ? "bg-green-500 text-white"
-                      : "bg-gold text-white"
-                  }`}
-                >
-                  {project.badge}
-                </span>
+            <div>
+              <div className="relative rounded-xl overflow-hidden bg-gray-100 aspect-[4/3]">
+                <img
+                  src={project.image}
+                  alt={project.title}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute top-3 left-3">
+                  <span
+                    className={`px-2.5 py-1 rounded-md text-xs font-bold ${
+                      project.badge === "Proven Design"
+                        ? "bg-green-500 text-white"
+                        : "bg-gold text-white"
+                    }`}
+                  >
+                    {project.badge}
+                  </span>
+                </div>
               </div>
+              {galleryImages && (
+                <ProjectGallery
+                  images={galleryImages}
+                  title={project.title}
+                />
+              )}
             </div>
 
             {/* Right: Info */}
@@ -224,6 +238,26 @@ export default async function ProjectPage({ params }: PageProps) {
                 projectDimensions={project.dimensions}
                 projectSlug={project.slug}
               />
+
+              {caseStudyLink && (
+                <Link
+                  href={caseStudyLink}
+                  className="flex items-center gap-3 rounded-xl p-4 border border-blue-200 bg-blue-50 hover:bg-blue-100 transition-colors group"
+                >
+                  <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center group-hover:bg-blue-200 transition-colors">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className="text-blue-600">
+                      <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                      <polyline points="14 2 14 8 20 8" />
+                      <line x1="16" y1="13" x2="8" y2="13" />
+                      <line x1="16" y1="17" x2="8" y2="17" />
+                    </svg>
+                  </div>
+                  <div>
+                    <div className="text-sm font-bold text-gray-900">Read the Full Case Study</div>
+                    <div className="text-xs text-gray-500">Detailed project walkthrough with gallery</div>
+                  </div>
+                </Link>
+              )}
 
               {/* Available As */}
               <div className="rounded-xl border border-gray-200 bg-white overflow-hidden">

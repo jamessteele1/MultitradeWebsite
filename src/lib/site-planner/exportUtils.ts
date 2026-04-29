@@ -3,6 +3,36 @@ import type { PlacedBuilding } from "./usePlannerState";
 import { getBuildingType } from "./buildings";
 import { PIXELS_PER_METRE, CANVAS_WIDTH_M, CANVAS_HEIGHT_M } from "./constants";
 
+export type Bounds = { minX: number; minY: number; maxX: number; maxY: number };
+
+/**
+ * Axis-aligned bounding box of all placed buildings, in canvas pixels.
+ * Returns null if no buildings (or none with known types).
+ */
+export function computeBuildingsBoundsPx(buildings: PlacedBuilding[]): Bounds | null {
+  const ppm = PIXELS_PER_METRE;
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  for (const b of buildings) {
+    const type = getBuildingType(b.typeId);
+    if (!type) continue;
+    const w = type.widthM * ppm;
+    const h = type.depthM * ppm;
+    const cx = b.x * ppm + w / 2;
+    const cy = b.y * ppm + h / 2;
+    const rad = (b.rotation * Math.PI) / 180;
+    const cos = Math.abs(Math.cos(rad));
+    const sin = Math.abs(Math.sin(rad));
+    const halfW = (cos * w + sin * h) / 2;
+    const halfH = (sin * w + cos * h) / 2;
+    minX = Math.min(minX, cx - halfW);
+    minY = Math.min(minY, cy - halfH);
+    maxX = Math.max(maxX, cx + halfW);
+    maxY = Math.max(maxY, cy + halfH);
+  }
+  if (!isFinite(minX)) return null;
+  return { minX, minY, maxX, maxY };
+}
+
 export function exportToPNG(stage: Konva.Stage): string {
   return stage.toDataURL({ pixelRatio: 2, mimeType: "image/png" });
 }
@@ -33,6 +63,27 @@ async function loadImageAsDataUrl(src: string): Promise<string | null> {
   } catch {
     return null;
   }
+}
+
+/**
+ * Render a transparent PNG data URL onto a white canvas and re-encode as JPEG.
+ * Without this step, JPEG export fills transparent regions with black.
+ */
+async function pngDataUrlToJpeg(pngDataUrl: string, quality = 0.85): Promise<string> {
+  const img = new Image();
+  await new Promise<void>((resolve, reject) => {
+    img.onload = () => resolve();
+    img.onerror = reject;
+    img.src = pngDataUrl;
+  });
+  const canvas = document.createElement("canvas");
+  canvas.width = img.naturalWidth;
+  canvas.height = img.naturalHeight;
+  const ctx = canvas.getContext("2d")!;
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(img, 0, 0);
+  return canvas.toDataURL("image/jpeg", quality);
 }
 
 export async function downloadPDF(
@@ -81,26 +132,92 @@ export async function downloadPDF(
     }
   }
 
-  // Canvas image — export the grid area at its native aspect ratio
-  // so the PDF is correct regardless of viewport size (mobile vs desktop)
-  const gridW = CANVAS_WIDTH_M * PIXELS_PER_METRE;
-  const gridH = CANVAS_HEIGHT_M * PIXELS_PER_METRE;
-  const dataUrl = stage.toDataURL({
-    pixelRatio: 2,
-    mimeType: "image/png",
-    x: 0,
-    y: 0,
-    width: gridW,
-    height: gridH,
-  });
-  const imgWidth = 390;
-  const imgHeight = (gridH / gridW) * imgWidth;
-  pdf.addImage(dataUrl, "PNG", 15, 36, imgWidth, Math.min(imgHeight, 210));
+  // --- Crop region ---
+  // Zoom in to the actual buildings (with padding) instead of exporting the
+  // whole 60×40m grid. Falls back to full canvas if nothing has been placed.
+  const ppm = PIXELS_PER_METRE;
+  const fullW = CANVAS_WIDTH_M * ppm;
+  const fullH = CANVAS_HEIGHT_M * ppm;
+  const bbox = computeBuildingsBoundsPx(buildings);
+
+  let cropX = 0, cropY = 0, cropW = fullW, cropH = fullH;
+  if (bbox) {
+    // Padding in metres around the buildings (also leaves room for the sun overlay)
+    const padPx = 5 * ppm;
+    cropX = Math.max(0, bbox.minX - padPx);
+    cropY = Math.max(0, bbox.minY - padPx);
+    const cropMaxX = Math.min(fullW, bbox.maxX + padPx);
+    const cropMaxY = Math.min(fullH, bbox.maxY + padPx);
+    cropW = cropMaxX - cropX;
+    cropH = cropMaxY - cropY;
+
+    // Enforce a minimum visible area so a single building isn't comically zoomed
+    const minSidePx = 20 * ppm;
+    if (cropW < minSidePx) {
+      const grow = (minSidePx - cropW) / 2;
+      cropX = Math.max(0, cropX - grow);
+      cropW = Math.min(fullW - cropX, minSidePx);
+    }
+    if (cropH < minSidePx) {
+      const grow = (minSidePx - cropH) / 2;
+      cropY = Math.max(0, cropY - grow);
+      cropH = Math.min(fullH - cropY, minSidePx);
+    }
+  }
+
+  // Render the crop to PNG (preserves transparency for compositing) then re-
+  // encode as JPEG over a white background to keep the file under a few MB.
+  //
+  // Konva's layer canvases are sized to the *displayed* stage, so exporting
+  // with the user's current zoom/pan would only capture the visible area and
+  // leave the rest transparent. Temporarily reset the stage to a 1:1 transform
+  // sized to the crop so every layer redraws at full resolution, then restore.
+  const prev = {
+    x: stage.x(),
+    y: stage.y(),
+    sx: stage.scaleX(),
+    sy: stage.scaleY(),
+    w: stage.width(),
+    h: stage.height(),
+  };
+  stage.scale({ x: 1, y: 1 });
+  stage.position({ x: -cropX, y: -cropY });
+  stage.size({ width: cropW, height: cropH });
+  stage.draw();
+
+  let pngUrl = "";
+  try {
+    pngUrl = stage.toDataURL({
+      pixelRatio: 1.5,
+      mimeType: "image/png",
+    });
+  } finally {
+    stage.scale({ x: prev.sx, y: prev.sy });
+    stage.position({ x: prev.x, y: prev.y });
+    stage.size({ width: prev.w, height: prev.h });
+    stage.draw();
+  }
+  const jpegUrl = await pngDataUrlToJpeg(pngUrl, 0.82);
+
+  // Fit the crop into the available space on the A3 page while preserving its
+  // aspect ratio. A3 landscape = 420 × 297 mm; reserve room for header + legend.
+  const maxImgW = 390;
+  const maxImgH = 210;
+  const aspect = cropW / cropH;
+  let imgWidth = maxImgW;
+  let imgHeight = imgWidth / aspect;
+  if (imgHeight > maxImgH) {
+    imgHeight = maxImgH;
+    imgWidth = imgHeight * aspect;
+  }
+  const imgX = 15;
+  const imgY = 36;
+  pdf.addImage(jpegUrl, "JPEG", imgX, imgY, imgWidth, imgHeight);
 
   // North compass — top right of the image area
-  const compassX = 15 + imgWidth - 15; // right side
-  const compassY = 50; // near top of image
-  const compassR = 12; // radius in mm
+  const compassX = imgX + imgWidth - 15;
+  const compassY = imgY + 14;
+  const compassR = 12;
   const rotRad = (-mapRotation * Math.PI) / 180;
 
   // Compass circle
@@ -134,7 +251,7 @@ export async function downloadPDF(
   pdf.text("N", nLabelX, nLabelY, { align: "center" });
 
   // Building legend with color swatches
-  const legendY = 36 + Math.min(imgHeight, 210) + 10;
+  const legendY = imgY + imgHeight + 10;
   pdf.setTextColor(0, 0, 0);
   pdf.setFontSize(11);
   pdf.setFont("helvetica", "bold");
@@ -185,12 +302,19 @@ export async function downloadPDF(
     y += 5.5;
   }
 
-  // Scale bar on PDF — bottom right of image area
-  const scaleBarY = 36 + Math.min(imgHeight, 210) - 5;
-  const scaleMetres = 10; // 10m reference
-  const pxPer1m = imgWidth / (stage.width() / 40); // 40 = PIXELS_PER_METRE in canvas
-  const scaleBarW = scaleMetres * pxPer1m;
-  const scaleBarX = 15 + imgWidth - scaleBarW - 10;
+  // Scale bar on PDF — bottom right of image area. Compute mm-per-metre from
+  // the actual crop so the bar reflects the on-page scale, not the canvas one.
+  const mmPerMetre = imgWidth / (cropW / ppm);
+  // Pick a "nice" round number of metres that's roughly 25mm wide on the page.
+  const niceMetres = [1, 2, 5, 10, 20, 50, 100];
+  const targetMm = 25;
+  let scaleMetres = niceMetres[0];
+  for (const v of niceMetres) {
+    if (v * mmPerMetre <= targetMm * 1.5) scaleMetres = v;
+  }
+  const scaleBarW = scaleMetres * mmPerMetre;
+  const scaleBarY = imgY + imgHeight - 5;
+  const scaleBarX = imgX + imgWidth - scaleBarW - 10;
 
   pdf.setDrawColor(40, 40, 40);
   pdf.setLineWidth(0.5);

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, useCallback, useEffect } from "react";
-import { Stage, Layer, Line, Text as KonvaText, Image as KonvaImage, Circle, Arrow, Group } from "react-konva";
+import { Stage, Layer, Line, Rect, Text as KonvaText, Image as KonvaImage, Circle, Arrow, Group } from "react-konva";
 import BuildingShape from "./BuildingShape";
 import { getBuildingType } from "@/lib/site-planner/buildings";
 import {
@@ -12,6 +12,7 @@ import {
   MAX_ZOOM,
   ZOOM_STEP,
 } from "@/lib/site-planner/constants";
+import { computeBuildingsBoundsPx } from "@/lib/site-planner/exportUtils";
 import type { PlacedBuilding } from "@/lib/site-planner/usePlannerState";
 import type Konva from "konva";
 
@@ -470,6 +471,42 @@ export default function PlannerCanvas({
           {/* Grid layer */}
           <Layer listening={false}>{gridLines}</Layer>
 
+          {/* Building drop shadows — drawn under the buildings so they read clearly */}
+          {sunDirection !== null && sunDirection !== undefined && buildings.length > 0 && (() => {
+            const rad = (sunDirection * Math.PI) / 180;
+            // Shadow falls opposite the sun direction
+            const shadowDx = -Math.sin(rad);
+            const shadowDy = Math.cos(rad);
+            const shadowOffsetPx = 0.9 * ppm; // ~0.9m offset
+            return (
+              <Layer listening={false}>
+                {buildings.map((b) => {
+                  const type = getBuildingType(b.typeId);
+                  if (!type || type.category === "utilities") return null;
+                  const w = type.widthM * ppm;
+                  const h = type.depthM * ppm;
+                  return (
+                    <Rect
+                      key={`shadow-${b.instanceId}`}
+                      x={b.x * ppm + w / 2 + shadowDx * shadowOffsetPx}
+                      y={b.y * ppm + h / 2 + shadowDy * shadowOffsetPx}
+                      offsetX={w / 2}
+                      offsetY={h / 2}
+                      width={w}
+                      height={h}
+                      rotation={b.rotation}
+                      fill="rgba(0, 0, 0, 0.45)"
+                      cornerRadius={3}
+                      shadowColor="black"
+                      shadowBlur={10}
+                      shadowOpacity={0.5}
+                    />
+                  );
+                })}
+              </Layer>
+            );
+          })()}
+
           {/* Buildings layer */}
           <Layer>
             {buildings.map((b) => {
@@ -527,10 +564,24 @@ export default function PlannerCanvas({
           {sunDirection !== null && sunDirection !== undefined && (() => {
             const canvasW = CANVAS_WIDTH_M * ppm;
             const canvasH = CANVAS_HEIGHT_M * ppm;
-            const cx = canvasW / 2;
-            const cy = canvasH / 2;
+
+            // Centre the sun on the user's work (bbox of placed buildings) so it
+            // stays meaningful when their cluster isn't at the canvas centre.
+            // Falls back to the canvas centre when nothing is placed.
+            const bbox = computeBuildingsBoundsPx(buildings);
+            const cx = bbox ? (bbox.minX + bbox.maxX) / 2 : canvasW / 2;
+            const cy = bbox ? (bbox.minY + bbox.maxY) / 2 : canvasH / 2;
+            const halfDiag = bbox
+              ? Math.sqrt(
+                  (bbox.maxX - bbox.minX) ** 2 + (bbox.maxY - bbox.minY) ** 2,
+                ) / 2
+              : 0;
+            // Place the sun just outside the work area, with sensible min/max.
+            const radius = bbox
+              ? Math.min(Math.max(halfDiag + 1.5 * ppm, 4 * ppm), Math.min(canvasW, canvasH) * 0.45)
+              : Math.min(canvasW, canvasH) * 0.45;
+
             const rad = (sunDirection * Math.PI) / 180;
-            const radius = Math.min(canvasW, canvasH) * 0.45;
             const sunX = cx + Math.sin(rad) * radius;
             const sunY = cy - Math.cos(rad) * radius;
             const lineLen = Math.max(canvasW, canvasH) * 1.5;
@@ -541,12 +592,12 @@ export default function PlannerCanvas({
             const shadowDy = -Math.cos(rad);
 
             const shadowLines: React.ReactNode[] = [];
-            // More prominent shadow lines with gradient opacity
+            // Bolder dashed sun rays, opacity fades toward the edges
             for (let i = -12; i <= 12; i++) {
               const offsetDist = i * 30;
               const baseCx = cx + perpDx * offsetDist;
               const baseCy = cy + perpDy * offsetDist;
-              const opacity = 0.35 - Math.abs(i) * 0.02;
+              const opacity = 0.55 - Math.abs(i) * 0.03;
               shadowLines.push(
                 <Line
                   key={`sunray-${i}`}
@@ -556,8 +607,8 @@ export default function PlannerCanvas({
                     baseCx + shadowDx * lineLen / 2,
                     baseCy + shadowDy * lineLen / 2,
                   ]}
-                  stroke={`rgba(251, 191, 36, ${Math.max(0.05, opacity)})`}
-                  strokeWidth={3}
+                  stroke={`rgba(245, 158, 11, ${Math.max(0.08, opacity)})`}
+                  strokeWidth={i === 0 ? 4 : 3}
                   dash={[16, 10]}
                 />,
               );
@@ -583,54 +634,64 @@ export default function PlannerCanvas({
               );
             }
 
-            // Shadow band (semi-transparent fill on one side)
-            const bandWidth = 400;
-            const bandOffset = bandWidth / 2;
+            // Shadow band — clearly visible dark slab on the shadow side
+            const bandStart = 0;
+            const bandEnd = 240;
             const shadowBand = [
-              cx + perpDx * bandOffset - shadowDx * lineLen / 2,
-              cy + perpDy * bandOffset - shadowDy * lineLen / 2,
-              cx + perpDx * bandOffset + shadowDx * lineLen / 2,
-              cy + perpDy * bandOffset + shadowDy * lineLen / 2,
-              cx + perpDx * (bandOffset + 200) + shadowDx * lineLen / 2,
-              cy + perpDy * (bandOffset + 200) + shadowDy * lineLen / 2,
-              cx + perpDx * (bandOffset + 200) - shadowDx * lineLen / 2,
-              cy + perpDy * (bandOffset + 200) - shadowDy * lineLen / 2,
+              cx + perpDx * bandStart - shadowDx * lineLen / 2,
+              cy + perpDy * bandStart - shadowDy * lineLen / 2,
+              cx + perpDx * bandStart + shadowDx * lineLen / 2,
+              cy + perpDy * bandStart + shadowDy * lineLen / 2,
+              cx + perpDx * bandEnd + shadowDx * lineLen / 2,
+              cy + perpDy * bandEnd + shadowDy * lineLen / 2,
+              cx + perpDx * bandEnd - shadowDx * lineLen / 2,
+              cy + perpDy * bandEnd - shadowDy * lineLen / 2,
             ];
 
             return (
               <Layer listening={false}>
-                {/* Shadow band on one side */}
+                {/* Shadow band on the side away from the sun */}
                 <Line
                   points={shadowBand}
-                  fill="rgba(0, 0, 0, 0.06)"
+                  fill="rgba(0, 0, 0, 0.18)"
                   closed
                 />
                 {shadowLines}
                 {/* Sun glow */}
-                <Circle x={sunX} y={sunY} radius={24} fill="rgba(251, 191, 36, 0.2)" />
-                <Circle x={sunX} y={sunY} radius={18} fill="#FCD34D" stroke="#F59E0B" strokeWidth={2.5} />
+                <Circle x={sunX} y={sunY} radius={28} fill="rgba(251, 191, 36, 0.28)" />
+                <Circle
+                  x={sunX}
+                  y={sunY}
+                  radius={20}
+                  fill="#FCD34D"
+                  stroke="#B45309"
+                  strokeWidth={3}
+                  shadowColor="black"
+                  shadowBlur={6}
+                  shadowOpacity={0.35}
+                />
                 {rayLines}
                 {/* Direction arrow */}
                 <Arrow
                   points={[
-                    sunX + shadowDx * 40,
-                    sunY + shadowDy * 40,
-                    sunX + shadowDx * 90,
-                    sunY + shadowDy * 90,
+                    sunX + shadowDx * 44,
+                    sunY + shadowDy * 44,
+                    sunX + shadowDx * 100,
+                    sunY + shadowDy * 100,
                   ]}
-                  fill="#F59E0B"
-                  stroke="#F59E0B"
-                  strokeWidth={3}
-                  pointerLength={10}
-                  pointerWidth={8}
+                  fill="#B45309"
+                  stroke="#B45309"
+                  strokeWidth={4}
+                  pointerLength={12}
+                  pointerWidth={10}
                 />
                 <KonvaText
                   x={sunX - 25}
-                  y={sunY - 40}
+                  y={sunY - 44}
                   text="☀ Sun"
-                  fontSize={13}
+                  fontSize={14}
                   fontStyle="bold"
-                  fill="#B45309"
+                  fill="#92400E"
                   width={50}
                   align="center"
                 />

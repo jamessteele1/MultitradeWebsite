@@ -29,6 +29,7 @@ export async function POST(req: Request) {
 
     const columnValues = clean({
       [board.columns.date]: { date: todayISO() },
+      [board.columns.leadStatus]: { label: "New" },
       [board.columns.firstName]: firstName,
       [board.columns.lastName]: lastName,
       [board.columns.company]: company,

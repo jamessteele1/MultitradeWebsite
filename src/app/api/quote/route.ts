@@ -46,16 +46,16 @@ export async function POST(req: Request) {
       .filter(Boolean)
       .join(" ");
 
-    // Status-column labels can't be created via the public API — they need
-    // a one-time setup in the Monday UI. Until then we inline the inquiry
-    // type into the additional-details so the sales team sees it.
-    const detailsParts: string[] = [];
-    if (inquiryType) detailsParts.push(`Inquiry type: ${inquiryType}`);
-    if (details) detailsParts.push(details);
-    const combinedDetails = detailsParts.join("\n\n");
+    // Map free-text inquiry type to one of the configured Monday labels.
+    const validInquiryLabels = ["Hire", "Sale", "Both", "Catalogue", "Custom"];
+    const normalisedInquiry = validInquiryLabels.find(
+      (l) => l.toLowerCase() === String(inquiryType).toLowerCase().trim(),
+    );
 
     const columnValues = clean({
       [board.columns.date]: { date: todayISO() },
+      [board.columns.leadStatus]: { label: "New" },
+      [board.columns.typeOfInquiry]: normalisedInquiry ? { label: normalisedInquiry } : null,
       [board.columns.firstName]: firstName,
       [board.columns.lastName]: lastName,
       [board.columns.company]: company,
@@ -66,7 +66,7 @@ export async function POST(req: Request) {
       [board.columns.businessAddress]: address,
       [board.columns.quoteSummary]: longText(quoteSummary),
       [board.columns.timeline]: timeline,
-      [board.columns.additionalDetails]: longText(combinedDetails),
+      [board.columns.additionalDetails]: longText(details),
       [board.columns.source]: source,
       [board.columns.sourcePage]: linkValue(sourcePage, "View page"),
       [board.columns.visitorInfo]: longText(buildVisitorInfo(req)),

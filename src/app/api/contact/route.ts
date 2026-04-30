@@ -42,21 +42,23 @@ export async function POST(req: Request) {
       .filter(Boolean)
       .join(" ");
 
-    // Inline preferred-contact preference into the message text so it shows
-    // up regardless of whether the Monday status labels have been set up yet.
-    const messageBody = preferredContact
-      ? `Preferred contact: ${preferredContact}\n\n${message}`
-      : message;
+    // Map preferred-contact to one of the configured Monday status labels.
+    const validPreferredLabels = ["Email", "Phone", "Either"];
+    const normalisedPreferred = validPreferredLabels.find(
+      (l) => l.toLowerCase() === String(preferredContact).toLowerCase().trim(),
+    );
 
     const columnValues = clean({
       [board.columns.date]: { date: todayISO() },
+      [board.columns.leadStatus]: { label: "New" },
       [board.columns.firstName]: firstName,
       [board.columns.lastName]: lastName,
       [board.columns.company]: company,
       [board.columns.email]: emailValue(email),
       [board.columns.phone]: phoneValue(phone),
       [board.columns.subject]: subject,
-      [board.columns.message]: longText(messageBody),
+      [board.columns.preferredContact]: normalisedPreferred ? { label: normalisedPreferred } : null,
+      [board.columns.message]: longText(message),
       [board.columns.sourcePage]: linkValue(sourcePage, "View page"),
       [board.columns.visitorInfo]: longText(buildVisitorInfo(req)),
     });

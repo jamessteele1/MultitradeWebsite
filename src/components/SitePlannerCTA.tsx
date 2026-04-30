@@ -70,11 +70,13 @@ export default function SitePlannerCTA() {
                 </svg>
               </div>
 
-              {/* SVG site plan — building rectangles, sun, scale bar */}
+              {/* SVG site plan — viewBox aspect matches panel so there's no
+                  letterbox dead-space top/bottom. Buildings, sun and a
+                  dashed property boundary fill the whole frame. */}
               <svg
-                viewBox="0 0 600 460"
+                viewBox="0 0 600 580"
                 className="absolute inset-0 w-full h-full"
-                preserveAspectRatio="xMidYMid meet"
+                preserveAspectRatio="xMidYMid slice"
               >
                 <defs>
                   {/* Soft drop shadow under each building */}
@@ -97,95 +99,131 @@ export default function SitePlannerCTA() {
                   </radialGradient>
                 </defs>
 
-                {/* ── Sun: top-right of the panel ── */}
-                <g transform="translate(490, 90)">
-                  {/* Halo */}
-                  <circle cx="0" cy="0" r="48" fill="url(#sunHalo)" />
-                  {/* Body */}
-                  <circle cx="0" cy="0" r="14" fill="#FCD34D" stroke="#B45309" strokeWidth="2" />
-                  {/* Eight radial spokes */}
-                  <g stroke="#FBBF24" strokeWidth="2.4" strokeLinecap="round">
-                    <line x1="0" y1="-22" x2="0" y2="-30" />
-                    <line x1="0" y1="22" x2="0" y2="30" />
-                    <line x1="-22" y1="0" x2="-30" y2="0" />
-                    <line x1="22" y1="0" x2="30" y2="0" />
-                    <line x1="-15.5" y1="-15.5" x2="-21" y2="-21" />
-                    <line x1="15.5" y1="-15.5" x2="21" y2="-21" />
-                    <line x1="-15.5" y1="15.5" x2="-21" y2="21" />
-                    <line x1="15.5" y1="15.5" x2="21" y2="21" />
+                {/* ── Property boundary (dashed) — frames the whole site ── */}
+                <g>
+                  <rect
+                    x="30" y="80" width="540" height="470" rx="8"
+                    fill="none"
+                    stroke="rgba(255,255,255,0.35)"
+                    strokeWidth="1.2"
+                    strokeDasharray="8,5"
+                  />
+                  {/* Boundary label tab */}
+                  <g transform="translate(48, 80)">
+                    <rect x="-6" y="-9" width="120" height="14" rx="2" fill="#131a2c" />
+                    <text x="0" y="1" textAnchor="start" dominantBaseline="middle" fontSize="9" fontWeight="700" fill="rgba(255,255,255,0.6)" fontFamily="system-ui, sans-serif" letterSpacing="0.12em">
+                      SITE BOUNDARY
+                    </text>
                   </g>
-                  {/* Sun label */}
-                  <text x="0" y="50" textAnchor="middle" fontSize="9" fontWeight="700" fill="#FBBF24" fontFamily="system-ui, sans-serif" letterSpacing="0.06em">SUN</text>
                 </g>
 
-                {/* ── Building cluster: centred at viewBox midpoint (300, 235) ── */}
+                {/* ── Driveway / entry from south boundary ── */}
+                <g opacity="0.6">
+                  {/* Two parallel road edges */}
+                  <line x1="278" y1="550" x2="278" y2="448" stroke="rgba(255,255,255,0.55)" strokeWidth="1.2" />
+                  <line x1="322" y1="550" x2="322" y2="448" stroke="rgba(255,255,255,0.55)" strokeWidth="1.2" />
+                  {/* Centerline */}
+                  <line x1="300" y1="548" x2="300" y2="450" stroke="rgba(255,255,255,0.45)" strokeWidth="0.9" strokeDasharray="6,5" />
+                  {/* "ENTRY" tag below boundary */}
+                  <g transform="translate(300, 568)">
+                    <text x="0" y="0" textAnchor="middle" fontSize="10" fontWeight="700" fill="rgba(255,255,255,0.6)" fontFamily="system-ui, sans-serif" letterSpacing="0.1em">↑ ENTRY</text>
+                  </g>
+                </g>
+
+                {/* ── Sun: top-right inside boundary ── */}
+                <g transform="translate(495, 150)">
+                  {/* Halo */}
+                  <circle cx="0" cy="0" r="56" fill="url(#sunHalo)" />
+                  {/* Body */}
+                  <circle cx="0" cy="0" r="17" fill="#FCD34D" stroke="#B45309" strokeWidth="2" />
+                  {/* Eight radial spokes */}
+                  <g stroke="#FBBF24" strokeWidth="2.6" strokeLinecap="round">
+                    <line x1="0" y1="-27" x2="0" y2="-38" />
+                    <line x1="0" y1="27" x2="0" y2="38" />
+                    <line x1="-27" y1="0" x2="-38" y2="0" />
+                    <line x1="27" y1="0" x2="38" y2="0" />
+                    <line x1="-19" y1="-19" x2="-26.5" y2="-26.5" />
+                    <line x1="19" y1="-19" x2="26.5" y2="-26.5" />
+                    <line x1="-19" y1="19" x2="-26.5" y2="26.5" />
+                    <line x1="19" y1="19" x2="26.5" y2="26.5" />
+                  </g>
+                  <text x="0" y="60" textAnchor="middle" fontSize="9" fontWeight="700" fill="#FBBF24" fontFamily="system-ui, sans-serif" letterSpacing="0.08em">SUN</text>
+                </g>
+
+                {/* ── Building cluster: scaled up, centred on (300, 290) ── */}
                 {/* 12×3m Office (top, wide) */}
                 <g filter="url(#bldgshadow)">
-                  <rect x="170" y="155" width="200" height="56" rx="3"
+                  <rect x="120" y="170" width="290" height="68" rx="3"
                     fill="#93C5FD" stroke="#1D4ED8" strokeWidth="1.6" />
-                  <text x="270" y="188" textAnchor="middle" fontSize="13" fontWeight="700" fill="#1E3A8A" fontFamily="system-ui, sans-serif">
+                  <text x="265" y="210" textAnchor="middle" fontSize="14" fontWeight="700" fill="#1E3A8A" fontFamily="system-ui, sans-serif">
                     12×3m Office
                   </text>
                 </g>
 
                 {/* 6×3m Crib Room */}
                 <g filter="url(#bldgshadow)">
-                  <rect x="170" y="225" width="100" height="56" rx="3"
+                  <rect x="120" y="254" width="145" height="68" rx="3"
                     fill="#A7F3D0" stroke="#16A34A" strokeWidth="1.6" />
-                  <text x="220" y="258" textAnchor="middle" fontSize="11" fontWeight="700" fill="#14532D" fontFamily="system-ui, sans-serif">
+                  <text x="192.5" y="294" textAnchor="middle" fontSize="13" fontWeight="700" fill="#14532D" fontFamily="system-ui, sans-serif">
                     Crib Room
                   </text>
                 </g>
 
                 {/* Toilets */}
                 <g filter="url(#bldgshadow)">
-                  <rect x="285" y="228" width="85" height="50" rx="3"
+                  <rect x="280" y="260" width="130" height="60" rx="3"
                     fill="#DDD6FE" stroke="#7C3AED" strokeWidth="1.6" />
-                  <text x="327.5" y="258" textAnchor="middle" fontSize="11" fontWeight="700" fill="#4C1D95" fontFamily="system-ui, sans-serif">
+                  <text x="345" y="294" textAnchor="middle" fontSize="13" fontWeight="700" fill="#4C1D95" fontFamily="system-ui, sans-serif">
                     Toilets
                   </text>
                 </g>
 
                 {/* Container (vertical) */}
                 <g filter="url(#bldgshadow)">
-                  <rect x="385" y="155" width="44" height="100" rx="3"
+                  <rect x="425" y="170" width="56" height="136" rx="3"
                     fill="#E5E7EB" stroke="#6B7280" strokeWidth="1.6" />
-                  <text x="407" y="208" textAnchor="middle" fontSize="10" fontWeight="700" fill="#374151" fontFamily="system-ui, sans-serif"
-                    transform="rotate(-90, 407, 208)">
+                  <text x="453" y="238" textAnchor="middle" fontSize="11" fontWeight="700" fill="#374151" fontFamily="system-ui, sans-serif"
+                    transform="rotate(-90, 453, 238)">
                     Container
                   </text>
                 </g>
 
                 {/* Tank */}
                 <g filter="url(#bldgshadow)">
-                  <rect x="385" y="270" width="44" height="40" rx="3"
+                  <rect x="425" y="320" width="56" height="50" rx="3"
                     fill="#FEF3C7" stroke="#F59E0B" strokeWidth="1.6" />
-                  <text x="407" y="295" textAnchor="middle" fontSize="9" fontWeight="700" fill="#92400E" fontFamily="system-ui, sans-serif">
+                  <text x="453" y="350" textAnchor="middle" fontSize="11" fontWeight="700" fill="#92400E" fontFamily="system-ui, sans-serif">
                     Tank
                   </text>
                 </g>
 
-                {/* Covered Deck */}
+                {/* Covered Deck — slightly narrower so the stair sits beside it cleanly */}
                 <g filter="url(#bldgshadow)">
-                  <rect x="170" y="295" width="200" height="40" rx="3"
+                  <rect x="120" y="338" width="290" height="50" rx="3"
                     fill="#D2B48C" stroke="#8B4513" strokeWidth="1.6" />
-                  <text x="270" y="320" textAnchor="middle" fontSize="11" fontWeight="700" fill="#5C2E0A" fontFamily="system-ui, sans-serif">
+                  <text x="265" y="367" textAnchor="middle" fontSize="13" fontWeight="700" fill="#5C2E0A" fontFamily="system-ui, sans-serif">
                     Covered Deck
                   </text>
                 </g>
 
-                {/* Scale bar (bottom-left) */}
-                <g transform="translate(40, 425)">
-                  <line x1="0" y1="0" x2="120" y2="0" stroke="#fff" strokeWidth="2" />
-                  <line x1="0" y1="-5" x2="0" y2="5" stroke="#fff" strokeWidth="2" />
-                  <line x1="120" y1="-5" x2="120" y2="5" stroke="#fff" strokeWidth="2" />
-                  <line x1="60" y1="-3" x2="60" y2="3" stroke="#fff" strokeWidth="1.4" opacity="0.8" />
-                  <text x="60" y="-9" textAnchor="middle" fontSize="11" fontWeight="700" fill="#fff" fontFamily="system-ui, sans-serif">10 m</text>
+                {/* Stair — attached to right end of deck */}
+                <g filter="url(#bldgshadow)">
+                  <rect x="425" y="385" width="36" height="22" rx="2"
+                    fill="#FED7AA" stroke="#EA580C" strokeWidth="1.4" />
                 </g>
 
-                {/* Hint text bottom-right: "Drag to move" */}
-                <g transform="translate(560, 425)">
-                  <text x="0" y="0" textAnchor="end" fontSize="10" fontWeight="500" fill="rgba(255,255,255,0.45)" fontFamily="system-ui, sans-serif" letterSpacing="0.05em">
+                {/* Scale bar (bottom-left, inside boundary) */}
+                <g transform="translate(54, 528)">
+                  <line x1="0" y1="0" x2="140" y2="0" stroke="#fff" strokeWidth="2" />
+                  <line x1="0" y1="-5" x2="0" y2="5" stroke="#fff" strokeWidth="2" />
+                  <line x1="140" y1="-5" x2="140" y2="5" stroke="#fff" strokeWidth="2" />
+                  <line x1="70" y1="-3" x2="70" y2="3" stroke="#fff" strokeWidth="1.4" opacity="0.8" />
+                  <text x="70" y="-9" textAnchor="middle" fontSize="11" fontWeight="700" fill="#fff" fontFamily="system-ui, sans-serif">10 m</text>
+                </g>
+
+                {/* Hint text bottom-right inside boundary */}
+                <g transform="translate(548, 528)">
+                  <text x="0" y="0" textAnchor="end" fontSize="10" fontWeight="600" fill="rgba(255,255,255,0.55)" fontFamily="system-ui, sans-serif" letterSpacing="0.08em">
                     DRAG · ROTATE · LABEL
                   </text>
                 </g>

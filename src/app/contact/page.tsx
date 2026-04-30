@@ -1,6 +1,6 @@
 import Header from "@/components/Header";
 import MobileCTA from "@/components/MobileCTA";
-import Link from "next/link";
+import ContactForm from "@/components/ContactForm";
 import { FadeIn } from "@/components/FadeIn";
 
 import type { Metadata } from "next";
@@ -45,8 +45,16 @@ export default function ContactPage() {
             </div>
           </div>
 
-          <div className="grid lg:grid-cols-2 gap-8">
-            <div>
+          <div className="grid lg:grid-cols-2 gap-10">
+            <FadeIn>
+              <h2 className="text-2xl font-extrabold text-gray-900 mb-4">Send Us a Message</h2>
+              <p className="text-sm text-gray-500 mb-6">
+                Fill in your details and we&apos;ll get back to you within 2 business hours.
+              </p>
+              <ContactForm />
+            </FadeIn>
+
+            <FadeIn delay={0.1}>
               <h2 className="text-2xl font-extrabold text-gray-900 mb-4">Our Locations</h2>
               <div className="space-y-4">
                 <div className="p-5 rounded-xl border border-gray-200">
@@ -68,14 +76,7 @@ export default function ContactPage() {
                   ))}
                 </div>
               </div>
-            </div>
-            <div className="rounded-xl overflow-hidden border border-gray-200 bg-gray-100 min-h-[400px] flex items-center justify-center">
-              <div className="text-center p-8">
-                <div className="text-4xl mb-3">🗺️</div>
-                <p className="text-gray-500 text-sm">Google Maps embed will be added here</p>
-                <p className="text-gray-400 text-xs mt-1">6 South Trees Drive, Gladstone QLD 4680</p>
-              </div>
-            </div>
+            </FadeIn>
           </div>
         </div>
       </section>

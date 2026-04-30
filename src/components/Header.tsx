@@ -4,7 +4,14 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useQuoteCart } from "@/context/QuoteCartContext";
 
-const NAV_ITEMS = [
+type NavItem = {
+  label: string;
+  href: string;
+  highlight?: boolean;
+  children?: { label: string; href: string }[];
+};
+
+const NAV_ITEMS: NavItem[] = [
   {
     label: "Hire",
     href: "/hire",
@@ -51,18 +58,19 @@ const NAV_ITEMS = [
     ],
   },
   {
-    label: "Tools",
-    href: "/scope-builder",
+    label: "Plan & Quote",
+    href: "/site-planner",
+    highlight: true,
     children: [
-      { label: "Scope Builder", href: "/scope-builder" },
-      { label: "Site Planner", href: "/site-planner" },
+      { label: "Site Planner — design your layout", href: "/site-planner" },
+      { label: "Scope Builder — sized in 60 seconds", href: "/scope-builder" },
     ],
   },
   { label: "About", href: "/about" },
   { label: "Contact", href: "/contact" },
 ];
 
-const MOBILE_NAV_ITEMS: { label: string; href: string; children?: { label: string; href: string }[] }[] = [
+const MOBILE_NAV_ITEMS: NavItem[] = [
   { label: "Hire", href: "/hire" },
   { label: "Buy", href: "/buy" },
   { label: "Install", href: "/install" },
@@ -86,11 +94,12 @@ const MOBILE_NAV_ITEMS: { label: string; href: string; children?: { label: strin
     ],
   },
   {
-    label: "Tools",
+    label: "Plan & Quote",
     href: "#",
+    highlight: true,
     children: [
-      { label: "Scope Builder", href: "/scope-builder" },
       { label: "Site Planner", href: "/site-planner" },
+      { label: "Scope Builder", href: "/scope-builder" },
     ],
   },
   { label: "About", href: "/about" },
@@ -153,7 +162,11 @@ export default function Header() {
             >
               <Link
                 href={item.href}
-                className="px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors flex items-center gap-1"
+                className={`px-3 py-2 text-sm font-medium transition-colors flex items-center gap-1 ${
+                  item.highlight
+                    ? "gold-text font-semibold hover:brightness-110"
+                    : "text-gray-700 hover:text-gray-900"
+                }`}
               >
                 {item.label}
                 {item.children && (
@@ -230,7 +243,7 @@ export default function Header() {
                 <div key={i} className="border-b border-gray-100">
                   <button
                     onClick={() => setMobileExpanded(mobileExpanded === i ? null : i)}
-                    className="flex items-center justify-between w-full py-4 text-2xl font-bold text-gray-900"
+                    className={`flex items-center justify-between w-full py-4 text-2xl font-bold ${item.highlight ? "gold-text" : "text-gray-900"}`}
                   >
                     {item.label}
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" className={`transition-transform ${mobileExpanded === i ? "rotate-180" : ""}`}><polyline points="6 9 12 15 18 9"/></svg>

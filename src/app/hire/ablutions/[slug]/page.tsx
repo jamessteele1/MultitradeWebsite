@@ -7,6 +7,7 @@ import AddToQuoteButton from "@/components/AddToQuoteButton";
 import SuggestedAddOns from "@/components/SuggestedAddOns";
 import CompareProducts from "@/components/CompareProducts";
 import FloorplanViewer from "@/components/FloorplanViewer";
+import PdfDownloadGate from "@/components/PdfDownloadGate";
 import PowerSiteRequirements from "@/components/PowerSiteRequirements";
 import { HeroImage, GalleryGrid } from "@/components/ProductGallery";
 import { ServiceUpgradesProvider } from "@/context/ServiceUpgradesContext";
@@ -21,7 +22,7 @@ const PRODUCTS: Record<string, Product> = {
     capacity: "High traffic",
     badge: null,
     images: ["/images/products/6x3-toilet/1.jpg", "/images/products/6x3-toilet/2.jpg", "/images/products/6x3-toilet/3.jpg", "/images/products/6x3-toilet/4.jpg", "/images/products/6x3-toilet/5.jpg", "/images/products/6x3-toilet/6.jpg", "/images/products/6x3-toilet/7.jpg", "/images/products/6x3-toilet/8.jpg"],
-    floorPlan: "/images/floorplans/MBH-6030-TBL-01-A - 6.0x3.0m Toilet Block.pdf",
+    floorPlan: "/images/floorplans/SQF-4381-02-A - 6.0x3.0m Male Female Toilet - Floor Plan.pdf",
     description: "The 6.0m × 3.0m Toilet Block is a high-capacity portable amenity designed for busy worksites with large crews. Featuring separate male and female configurations with multiple cubicles, urinals, and hand basins, this unit handles heavy foot traffic while maintaining hygiene standards. Built on a 75mm steel frame with Colorbond cladding, it's tough enough for mining and construction environments.",
     features: [
       { title: "Male/Female Configurations", desc: "Separate male and female sections with dedicated cubicles, urinals (male side), and hand basins for privacy and compliance." },
@@ -45,7 +46,7 @@ const PRODUCTS: Record<string, Product> = {
       "Multiple Toilet Cubicles", "Urinals (male side)", "Hand Basins with Mixer Taps",
       "Mirror & Paper Towel Dispensers", "Toilet Roll Holders", "LED Lighting Throughout",
       "Exhaust Ventilation", "Non-Slip Vinyl Flooring", "Smoke Detectors",
-      "Fire Extinguisher", "First Aid Kit", "Sanitary Bins (female side)",
+      "Sanitary Bins (female side)",
     ],
   },
   "3-6x2-4m-toilet": {
@@ -56,7 +57,7 @@ const PRODUCTS: Record<string, Product> = {
     capacity: "Medium traffic",
     badge: null,
     images: ["/images/products/36x24-toilet/1.jpg", "/images/products/36x24-toilet/2.jpg", "/images/products/36x24-toilet/3.jpg", "/images/products/36x24-toilet/4.jpg"],
-    floorPlan: "/images/floorplans/MBH-3624-TBL-01-A - 3.6x2.4m Toilet Block.pdf",
+    floorPlan: "/images/floorplans/SQF-4384-01-A - 3.6x2.4m Toilet - Floor Plan.pdf",
     description: "The 3.6m × 2.4m Toilet is a compact, self-contained amenity unit ideal for smaller construction sites, events, and temporary worksites. Despite its compact footprint, this unit provides comfortable toilet and hand washing facilities with separate cubicles. Built to the same heavy-duty standards as our larger units.",
     features: [
       { title: "Compact Footprint", desc: "At 3.6m × 2.4m, this unit fits easily on tight sites where space is limited, without compromising on amenity." },
@@ -79,7 +80,7 @@ const PRODUCTS: Record<string, Product> = {
       "2 × Toilet Cubicles", "Hand Basin with Mixer Tap", "Mirror",
       "Paper Towel Dispenser", "Toilet Roll Holders", "LED Lighting",
       "Exhaust Ventilation", "Non-Slip Vinyl Flooring",
-      "Smoke Detector", "Fire Extinguisher",
+      "Smoke Detector",
     ],
   },
   "solar-toilet": {
@@ -147,7 +148,7 @@ const PRODUCTS: Record<string, Product> = {
       "Multiple Shower Cubicles", "Hot Water System", "Shower Mixer Taps",
       "Bench Seating", "Towel Hooks", "Mirror",
       "LED Lighting", "Exhaust Ventilation", "Non-Slip Flooring",
-      "Smoke Detector", "Fire Extinguisher",
+      "Smoke Detector",
     ],
   },
   "chemical-toilet": {
@@ -242,7 +243,7 @@ const PRODUCTS: Record<string, Product> = {
       "Multiple Shower Cubicles", "Hot Water System", "Double-Stacked Lockers",
       "Bench Seating", "Towel Hooks", "Mirrors",
       "LED Lighting", "Exhaust Ventilation", "Non-Slip Flooring",
-      "Smoke Detectors", "Fire Extinguisher", "First Aid Kit",
+      "Smoke Detectors",
     ],
   },
 };
@@ -316,10 +317,13 @@ export default function AblutionDetailPage({ params }: { params: { slug: string 
                 <AddToQuoteButton showServiceUpgrades buildingSize={buildingSize} showSewerQuestion={isToiletBlock} toiletSize={toiletSize} product={{ id: product.slug, name: product.name, size: product.size, img: product.images[0], category: "ablutions" }} />
                 <a href="tel:0749792333" className="px-6 py-3 rounded-lg font-semibold text-white border border-white/20 hover:bg-white/5 transition-all">(07) 4979 2333</a>
                 {product.floorPlan && (
-                  <a href={product.floorPlan!} target="_blank" rel="noopener" className="px-4 py-3 rounded-lg text-sm font-medium text-white/70 hover:text-white transition-colors flex items-center gap-1.5">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                    Floor Plan PDF
-                  </a>
+                  <PdfDownloadGate
+                    pdfUrl={product.floorPlan!}
+                    productName={`${product.name} — Floor Plan`}
+                    productSlug={product.slug}
+                    variant="subtle"
+                    label="Floor Plan PDF"
+                  />
                 )}
               </div>
             </div>
@@ -382,10 +386,15 @@ export default function AblutionDetailPage({ params }: { params: { slug: string 
                 </div>
               </div>
               {product.floorPlan && (
-                <a href={product.floorPlan!} target="_blank" rel="noopener" className="mt-4 inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-700 transition-all">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-                  Download Floor Plan (PDF)
-                </a>
+                <div className="mt-4">
+                  <PdfDownloadGate
+                    pdfUrl={product.floorPlan!}
+                    productName={`${product.name} — Floor Plan`}
+                    productSlug={product.slug}
+                    variant="ghost"
+                    label="Download Floor Plan (PDF)"
+                  />
+                </div>
               )}
             </div>
           </div>

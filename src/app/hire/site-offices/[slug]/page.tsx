@@ -7,6 +7,7 @@ import AddToQuoteButton from "@/components/AddToQuoteButton";
 import SuggestedAddOns from "@/components/SuggestedAddOns";
 import CompareProducts from "@/components/CompareProducts";
 import FloorplanViewer from "@/components/FloorplanViewer";
+import PdfDownloadGate from "@/components/PdfDownloadGate";
 import PowerSiteRequirements from "@/components/PowerSiteRequirements";
 import { ServiceUpgradesProvider } from "@/context/ServiceUpgradesContext";
 import { HeroImage, GalleryGrid } from "@/components/ProductGallery";
@@ -47,7 +48,6 @@ const PRODUCTS: Record<string, Product> = {
       "5–6 × Office Desks", "5–6 × Office Chairs", "2 × Filing Cabinets",
       "LED Lighting Throughout", "2 × Reverse Cycle Air Conditioners",
       "Lockable Switchboard with RCD", "GPOs at Each Workstation",
-      "1 × First Aid Kit", "1 × Fire Extinguisher", "1 × Fire Blanket",
       "2 × Smoke Detectors", "Noticeboard & Whiteboard",
     ],
   },
@@ -84,7 +84,6 @@ const PRODUCTS: Record<string, Product> = {
       "2–4 × Office Desks", "2–4 × Office Chairs", "1 × Filing Cabinet",
       "LED Lighting Throughout", "1 × Reverse Cycle Air Conditioner",
       "Lockable Switchboard with RCD", "GPOs at Each Workstation",
-      "1 × First Aid Kit", "1 × Fire Extinguisher", "1 × Fire Blanket",
       "1 × Smoke Detector", "Noticeboard",
     ],
   },
@@ -98,7 +97,7 @@ const PRODUCTS: Record<string, Product> = {
     selfContained: false,
     mobile: false,
     images: ["/images/products/6x3m-supervisor-office/1.jpg", "/images/products/6x3m-supervisor-office/2.jpg", "/images/products/6x3m-supervisor-office/3.jpg"],
-    floorPlan: "/images/floorplans/SQF-1805-01-B - 6.0x3.0m Supervisors Office - Floor Plan.pdf",
+    floorPlan: "/images/floorplans/SQF-4370-01-A - 6.0x3.0m Office - Floor Plan.pdf",
     description: "The 6.0m × 3.0m Supervisor Office is purpose-built for site supervisors and project leaders who need a dedicated, private workspace. Featuring ergonomic furniture, ample storage, and a professional fit-out, this unit provides the focus and functionality required for effective site management.",
     features: [
       { title: "Private Workspace", desc: "Dedicated single or dual-occupancy office designed for supervisors who need space for meetings, planning, and documentation." },
@@ -121,7 +120,6 @@ const PRODUCTS: Record<string, Product> = {
       "1 × Executive Office Desk", "1 × Ergonomic Office Chair", "1 × Filing Cabinet",
       "1 × Bookshelf / Storage Unit", "LED Lighting Throughout",
       "1 × Reverse Cycle Air Conditioner", "Lockable Switchboard with RCD",
-      "1 × First Aid Kit", "1 × Fire Extinguisher", "1 × Fire Blanket",
       "1 × Smoke Detector", "Noticeboard & Whiteboard",
     ],
   },
@@ -157,8 +155,7 @@ const PRODUCTS: Record<string, Product> = {
     standardInclusions: [
       "1 × Office Desk", "1 × Office Chair", "LED Lighting Throughout",
       "1 × Reverse Cycle Air Conditioner", "Lockable Switchboard with RCD",
-      "GPOs", "1 × First Aid Kit", "1 × Fire Extinguisher",
-      "1 × Smoke Detector",
+      "GPOs", "1 × Smoke Detector",
     ],
   },
   "20ft-container-office": {
@@ -192,8 +189,7 @@ const PRODUCTS: Record<string, Product> = {
     standardInclusions: [
       "2–3 × Office Desks", "2–3 × Office Chairs", "LED Lighting Throughout",
       "1 × Reverse Cycle Air Conditioner", "Switchboard with RCD",
-      "GPOs", "1 × First Aid Kit", "1 × Fire Extinguisher",
-      "1 × Smoke Detector",
+      "GPOs", "1 × Smoke Detector",
     ],
   },
   "gatehouse": {
@@ -230,8 +226,7 @@ const PRODUCTS: Record<string, Product> = {
       "1 × Security Workstation", "1 × Office Chair", "Service Counter & Window",
       "Kitchenette with Sink", "LED Lighting Throughout",
       "Reverse Cycle Air Conditioner", "Switchboard with RCD",
-      "Data & Comms Provisions", "1 × First Aid Kit", "1 × Fire Extinguisher",
-      "1 × Smoke Detector",
+      "Data & Comms Provisions", "1 × Smoke Detector",
     ],
   },
   "self-contained-supervisor-office": {
@@ -244,7 +239,7 @@ const PRODUCTS: Record<string, Product> = {
     selfContained: true,
     mobile: false,
     images: ["/images/products/6x3m-supervisor-office/1.jpg"],
-    floorPlan: "/images/floorplans/SQF-1805-01-B - 6.0x3.0m Supervisors Office - Floor Plan.pdf",
+    floorPlan: null,
     description: "The 6.6m × 3.0m Self-Contained Supervisor Office combines a dedicated private workspace with an integrated bathroom, eliminating the need for separate ablution facilities. Powered by an onboard generator with its own water supply, this unit requires no external connections — making it ideal for remote or greenfield sites where infrastructure hasn't yet been established.",
     features: [
       { title: "Fully Self-Contained", desc: "Onboard generator and water system mean zero external connections required. Deploy to any location and be operational immediately." },
@@ -269,8 +264,7 @@ const PRODUCTS: Record<string, Product> = {
       "1 × Office Desk", "1 × Office Chair", "1 × Filing Cabinet",
       "Shower, Toilet & Hand Basin", "LED Lighting Throughout",
       "1 × Reverse Cycle Air Conditioner", "Onboard Generator",
-      "Pressure Pump System", "1 × First Aid Kit", "1 × Fire Extinguisher",
-      "1 × Smoke Detector",
+      "Pressure Pump System", "1 × Smoke Detector",
     ],
   },
 };
@@ -335,10 +329,13 @@ export default function SiteOfficeDetailPage({ params }: { params: { slug: strin
                 <AddToQuoteButton showServiceUpgrades buildingSize={buildingSize} product={{ id: product.slug, name: product.name, size: product.size, img: product.images[0], category: "site-offices" }} />
                 <a href="tel:0749792333" className="px-6 py-3 rounded-lg font-semibold text-white border border-white/20 hover:bg-white/5 transition-all">(07) 4979 2333</a>
                 {product.floorPlan && (
-                  <a href={product.floorPlan!} target="_blank" rel="noopener" className="px-4 py-3 rounded-lg text-sm font-medium text-white/70 hover:text-white transition-colors flex items-center gap-1.5">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                    Floor Plan PDF
-                  </a>
+                  <PdfDownloadGate
+                    pdfUrl={product.floorPlan!}
+                    productName={`${product.name} — Floor Plan`}
+                    productSlug={product.slug}
+                    variant="subtle"
+                    label="Floor Plan PDF"
+                  />
                 )}
               </div>
             </div>
@@ -370,10 +367,13 @@ export default function SiteOfficeDetailPage({ params }: { params: { slug: strin
           <div className="flex flex-wrap items-center gap-3 mt-2">
             <FloorplanViewer productId={product.slug} />
             {product.floorPlan && (
-              <a href={product.floorPlan!} target="_blank" rel="noopener" className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-700 transition-all">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-                Download Floor Plan (PDF)
-              </a>
+              <PdfDownloadGate
+                pdfUrl={product.floorPlan!}
+                productName={`${product.name} — Floor Plan`}
+                productSlug={product.slug}
+                variant="ghost"
+                label="Download Floor Plan (PDF)"
+              />
             )}
           </div>
         </div>

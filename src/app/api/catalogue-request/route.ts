@@ -1,50 +1,50 @@
 import { NextResponse } from "next/server";
+import {
+  BOARDS,
+  buildVisitorInfo,
+  clean,
+  createMondayItem,
+  emailValue,
+  linkValue,
+  longText,
+  phoneValue,
+  todayISO,
+} from "@/lib/monday";
 
-const MONDAY_API_URL = "https://api.monday.com/v2";
-const BOARD_ID = "8309336939";
-const GROUP_ID = "topics";
-
+/**
+ * Catalogue download lead capture. Treated as a PDF download against the
+ * "Product Catalogue" instead of a specific floor plan.
+ */
 export async function POST(req: Request) {
   try {
-    const { name, company, email, phone } = await req.json();
-
-    const apiKey = process.env.MONDAY_API_KEY;
-    if (!apiKey) {
-      console.error("MONDAY_API_KEY not configured — catalogue request from:", email);
-      return NextResponse.json({ success: true });
+    const { name = "", company = "", email = "", phone = "", sourcePage = "" } = await req.json();
+    if (!email) {
+      return NextResponse.json({ success: false, error: "Email required" }, { status: 400 });
     }
 
-    const today = new Date().toISOString().split("T")[0];
-    const [firstName, ...rest] = (name || "").split(" ");
+    const board = BOARDS.pdfDownloads;
+    const [firstName, ...rest] = String(name).split(" ");
     const lastName = rest.join(" ");
+    const itemName = [name, company && `— ${company}`, "(Catalogue)"].filter(Boolean).join(" ").trim();
 
-    const columnValues = JSON.stringify({
-      date4: { date: today },
-      status_mkmfbq7h: { label: "Catalogue Request" },
-      text_mkmfhj9n: company || "",
-      text_mkmfd638: firstName || "",
-      text_mkmfywza: lastName || "",
-      phone_mkmfgmqb: { phone: phone || "", countryShortName: "AU" },
-      email_mkmfy27c: { email: email || "", text: email || "" },
-      long_text_mkmf7ysr: { text: "Requested product catalogue download from website." },
+    const columnValues = clean({
+      [board.columns.date]: { date: todayISO() },
+      [board.columns.firstName]: firstName,
+      [board.columns.lastName]: lastName,
+      [board.columns.company]: company,
+      [board.columns.email]: emailValue(email),
+      [board.columns.phone]: phoneValue(phone),
+      [board.columns.documentRequested]: "Product Catalogue",
+      [board.columns.productSlug]: "catalogue",
+      [board.columns.sourcePage]: linkValue(sourcePage, "View page"),
+      [board.columns.visitorInfo]: longText(buildVisitorInfo(req)),
     });
 
-    const itemName = `${name || "Unknown"} — Catalogue Request`;
-
-    const query = `mutation { create_item(board_id: ${BOARD_ID}, group_id: "${GROUP_ID}", item_name: "${itemName.replace(/"/g, '\\"')}", column_values: ${JSON.stringify(columnValues)}) { id } }`;
-
-    await fetch(MONDAY_API_URL, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: apiKey,
-      },
-      body: JSON.stringify({ query }),
-    });
+    await createMondayItem(board.id, itemName, columnValues);
 
     return NextResponse.json({ success: true });
   } catch (err) {
-    console.error("Catalogue request error:", err);
+    console.error("[/api/catalogue-request] error:", err);
     return NextResponse.json({ success: true });
   }
 }

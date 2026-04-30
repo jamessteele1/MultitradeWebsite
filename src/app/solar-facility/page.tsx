@@ -5,6 +5,7 @@ import MobileCTA from "@/components/MobileCTA";
 import AddToQuoteButton from "@/components/AddToQuoteButton";
 import Link from "next/link";
 import FloorplanViewer from "@/components/FloorplanViewer";
+import PdfDownloadGate from "@/components/PdfDownloadGate";
 import { useState } from "react";
 
 const MODELS = [
@@ -111,7 +112,6 @@ const STANDARD_INCLUSIONS = [
   "1 × 650L Potable Water Slimline Tank",
   "1 × 650L Grey Water Slimline Tank",
   "1 × Water Pressure Pump & Filter",
-  "1 × 4.5kg DCP Fire Extinguisher & Sign",
   "1 × Smoke Detector",
   "LED Internal & External Lighting Throughout",
 ];
@@ -320,10 +320,13 @@ export default function SolarFacilityPage() {
 
           {/* Floor Plan PDF link */}
           <div className="mt-4">
-            <a href={model.floorPlan} target="_blank" rel="noopener" className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-700 transition-all bg-white">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-              Download {model.name} Floor Plan (PDF)
-            </a>
+            <PdfDownloadGate
+              pdfUrl={model.floorPlan}
+              productName={`${model.name} — Floor Plan`}
+              productSlug={model.id}
+              variant="ghost"
+              label={`Download ${model.name} Floor Plan (PDF)`}
+            />
           </div>
         </div>
       </section>

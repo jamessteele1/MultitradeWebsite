@@ -7,6 +7,7 @@ import AddToQuoteButton from "@/components/AddToQuoteButton";
 import SuggestedAddOns from "@/components/SuggestedAddOns";
 import CompareProducts from "@/components/CompareProducts";
 import FloorplanViewer from "@/components/FloorplanViewer";
+import PdfDownloadGate from "@/components/PdfDownloadGate";
 import PowerSiteRequirements from "@/components/PowerSiteRequirements";
 import { ServiceUpgradesProvider } from "@/context/ServiceUpgradesContext";
 import { HeroImage, GalleryGrid } from "@/components/ProductGallery";
@@ -23,7 +24,7 @@ const PRODUCTS: Record<string, Product> = {
     selfContained: false,
     mobile: false,
     images: ["/images/products/12x3-crib-room/1.jpg", "/images/products/12x3-crib-room/2.jpg", "/images/products/12x3-crib-room/3.jpg", "/images/products/12x3-crib-room/4.jpg"],
-    floorPlan: "/images/floorplans/MBH-12030-CRB-01-A-12x3m-Crib-Room.pdf",
+    floorPlan: "/images/floorplans/SQF-4392-01-A - 12.0x3.0m Crib Room - Floor Plan.pdf",
     description: "The 12.0m × 3.0m Crib Room is a spacious, fully equipped portable break facility designed to comfortably accommodate up to 30 workers. Built on a 75mm steel frame with Colorbond steel cladding and fully insulated walls and ceiling, this unit delivers a cool, comfortable environment even in Central Queensland's toughest conditions.",
     features: [
       { title: "Dual Climate Control", desc: "2 × 3.9kW TECO reverse cycle mounted air conditioners ensure the entire space stays comfortable year-round." },
@@ -45,8 +46,8 @@ const PRODUCTS: Record<string, Product> = {
     standardInclusions: [
       "2 × 240L Fridge (all fridge)", "1 × 17L Microwave", "1 × Pie Warmer (50 Pie)",
       "5 × Crib Tables", "24 × Crib Chairs", "1 × Instant Boiling Water Unit (Zip)",
-      "1 × Stainless Steel Sink with Mixer Tap", "1 × Cutlery Drainer", "1 × First Aid Kit",
-      "1 × Fire Blanket", "1 × Fire Extinguisher", "2 × Smoke Detectors",
+      "1 × Stainless Steel Sink with Mixer Tap", "1 × Cutlery Drainer",
+      "2 × Smoke Detectors",
     ],
   },
   "6x3m-crib-room": {
@@ -59,7 +60,7 @@ const PRODUCTS: Record<string, Product> = {
     selfContained: false,
     mobile: false,
     images: ["/images/products/6x3-crib/1.jpg", "/images/products/6x3-crib/2.jpg", "/images/products/6x3-crib/3.jpg"],
-    floorPlan: "/images/floorplans/MBH-6030-CRB-01-A-6x3m-Crib-Room.pdf",    description: "The 6.0m × 3.0m Crib Room is a versatile and durable portable break facility designed to provide a comfortable space for up to 15 workers. Equipped with climate control, a convenient kitchenette, and robust steel frame construction, this unit is ideal for smaller crews on mining, construction, and industrial sites.",
+    floorPlan: "/images/floorplans/SQF-4026-01-A - 6.0x3.0m Crib Room - Floor Plan.pdf",    description: "The 6.0m × 3.0m Crib Room is a versatile and durable portable break facility designed to provide a comfortable space for up to 15 workers. Equipped with climate control, a convenient kitchenette, and robust steel frame construction, this unit is ideal for smaller crews on mining, construction, and industrial sites.",
     features: [
       { title: "Climate Controlled", desc: "1 × 3.9kW TECO reverse cycle air conditioner for year-round comfort in any conditions." },
       { title: "Convenient Kitchenette", desc: "1200mm laminate bench with stainless steel sink, instant boiling water unit, and benchtop space for appliances." },
@@ -81,8 +82,8 @@ const PRODUCTS: Record<string, Product> = {
     standardInclusions: [
       "1 × 240L Fridge (all fridge)", "1 × 17L Microwave", "1 × Pie Warmer (50 Pie)",
       "3 × Crib Tables", "12 × Crib Chairs", "1 × Instant Boiling Water Unit (Zip)",
-      "1 × Stainless Steel Sink with Mixer Tap", "1 × Cutlery Drainer", "1 × First Aid Kit",
-      "1 × Fire Blanket", "1 × Fire Extinguisher", "1 × Smoke Detector",
+      "1 × Stainless Steel Sink with Mixer Tap", "1 × Cutlery Drainer",
+      "1 × Smoke Detector",
     ],
   },  "12x3m-mobile-crib": {
     name: "12x3m Mobile Crib Room",
@@ -111,13 +112,13 @@ const PRODUCTS: Record<string, Product> = {
       "Air Conditioning": "2 × 3.5kW reverse cycle units",
       "Kitchenette": "Full-size kitchenette with dual sinks",
       "Electrical": "Mine-spec switchboard, RCD, LED lighting",
-      "Safety": "Emergency exits, fire extinguisher, first aid, smoke detectors",
+      "Safety": "Emergency exits, smoke detectors",
     },
     standardInclusions: [
       "2 × 240L Fridge", "1 × 17L Microwave", "1 × Pie Warmer",
       "5 × Crib Tables", "20 × Crib Chairs", "1 × Instant Boiling Water Unit",
-      "2 × Stainless Steel Sinks", "1 × First Aid Kit",
-      "Fire Blanket & Extinguisher", "Smoke Detectors", "Pressure Pump System",
+      "2 × Stainless Steel Sinks",
+      "Smoke Detectors", "Pressure Pump System",
     ],
   },  "6-6x3m-self-contained": {
     name: "6.6x3m Self-Contained Crib",
@@ -151,7 +152,7 @@ const PRODUCTS: Record<string, Product> = {
       "1 × 240L Fridge (all fridge)", "1 × 17L Microwave", "1 × Pie Warmer (50 Pie)",
       "2 × Crib Tables", "8 × Crib Chairs", "1 × Instant Boiling Water Unit (Zip)",
       "1 × Stainless Steel Sink with Mixer Tap", "Pressure Pump System",
-      "1 × First Aid Kit", "1 × Fire Blanket", "1 × Fire Extinguisher", "Smoke Detectors",
+      "Smoke Detectors",
     ],
   },  "7-2x3m-self-contained": {
     name: "7.2x3m Self-Contained Crib",
@@ -185,7 +186,7 @@ const PRODUCTS: Record<string, Product> = {
       "1 × 240L Fridge (all fridge)", "1 × 17L Microwave", "1 × Pie Warmer (50 Pie)",
       "2 × Crib Tables", "8 × Crib Chairs", "1 × Instant Boiling Water Unit (Zip)",
       "1 × Stainless Steel Sink with Mixer Tap", "Shower, Toilet & Basin",
-      "Pressure Pump System", "1 × First Aid Kit", "Fire Blanket & Extinguisher", "Smoke Detectors",
+      "Pressure Pump System", "Smoke Detectors",
     ],
   },  "9-6x3m-living-quarters": {
     name: "9.6x3m Living Quarters",
@@ -197,7 +198,7 @@ const PRODUCTS: Record<string, Product> = {
     selfContained: true,
     mobile: false,
     images: ["/images/products/96x3m-living-quarters/1.jpg", "/images/products/96x3m-living-quarters/2.jpg", "/images/products/96x3m-living-quarters/3.jpg", "/images/products/96x3m-living-quarters/4.jpg", "/images/products/96x3m-living-quarters/5.jpg"],
-    floorPlan: "/images/floorplans/MBH-9630-CRB-01-9.6x3m-Crib-Room.pdf",
+    floorPlan: "/images/floorplans/SQF-1571-01-B - 9.6x6.0m Living Quarters - Floor Plan.pdf",
     description: "The 9.6m × 3.0m Living Quarters is a fully self-contained, transportable accommodation unit designed for remote site managers, supervisors, and key personnel. Featuring a private bedroom, ensuite bathroom with shower and toilet, and a full kitchen/living area, this unit delivers genuine comfort and privacy in even the most isolated locations.",
     features: [
       { title: "Private Living Space", desc: "Separate bedroom, ensuite bathroom, and living area provide genuine comfort and privacy for extended remote deployments." },
@@ -219,7 +220,7 @@ const PRODUCTS: Record<string, Product> = {
       "Single Bed Frame & Mattress", "Built-in Wardrobe", "1 × 240L Fridge",
       "1 × Microwave", "Kitchen Table & Chairs", "Shower & Toilet",
       "Vanity Basin with Mirror", "Split System AC", "LED Lighting Throughout",
-      "Smoke Detectors", "Fire Extinguisher", "First Aid Kit",
+      "Smoke Detectors",
     ],
   },
 };
@@ -281,10 +282,13 @@ export default function CribRoomDetailPage({ params }: { params: { slug: string 
                 <AddToQuoteButton showServiceUpgrades buildingSize={buildingSize} product={{ id: product.slug, name: product.name, size: product.size, img: product.images[0], category: "crib-rooms" }} />
                 <a href="tel:0749792333" className="px-6 py-3 rounded-lg font-semibold text-white border border-white/20 hover:bg-white/5 transition-all">(07) 4979 2333</a>
                 {product.floorPlan && (
-                  <a href={product.floorPlan!} target="_blank" rel="noopener" className="px-4 py-3 rounded-lg text-sm font-medium text-white/70 hover:text-white transition-colors flex items-center gap-1.5">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                    Floor Plan PDF
-                  </a>
+                  <PdfDownloadGate
+                    pdfUrl={product.floorPlan!}
+                    productName={`${product.name} — Floor Plan`}
+                    productSlug={product.slug}
+                    variant="subtle"
+                    label="Floor Plan PDF"
+                  />
                 )}
               </div>
             </div>
@@ -363,10 +367,15 @@ export default function CribRoomDetailPage({ params }: { params: { slug: string 
                   ))}
                 </div>
               </div>              {product.floorPlan && (
-                <a href={product.floorPlan!} target="_blank" rel="noopener" className="mt-4 inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-700 transition-all">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-                  Download Floor Plan (PDF)
-                </a>
+                <div className="mt-4">
+                  <PdfDownloadGate
+                    pdfUrl={product.floorPlan!}
+                    productName={`${product.name} — Floor Plan`}
+                    productSlug={product.slug}
+                    variant="ghost"
+                    label="Download Floor Plan (PDF)"
+                  />
+                </div>
               )}
             </div>
           </div>

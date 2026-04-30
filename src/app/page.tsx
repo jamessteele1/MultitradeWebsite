@@ -6,7 +6,7 @@ import { ParallaxVideo } from "@/components/ParallaxVideo";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import ProductCarousel from "@/components/ProductCarousel";
-import ScopeBuilderWidget from "@/components/ScopeBuilderWidget";
+import SitePlannerCTA from "@/components/SitePlannerCTA";
 
 const ServiceAreaMaps = dynamic(() => import("@/components/ServiceAreaMaps"), { ssr: false });
 
@@ -103,6 +103,9 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ─── PLAN & QUOTE TOOLS ─── */}
+      <SitePlannerCTA />
+
       {/* ─── PRODUCTS ─── */}
       <section className="py-16 md:py-24 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4">
@@ -148,9 +151,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
-      {/* ─── SCOPE BUILDER WIDGET ─── */}
-      <ScopeBuilderWidget />
 
       {/* ─── WHY MULTITRADE ─── */}
       <section className="py-16 md:py-24 bg-white">

@@ -1,6 +1,43 @@
 "use client";
 
 import { useState } from "react";
+import PdfDownloadGate from "./PdfDownloadGate";
+
+/* Map product IDs to floorplan preview images and full PDFs */
+const FLOORPLAN_PDF_MAP: Record<string, string> = {
+  "12x3m-crib-room": "/images/floorplans/SQF-4392-01-A - 12.0x3.0m Crib Room - Floor Plan.pdf",
+  "6x3m-crib-room": "/images/floorplans/SQF-4026-01-A - 6.0x3.0m Crib Room - Floor Plan.pdf",
+  "12x3m-mobile-crib": "/images/floorplans/SQF-4491-01-A-12.5x3m-Mobile-Crib-Room.pdf",
+  "7-2x3m-self-contained": "/images/floorplans/SQF-3321-01-1-7.2x3m-Site-Crib-Room.pdf",
+  "9-6x3m-living-quarters": "/images/floorplans/SQF-1571-01-B - 9.6x6.0m Living Quarters - Floor Plan.pdf",
+  "12x3m-office": "/images/floorplans/SQF-4453-01-A - 12.0x3.0m Office - Floor Plan.pdf",
+  "6x3m-office": "/images/floorplans/SQF-4370-01-A - 6.0x3.0m Office - Floor Plan.pdf",
+  "6x3m-supervisor-office": "/images/floorplans/SQF-4370-01-A - 6.0x3.0m Office - Floor Plan.pdf",
+  "3x3m-office": "/images/floorplans/SQF-4495-01-A - 3.0x3.0m Office - Floor Plan.pdf",
+  "gatehouse": "/images/floorplans/PJF-764-1416-01-2 - 10.5x3.4m Gatehouse - Floor Plan.pdf",
+  "6x3m-toilet-block": "/images/floorplans/SQF-4381-02-A - 6.0x3.0m Male Female Toilet - Floor Plan.pdf",
+  "3-6x2-4m-toilet": "/images/floorplans/SQF-4384-01-A - 3.6x2.4m Toilet - Floor Plan.pdf",
+  "solar-toilet": "/images/floorplans/SQF-4525-01-A - 5.45x2.4m Solar Toilet - Floor Plan.pdf",
+  "4-2x3m-shower-block": "/images/floorplans/PJF-654-1106-01- 4.2x3.0m Ablution - Floor Plan V2.0.pdf",
+};
+
+/* Map product IDs to friendly names for the lead capture record */
+const PRODUCT_NAME_MAP: Record<string, string> = {
+  "12x3m-crib-room": "12x3m Crib Room",
+  "6x3m-crib-room": "6x3m Crib Room",
+  "12x3m-mobile-crib": "12.5x3m Mobile Crib Room",
+  "7-2x3m-self-contained": "7.2x3m Self-Contained Crib",
+  "9-6x3m-living-quarters": "9.6x3m Living Quarters",
+  "12x3m-office": "12x3m Office",
+  "6x3m-office": "6x3m Office",
+  "6x3m-supervisor-office": "6x3m Supervisor Office",
+  "3x3m-office": "3x3m Office",
+  "gatehouse": "Gatehouse",
+  "6x3m-toilet-block": "6x3m Toilet Block",
+  "3-6x2-4m-toilet": "3.6x2.4m Toilet",
+  "solar-toilet": "Solar Toilet",
+  "4-2x3m-shower-block": "4.2x3m Shower Block",
+};
 
 /* Map product IDs to floorplan preview images */
 const FLOORPLAN_MAP: Record<string, string> = {
@@ -32,6 +69,8 @@ const FLOORPLAN_MAP: Record<string, string> = {
 export default function FloorplanViewer({ productId }: { productId: string }) {
   const [open, setOpen] = useState(false);
   const src = FLOORPLAN_MAP[productId];
+  const pdfUrl = FLOORPLAN_PDF_MAP[productId];
+  const productName = PRODUCT_NAME_MAP[productId] || productId;
 
   if (!src) return null;
 
@@ -67,9 +106,20 @@ export default function FloorplanViewer({ productId }: { productId: string }) {
         }`}
       >
         <div className="rounded-xl border border-gray-200 bg-white overflow-hidden">
-          <div className="bg-gray-50 border-b border-gray-200 px-4 py-2.5 flex items-center justify-between">
+          <div className="bg-gray-50 border-b border-gray-200 px-4 py-2.5 flex items-center justify-between gap-3">
             <span className="text-xs font-semibold text-gray-500 uppercase tracking-wider">Floor Plan</span>
-            <span className="text-xs text-gray-400">Preliminary drawing — final specs may vary</span>
+            <div className="flex items-center gap-3">
+              <span className="hidden sm:inline text-xs text-gray-400">Preliminary drawing — final specs may vary</span>
+              {pdfUrl && (
+                <PdfDownloadGate
+                  pdfUrl={pdfUrl}
+                  productName={`${productName} — Floor Plan`}
+                  productSlug={productId}
+                  variant="primary"
+                  label="Download PDF"
+                />
+              )}
+            </div>
           </div>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img

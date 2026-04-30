@@ -3,10 +3,10 @@ import Link from "next/link";
 /**
  * Home-page hero promotion for the Site Planner.
  *
- * Goal: make the tool look like the visual, hands-on quoting experience it is —
- * a labelled site plan with scale, north arrow, sun marker, and a big call to
- * action. The mock preview deliberately mirrors what users actually see when
- * they open the planner so there's no surprise after the click.
+ * The mock preview is composed like a real surveyor's site plan: building
+ * cluster centred inside the panel, sun glyph deliberately placed top-right
+ * with radial spokes, north compass top-right, scale bar bottom-left, and a
+ * "SITE PLANNER" brand chip top-left so the tool identity is unmistakable.
  */
 export default function SitePlannerCTA() {
   return (
@@ -28,7 +28,7 @@ export default function SitePlannerCTA() {
           <div className="grid lg:grid-cols-[1.1fr_0.9fr]">
             {/* ── Mock site plan (left) ── */}
             <div
-              className="relative min-h-[340px] lg:min-h-[440px] overflow-hidden"
+              className="relative min-h-[360px] lg:min-h-[480px] overflow-hidden"
               style={{ background: "linear-gradient(135deg, #1f2940 0%, #131a2c 100%)" }}
             >
               {/* Map grid background */}
@@ -41,7 +41,27 @@ export default function SitePlannerCTA() {
                 }}
               />
 
-              {/* Top-right: North arrow */}
+              {/* Top-left: Site Planner brand chip */}
+              <div className="absolute top-4 left-4 z-10 inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-white text-gray-900 text-[11px] font-extrabold tracking-wider uppercase shadow-lg">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D4A843" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="3" width="7" height="7" />
+                  <rect x="14" y="3" width="7" height="7" />
+                  <rect x="3" y="14" width="7" height="7" />
+                  <path d="M17.5 14v7M14 17.5h7" />
+                </svg>
+                Site Planner
+              </div>
+
+              {/* Just below brand chip: subtle address line */}
+              <div className="absolute top-[52px] left-4 z-10 inline-flex items-center gap-1.5 text-[10px] font-medium text-white/55">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                  <circle cx="12" cy="10" r="3" />
+                </svg>
+                12 Industrial Dr · Gladstone QLD
+              </div>
+
+              {/* Top-right: North compass */}
               <div className="absolute top-4 right-4 z-10 w-12 h-12 rounded-full bg-white/95 backdrop-blur shadow-lg flex items-center justify-center">
                 <svg width="28" height="28" viewBox="0 0 32 32">
                   <polygon points="16,4 20,18 16,15 12,18" fill="#EF4444" stroke="#DC2626" strokeWidth="0.6" />
@@ -50,46 +70,14 @@ export default function SitePlannerCTA() {
                 </svg>
               </div>
 
-              {/* Top-left: address chip */}
-              <div className="absolute top-4 left-4 z-10 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur border border-white/20 text-[11px] font-semibold text-white/90">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                  <circle cx="12" cy="10" r="3" />
-                </svg>
-                12 Industrial Dr, Gladstone QLD
-              </div>
-
-              {/* Sun overlay (top-right area, with glow) */}
-              <div
-                className="absolute z-10"
-                style={{ right: "18%", top: "26%", width: 36, height: 36 }}
-              >
-                <div
-                  className="absolute inset-0 rounded-full"
-                  style={{
-                    background: "radial-gradient(circle, rgba(252,211,77,0.55) 0%, rgba(252,211,77,0) 70%)",
-                    transform: "scale(2.2)",
-                  }}
-                />
-                <div
-                  className="absolute inset-0 rounded-full flex items-center justify-center text-[16px]"
-                  style={{
-                    background: "#FCD34D",
-                    border: "2px solid #B45309",
-                    boxShadow: "0 0 12px rgba(251,191,36,0.6)",
-                  }}
-                >
-                  ☀
-                </div>
-              </div>
-
-              {/* SVG site plan — building rectangles with labels, drop shadows, scale bar */}
+              {/* SVG site plan — building rectangles, sun, scale bar */}
               <svg
                 viewBox="0 0 600 460"
                 className="absolute inset-0 w-full h-full"
                 preserveAspectRatio="xMidYMid meet"
               >
                 <defs>
+                  {/* Soft drop shadow under each building */}
                   <filter id="bldgshadow" x="-20%" y="-20%" width="140%" height="140%">
                     <feGaussianBlur in="SourceAlpha" stdDeviation="3" />
                     <feOffset dx="3" dy="4" />
@@ -101,77 +89,105 @@ export default function SitePlannerCTA() {
                       <feMergeNode in="SourceGraphic" />
                     </feMerge>
                   </filter>
+                  {/* Sun halo radial gradient */}
+                  <radialGradient id="sunHalo" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stopColor="#FCD34D" stopOpacity="0.7" />
+                    <stop offset="40%" stopColor="#FBBF24" stopOpacity="0.3" />
+                    <stop offset="100%" stopColor="#FBBF24" stopOpacity="0" />
+                  </radialGradient>
                 </defs>
 
-                {/* 12x3m Office (large, wide) */}
+                {/* ── Sun: top-right of the panel ── */}
+                <g transform="translate(490, 90)">
+                  {/* Halo */}
+                  <circle cx="0" cy="0" r="48" fill="url(#sunHalo)" />
+                  {/* Body */}
+                  <circle cx="0" cy="0" r="14" fill="#FCD34D" stroke="#B45309" strokeWidth="2" />
+                  {/* Eight radial spokes */}
+                  <g stroke="#FBBF24" strokeWidth="2.4" strokeLinecap="round">
+                    <line x1="0" y1="-22" x2="0" y2="-30" />
+                    <line x1="0" y1="22" x2="0" y2="30" />
+                    <line x1="-22" y1="0" x2="-30" y2="0" />
+                    <line x1="22" y1="0" x2="30" y2="0" />
+                    <line x1="-15.5" y1="-15.5" x2="-21" y2="-21" />
+                    <line x1="15.5" y1="-15.5" x2="21" y2="-21" />
+                    <line x1="-15.5" y1="15.5" x2="-21" y2="21" />
+                    <line x1="15.5" y1="15.5" x2="21" y2="21" />
+                  </g>
+                  {/* Sun label */}
+                  <text x="0" y="50" textAnchor="middle" fontSize="9" fontWeight="700" fill="#FBBF24" fontFamily="system-ui, sans-serif" letterSpacing="0.06em">SUN</text>
+                </g>
+
+                {/* ── Building cluster: centred at viewBox midpoint (300, 235) ── */}
+                {/* 12×3m Office (top, wide) */}
                 <g filter="url(#bldgshadow)">
-                  <rect x="80" y="120" width="200" height="56" rx="3"
+                  <rect x="170" y="155" width="200" height="56" rx="3"
                     fill="#93C5FD" stroke="#1D4ED8" strokeWidth="1.6" />
-                  <text x="180" y="153" textAnchor="middle" fontSize="13" fontWeight="700" fill="#1E3A8A" fontFamily="system-ui, sans-serif">
+                  <text x="270" y="188" textAnchor="middle" fontSize="13" fontWeight="700" fill="#1E3A8A" fontFamily="system-ui, sans-serif">
                     12×3m Office
                   </text>
                 </g>
 
-                {/* 6x3m Crib Room */}
+                {/* 6×3m Crib Room */}
                 <g filter="url(#bldgshadow)">
-                  <rect x="80" y="200" width="100" height="56" rx="3"
+                  <rect x="170" y="225" width="100" height="56" rx="3"
                     fill="#A7F3D0" stroke="#16A34A" strokeWidth="1.6" />
-                  <text x="130" y="233" textAnchor="middle" fontSize="11" fontWeight="700" fill="#14532D" fontFamily="system-ui, sans-serif">
+                  <text x="220" y="258" textAnchor="middle" fontSize="11" fontWeight="700" fill="#14532D" fontFamily="system-ui, sans-serif">
                     Crib Room
                   </text>
                 </g>
 
-                {/* 3.6x2.4m Toilet */}
+                {/* Toilets */}
                 <g filter="url(#bldgshadow)">
-                  <rect x="200" y="200" width="80" height="50" rx="3"
+                  <rect x="285" y="228" width="85" height="50" rx="3"
                     fill="#DDD6FE" stroke="#7C3AED" strokeWidth="1.6" />
-                  <text x="240" y="230" textAnchor="middle" fontSize="11" fontWeight="700" fill="#4C1D95" fontFamily="system-ui, sans-serif">
+                  <text x="327.5" y="258" textAnchor="middle" fontSize="11" fontWeight="700" fill="#4C1D95" fontFamily="system-ui, sans-serif">
                     Toilets
                   </text>
                 </g>
 
-                {/* 20ft Container (rotated portrait) */}
+                {/* Container (vertical) */}
                 <g filter="url(#bldgshadow)">
-                  <rect x="335" y="120" width="44" height="100" rx="3"
+                  <rect x="385" y="155" width="44" height="100" rx="3"
                     fill="#E5E7EB" stroke="#6B7280" strokeWidth="1.6" />
-                  <text x="357" y="174" textAnchor="middle" fontSize="10" fontWeight="700" fill="#374151" fontFamily="system-ui, sans-serif"
-                    transform="rotate(-90, 357, 174)">
+                  <text x="407" y="208" textAnchor="middle" fontSize="10" fontWeight="700" fill="#374151" fontFamily="system-ui, sans-serif"
+                    transform="rotate(-90, 407, 208)">
                     Container
                   </text>
                 </g>
 
-                {/* Tank (small) */}
+                {/* Tank */}
                 <g filter="url(#bldgshadow)">
-                  <rect x="335" y="240" width="44" height="40" rx="3"
+                  <rect x="385" y="270" width="44" height="40" rx="3"
                     fill="#FEF3C7" stroke="#F59E0B" strokeWidth="1.6" />
-                  <text x="357" y="266" textAnchor="middle" fontSize="9" fontWeight="700" fill="#92400E" fontFamily="system-ui, sans-serif">
+                  <text x="407" y="295" textAnchor="middle" fontSize="9" fontWeight="700" fill="#92400E" fontFamily="system-ui, sans-serif">
                     Tank
                   </text>
                 </g>
 
                 {/* Covered Deck */}
                 <g filter="url(#bldgshadow)">
-                  <rect x="80" y="280" width="200" height="40" rx="3"
+                  <rect x="170" y="295" width="200" height="40" rx="3"
                     fill="#D2B48C" stroke="#8B4513" strokeWidth="1.6" />
-                  <text x="180" y="305" textAnchor="middle" fontSize="11" fontWeight="700" fill="#5C2E0A" fontFamily="system-ui, sans-serif">
+                  <text x="270" y="320" textAnchor="middle" fontSize="11" fontWeight="700" fill="#5C2E0A" fontFamily="system-ui, sans-serif">
                     Covered Deck
                   </text>
                 </g>
 
-                {/* Sun ray indicator lines (dashed, going SW from sun area) */}
-                <g opacity="0.55" stroke="#F59E0B" strokeWidth="1.6" strokeDasharray="6,4">
-                  <line x1="490" y1="120" x2="180" y2="320" />
-                  <line x1="520" y1="140" x2="220" y2="340" />
-                  <line x1="540" y1="160" x2="260" y2="360" />
-                </g>
-
-                {/* Scale bar (bottom-left, aligned to grid) */}
-                <g transform="translate(80, 410)">
+                {/* Scale bar (bottom-left) */}
+                <g transform="translate(40, 425)">
                   <line x1="0" y1="0" x2="120" y2="0" stroke="#fff" strokeWidth="2" />
                   <line x1="0" y1="-5" x2="0" y2="5" stroke="#fff" strokeWidth="2" />
                   <line x1="120" y1="-5" x2="120" y2="5" stroke="#fff" strokeWidth="2" />
                   <line x1="60" y1="-3" x2="60" y2="3" stroke="#fff" strokeWidth="1.4" opacity="0.8" />
                   <text x="60" y="-9" textAnchor="middle" fontSize="11" fontWeight="700" fill="#fff" fontFamily="system-ui, sans-serif">10 m</text>
+                </g>
+
+                {/* Hint text bottom-right: "Drag to move" */}
+                <g transform="translate(560, 425)">
+                  <text x="0" y="0" textAnchor="end" fontSize="10" fontWeight="500" fill="rgba(255,255,255,0.45)" fontFamily="system-ui, sans-serif" letterSpacing="0.05em">
+                    DRAG · ROTATE · LABEL
+                  </text>
                 </g>
               </svg>
             </div>
@@ -208,10 +224,10 @@ export default function SitePlannerCTA() {
                 ))}
               </ul>
 
-              <div className="mt-7 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+              <div className="mt-7">
                 <Link
                   href="/site-planner"
-                  className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-lg font-semibold text-gray-900 bg-gold hover:brightness-110 transition-all shadow-lg shadow-amber-500/20"
+                  className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-lg font-semibold text-gray-900 bg-gold hover:brightness-110 transition-all shadow-lg shadow-amber-500/20"
                 >
                   Open Site Planner
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
@@ -219,15 +235,21 @@ export default function SitePlannerCTA() {
                     <polyline points="12 5 19 12 12 19" />
                   </svg>
                 </Link>
-                <Link
-                  href="/scope-builder"
-                  className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-lg font-semibold text-gray-700 border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-all"
-                >
-                  Try Scope Builder
-                </Link>
+                <div className="mt-3">
+                  <Link
+                    href="/scope-builder"
+                    className="inline-flex items-center gap-1 text-sm font-medium text-gray-500 hover:text-gray-700 transition-colors"
+                  >
+                    Or try the guided Scope Builder
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                      <line x1="5" y1="12" x2="19" y2="12" />
+                      <polyline points="12 5 19 12 12 19" />
+                    </svg>
+                  </Link>
+                </div>
               </div>
 
-              <p className="mt-4 text-[11px] text-gray-400">
+              <p className="mt-5 text-[11px] text-gray-400">
                 Free · No sign-up · ~5 minutes
               </p>
             </div>

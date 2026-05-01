@@ -86,7 +86,12 @@ async function pngDataUrlToJpeg(pngDataUrl: string, quality = 0.85): Promise<str
   return canvas.toDataURL("image/jpeg", quality);
 }
 
-export async function downloadPDF(
+/**
+ * Build the PDF and return both the jsPDF instance and a base64 dataURL.
+ * `downloadPDF` triggers the browser save; `generatePDFBase64` is for when
+ * we need the raw bytes (e.g. emailing the PDF on mobile).
+ */
+async function buildPDF(
   stage: Konva.Stage,
   buildings: PlacedBuilding[],
   mapRotation = 0,
@@ -95,6 +100,44 @@ export async function downloadPDF(
 ) {
   const { jsPDF } = await import("jspdf");
   const pdf = new jsPDF({ orientation: "landscape", unit: "mm", format: "a3" });
+  await populatePDF(pdf, stage, buildings, mapRotation, siteAddress, siteCoords);
+  return pdf;
+}
+
+/** Generate the PDF and return it as a `data:application/pdf;base64,…` URL. */
+export async function generatePDFBase64(
+  stage: Konva.Stage,
+  buildings: PlacedBuilding[],
+  mapRotation = 0,
+  siteAddress?: string,
+  siteCoords?: { lat: number; lng: number },
+): Promise<string> {
+  const pdf = await buildPDF(stage, buildings, mapRotation, siteAddress, siteCoords);
+  return pdf.output("datauristring");
+}
+
+export async function downloadPDF(
+  stage: Konva.Stage,
+  buildings: PlacedBuilding[],
+  mapRotation = 0,
+  siteAddress?: string,
+  siteCoords?: { lat: number; lng: number },
+) {
+  const pdf = await buildPDF(stage, buildings, mapRotation, siteAddress, siteCoords);
+  pdf.save("site-layout.pdf");
+}
+
+// Internal: actual PDF assembly. Both generatePDFBase64 and downloadPDF use it.
+async function populatePDF(
+  pdf: import("jspdf").jsPDF,
+  stage: Konva.Stage,
+  buildings: PlacedBuilding[],
+  mapRotation: number,
+  siteAddress?: string,
+  siteCoords?: { lat: number; lng: number },
+) {
+  // We're inside an async helper now; the original body of downloadPDF
+  // moves here verbatim (sans the final pdf.save call).
 
   // Logo
   const logoDataUrl = await loadImageAsDataUrl("/images/logos/logo-color.png");
@@ -330,6 +373,4 @@ export async function downloadPDF(
   pdf.setFont("helvetica", "bold");
   pdf.setTextColor(40, 40, 40);
   pdf.text(`${scaleMetres}m`, scaleBarX + scaleBarW + 2, scaleBarY + 1);
-
-  pdf.save("site-layout.pdf");
 }

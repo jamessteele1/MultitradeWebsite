@@ -28,6 +28,7 @@ export const BOARDS = {
       productSlug: "text_mm2xb866",
       sourcePage: "link_mm2xqhe0",
       pdfFile: "link_mm2xfwm7",
+      pdfAttachment: "file_mm2ydk17",
       visitorInfo: "long_text_mm2xdjpa",
     },
   },

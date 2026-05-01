@@ -8,9 +8,10 @@ import PlannerToolbar from "./PlannerToolbar";
 import DrawingTools from "./DrawingTools";
 import MobileMapBar from "./MobileMapBar";
 import PlannerOnboarding from "./PlannerOnboarding";
+import MobilePdfDeliveryModal from "./MobilePdfDeliveryModal";
 import { usePlannerState } from "@/lib/site-planner/usePlannerState";
 import { getBuildingType } from "@/lib/site-planner/buildings";
-import { downloadPNG, downloadPDF } from "@/lib/site-planner/exportUtils";
+import { downloadPNG, downloadPDF, generatePDFBase64 } from "@/lib/site-planner/exportUtils";
 import { fetchSatelliteImage, type GeoResult } from "@/lib/site-planner/mapUtils";
 import { findDeckSnap } from "@/lib/site-planner/snapUtils";
 import { useQuoteCart } from "@/context/QuoteCartContext";
@@ -79,6 +80,10 @@ export default function SitePlannerClient() {
   const [placingLabel, setPlacingLabel] = useState("");
   const [buildingPopupOpen, setBuildingPopupOpen] = useState(false);
 
+  // Mobile PDF delivery modal — opens instead of jsPDF.save() since mobile
+  // browsers handle direct PDF downloads inconsistently.
+  const [pdfModalOpen, setPdfModalOpen] = useState(false);
+
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);
     check();
@@ -122,7 +127,24 @@ export default function SitePlannerClient() {
   }, []);
 
   const handleExportPDF = useCallback(() => {
-    if (stageRef.current) downloadPDF(stageRef.current, state.buildings, mapRotation, siteAddress, siteCoords);
+    if (!stageRef.current) return;
+    if (isMobile) {
+      // Mobile browsers (especially in-app browsers) handle direct PDF
+      // downloads inconsistently — pop the email-or-open modal instead.
+      setPdfModalOpen(true);
+      return;
+    }
+    downloadPDF(stageRef.current, state.buildings, mapRotation, siteAddress, siteCoords);
+  }, [isMobile, state.buildings, mapRotation, siteAddress, siteCoords]);
+
+  const generatePdfBase64 = useCallback(async (): Promise<string | null> => {
+    if (!stageRef.current) return null;
+    try {
+      return await generatePDFBase64(stageRef.current, state.buildings, mapRotation, siteAddress, siteCoords);
+    } catch (err) {
+      console.error("PDF generation failed:", err);
+      return null;
+    }
   }, [state.buildings, mapRotation, siteAddress, siteCoords]);
 
   // Building move with deck snap detection
@@ -474,6 +496,15 @@ export default function SitePlannerClient() {
           onAddCustom={(w, d, label) => {
             handleSelectPlacingType(`custom-${w}x${d}`, label);
           }}
+        />
+
+        {/* Mobile PDF delivery — email or open-in-tab */}
+        <MobilePdfDeliveryModal
+          open={pdfModalOpen}
+          onClose={() => setPdfModalOpen(false)}
+          generatePdf={generatePdfBase64}
+          productName={siteAddress ? `Site Layout — ${siteAddress.split(",")[0]}` : "Site Layout"}
+          productSlug="site-planner"
         />
       </div>
     );

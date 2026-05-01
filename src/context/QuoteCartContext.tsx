@@ -21,6 +21,20 @@ export type CartItem = {
   serviceUpgrades?: ServiceUpgrades;
 };
 
+/**
+ * Snapshot of the site planner attached to a quote submission so the sales
+ * team can see the actual layout the customer designed. Stored in-session
+ * only — the PNG is base64 and we don't want it persisted to localStorage.
+ */
+export type SiteLayoutSnapshot = {
+  /** Base64 dataURL of the planner canvas as a PNG */
+  png: string;
+  /** JSON string with buildings, drawings, texts, address, coords */
+  json: string;
+  /** Optional human-readable address for context */
+  address?: string;
+};
+
 type QuoteCartContextType = {
   items: CartItem[];
   isOpen: boolean;
@@ -33,6 +47,9 @@ type QuoteCartContextType = {
   closeCart: () => void;
   toggleCart: () => void;
   isInCart: (id: string) => boolean;
+  /** Site planner snapshot attached to the next quote submission */
+  siteLayout: SiteLayoutSnapshot | null;
+  setSiteLayout: (layout: SiteLayoutSnapshot | null) => void;
 };
 
 const STORAGE_KEY = "multitrade-quote-cart";
@@ -44,6 +61,8 @@ export function QuoteCartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [hydrated, setHydrated] = useState(false);
+  // Session-only — never persisted to localStorage (PNG is large + sensitive)
+  const [siteLayout, setSiteLayout] = useState<SiteLayoutSnapshot | null>(null);
 
   // Hydrate from localStorage on mount
   useEffect(() => {
@@ -90,6 +109,7 @@ export function QuoteCartProvider({ children }: { children: ReactNode }) {
   const clearCart = useCallback(() => {
     setItems([]);
     setIsOpen(false);
+    setSiteLayout(null);
   }, []);
 
   const openCart = useCallback(() => setIsOpen(true), []);
@@ -111,6 +131,8 @@ export function QuoteCartProvider({ children }: { children: ReactNode }) {
         closeCart,
         toggleCart,
         isInCart,
+        siteLayout,
+        setSiteLayout,
       }}
     >
       {children}

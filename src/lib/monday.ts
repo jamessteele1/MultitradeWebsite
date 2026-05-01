@@ -52,6 +52,9 @@ export const BOARDS = {
       source: "text_mm2xb4y6",
       sourcePage: "link_mm2xvkeh",
       visitorInfo: "long_text_mm2x8j5",
+      // Site planner snapshot — set when the lead came via the planner
+      siteLayout: "file_mm2y85mc",
+      layoutData: "long_text_mm2ys3ng",
     },
   },
   /** Contact Form Submissions — general /contact page enquiries */
@@ -164,6 +167,71 @@ export async function createMondayItem(
     return { ok: true, itemId: data.data?.create_item?.id };
   } catch (err) {
     console.error("[monday] network error:", err);
+    return { ok: false, error: "network" };
+  }
+}
+
+/**
+ * Convert a base64 dataURL into a Buffer-like object suitable for FormData.
+ */
+function dataUrlToBlob(dataUrl: string): { buffer: Buffer; mime: string } | null {
+  const match = dataUrl.match(/^data:([^;]+);base64,(.+)$/);
+  if (!match) return null;
+  return { mime: match[1], buffer: Buffer.from(match[2], "base64") };
+}
+
+/**
+ * Upload a base64-encoded image to a file column on a monday.com item.
+ * Uses the file-upload variant of the GraphQL endpoint (multipart/form-data).
+ * Always fail-open — caller doesn't need to await this for success.
+ */
+export async function uploadFileToColumn(
+  itemId: string,
+  columnId: string,
+  dataUrl: string,
+  filename = "site-layout.png",
+): Promise<{ ok: boolean; error?: string }> {
+  const apiKey = process.env.MONDAY_API_KEY;
+  if (!apiKey) {
+    console.warn("[monday] MONDAY_API_KEY not set — skipping file upload.");
+    return { ok: false, error: "no_api_key" };
+  }
+
+  const blob = dataUrlToBlob(dataUrl);
+  if (!blob) {
+    console.warn("[monday] Bad dataURL — skipping file upload.");
+    return { ok: false, error: "bad_data_url" };
+  }
+
+  try {
+    // Monday's file upload uses a GraphQL multipart spec
+    // (https://github.com/jaydenseric/graphql-multipart-request-spec)
+    const form = new FormData();
+    form.append(
+      "query",
+      `mutation ($file: File!) { add_file_to_column(item_id: ${itemId}, column_id: ${JSON.stringify(columnId)}, file: $file) { id } }`,
+    );
+    form.append("map", '{"image":"variables.file"}');
+    form.append("variables[file]", "");
+    form.append(
+      "image",
+      new Blob([blob.buffer], { type: blob.mime }),
+      filename,
+    );
+
+    const res = await fetch("https://api.monday.com/v2/file", {
+      method: "POST",
+      headers: { Authorization: apiKey },
+      body: form,
+    });
+    const data = await res.json();
+    if (data.errors) {
+      console.error("[monday] file upload error:", data.errors);
+      return { ok: false, error: "monday_error" };
+    }
+    return { ok: true };
+  } catch (err) {
+    console.error("[monday] file upload network error:", err);
     return { ok: false, error: "network" };
   }
 }

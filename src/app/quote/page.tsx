@@ -46,7 +46,7 @@ const INITIAL_FORM: FormData = {
 };
 
 export default function QuotePage() {
-  const { items, removeItem, updateQuantity, clearCart, itemCount } = useQuoteCart();
+  const { items, removeItem, updateQuantity, clearCart, itemCount, siteLayout } = useQuoteCart();
   const [form, setForm] = useState<FormData>(INITIAL_FORM);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -124,6 +124,15 @@ export default function QuotePage() {
             quantity: item.quantity,
             ...(item.serviceUpgrades ? { serviceUpgrades: item.serviceUpgrades } : {}),
           })),
+          // Site planner snapshot — only present when the lead came via the
+          // planner. Used to attach the layout PNG + JSON to the Monday item.
+          ...(siteLayout
+            ? {
+                siteLayoutPng: siteLayout.png,
+                siteLayoutJson: siteLayout.json,
+                source: "Site Planner",
+              }
+            : {}),
         }),
       });
 

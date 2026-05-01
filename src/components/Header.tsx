@@ -207,7 +207,7 @@ export default function Header() {
           </button>
           <Link
             href="/quote"
-            className="px-5 py-2.5 rounded-lg text-sm font-semibold text-gray-900 bg-gold hover:brightness-110 transition-all"
+            className="glow-gold px-5 py-2.5 rounded-lg text-sm font-semibold text-gray-900 bg-gold hover:brightness-110 transition-all"
           >
             Get a Quote
           </Link>

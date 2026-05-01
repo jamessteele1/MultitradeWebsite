@@ -91,6 +91,41 @@ html {
   to { opacity: 1; transform: translateY(0); }
 }
 
+/* Subtle pulsing glow for the primary "Get a Quote" call-to-action.
+   Uses two box-shadows that breathe in and out so the button remains
+   readable but draws the eye when the page is otherwise still. */
+@keyframes goldPulse {
+  0%, 100% {
+    box-shadow:
+      0 0 0 0 rgba(212, 168, 67, 0.55),
+      0 6px 16px rgba(212, 168, 67, 0.18);
+  }
+  50% {
+    box-shadow:
+      0 0 0 8px rgba(212, 168, 67, 0),
+      0 8px 24px rgba(212, 168, 67, 0.45);
+  }
+}
+
+.glow-gold {
+  animation: goldPulse 2.4s ease-in-out infinite;
+}
+
+.glow-gold:hover {
+  /* Pause the pulse on hover so the button reads as a normal interactive
+     element once the user has noticed it. */
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glow-gold {
+    animation: none;
+    box-shadow:
+      0 0 0 4px rgba(212, 168, 67, 0.25),
+      0 8px 16px rgba(212, 168, 67, 0.25);
+  }
+}
+
 /* Hide MobileCTA when a dialog is open */
 body[data-dialog-open] #mobile-cta {
   display: none !important;

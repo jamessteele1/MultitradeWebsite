@@ -7,6 +7,7 @@ import BuildingSelectionPopup from "./BuildingSelectionPopup";
 import PlannerToolbar from "./PlannerToolbar";
 import DrawingTools from "./DrawingTools";
 import MobileMapBar from "./MobileMapBar";
+import PlannerOnboarding from "./PlannerOnboarding";
 import { usePlannerState } from "@/lib/site-planner/usePlannerState";
 import { getBuildingType } from "@/lib/site-planner/buildings";
 import { downloadPNG, downloadPDF } from "@/lib/site-planner/exportUtils";
@@ -57,7 +58,7 @@ export default function SitePlannerClient() {
   const stageRef = useRef<Konva.Stage>(null);
   const [isMobile, setIsMobile] = useState(false);
   const state = usePlannerState();
-  const { addItem, openCart, items: cartItems, updateQuantity } = useQuoteCart();
+  const { addItem, openCart, items: cartItems, updateQuantity, setSiteLayout } = useQuoteCart();
 
   // Drawing/text tool state
   const [tool, setTool] = useState<ToolMode>("select");
@@ -218,8 +219,31 @@ export default function SitePlannerClient() {
         if (qty > 1) updateQuantity(cartId, qty);
       }
     }
+
+    // Capture a snapshot of the site layout so the sales team has the design
+    // alongside the quote. PNG goes to a file column on the Monday lead, the
+    // structured JSON gets attached as long-text so we can re-import it later.
+    if (stageRef.current) {
+      try {
+        const png = stageRef.current.toDataURL({ pixelRatio: 1.5, mimeType: "image/png" });
+        const json = JSON.stringify({
+          buildings: state.buildings,
+          drawings: state.drawings,
+          texts: state.texts,
+          siteAddress,
+          siteCoords,
+          mapRotation,
+          sunEnabled,
+          capturedAt: new Date().toISOString(),
+        });
+        setSiteLayout({ png, json, address: siteAddress });
+      } catch (err) {
+        console.warn("Site layout snapshot failed:", err);
+      }
+    }
+
     openCart();
-  }, [state.buildings, addItem, openCart, cartItems, updateQuantity]);
+  }, [state.buildings, state.drawings, state.texts, addItem, openCart, cartItems, updateQuantity, setSiteLayout, siteAddress, siteCoords, mapRotation, sunEnabled]);
 
   // Map handlers
   const handleMapSelect = useCallback(async (result: GeoResult) => {
@@ -309,6 +333,9 @@ export default function SitePlannerClient() {
   if (isMobile) {
     return (
       <div className="px-2 py-2 space-y-1.5 pb-16">
+        {/* First-visit explainer — dismissible, persisted */}
+        <PlannerOnboarding isMobile />
+
         {/* Compact mobile action toolbar — fits on a single screen width */}
         <div className="flex items-center gap-0.5 bg-white rounded-xl border border-gray-200 px-1.5 py-1.5">
           {/* Add Building (primary) */}
@@ -355,11 +382,11 @@ export default function SitePlannerClient() {
             </svg>
           </button>
 
-          {/* Quote — prominent gold pill */}
+          {/* Quote — prominent gold pill with attention-grabbing pulse */}
           <button
             onClick={handleGetQuote}
             disabled={state.buildings.length === 0}
-            className="flex-shrink-0 ml-1 inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-[11px] font-extrabold bg-gold text-gray-900 shadow-sm shadow-amber-500/20 disabled:opacity-40 disabled:shadow-none"
+            className={`flex-shrink-0 ml-1 inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-[11px] font-extrabold bg-gold text-gray-900 disabled:opacity-40 ${state.buildings.length > 0 ? "glow-gold" : "shadow-sm shadow-amber-500/20"}`}
           >
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="9 11 12 14 22 4" /><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" />
@@ -456,6 +483,9 @@ export default function SitePlannerClient() {
 
   return (
     <div className="max-w-[1600px] mx-auto px-4 py-6 space-y-3">
+      {/* First-visit explainer — dismissible, persisted */}
+      <PlannerOnboarding />
+
       {/* Toolbar */}
       <PlannerToolbar
         selectedId={state.selectedId}

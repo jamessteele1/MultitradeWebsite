@@ -64,7 +64,7 @@ export const CATEGORY_LABELS: Record<string, string> = {
 };
 
 export function getBuildingType(id: string): BuildingType | undefined {
-  // Custom covered deck — clamped to 3.4m wide × 15m long
+  // Custom covered deck — clamped to 15m long × 3.4m wide
   const customDeckMatch = id.match(/^custom-deck-(\d+(?:\.\d+)?)x(\d+(?:\.\d+)?)$/);
   if (customDeckMatch) {
     const w = Math.min(15, Math.max(0.5, parseFloat(customDeckMatch[1])));
@@ -78,6 +78,22 @@ export function getBuildingType(id: string): BuildingType | undefined {
       color: "#D2B48C",
       stroke: "#8B4513",
       category: "decks",
+    };
+  }
+  // Custom complex — clamped to 24m × 18m (multi-module joined complexes)
+  const customComplexMatch = id.match(/^custom-complex-(\d+(?:\.\d+)?)x(\d+(?:\.\d+)?)$/);
+  if (customComplexMatch) {
+    const w = Math.min(24, Math.max(3, parseFloat(customComplexMatch[1])));
+    const d = Math.min(18, Math.max(3, parseFloat(customComplexMatch[2])));
+    return {
+      id,
+      name: `${w}×${d}m Complex`,
+      shortLabel: `${w}×${d}m Complex`,
+      widthM: w,
+      depthM: d,
+      color: "#FCD34D",
+      stroke: "#A16207",
+      category: "complexes",
     };
   }
   // Generic custom building IDs (format: custom-WxD)

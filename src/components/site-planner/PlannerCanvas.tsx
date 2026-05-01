@@ -197,10 +197,11 @@ export default function PlannerCanvas({
       const y = (e.clientY - rect.top - stagePos.y) / zoom / PIXELS_PER_METRE;
 
       if (customWidth && customDepth) {
-        // Deck-typed custom uses onAdd with the resolved typeId so the custom-deck-WxD
-        // path through getBuildingType picks the deck colours and category. Generic
-        // shapes go through onAddCustom which builds a custom-WxD type.
-        if (customMode === "deck") {
+        // Category-flagged customs use onAdd with the resolved typeId so the
+        // custom-deck-WxD / custom-complex-WxD path through getBuildingType
+        // picks the right colours and category. Generic shapes go through
+        // onAddCustom which builds a custom-WxD type.
+        if (customMode === "deck" || customMode === "complex") {
           const type = getBuildingType(typeId);
           if (type) {
             onAdd(typeId, x - type.widthM / 2, y - type.depthM / 2, label || type.shortLabel);
@@ -233,19 +234,11 @@ export default function PlannerCanvas({
         const x = (pointer.x - stagePos.x) / zoom / PIXELS_PER_METRE;
         const y = (pointer.y - stagePos.y) / zoom / PIXELS_PER_METRE;
 
-        const customDeckMatch = placingTypeId.match(/^custom-deck-(\d+(?:\.\d+)?)x(\d+(?:\.\d+)?)$/);
-        const customMatch = placingTypeId.match(/^custom-(\d+(?:\.\d+)?)x(\d+(?:\.\d+)?)$/);
-        if (customDeckMatch || customMatch) {
-          // Use the resolved type's clamped dimensions for placement
-          const type = getBuildingType(placingTypeId);
-          if (type) {
-            onAdd(placingTypeId, x - type.widthM / 2, y - type.depthM / 2, placingLabel || type.shortLabel);
-          }
-        } else {
-          const type = getBuildingType(placingTypeId);
-          if (type) {
-            onAdd(placingTypeId, x - type.widthM / 2, y - type.depthM / 2, placingLabel || type.shortLabel);
-          }
+        // Resolve via getBuildingType — handles fixed types and all custom
+        // variants (custom-WxD, custom-deck-WxD, custom-complex-WxD).
+        const type = getBuildingType(placingTypeId);
+        if (type) {
+          onAdd(placingTypeId, x - type.widthM / 2, y - type.depthM / 2, placingLabel || type.shortLabel);
         }
         onPlaced();
         return;

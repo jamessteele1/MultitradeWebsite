@@ -24,10 +24,14 @@ export default function BuildingPalette({ className = "", onAddCustom, selectedT
   const [customW, setCustomW] = useState(6);
   const [customD, setCustomD] = useState(3);
   const [customLabel, setCustomLabel] = useState("Custom");
-  // Custom covered deck — clamped to 3.4m wide × 15m long
+  // Custom covered deck — clamped to 15m long × 3.4m wide
   const [deckW, setDeckW] = useState(6);
   const [deckD, setDeckD] = useState(3);
   const [deckLabel, setDeckLabel] = useState("Covered Deck");
+  // Custom complex — clamped to 24m × 18m
+  const [complexW, setComplexW] = useState(12);
+  const [complexD, setComplexD] = useState(6);
+  const [complexLabel, setComplexLabel] = useState("Complex");
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mobileCategory, setMobileCategory] = useState<string>(grouped[0]?.[0] || "offices");
 
@@ -52,14 +56,28 @@ export default function BuildingPalette({ className = "", onAddCustom, selectedT
     d: Math.min(3.4, Math.max(0.5, deckD)),
   });
 
+  const clampComplex = () => ({
+    w: Math.min(24, Math.max(3, complexW)),
+    d: Math.min(18, Math.max(3, complexD)),
+  });
+
   const handleCustomDeckDragStart = (e: React.DragEvent) => {
     const { w, d } = clampDeck();
     e.dataTransfer.setData("buildingTypeId", `custom-deck-${w}x${d}`);
     e.dataTransfer.setData("buildingLabel", deckLabel || `${w}×${d}m Deck`);
-    // Use the deck-flagged keys so the canvas calls onAddCustom in deck mode
     e.dataTransfer.setData("customWidth", String(w));
     e.dataTransfer.setData("customDepth", String(d));
     e.dataTransfer.setData("customMode", "deck");
+    e.dataTransfer.effectAllowed = "copy";
+  };
+
+  const handleCustomComplexDragStart = (e: React.DragEvent) => {
+    const { w, d } = clampComplex();
+    e.dataTransfer.setData("buildingTypeId", `custom-complex-${w}x${d}`);
+    e.dataTransfer.setData("buildingLabel", complexLabel || `${w}×${d}m Complex`);
+    e.dataTransfer.setData("customWidth", String(w));
+    e.dataTransfer.setData("customDepth", String(d));
+    e.dataTransfer.setData("customMode", "complex");
     e.dataTransfer.effectAllowed = "copy";
   };
 
@@ -148,59 +166,66 @@ export default function BuildingPalette({ className = "", onAddCustom, selectedT
               ))}
             </div>
 
-            {/* Custom size (simplified for mobile) */}
-            <div className="px-3 pb-3 space-y-2">
-              <div className="p-2.5 rounded-lg border border-gray-200 bg-gray-50 space-y-2">
-                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Custom Size</p>
-                <div className="flex items-center gap-1.5">
-                  <input type="number" value={customW} onChange={(e) => setCustomW(Math.min(24, Math.max(1, parseFloat(e.target.value) || 1)))}
-                    className="w-14 px-1.5 py-1 text-xs text-center rounded border border-gray-200 focus:outline-none focus:ring-1 focus:ring-amber-500"
-                    min={1} max={24} step={0.5} />
-                  <span className="text-[10px] text-gray-400">×</span>
-                  <input type="number" value={customD} onChange={(e) => setCustomD(Math.min(16, Math.max(1, parseFloat(e.target.value) || 1)))}
-                    className="w-14 px-1.5 py-1 text-xs text-center rounded border border-gray-200 focus:outline-none focus:ring-1 focus:ring-amber-500"
-                    min={1} max={16} step={0.5} />
-                  <span className="text-[10px] text-gray-400">m</span>
-                  <button
-                    onClick={() => {
-                      const w = Math.min(24, Math.max(1, customW));
-                      const h = Math.min(16, Math.max(1, customD));
-                      onSelectType?.(`custom-${w}x${h}`, customLabel || `${w}×${h}m`);
-                    }}
-                    className="ml-auto px-3 py-1 text-[10px] font-semibold rounded-lg bg-amber-100 text-amber-800 border border-amber-200"
-                  >
-                    Select
-                  </button>
+            {/* Category-specific custom sizes — only shown when relevant tab active */}
+            {mobileCategory === "decks" && (
+              <div className="px-3 pb-3">
+                <div className="p-2.5 rounded-lg border border-amber-200 bg-amber-50/50 space-y-2">
+                  <p className="text-[10px] font-bold text-amber-700 uppercase tracking-wider">Custom Covered Deck</p>
+                  <div className="flex items-center gap-1.5">
+                    <input type="number" value={deckW}
+                      onChange={(e) => setDeckW(Math.min(15, Math.max(0.5, parseFloat(e.target.value) || 0.5)))}
+                      className="w-14 px-1.5 py-1 text-xs text-center rounded border border-amber-200 bg-white focus:outline-none focus:ring-1 focus:ring-amber-500"
+                      min={0.5} max={15} step={0.1} title="Length up to 15m" />
+                    <span className="text-[10px] text-gray-400">×</span>
+                    <input type="number" value={deckD}
+                      onChange={(e) => setDeckD(Math.min(3.4, Math.max(0.5, parseFloat(e.target.value) || 0.5)))}
+                      className="w-14 px-1.5 py-1 text-xs text-center rounded border border-amber-200 bg-white focus:outline-none focus:ring-1 focus:ring-amber-500"
+                      min={0.5} max={3.4} step={0.1} title="Width up to 3.4m" />
+                    <span className="text-[10px] text-gray-400">m</span>
+                    <button
+                      onClick={() => {
+                        const { w, d } = clampDeck();
+                        onSelectType?.(`custom-deck-${w}x${d}`, deckLabel || `${w}×${d}m Deck`);
+                      }}
+                      className="ml-auto px-3 py-1 text-[10px] font-semibold rounded-lg bg-amber-100 text-amber-800 border border-amber-300"
+                    >
+                      Select
+                    </button>
+                  </div>
+                  <p className="text-[9px] text-amber-700/70">Max 15 × 3.4m</p>
                 </div>
               </div>
+            )}
 
-              {/* Custom Covered Deck (mobile) */}
-              <div className="p-2.5 rounded-lg border border-amber-200 bg-amber-50/50 space-y-2">
-                <p className="text-[10px] font-bold text-amber-700 uppercase tracking-wider">Custom Covered Deck</p>
-                <div className="flex items-center gap-1.5">
-                  <input type="number" value={deckW}
-                    onChange={(e) => setDeckW(Math.min(15, Math.max(0.5, parseFloat(e.target.value) || 0.5)))}
-                    className="w-14 px-1.5 py-1 text-xs text-center rounded border border-amber-200 bg-white focus:outline-none focus:ring-1 focus:ring-amber-500"
-                    min={0.5} max={15} step={0.1} title="Length up to 15m" />
-                  <span className="text-[10px] text-gray-400">×</span>
-                  <input type="number" value={deckD}
-                    onChange={(e) => setDeckD(Math.min(3.4, Math.max(0.5, parseFloat(e.target.value) || 0.5)))}
-                    className="w-14 px-1.5 py-1 text-xs text-center rounded border border-amber-200 bg-white focus:outline-none focus:ring-1 focus:ring-amber-500"
-                    min={0.5} max={3.4} step={0.1} title="Width up to 3.4m" />
-                  <span className="text-[10px] text-gray-400">m</span>
-                  <button
-                    onClick={() => {
-                      const { w, d } = clampDeck();
-                      onSelectType?.(`custom-deck-${w}x${d}`, deckLabel || `${w}×${d}m Deck`);
-                    }}
-                    className="ml-auto px-3 py-1 text-[10px] font-semibold rounded-lg bg-amber-100 text-amber-800 border border-amber-300"
-                  >
-                    Select
-                  </button>
+            {mobileCategory === "complexes" && (
+              <div className="px-3 pb-3">
+                <div className="p-2.5 rounded-lg border border-yellow-300 bg-yellow-50/60 space-y-2">
+                  <p className="text-[10px] font-bold text-yellow-800 uppercase tracking-wider">Custom Complex</p>
+                  <div className="flex items-center gap-1.5">
+                    <input type="number" value={complexW}
+                      onChange={(e) => setComplexW(Math.min(24, Math.max(3, parseFloat(e.target.value) || 3)))}
+                      className="w-14 px-1.5 py-1 text-xs text-center rounded border border-yellow-300 bg-white focus:outline-none focus:ring-1 focus:ring-amber-500"
+                      min={3} max={24} step={0.5} title="Width up to 24m" />
+                    <span className="text-[10px] text-gray-400">×</span>
+                    <input type="number" value={complexD}
+                      onChange={(e) => setComplexD(Math.min(18, Math.max(3, parseFloat(e.target.value) || 3)))}
+                      className="w-14 px-1.5 py-1 text-xs text-center rounded border border-yellow-300 bg-white focus:outline-none focus:ring-1 focus:ring-amber-500"
+                      min={3} max={18} step={0.5} title="Depth up to 18m" />
+                    <span className="text-[10px] text-gray-400">m</span>
+                    <button
+                      onClick={() => {
+                        const { w, d } = clampComplex();
+                        onSelectType?.(`custom-complex-${w}x${d}`, complexLabel || `${w}×${d}m Complex`);
+                      }}
+                      className="ml-auto px-3 py-1 text-[10px] font-semibold rounded-lg bg-yellow-100 text-yellow-900 border border-yellow-400"
+                    >
+                      Select
+                    </button>
+                  </div>
+                  <p className="text-[9px] text-yellow-800/70">Max 24 × 18m</p>
                 </div>
-                <p className="text-[9px] text-amber-700/70">Max 15 × 3.4m</p>
               </div>
-            </div>
+            )}
           </div>
         )}
       </div>
@@ -308,6 +333,57 @@ export default function BuildingPalette({ className = "", onAddCustom, selectedT
                     Drag to place
                   </div>
                   <p className="text-[9px] text-amber-700/70 text-center">Max 15 × 3.4m</p>
+                </div>
+              )}
+
+              {/* Custom Complex — only inside the complexes category */}
+              {category === "complexes" && (
+                <div className="p-2.5 rounded-lg border border-yellow-300 bg-yellow-50/60 space-y-2">
+                  <p className="text-[10px] font-bold text-yellow-800 uppercase tracking-wider">Custom Complex</p>
+                  <div className="flex items-center gap-1.5">
+                    <input
+                      type="number"
+                      value={complexW}
+                      onChange={(e) => setComplexW(Math.min(24, Math.max(3, parseFloat(e.target.value) || 3)))}
+                      className="w-14 px-1.5 py-1 text-xs text-center rounded border border-yellow-300 bg-white focus:outline-none focus:ring-1 focus:ring-amber-500"
+                      min={3} max={24} step={0.5}
+                      title="Width up to 24m"
+                    />
+                    <span className="text-[10px] text-gray-400">×</span>
+                    <input
+                      type="number"
+                      value={complexD}
+                      onChange={(e) => setComplexD(Math.min(18, Math.max(3, parseFloat(e.target.value) || 3)))}
+                      className="w-14 px-1.5 py-1 text-xs text-center rounded border border-yellow-300 bg-white focus:outline-none focus:ring-1 focus:ring-amber-500"
+                      min={3} max={18} step={0.5}
+                      title="Depth up to 18m"
+                    />
+                    <span className="text-[10px] text-gray-400">m</span>
+                  </div>
+                  <input
+                    type="text"
+                    value={complexLabel}
+                    onChange={(e) => setComplexLabel(e.target.value)}
+                    placeholder="Label..."
+                    className="w-full px-2 py-1 text-xs rounded border border-yellow-300 bg-white focus:outline-none focus:ring-1 focus:ring-amber-500"
+                  />
+                  <div
+                    draggable
+                    onDragStart={handleCustomComplexDragStart}
+                    className="flex items-center gap-2 px-2.5 py-2 rounded-lg border border-dashed border-yellow-400 hover:border-yellow-500 hover:bg-yellow-100 cursor-grab active:cursor-grabbing transition-colors text-xs font-medium text-yellow-900"
+                  >
+                    <div
+                      className="rounded-sm border"
+                      style={{
+                        width: Math.max(20, Math.min(60, complexW * 2.5)),
+                        height: Math.max(14, Math.min(40, complexD * 2.5)),
+                        backgroundColor: "#FCD34D",
+                        borderColor: "#A16207",
+                      }}
+                    />
+                    Drag to place
+                  </div>
+                  <p className="text-[9px] text-yellow-800/70 text-center">Max 24 × 18m</p>
                 </div>
               )}
             </div>

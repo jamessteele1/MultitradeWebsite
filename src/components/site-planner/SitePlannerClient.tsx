@@ -6,6 +6,7 @@ import BuildingPalette from "./BuildingPalette";
 import BuildingSelectionPopup from "./BuildingSelectionPopup";
 import PlannerToolbar from "./PlannerToolbar";
 import DrawingTools from "./DrawingTools";
+import MobileMapBar from "./MobileMapBar";
 import { usePlannerState } from "@/lib/site-planner/usePlannerState";
 import { getBuildingType } from "@/lib/site-planner/buildings";
 import { downloadPNG, downloadPDF } from "@/lib/site-planner/exportUtils";
@@ -307,58 +308,75 @@ export default function SitePlannerClient() {
 
   if (isMobile) {
     return (
-      <div className="px-2 py-2 space-y-2 pb-16">
-        {/* Compact mobile toolbar */}
-        <div className="flex items-center gap-1 bg-white rounded-xl border border-gray-200 px-2 py-1.5 overflow-x-auto scrollbar-hide">
-          {/* Add Building button */}
+      <div className="px-2 py-2 space-y-1.5 pb-16">
+        {/* Compact mobile action toolbar — fits on a single screen width */}
+        <div className="flex items-center gap-0.5 bg-white rounded-xl border border-gray-200 px-1.5 py-1.5">
+          {/* Add Building (primary) */}
           <button
             onClick={() => setBuildingPopupOpen(true)}
-            className="flex-shrink-0 flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-amber-500 text-white text-[10px] font-bold"
+            className="flex-shrink-0 flex items-center gap-1 px-2 py-1.5 rounded-lg bg-amber-500 text-white text-[10px] font-bold"
+            aria-label="Add building"
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
               <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
             </svg>
             Add
           </button>
 
-          <div className="w-px h-5 bg-gray-200 mx-0.5 flex-shrink-0" />
-
-          <button onClick={handleRotate} disabled={!state.selectedId} className="flex-shrink-0 p-2 rounded-lg text-gray-600 disabled:text-gray-300" title="Rotate">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21.5 2v6h-6" /><path d="M21.34 13.5A10 10 0 115.5 3.36L21.5 8" /></svg>
+          <button onClick={handleRotate} disabled={!state.selectedId} className="flex-shrink-0 p-1.5 rounded-lg text-gray-600 disabled:text-gray-300" aria-label="Rotate" title="Rotate">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21.5 2v6h-6" /><path d="M21.34 13.5A10 10 0 115.5 3.36L21.5 8" /></svg>
           </button>
-          <button onClick={handleDelete} disabled={!state.selectedId} className="flex-shrink-0 p-2 rounded-lg text-red-500 disabled:text-gray-300" title="Delete">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" /></svg>
+          <button onClick={handleDelete} disabled={!state.selectedId} className="flex-shrink-0 p-1.5 rounded-lg text-red-500 disabled:text-gray-300" aria-label="Delete" title="Delete">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" /></svg>
           </button>
-          <button onClick={state.undo} disabled={!state.canUndo} className="flex-shrink-0 p-2 rounded-lg text-gray-600 disabled:text-gray-300" title="Undo">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 7v6h6" /><path d="M3 13a9 9 0 0115.36-6.36L21 9" /></svg>
+          <button onClick={state.undo} disabled={!state.canUndo} className="flex-shrink-0 p-1.5 rounded-lg text-gray-600 disabled:text-gray-300" aria-label="Undo" title="Undo">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 7v6h6" /><path d="M3 13a9 9 0 0115.36-6.36L21 9" /></svg>
           </button>
-
-          <div className="w-px h-5 bg-gray-200 mx-0.5 flex-shrink-0" />
-
-          <button onClick={handleClear} disabled={state.buildings.length === 0} className="flex-shrink-0 px-2 py-1.5 text-[10px] font-semibold text-gray-600 disabled:text-gray-300 rounded-lg">
-            Clear
+          <button onClick={handleClear} disabled={state.buildings.length === 0 && state.drawings.length === 0 && state.texts.length === 0} className="flex-shrink-0 p-1.5 rounded-lg text-gray-500 disabled:text-gray-300" aria-label="Clear" title="Clear">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 6h18" /><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6" /><path d="M10 11v6M14 11v6" /><path d="M9 6V4a2 2 0 012-2h2a2 2 0 012 2v2" />
+            </svg>
           </button>
-
-          <button onClick={() => setSunEnabled(p => !p)} className={`flex-shrink-0 p-2 rounded-lg ${sunEnabled ? "text-amber-600 bg-amber-50" : "text-gray-600"}`} title="Sun">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="5" /><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" />
-              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
-              <line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" />
-              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+          <button onClick={() => setSunEnabled(p => !p)} className={`flex-shrink-0 p-1.5 rounded-lg ${sunEnabled ? "text-amber-600 bg-amber-50" : "text-gray-600"}`} aria-label="Sun direction" title="Sun direction">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="4" />
+              <line x1="12" y1="1.5" x2="12" y2="4" /><line x1="12" y1="20" x2="12" y2="22.5" />
+              <line x1="4.5" y1="4.5" x2="6" y2="6" /><line x1="18" y1="18" x2="19.5" y2="19.5" />
+              <line x1="1.5" y1="12" x2="4" y2="12" /><line x1="20" y1="12" x2="22.5" y2="12" />
+              <line x1="4.5" y1="19.5" x2="6" y2="18" /><line x1="18" y1="6" x2="19.5" y2="4.5" />
             </svg>
           </button>
 
           <div className="flex-1" />
 
-          <span className="text-[10px] text-gray-400 flex-shrink-0">{state.buildings.length}</span>
-
-          <button onClick={handleExportPDF} disabled={state.buildings.length === 0} className="flex-shrink-0 px-2 py-1.5 text-[10px] font-semibold text-gray-600 disabled:text-gray-300 rounded-lg border border-gray-200">
-            PDF
+          <button onClick={handleExportPDF} disabled={state.buildings.length === 0} className="flex-shrink-0 p-1.5 rounded-lg text-gray-600 disabled:text-gray-300 border border-gray-200" aria-label="Export PDF" title="Export PDF">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><polyline points="14 2 14 8 20 8" />
+            </svg>
           </button>
-          <button onClick={handleGetQuote} disabled={state.buildings.length === 0} className="flex-shrink-0 px-2.5 py-1.5 text-[10px] font-bold bg-gold text-gray-900 rounded-lg disabled:opacity-40">
+
+          {/* Quote — prominent gold pill */}
+          <button
+            onClick={handleGetQuote}
+            disabled={state.buildings.length === 0}
+            className="flex-shrink-0 ml-1 inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-[11px] font-extrabold bg-gold text-gray-900 shadow-sm shadow-amber-500/20 disabled:opacity-40 disabled:shadow-none"
+          >
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="9 11 12 14 22 4" /><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" />
+            </svg>
             Quote
           </button>
         </div>
+
+        {/* Address search + map rotation */}
+        <MobileMapBar
+          hasMap={!!mapData}
+          mapLoading={mapLoading}
+          mapRotation={mapRotation}
+          onMapSelect={handleMapSelect}
+          onMapRotation={setMapRotation}
+          onMapRemove={handleMapRemove}
+        />
 
         {/* Placement mode banner */}
         {placingTypeId && (

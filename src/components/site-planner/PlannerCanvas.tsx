@@ -729,6 +729,11 @@ export default function PlannerCanvas({
       <div
         ref={containerRef}
         className="w-full h-full min-h-[500px]"
+        // Stop the browser from scrolling the page or pinch-zooming the
+        // viewport while the user is interacting with the canvas. Konva
+        // handles every gesture itself (pan, pinch-zoom, draw, polygon,
+        // text-place) and we lose them all if the browser intercepts.
+        style={{ touchAction: "none" }}
         onDragOver={(e) => e.preventDefault()}
         onDrop={handleDrop}
       >

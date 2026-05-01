@@ -408,7 +408,7 @@ export default function SitePlannerClient() {
 
   if (isMobile) {
     return (
-      <div className="px-2 py-2 space-y-1.5 pb-16">
+      <div className="px-2 py-2 space-y-1.5 pb-3">
         {/* First-visit explainer — dismissible, persisted */}
         <PlannerOnboarding isMobile />
 

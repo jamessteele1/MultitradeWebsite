@@ -1,5 +1,4 @@
 import Header from "@/components/Header";
-import MobileCTA from "@/components/MobileCTA";
 import SitePlannerClient from "@/components/site-planner/SitePlannerClient";
 
 export const metadata = {
@@ -40,7 +39,10 @@ export default function SitePlannerPage() {
       <section className="bg-gray-50 min-h-[600px]">
         <SitePlannerClient />
       </section>
-      <MobileCTA />
+      {/* MobileCTA intentionally omitted on the planner — the floating
+          Call/Quote bar overlapped the planner toolbar at the bottom of
+          the screen on mobile. The planner already has its own prominent
+          Quote button + the header still has the gold CTA. */}
     </>
   );
 }

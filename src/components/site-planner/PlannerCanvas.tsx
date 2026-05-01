@@ -439,9 +439,33 @@ export default function PlannerCanvas({
     return () => window.removeEventListener("keydown", handler);
   }, [selectedTextId, onRemoveText]);
 
-  // Pinch-to-zoom for touch
+  // Pinch-to-zoom for touch.
+  //
+  // Konva's Stage `draggable` claims the first finger for stage panning, which
+  // means subsequent touch events from a second finger don't reliably trigger
+  // multi-touch zoom. The fix: when 2+ fingers come down, explicitly disable
+  // Stage drag so pinch-zoom owns the interaction. We restore drag on touchend
+  // once we're back to <2 fingers.
   const lastDist = useRef(0);
   const lastCenter = useRef({ x: 0, y: 0 });
+  const wasDraggablePinch = useRef(false);
+
+  const handleStageTouchStart = useCallback(
+    (e: Konva.KonvaEventObject<TouchEvent>) => {
+      const stage = stageRef.current;
+      if (stage && e.evt.touches.length >= 2) {
+        if (!wasDraggablePinch.current) wasDraggablePinch.current = stage.draggable();
+        stage.draggable(false);
+        // Reset accumulators so the first 2-finger move sets the baseline
+        lastDist.current = 0;
+      } else {
+        // Single-finger touchstart — same as mouse-down, may start a freehand
+        handleStageMouseDown(e);
+      }
+    },
+    [stageRef, handleStageMouseDown],
+  );
+
   const handleTouchMove = useCallback(
     (e: Konva.KonvaEventObject<TouchEvent>) => {
       const touch = e.evt.touches;
@@ -485,9 +509,18 @@ export default function PlannerCanvas({
     [zoom, stagePos, stageRef],
   );
 
-  const handleTouchEnd = useCallback(() => {
-    lastDist.current = 0;
-  }, []);
+  const handleTouchEnd = useCallback(
+    (e?: Konva.KonvaEventObject<TouchEvent>) => {
+      lastDist.current = 0;
+      const stage = stageRef.current;
+      // Restore stage drag once we're back to single-touch (or no-touch).
+      if (stage && (!e || e.evt.touches.length < 2) && wasDraggablePinch.current) {
+        stage.draggable(wasDraggablePinch.current && tool === "select");
+        wasDraggablePinch.current = false;
+      }
+    },
+    [stageRef, tool],
+  );
 
   // Grid lines
   const ppm = PIXELS_PER_METRE;
@@ -600,18 +633,55 @@ export default function PlannerCanvas({
         </div>
       )}
 
-      {/* Zoom controls */}
-      <div className="absolute top-3 right-3 z-10 flex items-center gap-1 bg-white/90 backdrop-blur rounded-lg border border-gray-200 shadow-sm px-1 py-1">
-        <button onClick={zoomOut} className="w-8 h-8 flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded transition-colors" title="Zoom out">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="5" y1="12" x2="19" y2="12" /></svg>
+      {/* Zoom controls — bigger touch targets on mobile so they're easy to find */}
+      <div
+        className={`absolute top-3 right-3 z-10 flex items-center bg-white/95 backdrop-blur rounded-xl border border-gray-200 shadow-md ${
+          isMobile ? "gap-0.5 px-1 py-1" : "gap-1 px-1 py-1"
+        }`}
+      >
+        <button
+          onClick={zoomOut}
+          className={`flex items-center justify-center text-gray-700 hover:bg-gray-100 active:bg-gray-200 rounded-lg transition-colors ${
+            isMobile ? "w-11 h-11" : "w-8 h-8"
+          }`}
+          title="Zoom out"
+          aria-label="Zoom out"
+        >
+          <svg width={isMobile ? "20" : "16"} height={isMobile ? "20" : "16"} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round">
+            <line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
         </button>
-        <button onClick={zoomReset} className="px-2 h-8 text-xs font-semibold text-gray-600 hover:bg-gray-100 rounded transition-colors" title="Reset zoom">
+        <button
+          onClick={zoomReset}
+          className={`font-bold text-gray-700 hover:bg-gray-100 active:bg-gray-200 rounded-lg transition-colors ${
+            isMobile ? "px-2.5 h-11 text-sm min-w-[58px]" : "px-2 h-8 text-xs"
+          }`}
+          title="Reset zoom to 100%"
+          aria-label={`Current zoom ${Math.round(zoom * 100)} percent — tap to reset`}
+        >
           {Math.round(zoom * 100)}%
         </button>
-        <button onClick={zoomIn} className="w-8 h-8 flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded transition-colors" title="Zoom in">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+        <button
+          onClick={zoomIn}
+          className={`flex items-center justify-center text-gray-700 hover:bg-gray-100 active:bg-gray-200 rounded-lg transition-colors ${
+            isMobile ? "w-11 h-11" : "w-8 h-8"
+          }`}
+          title="Zoom in"
+          aria-label="Zoom in"
+        >
+          <svg width={isMobile ? "20" : "16"} height={isMobile ? "20" : "16"} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round">
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
         </button>
       </div>
+
+      {/* Mobile hint: pinch-to-zoom or use buttons */}
+      {isMobile && (
+        <div className="absolute top-3 left-3 z-10 px-2.5 py-1 rounded-md bg-white/80 backdrop-blur border border-gray-200 text-[10px] font-semibold text-gray-500 pointer-events-none select-none">
+          Pinch to zoom
+        </div>
+      )}
 
       {/* Scale bar — bottom left */}
       <div className="absolute bottom-3 left-3 z-10 bg-white/90 backdrop-blur rounded-lg border border-gray-200 shadow-sm px-3 py-2">
@@ -683,7 +753,7 @@ export default function PlannerCanvas({
           onMouseDown={handleStageMouseDown}
           onMouseMove={handleStageMouseMove}
           onMouseUp={handleStageMouseUp}
-          onTouchStart={handleStageMouseDown}
+          onTouchStart={handleStageTouchStart}
           onTouchMove={(e) => {
             // Pinch-to-zoom for two-finger touch, single-finger draw
             if (e.evt.touches.length === 2) {
@@ -693,7 +763,7 @@ export default function PlannerCanvas({
             }
           }}
           onTouchEnd={(e) => {
-            handleTouchEnd();
+            handleTouchEnd(e);
             handleStageMouseUp();
           }}
           style={{ cursor: tool === "freehand" || tool === "polygon" ? "crosshair" : tool === "text" ? "text" : "default" }}

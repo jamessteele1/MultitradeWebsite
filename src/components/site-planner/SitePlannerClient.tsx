@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import BuildingPalette from "./BuildingPalette";
 import BuildingSelectionPopup from "./BuildingSelectionPopup";
 import PlannerToolbar from "./PlannerToolbar";
+import DrawingTools from "./DrawingTools";
 import { usePlannerState } from "@/lib/site-planner/usePlannerState";
 import { getBuildingType } from "@/lib/site-planner/buildings";
 import { downloadPNG, downloadPDF } from "@/lib/site-planner/exportUtils";
@@ -12,6 +13,13 @@ import { fetchSatelliteImage, type GeoResult } from "@/lib/site-planner/mapUtils
 import { findDeckSnap } from "@/lib/site-planner/snapUtils";
 import { useQuoteCart } from "@/context/QuoteCartContext";
 import { PIXELS_PER_METRE, CANVAS_WIDTH_M, CANVAS_HEIGHT_M } from "@/lib/site-planner/constants";
+import {
+  DEFAULT_DRAW_STYLE,
+  DEFAULT_TEXT_STYLE,
+  type DrawStyle,
+  type TextStyle,
+  type ToolMode,
+} from "@/lib/site-planner/toolState";
 import type { MapData } from "./PlannerCanvas";
 import type Konva from "konva";
 
@@ -44,15 +52,16 @@ const PlannerCanvas = dynamic(() => import("./PlannerCanvas"), {
   ),
 });
 
-type Annotation = { id: string; x: number; y: number; text: string };
-
-let annotationCounter = 0;
-
 export default function SitePlannerClient() {
   const stageRef = useRef<Konva.Stage>(null);
   const [isMobile, setIsMobile] = useState(false);
   const state = usePlannerState();
   const { addItem, openCart, items: cartItems, updateQuantity } = useQuoteCart();
+
+  // Drawing/text tool state
+  const [tool, setTool] = useState<ToolMode>("select");
+  const [drawStyle, setDrawStyle] = useState<DrawStyle>(DEFAULT_DRAW_STYLE);
+  const [textStyle, setTextStyle] = useState<TextStyle>(DEFAULT_TEXT_STYLE);
 
   // Map state
   const [mapData, setMapData] = useState<MapData | null>(null);
@@ -60,7 +69,6 @@ export default function SitePlannerClient() {
   const [mapRotation, setMapRotation] = useState(0);
   const [mapLoading, setMapLoading] = useState(false);
   const [sunEnabled, setSunEnabled] = useState(false);
-  const [annotations, setAnnotations] = useState<Annotation[]>([]);
   const [siteAddress, setSiteAddress] = useState<string | undefined>();
   const [siteCoords, setSiteCoords] = useState<{ lat: number; lng: number } | undefined>();
 
@@ -102,9 +110,8 @@ export default function SitePlannerClient() {
   );
 
   const handleClear = useCallback(() => {
-    if (confirm("Remove all buildings from the canvas?")) {
+    if (confirm("Remove everything from the canvas? (buildings, drawings, text)")) {
       state.clearAll();
-      setAnnotations([]);
     }
   }, [state]);
 
@@ -142,35 +149,46 @@ export default function SitePlannerClient() {
     [state],
   );
 
-  // Custom building drop
+  // Custom building drop — supports both generic custom shape and custom deck
   const handleAddCustom = useCallback(
-    (widthM: number, depthM: number, x: number, y: number, label: string) => {
-      const typeId = `custom-${widthM}x${depthM}`;
+    (widthM: number, depthM: number, x: number, y: number, label: string, mode: "generic" | "deck" = "generic") => {
+      const typeId = mode === "deck"
+        ? `custom-deck-${widthM}x${depthM}`
+        : `custom-${widthM}x${depthM}`;
       state.addBuilding(typeId, x, y, label);
     },
     [state],
   );
 
-  // Annotations
-  const handleAddAnnotation = useCallback((text: string) => {
-    const ppm = PIXELS_PER_METRE;
-    const cx = (CANVAS_WIDTH_M * ppm) / 2;
-    const cy = (CANVAS_HEIGHT_M * ppm) / 2;
-    setAnnotations((prev) => [
-      ...prev,
-      { id: `note-${Date.now()}-${++annotationCounter}`, x: cx, y: cy, text },
-    ]);
-  }, []);
+  // Quick label entry triggered by double-click on a building
+  const handleLabelEdit = useCallback(
+    (instanceId: string) => {
+      state.setSelectedId(instanceId);
+      const current = state.buildings.find((b) => b.instanceId === instanceId);
+      const next = window.prompt("Building label", current?.label || "");
+      if (next !== null && next.trim()) {
+        state.labelBuilding(instanceId, next.trim());
+      }
+    },
+    [state],
+  );
 
-  const handleAnnotationMove = useCallback((id: string, x: number, y: number) => {
-    setAnnotations((prev) =>
-      prev.map((a) => (a.id === id ? { ...a, x, y } : a)),
-    );
-  }, []);
-
-  const handleDeleteAnnotation = useCallback((id: string) => {
-    setAnnotations((prev) => prev.filter((a) => a.id !== id));
-  }, []);
+  // Legacy "Add Note" toolbar — drops a styled text annotation at the canvas centre
+  const handleAddAnnotation = useCallback(
+    (text: string) => {
+      const ppm = PIXELS_PER_METRE;
+      const cx = (CANVAS_WIDTH_M * ppm) / 2;
+      const cy = (CANVAS_HEIGHT_M * ppm) / 2;
+      state.addText({
+        x: cx,
+        y: cy,
+        text,
+        fontSize: textStyle.fontSize,
+        color: textStyle.color,
+      });
+    },
+    [state, textStyle],
+  );
 
   // Get a Quote — add planner items to the quote cart (skip custom shapes & utility markers)
   const handleGetQuote = useCallback(() => {
@@ -357,15 +375,27 @@ export default function SitePlannerClient() {
           </div>
         )}
 
+        {/* Drawing tools (mobile) — collapsible row above canvas */}
+        <DrawingTools
+          tool={tool}
+          onToolChange={setTool}
+          drawStyle={drawStyle}
+          onDrawStyleChange={setDrawStyle}
+          textStyle={textStyle}
+          onTextStyleChange={setTextStyle}
+          onClearDrawings={state.drawings.length > 0 ? state.clearDrawings : undefined}
+        />
+
         {/* Canvas */}
-        <div className="rounded-xl border border-gray-200 overflow-hidden" style={{ height: placingTypeId ? "calc(100vh - 200px)" : "calc(100vh - 160px)", minHeight: 350 }}>
+        <div className="rounded-xl border border-gray-200 overflow-hidden" style={{ height: placingTypeId || tool !== "select" ? "calc(100vh - 260px)" : "calc(100vh - 200px)", minHeight: 350 }}>
           <PlannerCanvas
             buildings={state.buildings}
             selectedId={state.selectedId}
             onSelect={state.setSelectedId}
             onMove={handleBuildingMove}
+            onLabelEdit={handleLabelEdit}
             onAdd={state.addBuilding}
-            onAddCustom={handleAddCustom}
+            onAddCustom={(w, d, x, y, label) => handleAddCustom(w, d, x, y, label)}
             stageRef={stageRef}
             mapData={mapData}
             mapOpacity={mapOpacity}
@@ -373,8 +403,17 @@ export default function SitePlannerClient() {
             onMapMove={handleMapMove}
             onMapRotation={setMapRotation}
             sunDirection={sunEnabled ? mapRotation : null}
-            annotations={annotations}
-            onAnnotationMove={handleAnnotationMove}
+            drawings={state.drawings}
+            texts={state.texts}
+            onAddDrawing={state.addDrawing}
+            onRemoveDrawing={state.removeDrawing}
+            onAddText={state.addText}
+            onMoveText={state.moveText}
+            onUpdateText={state.updateText}
+            onRemoveText={state.removeText}
+            tool={tool}
+            drawStyle={drawStyle}
+            textStyle={textStyle}
             placingTypeId={placingTypeId}
             placingLabel={placingLabel}
             onPlaced={handlePlaced}
@@ -394,6 +433,8 @@ export default function SitePlannerClient() {
       </div>
     );
   }
+
+  // Desktop layout follows below.
 
   return (
     <div className="max-w-[1600px] mx-auto px-4 py-6 space-y-3">
@@ -422,20 +463,30 @@ export default function SitePlannerClient() {
         onSunToggle={() => setSunEnabled((prev) => !prev)}
         onGetQuote={handleGetQuote}
         onAddAnnotation={handleAddAnnotation}
-        annotations={annotations}
-        onDeleteAnnotation={handleDeleteAnnotation}
+      />
+
+      {/* Drawing/text tools — colour, thickness, dashed, free-text size */}
+      <DrawingTools
+        tool={tool}
+        onToolChange={setTool}
+        drawStyle={drawStyle}
+        onDrawStyleChange={setDrawStyle}
+        textStyle={textStyle}
+        onTextStyleChange={setTextStyle}
+        onClearDrawings={state.drawings.length > 0 ? state.clearDrawings : undefined}
       />
 
       {/* Main content: palette + canvas */}
-      <div className="flex gap-3" style={{ height: "calc(100vh - 320px)", minHeight: 500 }}>
+      <div className="flex gap-3" style={{ height: "calc(100vh - 380px)", minHeight: 500 }}>
         <BuildingPalette />
         <PlannerCanvas
           buildings={state.buildings}
           selectedId={state.selectedId}
           onSelect={state.setSelectedId}
           onMove={handleBuildingMove}
+          onLabelEdit={handleLabelEdit}
           onAdd={state.addBuilding}
-          onAddCustom={handleAddCustom}
+          onAddCustom={(w, d, x, y, label) => handleAddCustom(w, d, x, y, label)}
           stageRef={stageRef}
           mapData={mapData}
           mapOpacity={mapOpacity}
@@ -443,8 +494,17 @@ export default function SitePlannerClient() {
           onMapMove={handleMapMove}
           onMapRotation={setMapRotation}
           sunDirection={sunEnabled ? mapRotation : null}
-          annotations={annotations}
-          onAnnotationMove={handleAnnotationMove}
+          drawings={state.drawings}
+          texts={state.texts}
+          onAddDrawing={state.addDrawing}
+          onRemoveDrawing={state.removeDrawing}
+          onAddText={state.addText}
+          onMoveText={state.moveText}
+          onUpdateText={state.updateText}
+          onRemoveText={state.removeText}
+          tool={tool}
+          drawStyle={drawStyle}
+          textStyle={textStyle}
         />
       </div>
 

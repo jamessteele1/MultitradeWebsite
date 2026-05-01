@@ -3,8 +3,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { searchSuggestions, geocodeLocation, type GeoResult } from "@/lib/site-planner/mapUtils";
 
-type Annotation = { id: string; x: number; y: number; text: string };
-
 type Props = {
   selectedId: string | null;
   canUndo: boolean;
@@ -31,10 +29,8 @@ type Props = {
   onSunToggle: () => void;
   // Quote
   onGetQuote: () => void;
-  // Annotations
+  // Quick-add note (adds a styled text annotation at canvas centre)
   onAddAnnotation: (text: string) => void;
-  annotations: Annotation[];
-  onDeleteAnnotation: (id: string) => void;
 };
 
 export default function PlannerToolbar({
@@ -61,8 +57,6 @@ export default function PlannerToolbar({
   onSunToggle,
   onGetQuote,
   onAddAnnotation,
-  annotations,
-  onDeleteAnnotation,
 }: Props) {
   const [editingLabel, setEditingLabel] = useState(false);
   const [labelText, setLabelText] = useState("");
@@ -368,24 +362,6 @@ export default function PlannerToolbar({
         )}
       </div>
 
-      {/* Annotations list (if any) */}
-      {annotations.length > 0 && (
-        <div className="flex items-center gap-2 flex-wrap bg-white rounded-xl border border-gray-200 px-4 py-2">
-          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Notes:</span>
-          {annotations.map((a) => (
-            <div key={a.id} className="flex items-center gap-1 px-2 py-1 bg-red-50 rounded-lg border border-red-200">
-              <span className="text-[10px] text-red-700 font-medium max-w-[120px] truncate">{a.text}</span>
-              <button
-                onClick={() => onDeleteAnnotation(a.id)}
-                className="text-red-400 hover:text-red-600"
-                title="Delete note"
-              >
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
-              </button>
-            </div>
-          ))}
-        </div>
-      )}
     </div>
   );
 }

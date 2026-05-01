@@ -13,7 +13,8 @@ import {
   ZOOM_STEP,
 } from "@/lib/site-planner/constants";
 import { computeBuildingsBoundsPx } from "@/lib/site-planner/exportUtils";
-import type { PlacedBuilding } from "@/lib/site-planner/usePlannerState";
+import type { Drawing, PlacedBuilding, TextItem } from "@/lib/site-planner/usePlannerState";
+import type { ToolMode, DrawStyle, TextStyle } from "@/lib/site-planner/toolState";
 import type Konva from "konva";
 
 export type MapData = {
@@ -28,6 +29,7 @@ type Props = {
   selectedId: string | null;
   onSelect: (id: string | null) => void;
   onMove: (id: string, x: number, y: number) => void;
+  onLabelEdit?: (id: string) => void;
   onAdd: (typeId: string, x: number, y: number, label: string) => void;
   onAddCustom?: (widthM: number, depthM: number, x: number, y: number, label: string) => void;
   stageRef: React.RefObject<Konva.Stage>;
@@ -37,8 +39,19 @@ type Props = {
   onMapMove?: (x: number, y: number) => void;
   onMapRotation?: (degrees: number) => void;
   sunDirection?: number | null;
-  annotations?: { id: string; x: number; y: number; text: string }[];
-  onAnnotationMove?: (id: string, x: number, y: number) => void;
+  /** Drawings + text annotations */
+  drawings?: Drawing[];
+  texts?: TextItem[];
+  onAddDrawing?: (drawing: Omit<Drawing, "id">) => void;
+  onRemoveDrawing?: (id: string) => void;
+  onAddText?: (item: Omit<TextItem, "id">) => void;
+  onMoveText?: (id: string, x: number, y: number) => void;
+  onUpdateText?: (id: string, patch: Partial<Omit<TextItem, "id">>) => void;
+  onRemoveText?: (id: string) => void;
+  /** Active tool mode + style */
+  tool?: ToolMode;
+  drawStyle?: DrawStyle;
+  textStyle?: TextStyle;
   /** Mobile: building type ID queued for tap-to-place */
   placingTypeId?: string | null;
   placingLabel?: string;
@@ -51,6 +64,7 @@ export default function PlannerCanvas({
   selectedId,
   onSelect,
   onMove,
+  onLabelEdit,
   onAdd,
   onAddCustom,
   stageRef,
@@ -60,8 +74,17 @@ export default function PlannerCanvas({
   onMapMove,
   onMapRotation,
   sunDirection,
-  annotations = [],
-  onAnnotationMove,
+  drawings = [],
+  texts = [],
+  onAddDrawing,
+  onRemoveDrawing,
+  onAddText,
+  onMoveText,
+  onUpdateText,
+  onRemoveText,
+  tool = "select",
+  drawStyle,
+  textStyle,
   placingTypeId,
   placingLabel,
   onPlaced,
@@ -72,6 +95,39 @@ export default function PlannerCanvas({
   const [zoom, setZoom] = useState(1);
   const [stagePos, setStagePos] = useState({ x: 0, y: 0 });
   const [initialFit, setInitialFit] = useState(false);
+
+  // In-progress drawing buffer (current freehand stroke or polygon vertices)
+  const [activeStroke, setActiveStroke] = useState<number[] | null>(null);
+  const [activePolygon, setActivePolygon] = useState<number[] | null>(null);
+
+  // Text input overlay (HTML positioned over the stage)
+  const [textInput, setTextInput] = useState<{ x: number; y: number; clientX: number; clientY: number } | null>(null);
+  const textInputRef = useRef<HTMLInputElement>(null);
+  const [textInputValue, setTextInputValue] = useState("");
+
+  // Selection state for texts (so they can be deleted)
+  const [selectedTextId, setSelectedTextId] = useState<string | null>(null);
+
+  // Reset in-progress sketches when the tool changes
+  useEffect(() => {
+    setActiveStroke(null);
+    setActivePolygon(null);
+    setTextInput(null);
+    setSelectedTextId(null);
+  }, [tool]);
+
+  // Translate a stage pointer event into canvas-space pixel coords
+  const pointerToCanvas = useCallback(() => {
+    const stage = stageRef.current;
+    if (!stage) return null;
+    const p = stage.getPointerPosition();
+    if (!p) return null;
+    return {
+      x: (p.x - stagePos.x) / zoom,
+      y: (p.y - stagePos.y) / zoom,
+      screen: p,
+    };
+  }, [stageRef, stagePos, zoom]);
 
   // Resize observer
   useEffect(() => {
@@ -130,6 +186,7 @@ export default function PlannerCanvas({
       const label = e.dataTransfer.getData("buildingLabel");
       const customWidth = e.dataTransfer.getData("customWidth");
       const customDepth = e.dataTransfer.getData("customDepth");
+      const customMode = e.dataTransfer.getData("customMode"); // "deck" or empty
       if (!typeId) return;
 
       const container = containerRef.current;
@@ -139,10 +196,20 @@ export default function PlannerCanvas({
       const x = (e.clientX - rect.left - stagePos.x) / zoom / PIXELS_PER_METRE;
       const y = (e.clientY - rect.top - stagePos.y) / zoom / PIXELS_PER_METRE;
 
-      if (customWidth && customDepth && onAddCustom) {
-        const w = parseFloat(customWidth);
-        const d = parseFloat(customDepth);
-        onAddCustom(w, d, x - w / 2, y - d / 2, label || `${w}×${d}m`);
+      if (customWidth && customDepth) {
+        // Deck-typed custom uses onAdd with the resolved typeId so the custom-deck-WxD
+        // path through getBuildingType picks the deck colours and category. Generic
+        // shapes go through onAddCustom which builds a custom-WxD type.
+        if (customMode === "deck") {
+          const type = getBuildingType(typeId);
+          if (type) {
+            onAdd(typeId, x - type.widthM / 2, y - type.depthM / 2, label || type.shortLabel);
+          }
+        } else if (onAddCustom) {
+          const w = parseFloat(customWidth);
+          const d = parseFloat(customDepth);
+          onAddCustom(w, d, x - w / 2, y - d / 2, label || `${w}×${d}m`);
+        }
       } else {
         const type = getBuildingType(typeId);
         if (!type) return;
@@ -152,7 +219,7 @@ export default function PlannerCanvas({
     [zoom, stagePos, onAdd, onAddCustom],
   );
 
-  // Click/tap on empty space — place building (mobile) or deselect
+  // Click/tap on empty space — place building (mobile), drop text, or deselect
   const handleStageClick = useCallback(
     (e: Konva.KonvaEventObject<MouseEvent>) => {
       if (e.target !== e.target.getStage()) return;
@@ -166,11 +233,14 @@ export default function PlannerCanvas({
         const x = (pointer.x - stagePos.x) / zoom / PIXELS_PER_METRE;
         const y = (pointer.y - stagePos.y) / zoom / PIXELS_PER_METRE;
 
+        const customDeckMatch = placingTypeId.match(/^custom-deck-(\d+(?:\.\d+)?)x(\d+(?:\.\d+)?)$/);
         const customMatch = placingTypeId.match(/^custom-(\d+(?:\.\d+)?)x(\d+(?:\.\d+)?)$/);
-        if (customMatch && onAddCustom) {
-          const w = parseFloat(customMatch[1]);
-          const d = parseFloat(customMatch[2]);
-          onAddCustom(w, d, x - w / 2, y - d / 2, placingLabel || `${w}×${d}m`);
+        if (customDeckMatch || customMatch) {
+          // Use the resolved type's clamped dimensions for placement
+          const type = getBuildingType(placingTypeId);
+          if (type) {
+            onAdd(placingTypeId, x - type.widthM / 2, y - type.depthM / 2, placingLabel || type.shortLabel);
+          }
         } else {
           const type = getBuildingType(placingTypeId);
           if (type) {
@@ -181,10 +251,179 @@ export default function PlannerCanvas({
         return;
       }
 
+      // Text mode — drop a text input at the click point
+      if (tool === "text" && onAddText && textStyle) {
+        const stage = stageRef.current;
+        const container = containerRef.current;
+        if (!stage || !container) return;
+        const pointer = stage.getPointerPosition();
+        if (!pointer) return;
+        const cRect = container.getBoundingClientRect();
+        setTextInput({
+          x: (pointer.x - stagePos.x) / zoom,
+          y: (pointer.y - stagePos.y) / zoom,
+          clientX: cRect.left + pointer.x,
+          clientY: cRect.top + pointer.y,
+        });
+        setTextInputValue("");
+        return;
+      }
+
+      // Polygon mode — append a vertex (or close if near the start)
+      if (tool === "polygon" && onAddDrawing && drawStyle) {
+        const c = pointerToCanvas();
+        if (!c) return;
+        if (!activePolygon) {
+          setActivePolygon([c.x, c.y]);
+          return;
+        }
+        // Close if we clicked near the first point
+        const fx = activePolygon[0];
+        const fy = activePolygon[1];
+        const closeDistPx = 12 / zoom;
+        if (
+          activePolygon.length >= 6 &&
+          Math.hypot(c.x - fx, c.y - fy) <= closeDistPx
+        ) {
+          onAddDrawing({
+            points: activePolygon,
+            color: drawStyle.color,
+            thickness: drawStyle.thickness,
+            dashed: drawStyle.dashed,
+            closed: true,
+          });
+          setActivePolygon(null);
+          return;
+        }
+        setActivePolygon([...activePolygon, c.x, c.y]);
+        return;
+      }
+
       onSelect(null);
+      setSelectedTextId(null);
     },
-    [onSelect, placingTypeId, placingLabel, onPlaced, stageRef, stagePos, zoom, onAdd, onAddCustom],
+    [
+      onSelect,
+      placingTypeId,
+      placingLabel,
+      onPlaced,
+      stageRef,
+      stagePos,
+      zoom,
+      onAdd,
+      onAddCustom,
+      tool,
+      onAddText,
+      textStyle,
+      onAddDrawing,
+      drawStyle,
+      activePolygon,
+      pointerToCanvas,
+    ],
   );
+
+  // Double-click — close polygon if we're drawing one, or open label inline
+  const handleStageDblClick = useCallback(
+    (e: Konva.KonvaEventObject<MouseEvent>) => {
+      if (tool === "polygon" && activePolygon && activePolygon.length >= 6 && onAddDrawing && drawStyle) {
+        e.evt.preventDefault();
+        onAddDrawing({
+          points: activePolygon,
+          color: drawStyle.color,
+          thickness: drawStyle.thickness,
+          dashed: drawStyle.dashed,
+          closed: true,
+        });
+        setActivePolygon(null);
+      }
+    },
+    [tool, activePolygon, onAddDrawing, drawStyle],
+  );
+
+  // Mouse-down → start a freehand stroke
+  const handleStageMouseDown = useCallback(
+    (e: Konva.KonvaEventObject<MouseEvent>) => {
+      if (tool !== "freehand" || !drawStyle) return;
+      // Don't draw if the user clicked on a building or text — only on empty stage
+      if (e.target !== e.target.getStage()) return;
+      const c = pointerToCanvas();
+      if (!c) return;
+      setActiveStroke([c.x, c.y]);
+    },
+    [tool, drawStyle, pointerToCanvas],
+  );
+
+  // Mouse-move → add points to active freehand stroke
+  const handleStageMouseMove = useCallback(() => {
+    if (tool !== "freehand" || !activeStroke) return;
+    const c = pointerToCanvas();
+    if (!c) return;
+    const lastX = activeStroke[activeStroke.length - 2];
+    const lastY = activeStroke[activeStroke.length - 1];
+    // Simplify: only push when the cursor moved a meaningful distance
+    if (Math.hypot(c.x - lastX, c.y - lastY) < 2 / zoom) return;
+    setActiveStroke([...activeStroke, c.x, c.y]);
+  }, [tool, activeStroke, pointerToCanvas, zoom]);
+
+  const handleStageMouseUp = useCallback(() => {
+    if (tool !== "freehand" || !activeStroke || !drawStyle || !onAddDrawing) return;
+    if (activeStroke.length >= 4) {
+      onAddDrawing({
+        points: activeStroke,
+        color: drawStyle.color,
+        thickness: drawStyle.thickness,
+        dashed: drawStyle.dashed,
+        closed: false,
+      });
+    }
+    setActiveStroke(null);
+  }, [tool, activeStroke, drawStyle, onAddDrawing]);
+
+  // Commit an inline text input
+  const commitTextInput = useCallback(() => {
+    if (!textInput || !onAddText || !textStyle) return;
+    const value = textInputValue.trim();
+    if (value) {
+      onAddText({
+        x: textInput.x,
+        y: textInput.y,
+        text: value,
+        fontSize: textStyle.fontSize,
+        color: textStyle.color,
+      });
+    }
+    setTextInput(null);
+    setTextInputValue("");
+  }, [textInput, textInputValue, onAddText, textStyle]);
+
+  useEffect(() => {
+    if (textInput && textInputRef.current) {
+      textInputRef.current.focus();
+    }
+  }, [textInput]);
+
+  // Delete-key removes selected text annotation
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (
+        (e.key === "Delete" || e.key === "Backspace") &&
+        selectedTextId &&
+        onRemoveText &&
+        !(e.target instanceof HTMLInputElement) &&
+        !(e.target instanceof HTMLTextAreaElement)
+      ) {
+        e.preventDefault();
+        onRemoveText(selectedTextId);
+        setSelectedTextId(null);
+      } else if (e.key === "Escape") {
+        setActiveStroke(null);
+        setActivePolygon(null);
+        setTextInput(null);
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [selectedTextId, onRemoveText]);
 
   // Pinch-to-zoom for touch
   const lastDist = useRef(0);
@@ -431,7 +670,7 @@ export default function PlannerCanvas({
           scaleY={zoom}
           x={stagePos.x}
           y={stagePos.y}
-          draggable
+          draggable={tool === "select"}
           onDragEnd={(e) => {
             if (e.target === e.target.getStage()) {
               setStagePos({ x: e.target.x(), y: e.target.y() });
@@ -440,8 +679,24 @@ export default function PlannerCanvas({
           onWheel={handleWheel}
           onClick={handleStageClick}
           onTap={handleStageClick}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
+          onDblClick={handleStageDblClick}
+          onMouseDown={handleStageMouseDown}
+          onMouseMove={handleStageMouseMove}
+          onMouseUp={handleStageMouseUp}
+          onTouchStart={handleStageMouseDown}
+          onTouchMove={(e) => {
+            // Pinch-to-zoom for two-finger touch, single-finger draw
+            if (e.evt.touches.length === 2) {
+              handleTouchMove(e);
+            } else {
+              handleStageMouseMove();
+            }
+          }}
+          onTouchEnd={(e) => {
+            handleTouchEnd();
+            handleStageMouseUp();
+          }}
+          style={{ cursor: tool === "freehand" || tool === "polygon" ? "crosshair" : tool === "text" ? "text" : "default" }}
         >
           {/* Map background layer */}
           {mapData && (() => {
@@ -521,42 +776,163 @@ export default function PlannerCanvas({
                   isAttached={!!b.parentId}
                   onSelect={() => onSelect(b.instanceId)}
                   onDragEnd={(x, y) => onMove(b.instanceId, x, y)}
+                  onDblClick={() => onLabelEdit?.(b.instanceId)}
                 />
               );
             })}
           </Layer>
 
-          {/* Annotations layer */}
-          {annotations.length > 0 && (
-            <Layer>
-              {annotations.map((a) => (
-                <Group
-                  key={a.id}
-                  x={a.x}
-                  y={a.y}
-                  draggable
-                  onDragEnd={(e) => {
-                    onAnnotationMove?.(a.id, e.target.x(), e.target.y());
-                  }}
-                >
-                  <Circle x={0} y={0} radius={4} fill="#EF4444" stroke="#fff" strokeWidth={1.5} />
-                  <Line
-                    points={[0, 0, 8, -12]}
-                    stroke="#EF4444"
-                    strokeWidth={1.5}
-                  />
-                  <KonvaText
-                    x={10}
-                    y={-20}
-                    text={a.text}
-                    fontSize={12}
-                    fontStyle="bold"
-                    fontFamily="system-ui, sans-serif"
-                    fill="#1F2937"
-                    padding={4}
-                  />
-                </Group>
+          {/* Drawings layer — freehand strokes and closed polygons */}
+          {(drawings.length > 0 || activeStroke || activePolygon) && (
+            <Layer listening={false}>
+              {drawings.map((d) => (
+                <Line
+                  key={d.id}
+                  points={d.points}
+                  stroke={d.color}
+                  strokeWidth={d.thickness}
+                  dash={d.dashed ? [d.thickness * 3, d.thickness * 2] : undefined}
+                  closed={d.closed}
+                  fill={d.closed ? `${d.color}22` : undefined}
+                  lineCap="round"
+                  lineJoin="round"
+                />
               ))}
+              {/* In-progress freehand stroke */}
+              {activeStroke && drawStyle && (
+                <Line
+                  points={activeStroke}
+                  stroke={drawStyle.color}
+                  strokeWidth={drawStyle.thickness}
+                  dash={drawStyle.dashed ? [drawStyle.thickness * 3, drawStyle.thickness * 2] : undefined}
+                  lineCap="round"
+                  lineJoin="round"
+                />
+              )}
+              {/* In-progress polygon outline */}
+              {activePolygon && drawStyle && (
+                <>
+                  <Line
+                    points={activePolygon}
+                    stroke={drawStyle.color}
+                    strokeWidth={drawStyle.thickness}
+                    dash={drawStyle.dashed ? [drawStyle.thickness * 3, drawStyle.thickness * 2] : undefined}
+                    lineCap="round"
+                    lineJoin="round"
+                  />
+                  {/* Vertex dots */}
+                  {Array.from({ length: activePolygon.length / 2 }).map((_, i) => (
+                    <Circle
+                      key={`pv-${i}`}
+                      x={activePolygon[i * 2]}
+                      y={activePolygon[i * 2 + 1]}
+                      radius={i === 0 ? 5 / zoom : 3 / zoom}
+                      fill={i === 0 ? "#fff" : drawStyle.color}
+                      stroke={drawStyle.color}
+                      strokeWidth={1.5 / zoom}
+                    />
+                  ))}
+                </>
+              )}
+            </Layer>
+          )}
+
+          {/* Drawing-delete hit layer — when in select mode, allow clicking a
+              drawing to remove it (small invisible hit-rects on each line) */}
+          {tool === "select" && drawings.length > 0 && onRemoveDrawing && (
+            <Layer>
+              {drawings.map((d) => (
+                <Line
+                  key={`hit-${d.id}`}
+                  points={d.points}
+                  stroke="rgba(0,0,0,0.001)"
+                  strokeWidth={Math.max(d.thickness + 8, 12)}
+                  closed={d.closed}
+                  hitStrokeWidth={Math.max(d.thickness + 12, 16)}
+                  onMouseEnter={(e) => {
+                    const c = e.target.getStage()?.container();
+                    if (c) c.style.cursor = "pointer";
+                  }}
+                  onMouseLeave={(e) => {
+                    const c = e.target.getStage()?.container();
+                    if (c) c.style.cursor = "default";
+                  }}
+                  onClick={(e) => {
+                    e.cancelBubble = true;
+                    if (window.confirm("Delete this drawing?")) onRemoveDrawing(d.id);
+                  }}
+                  onTap={(e) => {
+                    e.cancelBubble = true;
+                    if (window.confirm("Delete this drawing?")) onRemoveDrawing(d.id);
+                  }}
+                />
+              ))}
+            </Layer>
+          )}
+
+          {/* Text annotations layer — draggable styled text */}
+          {texts.length > 0 && (
+            <Layer>
+              {texts.map((t) => {
+                const isSel = selectedTextId === t.id;
+                return (
+                  <Group
+                    key={t.id}
+                    x={t.x}
+                    y={t.y}
+                    draggable
+                    onDragEnd={(e) => {
+                      onMoveText?.(t.id, e.target.x(), e.target.y());
+                    }}
+                    onClick={(e) => {
+                      e.cancelBubble = true;
+                      setSelectedTextId(t.id);
+                    }}
+                    onTap={(e) => {
+                      e.cancelBubble = true;
+                      setSelectedTextId(t.id);
+                    }}
+                    onDblClick={(e) => {
+                      e.cancelBubble = true;
+                      const next = window.prompt("Edit text", t.text);
+                      if (next !== null && next.trim()) {
+                        onUpdateText?.(t.id, { text: next.trim() });
+                      }
+                    }}
+                    onDblTap={(e) => {
+                      e.cancelBubble = true;
+                      const next = window.prompt("Edit text", t.text);
+                      if (next !== null && next.trim()) {
+                        onUpdateText?.(t.id, { text: next.trim() });
+                      }
+                    }}
+                  >
+                    {isSel && (
+                      <Rect
+                        x={-3}
+                        y={-3}
+                        width={Math.max(60, t.text.length * t.fontSize * 0.55) + 6}
+                        height={t.fontSize * 1.3 + 6}
+                        fill="transparent"
+                        stroke="#2563EB"
+                        strokeWidth={1.5}
+                        dash={[5, 3]}
+                        cornerRadius={3}
+                      />
+                    )}
+                    <KonvaText
+                      text={t.text}
+                      fontSize={t.fontSize}
+                      fontStyle="bold"
+                      fontFamily="system-ui, sans-serif"
+                      fill={t.color}
+                      shadowColor="rgba(255,255,255,0.9)"
+                      shadowBlur={3}
+                      shadowOpacity={0.9}
+                    />
+                  </Group>
+                );
+              })}
             </Layer>
           )}
 
@@ -699,6 +1075,41 @@ export default function PlannerCanvas({
             );
           })()}
         </Stage>
+
+        {/* Inline text input overlay (HTML) — appears when user clicks on
+            stage in text mode. Positioned in screen coords matching the
+            Konva pointer location. */}
+        {textInput && textStyle && (
+          <div
+            className="absolute z-30"
+            style={{
+              left: textInput.clientX - (containerRef.current?.getBoundingClientRect().left ?? 0),
+              top: textInput.clientY - (containerRef.current?.getBoundingClientRect().top ?? 0),
+            }}
+          >
+            <input
+              ref={textInputRef}
+              value={textInputValue}
+              onChange={(e) => setTextInputValue(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") commitTextInput();
+                if (e.key === "Escape") {
+                  setTextInput(null);
+                  setTextInputValue("");
+                }
+              }}
+              onBlur={commitTextInput}
+              placeholder="Type text…"
+              className="px-2 py-1 rounded border-2 border-amber-400 bg-white shadow-lg focus:outline-none"
+              style={{
+                fontSize: textStyle.fontSize,
+                color: textStyle.color,
+                fontWeight: 700,
+                minWidth: 120,
+              }}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

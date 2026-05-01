@@ -36,7 +36,11 @@ export const BUILDING_TYPES: BuildingType[] = [
   { id: "12x12-complex", name: "12x12m Complex",       shortLabel: "12×12 Complex",  widthM: 12,   depthM: 12,  color: "#FBBF24", stroke: "#92400E", category: "complexes", cartId: "12x12m-complex" },
 
   // Containers
+  { id: "10ft-container", name: "10ft Container",       shortLabel: "10ft Container", widthM: 3,    depthM: 2.4, color: "#F3F4F6", stroke: "#6B7280", category: "containers", cartId: "10ft-container" },
   { id: "20ft-container", name: "20ft Container",       shortLabel: "20ft Container", widthM: 6,    depthM: 2.4, color: "#E5E7EB", stroke: "#6B7280", category: "containers", cartId: "20ft-container" },
+  { id: "40ft-container", name: "40ft Container",       shortLabel: "40ft Container", widthM: 12,   depthM: 2.4, color: "#D1D5DB", stroke: "#4B5563", category: "containers", cartId: "40ft-container" },
+  { id: "6x12-igloo",     name: "6×12m Igloo Shelter",  shortLabel: "6×12 Igloo",     widthM: 6,    depthM: 12,  color: "#FEF9C3", stroke: "#CA8A04", category: "containers", cartId: "6x12m-igloo" },
+  { id: "12x12-igloo",    name: "12×12m Igloo Shelter", shortLabel: "12×12 Igloo",    widthM: 12,   depthM: 12,  color: "#FEF08A", stroke: "#A16207", category: "containers", cartId: "12x12m-igloo" },
 
   // Ancillary
   { id: "water-tank",    name: "5000L Water Tank & Pump", shortLabel: "Water Tank",  widthM: 2,    depthM: 2,   color: "#FEF3C7", stroke: "#F59E0B", category: "ancillary",  cartId: "5000l-tank-pump" },
@@ -60,7 +64,23 @@ export const CATEGORY_LABELS: Record<string, string> = {
 };
 
 export function getBuildingType(id: string): BuildingType | undefined {
-  // Check for custom building IDs (format: custom-WxD)
+  // Custom covered deck — clamped to 3.4m wide × 15m long
+  const customDeckMatch = id.match(/^custom-deck-(\d+(?:\.\d+)?)x(\d+(?:\.\d+)?)$/);
+  if (customDeckMatch) {
+    const w = Math.min(15, Math.max(0.5, parseFloat(customDeckMatch[1])));
+    const d = Math.min(3.4, Math.max(0.5, parseFloat(customDeckMatch[2])));
+    return {
+      id,
+      name: `${w}×${d}m Covered Deck`,
+      shortLabel: `${w}×${d}m Deck`,
+      widthM: w,
+      depthM: d,
+      color: "#D2B48C",
+      stroke: "#8B4513",
+      category: "decks",
+    };
+  }
+  // Generic custom building IDs (format: custom-WxD)
   const customMatch = id.match(/^custom-(\d+(?:\.\d+)?)x(\d+(?:\.\d+)?)$/);
   if (customMatch) {
     const w = parseFloat(customMatch[1]);

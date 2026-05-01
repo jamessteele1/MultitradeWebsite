@@ -118,59 +118,103 @@ export default function BuildingSelectionPopup({ open, onClose, onSelect, onAddC
             ))}
           </div>
 
-          {/* Custom size section */}
-          <div className="mt-5 p-4 rounded-xl border border-dashed border-gray-300 bg-gray-50">
-            <h4 className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-3">Custom Size</h4>
-            <div className="flex flex-wrap items-end gap-3">
-              <div>
-                <label className="text-[10px] text-gray-500 block mb-1">Width (m)</label>
-                <input
-                  type="number"
-                  value={customW}
-                  onChange={(e) => setCustomW(Math.min(24, Math.max(1, parseFloat(e.target.value) || 1)))}
-                  className="w-16 px-2 py-1.5 text-sm text-center rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-amber-500"
-                  min={1} max={24} step={0.5}
-                />
+          {/* Custom size section — generic shape (used in containers / utilities) */}
+          {activeCategory !== "decks" && (
+            <div className="mt-5 p-4 rounded-xl border border-dashed border-gray-300 bg-gray-50">
+              <h4 className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-3">Custom Size</h4>
+              <div className="flex flex-wrap items-end gap-3">
+                <div>
+                  <label className="text-[10px] text-gray-500 block mb-1">Width (m)</label>
+                  <input
+                    type="number"
+                    value={customW}
+                    onChange={(e) => setCustomW(Math.min(24, Math.max(1, parseFloat(e.target.value) || 1)))}
+                    className="w-16 px-2 py-1.5 text-sm text-center rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    min={1} max={24} step={0.5}
+                  />
+                </div>
+                <span className="text-gray-400 text-sm pb-1.5">x</span>
+                <div>
+                  <label className="text-[10px] text-gray-500 block mb-1">Depth (m)</label>
+                  <input
+                    type="number"
+                    value={customD}
+                    onChange={(e) => setCustomD(Math.min(16, Math.max(1, parseFloat(e.target.value) || 1)))}
+                    className="w-16 px-2 py-1.5 text-sm text-center rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    min={1} max={16} step={0.5}
+                  />
+                </div>
+                <div>
+                  <label className="text-[10px] text-gray-500 block mb-1">Label</label>
+                  <input
+                    type="text"
+                    value={customLabel}
+                    onChange={(e) => setCustomLabel(e.target.value)}
+                    placeholder="Label..."
+                    className="w-24 px-2 py-1.5 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  />
+                </div>
+                <button
+                  onClick={() => {
+                    const w = Math.min(24, Math.max(1, customW));
+                    const d = Math.min(16, Math.max(1, customD));
+                    if (onAddCustom) {
+                      onAddCustom(w, d, customLabel || `${w}x${d}m`);
+                    } else {
+                      onSelect(`custom-${w}x${d}`, customLabel || `${w}x${d}m`);
+                    }
+                    onClose();
+                  }}
+                  className="px-4 py-1.5 text-sm font-semibold rounded-lg bg-amber-500 text-white hover:bg-amber-600 transition-colors"
+                >
+                  Place
+                </button>
               </div>
-              <span className="text-gray-400 text-sm pb-1.5">x</span>
-              <div>
-                <label className="text-[10px] text-gray-500 block mb-1">Depth (m)</label>
-                <input
-                  type="number"
-                  value={customD}
-                  onChange={(e) => setCustomD(Math.min(16, Math.max(1, parseFloat(e.target.value) || 1)))}
-                  className="w-16 px-2 py-1.5 text-sm text-center rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-amber-500"
-                  min={1} max={16} step={0.5}
-                />
-              </div>
-              <div>
-                <label className="text-[10px] text-gray-500 block mb-1">Label</label>
-                <input
-                  type="text"
-                  value={customLabel}
-                  onChange={(e) => setCustomLabel(e.target.value)}
-                  placeholder="Label..."
-                  className="w-24 px-2 py-1.5 text-sm rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-amber-500"
-                />
-              </div>
-              <button
-                onClick={() => {
-                  const w = Math.min(24, Math.max(1, customW));
-                  const d = Math.min(16, Math.max(1, customD));
-                  if (onAddCustom) {
-                    onAddCustom(w, d, customLabel || `${w}x${d}m`);
-                  } else {
-                    onSelect(`custom-${w}x${d}`, customLabel || `${w}x${d}m`);
-                  }
-                  onClose();
-                }}
-                className="px-4 py-1.5 text-sm font-semibold rounded-lg bg-amber-500 text-white hover:bg-amber-600 transition-colors"
-              >
-                Place
-              </button>
+              <p className="text-[9px] text-gray-400 mt-2">Max 24 x 16m</p>
             </div>
-            <p className="text-[9px] text-gray-400 mt-2">Max 24 x 16m</p>
-          </div>
+          )}
+
+          {/* Custom covered deck — only on the decks tab, clamped to 3.4m × 15m */}
+          {activeCategory === "decks" && (
+            <div className="mt-5 p-4 rounded-xl border border-dashed border-amber-300 bg-amber-50/50">
+              <h4 className="text-[11px] font-bold text-amber-800 uppercase tracking-wider mb-3">Custom Covered Deck</h4>
+              <div className="flex flex-wrap items-end gap-3">
+                <div>
+                  <label className="text-[10px] text-amber-800/80 block mb-1">Length (m, max 15)</label>
+                  <input
+                    type="number"
+                    value={customW}
+                    onChange={(e) => setCustomW(Math.min(15, Math.max(0.5, parseFloat(e.target.value) || 0.5)))}
+                    className="w-16 px-2 py-1.5 text-sm text-center rounded-lg border border-amber-200 bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    min={0.5} max={15} step={0.1}
+                  />
+                </div>
+                <span className="text-amber-700 text-sm pb-1.5">x</span>
+                <div>
+                  <label className="text-[10px] text-amber-800/80 block mb-1">Width (m, max 3.4)</label>
+                  <input
+                    type="number"
+                    value={customD}
+                    onChange={(e) => setCustomD(Math.min(3.4, Math.max(0.5, parseFloat(e.target.value) || 0.5)))}
+                    className="w-16 px-2 py-1.5 text-sm text-center rounded-lg border border-amber-200 bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    min={0.5} max={3.4} step={0.1}
+                  />
+                </div>
+                <button
+                  onClick={() => {
+                    const w = Math.min(15, Math.max(0.5, customW));
+                    const d = Math.min(3.4, Math.max(0.5, customD));
+                    onSelect(`custom-deck-${w}x${d}`, `${w}×${d}m Deck`);
+                    onClose();
+                  }}
+                  className="px-4 py-1.5 text-sm font-semibold rounded-lg bg-amber-600 text-white hover:bg-amber-700 transition-colors"
+                >
+                  Place
+                </button>
+              </div>
+              <p className="text-[9px] text-amber-700/80 mt-2">Max 15m long × 3.4m wide</p>
+            </div>
+          )}
         </div>
       </div>
     </div>,

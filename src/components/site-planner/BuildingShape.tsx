@@ -12,9 +12,10 @@ type Props = {
   isAttached: boolean;
   onSelect: () => void;
   onDragEnd: (x: number, y: number) => void;
+  onDblClick?: () => void;
 };
 
-export default function BuildingShape({ building, type, isSelected, isAttached, onSelect, onDragEnd }: Props) {
+export default function BuildingShape({ building, type, isSelected, isAttached, onSelect, onDragEnd, onDblClick }: Props) {
   const ppm = PIXELS_PER_METRE;
   const w = type.widthM * ppm;
   const h = type.depthM * ppm;
@@ -41,6 +42,8 @@ export default function BuildingShape({ building, type, isSelected, isAttached, 
       draggable
       onClick={onSelect}
       onTap={onSelect}
+      onDblClick={onDblClick}
+      onDblTap={onDblClick}
       onDragStart={() => {
         setCursor("grabbing");
         onSelect();

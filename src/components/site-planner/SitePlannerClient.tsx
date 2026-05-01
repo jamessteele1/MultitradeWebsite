@@ -71,6 +71,9 @@ export default function SitePlannerClient() {
   const [mapOpacity, setMapOpacity] = useState(0.7);
   const [mapRotation, setMapRotation] = useState(0);
   const [mapLoading, setMapLoading] = useState(false);
+  const [mapLocked, setMapLocked] = useState(false);
+  const [mapScaleMultiplier, setMapScaleMultiplier] = useState(1);
+  const [moveSiteAsOne, setMoveSiteAsOne] = useState(false);
   const [sunEnabled, setSunEnabled] = useState(false);
   const [siteAddress, setSiteAddress] = useState<string | undefined>();
   const [siteCoords, setSiteCoords] = useState<{ lat: number; lng: number } | undefined>();
@@ -303,7 +306,58 @@ export default function SitePlannerClient() {
   const handleMapRemove = useCallback(() => {
     setMapData(null);
     setMapRotation(0);
+    setMapLocked(false);
+    setMoveSiteAsOne(false);
+    setMapScaleMultiplier(1);
   }, []);
+
+  /**
+   * Recentre the map so its centre lands on the canvas centre — useful when
+   * the user has dragged the map off-screen and wants a clean reset.
+   */
+  const handleMapRecenter = useCallback(() => {
+    setMapData((prev) => {
+      if (!prev) return prev;
+      const effectiveScale = prev.scale * mapScaleMultiplier;
+      const imgDisplayW = prev.image.width * effectiveScale;
+      const imgDisplayH = prev.image.height * effectiveScale;
+      const canvasCenterX = (CANVAS_WIDTH_M * PIXELS_PER_METRE) / 2;
+      const canvasCenterY = (CANVAS_HEIGHT_M * PIXELS_PER_METRE) / 2;
+      return { ...prev, x: canvasCenterX - imgDisplayW / 2, y: canvasCenterY - imgDisplayH / 2 };
+    });
+  }, [mapScaleMultiplier]);
+
+  /**
+   * "Move site as one" handler: when the user drags the map and this mode
+   * is active, shift every building / drawing / text by the same delta in
+   * metres so the layout stays anchored to the satellite features.
+   */
+  const handleMapDragShift = useCallback(
+    (dxM: number, dyM: number) => {
+      if (Math.abs(dxM) < 0.01 && Math.abs(dyM) < 0.01) return;
+      // Shift buildings (in metres)
+      for (const b of state.buildings) {
+        state.moveBuilding(b.instanceId, b.x + dxM, b.y + dyM);
+      }
+      // Shift drawings (points are in canvas pixels)
+      const dxPx = dxM * PIXELS_PER_METRE;
+      const dyPx = dyM * PIXELS_PER_METRE;
+      for (const d of state.drawings) {
+        const shifted: number[] = [];
+        for (let i = 0; i < d.points.length; i += 2) {
+          shifted.push(d.points[i] + dxPx, d.points[i + 1] + dyPx);
+        }
+        // Replace the drawing in place
+        state.removeDrawing(d.id);
+        state.addDrawing({ ...d, points: shifted });
+      }
+      // Shift texts
+      for (const t of state.texts) {
+        state.moveText(t.id, t.x + dxPx, t.y + dyPx);
+      }
+    },
+    [state],
+  );
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -417,7 +471,7 @@ export default function SitePlannerClient() {
           </button>
         </div>
 
-        {/* Address search + map rotation */}
+        {/* Address search + full map controls */}
         <MobileMapBar
           hasMap={!!mapData}
           mapLoading={mapLoading}
@@ -425,6 +479,13 @@ export default function SitePlannerClient() {
           onMapSelect={handleMapSelect}
           onMapRotation={setMapRotation}
           onMapRemove={handleMapRemove}
+          mapLocked={mapLocked}
+          onMapLockedChange={setMapLocked}
+          mapScaleMultiplier={mapScaleMultiplier}
+          onMapScaleChange={setMapScaleMultiplier}
+          moveSiteAsOne={moveSiteAsOne}
+          onMoveSiteAsOneChange={setMoveSiteAsOne}
+          onMapRecenter={handleMapRecenter}
         />
 
         {/* Placement mode banner */}
@@ -469,6 +530,14 @@ export default function SitePlannerClient() {
             mapRotation={mapRotation}
             onMapMove={handleMapMove}
             onMapRotation={setMapRotation}
+            mapLocked={mapLocked}
+            onMapLockedChange={setMapLocked}
+            mapScaleMultiplier={mapScaleMultiplier}
+            onMapScaleChange={setMapScaleMultiplier}
+            moveSiteAsOne={moveSiteAsOne}
+            onMoveSiteAsOneChange={setMoveSiteAsOne}
+            onMapRecenter={handleMapRecenter}
+            onMapDragShift={handleMapDragShift}
             sunDirection={sunEnabled ? mapRotation : null}
             drawings={state.drawings}
             texts={state.texts}
@@ -498,13 +567,12 @@ export default function SitePlannerClient() {
           }}
         />
 
-        {/* Mobile PDF delivery — email or open-in-tab */}
+        {/* Mobile PDF delivery — Web Share API or open-in-tab */}
         <MobilePdfDeliveryModal
           open={pdfModalOpen}
           onClose={() => setPdfModalOpen(false)}
           generatePdf={generatePdfBase64}
           productName={siteAddress ? `Site Layout — ${siteAddress.split(",")[0]}` : "Site Layout"}
-          productSlug="site-planner"
         />
       </div>
     );

@@ -13,6 +13,7 @@ import {
   ZOOM_STEP,
 } from "@/lib/site-planner/constants";
 import { computeBuildingsBoundsPx } from "@/lib/site-planner/exportUtils";
+import MapControls from "./MapControls";
 import type { Drawing, PlacedBuilding, TextItem } from "@/lib/site-planner/usePlannerState";
 import type { ToolMode, DrawStyle, TextStyle } from "@/lib/site-planner/toolState";
 import type Konva from "konva";
@@ -38,6 +39,17 @@ type Props = {
   mapRotation?: number;
   onMapMove?: (x: number, y: number) => void;
   onMapRotation?: (degrees: number) => void;
+  /** When true, the map can't be dragged or rotated by handle. */
+  mapLocked?: boolean;
+  onMapLockedChange?: (locked: boolean) => void;
+  /** Scale multiplier on top of the satellite imagery's native scale. */
+  mapScaleMultiplier?: number;
+  onMapScaleChange?: (mul: number) => void;
+  /** When true, dragging the map shifts buildings/drawings/texts with it. */
+  moveSiteAsOne?: boolean;
+  onMoveSiteAsOneChange?: (on: boolean) => void;
+  onMapRecenter?: () => void;
+  onMapDragShift?: (dxMetres: number, dyMetres: number) => void;
   sunDirection?: number | null;
   /** Drawings + text annotations */
   drawings?: Drawing[];
@@ -73,6 +85,14 @@ export default function PlannerCanvas({
   mapRotation = 0,
   onMapMove,
   onMapRotation,
+  mapLocked = false,
+  onMapLockedChange,
+  mapScaleMultiplier = 1,
+  onMapScaleChange,
+  moveSiteAsOne = false,
+  onMoveSiteAsOneChange,
+  onMapRecenter,
+  onMapDragShift,
   sunDirection,
   drawings = [],
   texts = [],
@@ -605,46 +625,32 @@ export default function PlannerCanvas({
         </div>
       </div>
 
-      {/* Map rotation & compass — bottom right */}
-      {hasMap && (
-        <div className="absolute bottom-3 right-3 z-10 flex flex-col items-center gap-2">
-          <div className="w-12 h-12 rounded-full bg-white/90 backdrop-blur border border-gray-200 shadow-sm flex items-center justify-center" title={`North: ${mapRotation === 0 ? "up" : `${Math.round(mapRotation)}° rotated`}`}>
+      {/* Map controls + compass — bottom right (desktop overlay) */}
+      {hasMap && !isMobile && (
+        <div className="absolute bottom-3 right-3 z-10 flex flex-col items-end gap-2">
+          <div
+            className="w-12 h-12 rounded-full bg-white/95 backdrop-blur border border-gray-200 shadow-sm flex items-center justify-center"
+            title={`North: ${mapRotation === 0 ? "up" : `${Math.round(mapRotation)}° rotated`}`}
+          >
             <svg width="32" height="32" viewBox="0 0 32 32" style={{ transform: `rotate(${-mapRotation}deg)`, transition: "transform 0.2s" }}>
               <polygon points="16,4 20,18 16,15 12,18" fill="#EF4444" stroke="#DC2626" strokeWidth="0.5" />
               <polygon points="16,28 12,18 16,21 20,18" fill="#9CA3AF" stroke="#6B7280" strokeWidth="0.5" />
               <text x="16" y="3" textAnchor="middle" fontSize="7" fontWeight="bold" fill="#EF4444" style={{ transform: `rotate(${mapRotation}deg)`, transformOrigin: "16px 16px" }}>N</text>
             </svg>
           </div>
-          <div className="bg-white/90 backdrop-blur rounded-lg border border-gray-200 shadow-sm p-2 flex flex-col items-center gap-1.5">
-            <span className="text-[9px] text-gray-500 font-medium">Map Rotation</span>
-            <input
-              type="range"
-              min="-180"
-              max="180"
-              step="1"
-              value={mapRotation}
-              onChange={(e) => onMapRotation?.(parseFloat(e.target.value))}
-              className="w-20 h-1 accent-amber-500"
+          <div className="w-[200px]">
+            <MapControls
+              rotation={mapRotation}
+              onRotationChange={(d) => onMapRotation?.(d)}
+              locked={mapLocked}
+              onLockedChange={(v) => onMapLockedChange?.(v)}
+              scaleMultiplier={mapScaleMultiplier}
+              onScaleChange={(m) => onMapScaleChange?.(m)}
+              moveAsOne={moveSiteAsOne}
+              onMoveAsOneChange={(v) => onMoveSiteAsOneChange?.(v)}
+              onRecenter={() => onMapRecenter?.()}
+              compact
             />
-            <div className="flex items-center gap-1">
-              <input
-                type="number"
-                value={Math.round(mapRotation)}
-                onChange={(e) => onMapRotation?.(parseFloat(e.target.value) || 0)}
-                className="w-12 px-1 py-0.5 text-[10px] text-center rounded border border-gray-200 focus:outline-none focus:ring-1 focus:ring-amber-500"
-                min={-180}
-                max={180}
-              />
-              <span className="text-[9px] text-gray-400">°</span>
-            </div>
-            {mapRotation !== 0 && (
-              <button
-                onClick={() => onMapRotation?.(0)}
-                className="text-[9px] text-amber-600 hover:text-amber-700 font-medium"
-              >
-                Reset
-              </button>
-            )}
           </div>
         </div>
       )}
@@ -693,25 +699,107 @@ export default function PlannerCanvas({
         >
           {/* Map background layer */}
           {mapData && (() => {
-            const imgW = mapData.image.width * mapData.scale;
-            const imgH = mapData.image.height * mapData.scale;
+            const effectiveScale = mapData.scale * mapScaleMultiplier;
+            const imgW = mapData.image.width * effectiveScale;
+            const imgH = mapData.image.height * effectiveScale;
+            const cx = mapData.x + imgW / 2;
+            const cy = mapData.y + imgH / 2;
+            // For the rotation handle: position above the (rotated) map's
+            // top-centre so it always sits above the visible image.
+            const rad = (mapRotation * Math.PI) / 180;
+            const handleOffset = imgH / 2 + 30; // 30px above the map's top edge
+            const handleX = cx + Math.sin(rad) * handleOffset;
+            const handleY = cy - Math.cos(rad) * handleOffset;
             return (
               <Layer>
                 <KonvaImage
                   image={mapData.image}
-                  x={mapData.x + imgW / 2}
-                  y={mapData.y + imgH / 2}
+                  x={cx}
+                  y={cy}
                   offsetX={mapData.image.width / 2}
                   offsetY={mapData.image.height / 2}
-                  scaleX={mapData.scale}
-                  scaleY={mapData.scale}
+                  scaleX={effectiveScale}
+                  scaleY={effectiveScale}
                   rotation={mapRotation}
                   opacity={mapOpacity}
-                  draggable
+                  draggable={!mapLocked}
                   onDragEnd={(e) => {
-                    onMapMove?.(e.target.x() - imgW / 2, e.target.y() - imgH / 2);
+                    const newX = e.target.x() - imgW / 2;
+                    const newY = e.target.y() - imgH / 2;
+                    if (moveSiteAsOne && onMapDragShift) {
+                      const dxPx = newX - mapData.x;
+                      const dyPx = newY - mapData.y;
+                      onMapDragShift(dxPx / PIXELS_PER_METRE, dyPx / PIXELS_PER_METRE);
+                    }
+                    onMapMove?.(newX, newY);
                   }}
                 />
+
+                {/* Rotation handle — only when map isn't locked */}
+                {!mapLocked && onMapRotation && (
+                  <>
+                    {/* Connector line from map centre to handle */}
+                    <Line
+                      points={[cx, cy, handleX, handleY]}
+                      stroke="rgba(245, 158, 11, 0.45)"
+                      strokeWidth={1.2}
+                      dash={[4, 3]}
+                      listening={false}
+                    />
+                    <Circle
+                      x={handleX}
+                      y={handleY}
+                      radius={9}
+                      fill="#FCD34D"
+                      stroke="#B45309"
+                      strokeWidth={2}
+                      shadowColor="black"
+                      shadowBlur={4}
+                      shadowOpacity={0.25}
+                      draggable
+                      onDragMove={(e) => {
+                        const hx = e.target.x();
+                        const hy = e.target.y();
+                        // Compute angle from map centre to handle position.
+                        // Atan2 returns radians from positive X axis; we want
+                        // 0° pointing up so adjust accordingly.
+                        const angle = Math.atan2(hx - cx, -(hy - cy)) * (180 / Math.PI);
+                        onMapRotation(angle);
+                      }}
+                      onDragEnd={(e) => {
+                        // Snap to nearest 15° when released near a tick
+                        const hx = e.target.x();
+                        const hy = e.target.y();
+                        const raw = Math.atan2(hx - cx, -(hy - cy)) * (180 / Math.PI);
+                        const stepped = Math.abs(raw - Math.round(raw / 15) * 15) <= 7
+                          ? Math.round(raw / 15) * 15
+                          : raw;
+                        onMapRotation(stepped);
+                      }}
+                      onMouseEnter={(e) => {
+                        const c = e.target.getStage()?.container();
+                        if (c) c.style.cursor = "grab";
+                      }}
+                      onMouseLeave={(e) => {
+                        const c = e.target.getStage()?.container();
+                        if (c) c.style.cursor = "default";
+                      }}
+                    />
+                    {/* Tiny rotation icon inside the handle */}
+                    <KonvaText
+                      x={handleX - 6}
+                      y={handleY - 6}
+                      width={12}
+                      height={12}
+                      text="↻"
+                      fontSize={11}
+                      fontStyle="bold"
+                      fill="#7C2D12"
+                      align="center"
+                      listening={false}
+                    />
+                  </>
+                )}
               </Layer>
             );
           })()}

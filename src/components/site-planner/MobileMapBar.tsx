@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { searchSuggestions, geocodeLocation, type GeoResult } from "@/lib/site-planner/mapUtils";
+import MapControls from "./MapControls";
 
 type Props = {
   hasMap: boolean;
@@ -10,6 +11,13 @@ type Props = {
   onMapSelect: (result: GeoResult) => void;
   onMapRotation: (degrees: number) => void;
   onMapRemove: () => void;
+  mapLocked?: boolean;
+  onMapLockedChange?: (locked: boolean) => void;
+  mapScaleMultiplier?: number;
+  onMapScaleChange?: (mul: number) => void;
+  moveSiteAsOne?: boolean;
+  onMoveSiteAsOneChange?: (on: boolean) => void;
+  onMapRecenter?: () => void;
 };
 
 /**
@@ -24,6 +32,13 @@ export default function MobileMapBar({
   onMapSelect,
   onMapRotation,
   onMapRemove,
+  mapLocked = false,
+  onMapLockedChange,
+  mapScaleMultiplier = 1,
+  onMapScaleChange,
+  moveSiteAsOne = false,
+  onMoveSiteAsOneChange,
+  onMapRecenter,
 }: Props) {
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState<GeoResult[]>([]);
@@ -161,36 +176,20 @@ export default function MobileMapBar({
         )}
       </div>
 
-      {/* Rotation slider — appears when toggled */}
-      {hasMap && rotateOpen && (
-        <div className="flex items-center gap-2 bg-white rounded-xl border border-amber-200 px-3 py-2">
-          <span className="text-[10px] font-bold text-amber-700 uppercase tracking-wider flex-shrink-0">Rotate</span>
-          <input
-            type="range"
-            min={-180}
-            max={180}
-            step={1}
-            value={mapRotation}
-            onChange={(e) => onMapRotation(parseFloat(e.target.value))}
-            className="flex-1 h-1 accent-amber-500"
-          />
-          <input
-            type="number"
-            value={Math.round(mapRotation)}
-            onChange={(e) => onMapRotation(parseFloat(e.target.value) || 0)}
-            className="w-14 px-1.5 py-1 text-xs text-center rounded border border-gray-200"
-            min={-180}
-            max={180}
-          />
-          {mapRotation !== 0 && (
-            <button
-              onClick={() => onMapRotation(0)}
-              className="px-2 py-1 text-[10px] font-semibold text-amber-700 bg-amber-50 rounded border border-amber-200"
-            >
-              Reset
-            </button>
-          )}
-        </div>
+      {/* Full map controls — appears when the rotate/settings button is toggled */}
+      {hasMap && rotateOpen && onMapLockedChange && onMapScaleChange && onMoveSiteAsOneChange && onMapRecenter && (
+        <MapControls
+          rotation={mapRotation}
+          onRotationChange={onMapRotation}
+          locked={mapLocked}
+          onLockedChange={onMapLockedChange}
+          scaleMultiplier={mapScaleMultiplier}
+          onScaleChange={onMapScaleChange}
+          moveAsOne={moveSiteAsOne}
+          onMoveAsOneChange={onMoveSiteAsOneChange}
+          onRecenter={onMapRecenter}
+          hideScale
+        />
       )}
     </div>
   );

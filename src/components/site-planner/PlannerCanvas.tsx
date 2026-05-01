@@ -353,9 +353,10 @@ export default function PlannerCanvas({
     [tool, activePolygon, onAddDrawing, drawStyle],
   );
 
-  // Mouse-down → start a freehand stroke
+  // Mouse-down / touchstart → start a freehand stroke. Accepts either event
+  // since the same handler is wired to both onMouseDown and onTouchStart.
   const handleStageMouseDown = useCallback(
-    (e: Konva.KonvaEventObject<MouseEvent>) => {
+    (e: Konva.KonvaEventObject<MouseEvent | TouchEvent>) => {
       if (tool !== "freehand" || !drawStyle) return;
       // Don't draw if the user clicked on a building or text — only on empty stage
       if (e.target !== e.target.getStage()) return;

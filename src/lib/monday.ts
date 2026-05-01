@@ -173,12 +173,19 @@ export async function createMondayItem(
 }
 
 /**
- * Convert a base64 dataURL into a Buffer-like object suitable for FormData.
+ * Convert a base64 dataURL into a Blob suitable for FormData. Done in a
+ * helper because TypeScript 5's strict ArrayBuffer typing makes the
+ * Buffer → BlobPart conversion unhappy unless we go through a freshly
+ * allocated ArrayBuffer.
  */
-function dataUrlToBlob(dataUrl: string): { buffer: Buffer; mime: string } | null {
+function dataUrlToBlob(dataUrl: string): Blob | null {
   const match = dataUrl.match(/^data:([^;]+);base64,(.+)$/);
   if (!match) return null;
-  return { mime: match[1], buffer: Buffer.from(match[2], "base64") };
+  const binary = atob(match[2]);
+  const ab = new ArrayBuffer(binary.length);
+  const view = new Uint8Array(ab);
+  for (let i = 0; i < binary.length; i++) view[i] = binary.charCodeAt(i);
+  return new Blob([ab], { type: match[1] });
 }
 
 /**
@@ -214,11 +221,7 @@ export async function uploadFileToColumn(
     );
     form.append("map", '{"image":"variables.file"}');
     form.append("variables[file]", "");
-    form.append(
-      "image",
-      new Blob([blob.buffer], { type: blob.mime }),
-      filename,
-    );
+    form.append("image", blob, filename);
 
     const res = await fetch("https://api.monday.com/v2/file", {
       method: "POST",

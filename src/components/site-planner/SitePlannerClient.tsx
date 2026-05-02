@@ -212,6 +212,7 @@ export default function SitePlannerClient() {
         text,
         fontSize: textStyle.fontSize,
         color: textStyle.color,
+        opacity: textStyle.opacity,
       });
     },
     [state, textStyle],
@@ -543,6 +544,7 @@ export default function SitePlannerClient() {
             texts={state.texts}
             onAddDrawing={state.addDrawing}
             onRemoveDrawing={state.removeDrawing}
+            onUpdateDrawing={state.updateDrawing}
             onAddText={state.addText}
             onMoveText={state.moveText}
             onUpdateText={state.updateText}

@@ -173,6 +173,21 @@ export default function DrawingTools({
             </button>
           </div>
 
+          {/* Opacity */}
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Opacity</span>
+            <input
+              type="range"
+              min={0.1}
+              max={1}
+              step={0.05}
+              value={drawStyle.opacity}
+              onChange={(e) => onDrawStyleChange({ ...drawStyle, opacity: parseFloat(e.target.value) })}
+              className="w-20 h-1 accent-amber-500"
+            />
+            <span className="text-[10px] text-gray-500 w-7">{Math.round(drawStyle.opacity * 100)}%</span>
+          </div>
+
           {onClearDrawings && (
             <button
               onClick={onClearDrawings}
@@ -209,6 +224,20 @@ export default function DrawingTools({
               className="w-24 h-1 accent-amber-500"
             />
             <span className="text-[10px] text-gray-500 w-7">{textStyle.fontSize}px</span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Opacity</span>
+            <input
+              type="range"
+              min={0.1}
+              max={1}
+              step={0.05}
+              value={textStyle.opacity}
+              onChange={(e) => onTextStyleChange({ ...textStyle, opacity: parseFloat(e.target.value) })}
+              className="w-20 h-1 accent-amber-500"
+            />
+            <span className="text-[10px] text-gray-500 w-7">{Math.round(textStyle.opacity * 100)}%</span>
           </div>
 
           <span className="text-[10px] text-gray-400 italic">Click on the canvas to drop text</span>

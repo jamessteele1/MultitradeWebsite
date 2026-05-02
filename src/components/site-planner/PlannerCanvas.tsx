@@ -25,6 +25,72 @@ export type MapData = {
   y: number;
 };
 
+/* ─── Geometry helpers ─────────────────────────────────────────── */
+
+/** Total length of a polyline in pixels. Adds the closing segment for polygons. */
+function computePathLength(points: number[], closed: boolean): number {
+  if (points.length < 4) return 0;
+  let total = 0;
+  for (let i = 0; i < points.length - 2; i += 2) {
+    total += Math.hypot(points[i + 2] - points[i], points[i + 3] - points[i + 1]);
+  }
+  if (closed) {
+    total += Math.hypot(points[0] - points[points.length - 2], points[1] - points[points.length - 1]);
+  }
+  return total;
+}
+
+/** Signed polygon area via the shoelace formula. Returns pixel². */
+function computePolygonArea(points: number[]): number {
+  const n = points.length / 2;
+  if (n < 3) return 0;
+  let sum = 0;
+  for (let i = 0; i < n; i++) {
+    const j = (i + 1) % n;
+    sum += points[i * 2] * points[j * 2 + 1];
+    sum -= points[j * 2] * points[i * 2 + 1];
+  }
+  return sum / 2;
+}
+
+/** Centroid of a polygon. Falls back to point-average for degenerate cases. */
+function computeCentroid(points: number[]): { x: number; y: number } {
+  const n = points.length / 2;
+  if (n === 0) return { x: 0, y: 0 };
+  // Mean of vertices (good enough for label placement)
+  let sx = 0,
+    sy = 0;
+  for (let i = 0; i < n; i++) {
+    sx += points[i * 2];
+    sy += points[i * 2 + 1];
+  }
+  return { x: sx / n, y: sy / n };
+}
+
+/** Midpoint of an open path (mid-vertex for stable label placement). */
+function computeMidpoint(points: number[]): { x: number; y: number } | null {
+  if (points.length < 2) return null;
+  const midIdx = Math.floor(points.length / 4) * 2; // even index
+  return { x: points[midIdx], y: points[midIdx + 1] };
+}
+
+/** Format a m² area with sensible precision. */
+function formatArea(m2: number): string {
+  if (m2 >= 1000) return `${m2.toFixed(0)} m²`;
+  if (m2 >= 100) return `${m2.toFixed(1)} m²`;
+  return `${m2.toFixed(2)} m²`;
+}
+
+/** Convert "#RRGGBB" + alpha (0–1) to "rgba(r,g,b,a)". */
+function hexToRGBA(hex: string, alpha: number): string {
+  const m = hex.match(/^#?([\da-f]{6})$/i);
+  if (!m) return hex;
+  const r = parseInt(m[1].slice(0, 2), 16);
+  const g = parseInt(m[1].slice(2, 4), 16);
+  const b = parseInt(m[1].slice(4, 6), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
 type Props = {
   buildings: PlacedBuilding[];
   selectedId: string | null;
@@ -56,6 +122,7 @@ type Props = {
   texts?: TextItem[];
   onAddDrawing?: (drawing: Omit<Drawing, "id">) => void;
   onRemoveDrawing?: (id: string) => void;
+  onUpdateDrawing?: (id: string, patch: Partial<Omit<Drawing, "id">>) => void;
   onAddText?: (item: Omit<TextItem, "id">) => void;
   onMoveText?: (id: string, x: number, y: number) => void;
   onUpdateText?: (id: string, patch: Partial<Omit<TextItem, "id">>) => void;
@@ -98,6 +165,7 @@ export default function PlannerCanvas({
   texts = [],
   onAddDrawing,
   onRemoveDrawing,
+  onUpdateDrawing,
   onAddText,
   onMoveText,
   onUpdateText,
@@ -125,8 +193,9 @@ export default function PlannerCanvas({
   const textInputRef = useRef<HTMLInputElement>(null);
   const [textInputValue, setTextInputValue] = useState("");
 
-  // Selection state for texts (so they can be deleted)
+  // Selection state for texts and drawings (so they can be edited / deleted)
   const [selectedTextId, setSelectedTextId] = useState<string | null>(null);
+  const [selectedDrawingId, setSelectedDrawingId] = useState<string | null>(null);
 
   // Reset in-progress sketches when the tool changes
   useEffect(() => {
@@ -134,6 +203,7 @@ export default function PlannerCanvas({
     setActivePolygon(null);
     setTextInput(null);
     setSelectedTextId(null);
+    setSelectedDrawingId(null);
   }, [tool]);
 
   // Translate a stage pointer event into canvas-space pixel coords
@@ -304,6 +374,7 @@ export default function PlannerCanvas({
             thickness: drawStyle.thickness,
             dashed: drawStyle.dashed,
             closed: true,
+            opacity: drawStyle.opacity,
           });
           setActivePolygon(null);
           return;
@@ -314,6 +385,7 @@ export default function PlannerCanvas({
 
       onSelect(null);
       setSelectedTextId(null);
+      setSelectedDrawingId(null);
     },
     [
       onSelect,
@@ -388,6 +460,7 @@ export default function PlannerCanvas({
         thickness: drawStyle.thickness,
         dashed: drawStyle.dashed,
         closed: false,
+        opacity: drawStyle.opacity,
       });
     }
     setActiveStroke(null);
@@ -404,6 +477,7 @@ export default function PlannerCanvas({
         text: value,
         fontSize: textStyle.fontSize,
         color: textStyle.color,
+        opacity: textStyle.opacity,
       });
     }
     setTextInput(null);
@@ -416,28 +490,36 @@ export default function PlannerCanvas({
     }
   }, [textInput]);
 
-  // Delete-key removes selected text annotation
+  // Delete-key removes selected text annotation OR selected drawing
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if (
-        (e.key === "Delete" || e.key === "Backspace") &&
-        selectedTextId &&
-        onRemoveText &&
-        !(e.target instanceof HTMLInputElement) &&
-        !(e.target instanceof HTMLTextAreaElement)
-      ) {
-        e.preventDefault();
-        onRemoveText(selectedTextId);
-        setSelectedTextId(null);
-      } else if (e.key === "Escape") {
+      const isTextField =
+        e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement;
+      if ((e.key === "Delete" || e.key === "Backspace") && !isTextField) {
+        if (selectedTextId && onRemoveText) {
+          e.preventDefault();
+          onRemoveText(selectedTextId);
+          setSelectedTextId(null);
+          return;
+        }
+        if (selectedDrawingId && onRemoveDrawing) {
+          e.preventDefault();
+          onRemoveDrawing(selectedDrawingId);
+          setSelectedDrawingId(null);
+          return;
+        }
+      }
+      if (e.key === "Escape") {
         setActiveStroke(null);
         setActivePolygon(null);
         setTextInput(null);
+        setSelectedDrawingId(null);
+        setSelectedTextId(null);
       }
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [selectedTextId, onRemoveText]);
+  }, [selectedTextId, selectedDrawingId, onRemoveText, onRemoveDrawing]);
 
   // Pinch-to-zoom for touch.
   //
@@ -939,22 +1021,149 @@ export default function PlannerCanvas({
             })}
           </Layer>
 
-          {/* Drawings layer — freehand strokes and closed polygons */}
+          {/* Drawings layer — freehand strokes and closed polygons.
+              Listens for clicks so users can select an existing drawing.
+              When a closed polygon is selected, vertex handles are rendered
+              so the user can drag points to reshape the area. */}
           {(drawings.length > 0 || activeStroke || activePolygon) && (
-            <Layer listening={false}>
-              {drawings.map((d) => (
-                <Line
-                  key={d.id}
-                  points={d.points}
-                  stroke={d.color}
-                  strokeWidth={d.thickness}
-                  dash={d.dashed ? [d.thickness * 3, d.thickness * 2] : undefined}
-                  closed={d.closed}
-                  fill={d.closed ? `${d.color}22` : undefined}
-                  lineCap="round"
-                  lineJoin="round"
-                />
-              ))}
+            <Layer>
+              {drawings.map((d) => {
+                const op = d.opacity ?? 1;
+                const isSelected = selectedDrawingId === d.id;
+                // Geometry
+                const lengthPx = computePathLength(d.points, d.closed);
+                const lengthM = lengthPx / PIXELS_PER_METRE;
+                const areaPxSq = d.closed ? Math.abs(computePolygonArea(d.points)) : 0;
+                const areaMSq = areaPxSq / (PIXELS_PER_METRE * PIXELS_PER_METRE);
+                const centroid = d.closed ? computeCentroid(d.points) : null;
+                // Label position for open paths: midpoint of last segment
+                const labelPos = !d.closed ? computeMidpoint(d.points) : null;
+                // Hex colour with opacity for the closed-polygon fill
+                const fillRGBA = d.closed ? hexToRGBA(d.color, op * 0.18) : undefined;
+                return (
+                  <Group key={d.id}>
+                    <Line
+                      points={d.points}
+                      stroke={d.color}
+                      strokeWidth={d.thickness}
+                      dash={d.dashed ? [d.thickness * 3, d.thickness * 2] : undefined}
+                      closed={d.closed}
+                      fill={fillRGBA}
+                      lineCap="round"
+                      lineJoin="round"
+                      opacity={op}
+                      // Hit area is generous so thin lines are tappable
+                      hitStrokeWidth={Math.max(d.thickness + 12, 16)}
+                      onMouseEnter={(e) => {
+                        if (tool !== "select") return;
+                        const c = e.target.getStage()?.container();
+                        if (c) c.style.cursor = "pointer";
+                      }}
+                      onMouseLeave={(e) => {
+                        const c = e.target.getStage()?.container();
+                        if (c) c.style.cursor = "default";
+                      }}
+                      onClick={(e) => {
+                        if (tool !== "select") return;
+                        e.cancelBubble = true;
+                        setSelectedDrawingId(d.id);
+                        setSelectedTextId(null);
+                      }}
+                      onTap={(e) => {
+                        if (tool !== "select") return;
+                        e.cancelBubble = true;
+                        setSelectedDrawingId(d.id);
+                        setSelectedTextId(null);
+                      }}
+                    />
+
+                    {/* Selection halo — re-stroke at lower opacity */}
+                    {isSelected && (
+                      <Line
+                        points={d.points}
+                        stroke="#2563EB"
+                        strokeWidth={Math.max(d.thickness + 4, 6)}
+                        closed={d.closed}
+                        opacity={0.18}
+                        lineCap="round"
+                        lineJoin="round"
+                        listening={false}
+                      />
+                    )}
+
+                    {/* Length label — at midpoint for open strokes (>= 0.5m) */}
+                    {!d.closed && labelPos && lengthM >= 0.5 && (
+                      <KonvaText
+                        x={labelPos.x - 28}
+                        y={labelPos.y - 22 / zoom}
+                        width={56}
+                        align="center"
+                        text={`${lengthM.toFixed(1)} m`}
+                        fontSize={12}
+                        fontStyle="bold"
+                        fontFamily="system-ui, sans-serif"
+                        fill={d.color}
+                        shadowColor="rgba(255,255,255,0.95)"
+                        shadowBlur={3}
+                        shadowOpacity={0.95}
+                        listening={false}
+                      />
+                    )}
+
+                    {/* Area + perimeter label inside closed polygons */}
+                    {d.closed && centroid && (
+                      <KonvaText
+                        x={centroid.x - 50}
+                        y={centroid.y - 16}
+                        width={100}
+                        align="center"
+                        text={`${formatArea(areaMSq)}\n${lengthM.toFixed(1)} m perim.`}
+                        fontSize={12}
+                        fontStyle="bold"
+                        fontFamily="system-ui, sans-serif"
+                        fill={d.color}
+                        shadowColor="rgba(255,255,255,0.95)"
+                        shadowBlur={3}
+                        shadowOpacity={0.95}
+                        listening={false}
+                      />
+                    )}
+
+                    {/* Vertex handles for selected CLOSED polygons */}
+                    {isSelected && d.closed && onUpdateDrawing &&
+                      Array.from({ length: d.points.length / 2 }).map((_, i) => (
+                        <Circle
+                          key={`vh-${i}`}
+                          x={d.points[i * 2]}
+                          y={d.points[i * 2 + 1]}
+                          radius={6 / zoom}
+                          fill="#FFFFFF"
+                          stroke="#2563EB"
+                          strokeWidth={2 / zoom}
+                          shadowColor="black"
+                          shadowBlur={3 / zoom}
+                          shadowOpacity={0.25}
+                          draggable
+                          onMouseEnter={(e) => {
+                            const c = e.target.getStage()?.container();
+                            if (c) c.style.cursor = "grab";
+                          }}
+                          onMouseLeave={(e) => {
+                            const c = e.target.getStage()?.container();
+                            if (c) c.style.cursor = "default";
+                          }}
+                          onDragMove={(e) => {
+                            const newPts = d.points.slice();
+                            newPts[i * 2] = e.target.x();
+                            newPts[i * 2 + 1] = e.target.y();
+                            onUpdateDrawing(d.id, { points: newPts });
+                          }}
+                        />
+                      ))}
+                  </Group>
+                );
+              })}
+
               {/* In-progress freehand stroke */}
               {activeStroke && drawStyle && (
                 <Line
@@ -964,11 +1173,14 @@ export default function PlannerCanvas({
                   dash={drawStyle.dashed ? [drawStyle.thickness * 3, drawStyle.thickness * 2] : undefined}
                   lineCap="round"
                   lineJoin="round"
+                  opacity={drawStyle.opacity}
+                  listening={false}
                 />
               )}
+
               {/* In-progress polygon outline */}
               {activePolygon && drawStyle && (
-                <>
+                <Group listening={false}>
                   <Line
                     points={activePolygon}
                     stroke={drawStyle.color}
@@ -976,8 +1188,8 @@ export default function PlannerCanvas({
                     dash={drawStyle.dashed ? [drawStyle.thickness * 3, drawStyle.thickness * 2] : undefined}
                     lineCap="round"
                     lineJoin="round"
+                    opacity={drawStyle.opacity}
                   />
-                  {/* Vertex dots */}
                   {Array.from({ length: activePolygon.length / 2 }).map((_, i) => (
                     <Circle
                       key={`pv-${i}`}
@@ -989,41 +1201,8 @@ export default function PlannerCanvas({
                       strokeWidth={1.5 / zoom}
                     />
                   ))}
-                </>
+                </Group>
               )}
-            </Layer>
-          )}
-
-          {/* Drawing-delete hit layer — when in select mode, allow clicking a
-              drawing to remove it (small invisible hit-rects on each line) */}
-          {tool === "select" && drawings.length > 0 && onRemoveDrawing && (
-            <Layer>
-              {drawings.map((d) => (
-                <Line
-                  key={`hit-${d.id}`}
-                  points={d.points}
-                  stroke="rgba(0,0,0,0.001)"
-                  strokeWidth={Math.max(d.thickness + 8, 12)}
-                  closed={d.closed}
-                  hitStrokeWidth={Math.max(d.thickness + 12, 16)}
-                  onMouseEnter={(e) => {
-                    const c = e.target.getStage()?.container();
-                    if (c) c.style.cursor = "pointer";
-                  }}
-                  onMouseLeave={(e) => {
-                    const c = e.target.getStage()?.container();
-                    if (c) c.style.cursor = "default";
-                  }}
-                  onClick={(e) => {
-                    e.cancelBubble = true;
-                    if (window.confirm("Delete this drawing?")) onRemoveDrawing(d.id);
-                  }}
-                  onTap={(e) => {
-                    e.cancelBubble = true;
-                    if (window.confirm("Delete this drawing?")) onRemoveDrawing(d.id);
-                  }}
-                />
-              ))}
             </Layer>
           )}
 
@@ -1032,11 +1211,13 @@ export default function PlannerCanvas({
             <Layer>
               {texts.map((t) => {
                 const isSel = selectedTextId === t.id;
+                const op = t.opacity ?? 1;
                 return (
                   <Group
                     key={t.id}
                     x={t.x}
                     y={t.y}
+                    opacity={op}
                     draggable
                     onDragEnd={(e) => {
                       onMoveText?.(t.id, e.target.x(), e.target.y());

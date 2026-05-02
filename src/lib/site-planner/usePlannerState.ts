@@ -28,6 +28,8 @@ export type Drawing = {
   dashed: boolean;
   /** True for closed polygons (e.g. work-area outlines). */
   closed: boolean;
+  /** 0–1; applied to stroke and (for closed polygons) the fill. Defaults to 1. */
+  opacity?: number;
 };
 
 /**
@@ -42,6 +44,8 @@ export type TextItem = {
   text: string;
   fontSize: number;
   color: string;
+  /** 0–1; defaults to 1. */
+  opacity?: number;
 };
 
 const STORAGE_KEY = "multitrade-site-planner";
@@ -253,6 +257,13 @@ export function usePlannerState() {
     [pushUndo, buildings, texts],
   );
 
+  const updateDrawing = useCallback(
+    (id: string, patch: Partial<Omit<Drawing, "id">>) => {
+      setDrawings((prev) => prev.map((d) => (d.id === id ? { ...d, ...patch } : d)));
+    },
+    [],
+  );
+
   const clearDrawings = useCallback(() => {
     setDrawings((prev) => {
       pushUndo(buildings, prev, texts);
@@ -325,6 +336,7 @@ export function usePlannerState() {
     removeBuilding,
     addDrawing,
     removeDrawing,
+    updateDrawing,
     clearDrawings,
     addText,
     updateText,

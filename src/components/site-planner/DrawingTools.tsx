@@ -183,118 +183,117 @@ export default function DrawingTools({
         )}
       </div>
 
-      {/* Compact style row — only when a drawing or text tool is active.
-          Lives on its own line below the tool selector so colours can hug
-          the left edge, the opacity slider gets generous flex-1 width on
-          the right, the dashed/solid toggle is plainly visible, and the
-          percentage label is always shown. */}
+      {/* Compact style row — splits cleanly into two short sub-rows so the
+          opacity %, dashed toggle, and thickness value never get clipped on
+          a 375px iPhone. Top sub-row: colours + Solid/Dashed. Bottom
+          sub-row: thickness + flex-1 opacity slider with always-visible %. */}
       {compact && isDrawing && (
-        <div className="flex items-center gap-2 bg-white rounded-xl border border-amber-200 px-2 py-1.5">
-          {/* Colour swatches — pinned left */}
-          <div className="flex items-center gap-0.5 flex-shrink-0">
-            {SWATCH_COLOURS.slice(0, 6).map((c) =>
-              swatch(c, drawStyle.color, (color) => onDrawStyleChange({ ...drawStyle, color })),
-            )}
+        <div className="flex flex-col gap-1.5 bg-white rounded-xl border border-amber-200 px-2 py-1.5">
+          {/* Sub-row 1 — colours pinned left, line-style on right */}
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-0.5">
+              {SWATCH_COLOURS.slice(0, 6).map((c) =>
+                swatch(c, drawStyle.color, (color) => onDrawStyleChange({ ...drawStyle, color })),
+              )}
+            </div>
+            <div className="flex items-center gap-0.5">
+              <button
+                onClick={() => onDrawStyleChange({ ...drawStyle, dashed: false })}
+                className={`w-9 h-7 flex items-center justify-center rounded transition-colors ${
+                  !drawStyle.dashed ? "bg-gray-900 text-white" : "text-gray-500 border border-gray-200 hover:bg-gray-100"
+                }`}
+                title="Solid line"
+                aria-label="Solid line"
+                aria-pressed={!drawStyle.dashed}
+              >
+                <svg width="20" height="6" viewBox="0 0 20 6"><line x1="1" y1="3" x2="19" y2="3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
+              </button>
+              <button
+                onClick={() => onDrawStyleChange({ ...drawStyle, dashed: true })}
+                className={`w-9 h-7 flex items-center justify-center rounded transition-colors ${
+                  drawStyle.dashed ? "bg-gray-900 text-white" : "text-gray-500 border border-gray-200 hover:bg-gray-100"
+                }`}
+                title="Dashed line"
+                aria-label="Dashed line"
+                aria-pressed={drawStyle.dashed}
+              >
+                <svg width="20" height="6" viewBox="0 0 20 6"><line x1="1" y1="3" x2="19" y2="3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeDasharray="3 2" /></svg>
+              </button>
+            </div>
           </div>
 
-          {/* Solid / Dashed toggle as two icon buttons */}
-          <div className="flex items-center gap-0.5 flex-shrink-0 border-l border-gray-200 pl-1.5">
-            <button
-              onClick={() => onDrawStyleChange({ ...drawStyle, dashed: false })}
-              className={`w-7 h-6 flex items-center justify-center rounded transition-colors ${
-                !drawStyle.dashed ? "bg-gray-900 text-white" : "text-gray-500 hover:bg-gray-100"
-              }`}
-              title="Solid line"
-              aria-label="Solid line"
-              aria-pressed={!drawStyle.dashed}
-            >
-              <svg width="16" height="6" viewBox="0 0 16 6"><line x1="1" y1="3" x2="15" y2="3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
-            </button>
-            <button
-              onClick={() => onDrawStyleChange({ ...drawStyle, dashed: true })}
-              className={`w-7 h-6 flex items-center justify-center rounded transition-colors ${
-                drawStyle.dashed ? "bg-gray-900 text-white" : "text-gray-500 hover:bg-gray-100"
-              }`}
-              title="Dashed line"
-              aria-label="Dashed line"
-              aria-pressed={drawStyle.dashed}
-            >
-              <svg width="16" height="6" viewBox="0 0 16 6"><line x1="1" y1="3" x2="15" y2="3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeDasharray="3 2" /></svg>
-            </button>
-          </div>
-
-          {/* Thickness — slim slider with icon + value */}
-          <div className="flex items-center gap-1 flex-shrink-0">
-            <span className="text-[10px] font-bold text-gray-500">T</span>
-            <input
-              type="range"
-              min={1}
-              max={12}
-              step={1}
-              value={drawStyle.thickness}
-              onChange={(e) => onDrawStyleChange({ ...drawStyle, thickness: parseInt(e.target.value, 10) })}
-              className="w-14 h-1 accent-amber-500"
-              aria-label="Thickness"
-            />
-            <span className="text-[10px] text-gray-500 w-3 text-right">{drawStyle.thickness}</span>
-          </div>
-
-          {/* Opacity — soaks up the remaining width with flex-1, % always visible */}
-          <div className="flex items-center gap-1 flex-1 min-w-0">
-            <span className="text-[10px] font-bold text-gray-500">OPACITY</span>
-            <input
-              type="range"
-              min={0.1}
-              max={1}
-              step={0.05}
-              value={drawStyle.opacity}
-              onChange={(e) => onDrawStyleChange({ ...drawStyle, opacity: parseFloat(e.target.value) })}
-              className="flex-1 min-w-[60px] h-1 accent-amber-500"
-              aria-label="Opacity"
-            />
-            <span className="text-[10px] text-gray-600 font-mono w-8 text-right">{Math.round(drawStyle.opacity * 100)}%</span>
+          {/* Sub-row 2 — thickness on left, opacity takes the rest with % */}
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1.5 flex-shrink-0">
+              <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Thick</span>
+              <input
+                type="range"
+                min={1}
+                max={12}
+                step={1}
+                value={drawStyle.thickness}
+                onChange={(e) => onDrawStyleChange({ ...drawStyle, thickness: parseInt(e.target.value, 10) })}
+                className="w-16 h-1 accent-amber-500"
+                aria-label="Thickness"
+              />
+              <span className="text-[10px] text-gray-500 w-3 text-right">{drawStyle.thickness}</span>
+            </div>
+            <div className="flex items-center gap-1.5 flex-1 min-w-0">
+              <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Opacity</span>
+              <input
+                type="range"
+                min={0.1}
+                max={1}
+                step={0.05}
+                value={drawStyle.opacity}
+                onChange={(e) => onDrawStyleChange({ ...drawStyle, opacity: parseFloat(e.target.value) })}
+                className="flex-1 min-w-0 h-1 accent-amber-500"
+                aria-label="Opacity"
+              />
+              <span className="text-[10px] text-gray-600 font-mono w-9 text-right">{Math.round(drawStyle.opacity * 100)}%</span>
+            </div>
           </div>
         </div>
       )}
       {compact && isText && (
-        <div className="flex items-center gap-2 bg-white rounded-xl border border-amber-200 px-2 py-1.5">
-          {/* Colour swatches — left */}
-          <div className="flex items-center gap-0.5 flex-shrink-0">
+        <div className="flex flex-col gap-1.5 bg-white rounded-xl border border-amber-200 px-2 py-1.5">
+          {/* Sub-row 1 — colours */}
+          <div className="flex items-center gap-0.5">
             {SWATCH_COLOURS.slice(0, 6).map((c) =>
               swatch(c, textStyle.color, (color) => onTextStyleChange({ ...textStyle, color })),
             )}
           </div>
 
-          {/* Font size */}
-          <div className="flex items-center gap-1 flex-shrink-0 border-l border-gray-200 pl-1.5">
-            <span className="text-[10px] font-bold text-gray-500">SIZE</span>
-            <input
-              type="range"
-              min={10}
-              max={48}
-              step={2}
-              value={textStyle.fontSize}
-              onChange={(e) => onTextStyleChange({ ...textStyle, fontSize: parseInt(e.target.value, 10) })}
-              className="w-16 h-1 accent-amber-500"
-              aria-label="Text size"
-            />
-            <span className="text-[10px] text-gray-500 w-7 text-right">{textStyle.fontSize}px</span>
-          </div>
-
-          {/* Opacity — fills remaining width */}
-          <div className="flex items-center gap-1 flex-1 min-w-0">
-            <span className="text-[10px] font-bold text-gray-500">OPACITY</span>
-            <input
-              type="range"
-              min={0.1}
-              max={1}
-              step={0.05}
-              value={textStyle.opacity}
-              onChange={(e) => onTextStyleChange({ ...textStyle, opacity: parseFloat(e.target.value) })}
-              className="flex-1 min-w-[60px] h-1 accent-amber-500"
-              aria-label="Opacity"
-            />
-            <span className="text-[10px] text-gray-600 font-mono w-8 text-right">{Math.round(textStyle.opacity * 100)}%</span>
+          {/* Sub-row 2 — size + opacity */}
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1.5 flex-shrink-0">
+              <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Size</span>
+              <input
+                type="range"
+                min={10}
+                max={48}
+                step={2}
+                value={textStyle.fontSize}
+                onChange={(e) => onTextStyleChange({ ...textStyle, fontSize: parseInt(e.target.value, 10) })}
+                className="w-16 h-1 accent-amber-500"
+                aria-label="Text size"
+              />
+              <span className="text-[10px] text-gray-500 w-7 text-right">{textStyle.fontSize}px</span>
+            </div>
+            <div className="flex items-center gap-1.5 flex-1 min-w-0">
+              <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Opacity</span>
+              <input
+                type="range"
+                min={0.1}
+                max={1}
+                step={0.05}
+                value={textStyle.opacity}
+                onChange={(e) => onTextStyleChange({ ...textStyle, opacity: parseFloat(e.target.value) })}
+                className="flex-1 min-w-0 h-1 accent-amber-500"
+                aria-label="Opacity"
+              />
+              <span className="text-[10px] text-gray-600 font-mono w-9 text-right">{Math.round(textStyle.opacity * 100)}%</span>
+            </div>
           </div>
         </div>
       )}

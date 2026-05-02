@@ -589,8 +589,14 @@ export default function SitePlannerClient() {
         />
 
         {/* Canvas — toolbar above is now compact (one row regardless of
-            tool) so we can give the canvas more vertical room. */}
-        <div className="rounded-xl border border-gray-200 overflow-hidden" style={{ height: "calc(100vh - 200px)", minHeight: 380 }}>
+            tool) so we can give the canvas more vertical room. dvh (dynamic
+            viewport height) accounts for iOS Safari's collapsing top/bottom
+            chrome — using 100vh would let the chrome push the bottom of the
+            canvas (and our floating selection bar) off-screen. */}
+        <div
+          className="rounded-xl border border-gray-200 overflow-hidden"
+          style={{ height: "calc(100dvh - 240px)", minHeight: 380 }}
+        >
           <PlannerCanvas
             buildings={state.buildings}
             selectedId={state.selectedId}

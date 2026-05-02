@@ -995,13 +995,20 @@ export default function PlannerCanvas({
                         onMapRotation(angle);
                       }}
                       onDragEnd={(e) => {
-                        // Snap to nearest 15° when released near a tick
+                        // Snap only to cardinal directions (0, ±90, ±180)
+                        // and only inside a tight 2° window — gives the
+                        // user true 1° precision. The earlier 15° snap
+                        // made it impossible to land on e.g. 11°.
                         const hx = e.target.x();
                         const hy = e.target.y();
                         const raw = Math.atan2(hx - cx, -(hy - cy)) * (180 / Math.PI);
-                        const stepped = Math.abs(raw - Math.round(raw / 15) * 15) <= 7
-                          ? Math.round(raw / 15) * 15
-                          : raw;
+                        let stepped = raw;
+                        for (const target of [-180, -90, 0, 90, 180]) {
+                          if (Math.abs(raw - target) <= 2) {
+                            stepped = target;
+                            break;
+                          }
+                        }
                         onMapRotation(stepped);
                       }}
                       onMouseEnter={(e) => {

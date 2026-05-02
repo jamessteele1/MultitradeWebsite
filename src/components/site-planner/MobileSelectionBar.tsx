@@ -48,7 +48,12 @@ const MobileSelectionBar = forwardRef<HTMLDivElement, Props>(function MobileSele
     <div
       ref={ref}
       data-mobile-selection-bar
-      className="absolute bottom-4 left-3 right-3 z-30 pointer-events-auto"
+      // Pin to the bottom of the canvas with a generous offset so iOS
+      // Safari's bottom URL bar can't cover the trash chip. The
+      // safe-area inset takes care of the home indicator on notched
+      // phones; the calc() adds extra room for the URL bar overlap.
+      className="absolute left-3 right-3 z-30 pointer-events-auto"
+      style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 16px)" }}
     >
       {/* Hint pill above the bar so users know what to do */}
       <div className="text-center mb-1.5">

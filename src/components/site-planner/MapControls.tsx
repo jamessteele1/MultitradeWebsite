@@ -16,12 +16,19 @@ type Props = {
   hideScale?: boolean;
 };
 
-const SNAP_STEP_DEG = 15;
-
-/** Round n to the nearest multiple of step, but only if within step/2 of it */
-function snapNear(n: number, step: number, range = step / 2) {
-  const rounded = Math.round(n / step) * step;
-  return Math.abs(n - rounded) <= range ? rounded : n;
+/**
+ * Snap rotation only to *cardinal* directions (0, ±90, ±180) and only
+ * inside a tight 2° window. Used to be a 15° snap with a 7° catch range,
+ * which made it impossible to land on e.g. 11° — the slider would
+ * silently jump back to 15°. With cardinal-only snap the user gets full
+ * 1° precision and we still help them find true north / right-angle.
+ */
+const CARDINAL_SNAP_RANGE = 2;
+function snapToCardinals(n: number): number {
+  for (const target of [-180, -90, 0, 90, 180]) {
+    if (Math.abs(n - target) <= CARDINAL_SNAP_RANGE) return target;
+  }
+  return n;
 }
 
 /**
@@ -43,7 +50,7 @@ export default function MapControls({
   hideScale = false,
 }: Props) {
   const handleSliderRelease = () => {
-    onRotationChange(snapNear(rotation, SNAP_STEP_DEG));
+    onRotationChange(snapToCardinals(rotation));
   };
 
   const quickRotateBtn = (deg: number, label: string) => (

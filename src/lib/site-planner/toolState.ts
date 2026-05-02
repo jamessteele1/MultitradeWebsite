@@ -2,7 +2,7 @@
  * Drawing/annotation tool state shared between toolbar and canvas.
  */
 
-export type ToolMode = "select" | "freehand" | "polygon" | "text";
+export type ToolMode = "select" | "freehand" | "line" | "polygon" | "text";
 
 export type DrawStyle = {
   color: string;

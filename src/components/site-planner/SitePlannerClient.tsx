@@ -66,6 +66,18 @@ export default function SitePlannerClient() {
   const [drawStyle, setDrawStyle] = useState<DrawStyle>(DEFAULT_DRAW_STYLE);
   const [textStyle, setTextStyle] = useState<TextStyle>(DEFAULT_TEXT_STYLE);
 
+  // Selection state for drawings + text annotations — surfaced from the
+  // canvas so the toolbar can render edit-after-creation controls.
+  const [selectedDrawingId, setSelectedDrawingId] = useState<string | null>(null);
+  const [selectedTextId, setSelectedTextId] = useState<string | null>(null);
+  const handleSelectionChange = useCallback(
+    (sel: { drawingId: string | null; textId: string | null }) => {
+      setSelectedDrawingId(sel.drawingId);
+      setSelectedTextId(sel.textId);
+    },
+    [],
+  );
+
   // Map state
   const [mapData, setMapData] = useState<MapData | null>(null);
   const [mapOpacity, setMapOpacity] = useState(0.7);
@@ -96,6 +108,61 @@ export default function SitePlannerClient() {
 
   const selectedBuilding = state.buildings.find((b) => b.instanceId === state.selectedId);
   const selectedType = selectedBuilding ? getBuildingType(selectedBuilding.typeId) : undefined;
+
+  // Resolve selected drawing / text + handlers passed to DrawingTools so the
+  // user can edit colour, thickness, opacity, etc. after the shape exists.
+  const selectedDrawingObj = selectedDrawingId
+    ? state.drawings.find((d) => d.id === selectedDrawingId) ?? null
+    : null;
+  const selectedTextObj = selectedTextId
+    ? state.texts.find((t) => t.id === selectedTextId) ?? null
+    : null;
+
+  const selectedDrawingForTools = selectedDrawingObj
+    ? {
+        color: selectedDrawingObj.color,
+        thickness: selectedDrawingObj.thickness,
+        dashed: selectedDrawingObj.dashed,
+        opacity: selectedDrawingObj.opacity ?? 1,
+        closed: selectedDrawingObj.closed,
+      }
+    : null;
+  const selectedTextForTools = selectedTextObj
+    ? {
+        color: selectedTextObj.color,
+        fontSize: selectedTextObj.fontSize,
+        opacity: selectedTextObj.opacity ?? 1,
+        text: selectedTextObj.text,
+      }
+    : null;
+
+  const handleSelectedDrawingChange = useCallback(
+    (patch: Partial<{ color: string; thickness: number; dashed: boolean; opacity: number; closed: boolean }>) => {
+      if (selectedDrawingId) state.updateDrawing(selectedDrawingId, patch);
+    },
+    [selectedDrawingId, state],
+  );
+  const handleSelectedDrawingDelete = useCallback(() => {
+    if (selectedDrawingId) {
+      state.removeDrawing(selectedDrawingId);
+      setSelectedDrawingId(null);
+    }
+  }, [selectedDrawingId, state]);
+  const handleDeselectDrawing = useCallback(() => setSelectedDrawingId(null), []);
+
+  const handleSelectedTextChange = useCallback(
+    (patch: Partial<{ color: string; fontSize: number; opacity: number; text: string }>) => {
+      if (selectedTextId) state.updateText(selectedTextId, patch);
+    },
+    [selectedTextId, state],
+  );
+  const handleSelectedTextDelete = useCallback(() => {
+    if (selectedTextId) {
+      state.removeText(selectedTextId);
+      setSelectedTextId(null);
+    }
+  }, [selectedTextId, state]);
+  const handleDeselectText = useCallback(() => setSelectedTextId(null), []);
 
   const handleRotate = useCallback(() => {
     if (state.selectedId) state.rotateBuilding(state.selectedId);
@@ -513,6 +580,14 @@ export default function SitePlannerClient() {
           textStyle={textStyle}
           onTextStyleChange={setTextStyle}
           onClearDrawings={state.drawings.length > 0 ? state.clearDrawings : undefined}
+          selectedDrawing={selectedDrawingForTools}
+          onSelectedDrawingChange={handleSelectedDrawingChange}
+          onSelectedDrawingDelete={handleSelectedDrawingDelete}
+          onDeselectDrawing={handleDeselectDrawing}
+          selectedText={selectedTextForTools}
+          onSelectedTextChange={handleSelectedTextChange}
+          onSelectedTextDelete={handleSelectedTextDelete}
+          onDeselectText={handleDeselectText}
         />
 
         {/* Canvas */}
@@ -549,6 +624,7 @@ export default function SitePlannerClient() {
             onMoveText={state.moveText}
             onUpdateText={state.updateText}
             onRemoveText={state.removeText}
+            onSelectionChange={handleSelectionChange}
             tool={tool}
             drawStyle={drawStyle}
             textStyle={textStyle}
@@ -623,6 +699,14 @@ export default function SitePlannerClient() {
         textStyle={textStyle}
         onTextStyleChange={setTextStyle}
         onClearDrawings={state.drawings.length > 0 ? state.clearDrawings : undefined}
+        selectedDrawing={selectedDrawingForTools}
+        onSelectedDrawingChange={handleSelectedDrawingChange}
+        onSelectedDrawingDelete={handleSelectedDrawingDelete}
+        onDeselectDrawing={handleDeselectDrawing}
+        selectedText={selectedTextForTools}
+        onSelectedTextChange={handleSelectedTextChange}
+        onSelectedTextDelete={handleSelectedTextDelete}
+        onDeselectText={handleDeselectText}
       />
 
       {/* Main content: palette + canvas */}
@@ -647,10 +731,12 @@ export default function SitePlannerClient() {
           texts={state.texts}
           onAddDrawing={state.addDrawing}
           onRemoveDrawing={state.removeDrawing}
+          onUpdateDrawing={state.updateDrawing}
           onAddText={state.addText}
           onMoveText={state.moveText}
           onUpdateText={state.updateText}
           onRemoveText={state.removeText}
+          onSelectionChange={handleSelectionChange}
           tool={tool}
           drawStyle={drawStyle}
           textStyle={textStyle}

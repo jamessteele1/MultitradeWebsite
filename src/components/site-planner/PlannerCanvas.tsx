@@ -127,6 +127,10 @@ type Props = {
   onMoveText?: (id: string, x: number, y: number) => void;
   onUpdateText?: (id: string, patch: Partial<Omit<TextItem, "id">>) => void;
   onRemoveText?: (id: string) => void;
+  /** Notifies the parent which drawing / text the user has currently selected
+      (or null when nothing is selected) so it can render edit-after-creation
+      controls. */
+  onSelectionChange?: (sel: { drawingId: string | null; textId: string | null }) => void;
   /** Active tool mode + style */
   tool?: ToolMode;
   drawStyle?: DrawStyle;
@@ -170,6 +174,7 @@ export default function PlannerCanvas({
   onMoveText,
   onUpdateText,
   onRemoveText,
+  onSelectionChange,
   tool = "select",
   drawStyle,
   textStyle,
@@ -196,6 +201,11 @@ export default function PlannerCanvas({
   // Selection state for texts and drawings (so they can be edited / deleted)
   const [selectedTextId, setSelectedTextId] = useState<string | null>(null);
   const [selectedDrawingId, setSelectedDrawingId] = useState<string | null>(null);
+
+  // Surface selection changes to the parent so it can render edit controls
+  useEffect(() => {
+    onSelectionChange?.({ drawingId: selectedDrawingId, textId: selectedTextId });
+  }, [selectedDrawingId, selectedTextId, onSelectionChange]);
 
   // Reset in-progress sketches when the tool changes
   useEffect(() => {
@@ -425,35 +435,43 @@ export default function PlannerCanvas({
     [tool, activePolygon, onAddDrawing, drawStyle],
   );
 
-  // Mouse-down / touchstart → start a freehand stroke. Accepts either event
-  // since the same handler is wired to both onMouseDown and onTouchStart.
+  // Mouse-down / touchstart → start a stroke (freehand) or line (straight).
+  // Accepts either event since the same handler is wired to both onMouseDown
+  // and onTouchStart.
   const handleStageMouseDown = useCallback(
     (e: Konva.KonvaEventObject<MouseEvent | TouchEvent>) => {
-      if (tool !== "freehand" || !drawStyle) return;
+      if ((tool !== "freehand" && tool !== "line") || !drawStyle) return;
       // Don't draw if the user clicked on a building or text — only on empty stage
       if (e.target !== e.target.getStage()) return;
       const c = pointerToCanvas();
       if (!c) return;
-      setActiveStroke([c.x, c.y]);
+      // For a straight line we kick off with two identical points; mouse-move
+      // updates only the second one so the first stays anchored.
+      setActiveStroke(tool === "line" ? [c.x, c.y, c.x, c.y] : [c.x, c.y]);
     },
     [tool, drawStyle, pointerToCanvas],
   );
 
-  // Mouse-move → add points to active freehand stroke
+  // Mouse-move → extend (freehand) or update (line) the in-progress stroke
   const handleStageMouseMove = useCallback(() => {
-    if (tool !== "freehand" || !activeStroke) return;
+    if (!activeStroke) return;
     const c = pointerToCanvas();
     if (!c) return;
+    if (tool === "line") {
+      // Replace the second endpoint with the current pointer
+      setActiveStroke([activeStroke[0], activeStroke[1], c.x, c.y]);
+      return;
+    }
+    if (tool !== "freehand") return;
     const lastX = activeStroke[activeStroke.length - 2];
     const lastY = activeStroke[activeStroke.length - 1];
-    // Simplify: only push when the cursor moved a meaningful distance
     if (Math.hypot(c.x - lastX, c.y - lastY) < 2 / zoom) return;
     setActiveStroke([...activeStroke, c.x, c.y]);
   }, [tool, activeStroke, pointerToCanvas, zoom]);
 
   const handleStageMouseUp = useCallback(() => {
-    if (tool !== "freehand" || !activeStroke || !drawStyle || !onAddDrawing) return;
-    if (activeStroke.length >= 4) {
+    if (!activeStroke || !drawStyle || !onAddDrawing) return;
+    if (tool === "freehand" && activeStroke.length >= 4) {
       onAddDrawing({
         points: activeStroke,
         color: drawStyle.color,
@@ -462,9 +480,23 @@ export default function PlannerCanvas({
         closed: false,
         opacity: drawStyle.opacity,
       });
+    } else if (tool === "line" && activeStroke.length === 4) {
+      // Discard zero-length lines (user clicked without dragging)
+      const dx = activeStroke[2] - activeStroke[0];
+      const dy = activeStroke[3] - activeStroke[1];
+      if (Math.hypot(dx, dy) >= 4 / zoom) {
+        onAddDrawing({
+          points: activeStroke,
+          color: drawStyle.color,
+          thickness: drawStyle.thickness,
+          dashed: drawStyle.dashed,
+          closed: false,
+          opacity: drawStyle.opacity,
+        });
+      }
     }
     setActiveStroke(null);
-  }, [tool, activeStroke, drawStyle, onAddDrawing]);
+  }, [tool, activeStroke, drawStyle, onAddDrawing, zoom]);
 
   // Commit an inline text input
   const commitTextInput = useCallback(() => {
@@ -853,7 +885,7 @@ export default function PlannerCanvas({
             handleTouchEnd(e);
             handleStageMouseUp();
           }}
-          style={{ cursor: tool === "freehand" || tool === "polygon" ? "crosshair" : tool === "text" ? "text" : "default" }}
+          style={{ cursor: tool === "freehand" || tool === "line" || tool === "polygon" ? "crosshair" : tool === "text" ? "text" : "default" }}
         >
           {/* Map background layer */}
           {mapData && (() => {
@@ -1129,8 +1161,12 @@ export default function PlannerCanvas({
                       />
                     )}
 
-                    {/* Vertex handles for selected CLOSED polygons */}
-                    {isSelected && d.closed && onUpdateDrawing &&
+                    {/* Vertex handles — closed polygons (any vertex count)
+                        AND straight lines (open + exactly 2 vertices). Skip
+                        freehand strokes since their points are too dense to
+                        edit individually. */}
+                    {isSelected && onUpdateDrawing &&
+                      (d.closed || d.points.length === 4) &&
                       Array.from({ length: d.points.length / 2 }).map((_, i) => (
                         <Circle
                           key={`vh-${i}`}

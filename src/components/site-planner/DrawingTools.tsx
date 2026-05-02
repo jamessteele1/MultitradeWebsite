@@ -13,6 +13,23 @@ const SWATCH_COLOURS = [
   "#FFFFFF", // white
 ];
 
+/** Subset of Drawing fields that can be edited after creation. */
+export type SelectedDrawingEdit = {
+  color: string;
+  thickness: number;
+  dashed: boolean;
+  opacity: number;
+  closed: boolean;
+};
+
+/** Subset of TextItem fields that can be edited after creation. */
+export type SelectedTextEdit = {
+  color: string;
+  fontSize: number;
+  opacity: number;
+  text: string;
+};
+
 type Props = {
   tool: ToolMode;
   onToolChange: (tool: ToolMode) => void;
@@ -22,6 +39,17 @@ type Props = {
   onTextStyleChange: (style: TextStyle) => void;
   /** Optional clear/finish-area helpers */
   onClearDrawings?: () => void;
+  /** Currently-selected drawing in the canvas (or null). Pass to render
+      the post-creation editor row. */
+  selectedDrawing?: SelectedDrawingEdit | null;
+  onSelectedDrawingChange?: (patch: Partial<SelectedDrawingEdit>) => void;
+  onSelectedDrawingDelete?: () => void;
+  onDeselectDrawing?: () => void;
+  /** Currently-selected text annotation in the canvas (or null). */
+  selectedText?: SelectedTextEdit | null;
+  onSelectedTextChange?: (patch: Partial<SelectedTextEdit>) => void;
+  onSelectedTextDelete?: () => void;
+  onDeselectText?: () => void;
 };
 
 const btnBase =
@@ -35,9 +63,19 @@ export default function DrawingTools({
   textStyle,
   onTextStyleChange,
   onClearDrawings,
+  selectedDrawing,
+  onSelectedDrawingChange,
+  onSelectedDrawingDelete,
+  onDeselectDrawing,
+  selectedText,
+  onSelectedTextChange,
+  onSelectedTextDelete,
+  onDeselectText,
 }: Props) {
-  const isDrawing = tool === "freehand" || tool === "polygon";
+  const isDrawing = tool === "freehand" || tool === "line" || tool === "polygon";
   const isText = tool === "text";
+  const hasSelectedDrawing = !!selectedDrawing && !!onSelectedDrawingChange;
+  const hasSelectedText = !!selectedText && !!onSelectedTextChange;
 
   const toolBtn = (
     name: ToolMode,
@@ -92,6 +130,15 @@ export default function DrawingTools({
             <circle cx="11" cy="11" r="2" />
           </svg>,
           "Freehand pen",
+        )}
+
+        {toolBtn(
+          "line",
+          "Line",
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round">
+            <line x1="4" y1="20" x2="20" y2="4" />
+          </svg>,
+          "Straight line — click and drag",
         )}
 
         {toolBtn(
@@ -241,6 +288,174 @@ export default function DrawingTools({
           </div>
 
           <span className="text-[10px] text-gray-400 italic">Click on the canvas to drop text</span>
+        </div>
+      )}
+
+      {/* ─── Edit selected drawing ──────────────────────────────────
+          Shown whenever a drawing (line / freehand / area) is selected.
+          Lets the user re-style or delete it after creation. */}
+      {hasSelectedDrawing && selectedDrawing && onSelectedDrawingChange && (
+        <div className="flex flex-wrap items-center gap-3 bg-blue-50 rounded-xl border border-blue-300 px-3 py-2">
+          <span className="text-[10px] font-bold text-blue-700 uppercase tracking-wider">
+            {selectedDrawing.closed ? "Edit area" : "Edit line"}
+          </span>
+
+          {/* Colour */}
+          <div className="flex items-center gap-1.5">
+            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Colour</span>
+            <div className="flex items-center gap-1">
+              {SWATCH_COLOURS.map((c) =>
+                swatch(c, selectedDrawing.color, (color) => onSelectedDrawingChange({ color })),
+              )}
+            </div>
+          </div>
+
+          {/* Thickness */}
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Thickness</span>
+            <input
+              type="range"
+              min={1}
+              max={12}
+              step={1}
+              value={selectedDrawing.thickness}
+              onChange={(e) => onSelectedDrawingChange({ thickness: parseInt(e.target.value, 10) })}
+              className="w-24 h-1 accent-blue-500"
+            />
+            <span className="text-[10px] text-gray-500 w-4">{selectedDrawing.thickness}</span>
+          </div>
+
+          {/* Solid / Dashed */}
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => onSelectedDrawingChange({ dashed: false })}
+              className={`px-2 py-1 rounded text-[11px] font-semibold border transition-colors ${
+                !selectedDrawing.dashed ? "bg-gray-900 text-white border-gray-900" : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
+              }`}
+            >
+              ─── Solid
+            </button>
+            <button
+              onClick={() => onSelectedDrawingChange({ dashed: true })}
+              className={`px-2 py-1 rounded text-[11px] font-semibold border transition-colors ${
+                selectedDrawing.dashed ? "bg-gray-900 text-white border-gray-900" : "bg-white border-gray-200 text-gray-600 hover:bg-gray-50"
+              }`}
+            >
+              ‒ ‒ Dashed
+            </button>
+          </div>
+
+          {/* Opacity */}
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Opacity</span>
+            <input
+              type="range"
+              min={0.1}
+              max={1}
+              step={0.05}
+              value={selectedDrawing.opacity}
+              onChange={(e) => onSelectedDrawingChange({ opacity: parseFloat(e.target.value) })}
+              className="w-20 h-1 accent-blue-500"
+            />
+            <span className="text-[10px] text-gray-500 w-7">{Math.round(selectedDrawing.opacity * 100)}%</span>
+          </div>
+
+          <div className="flex items-center gap-1.5 ml-auto">
+            {onSelectedDrawingDelete && (
+              <button
+                onClick={onSelectedDrawingDelete}
+                className={`${btnBase} text-red-600 border border-red-200 hover:bg-red-50`}
+                title="Delete this drawing"
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="3 6 5 6 21 6" />
+                  <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
+                </svg>
+                Delete
+              </button>
+            )}
+            {onDeselectDrawing && (
+              <button
+                onClick={onDeselectDrawing}
+                className={`${btnBase} text-gray-600 border border-gray-200 hover:bg-gray-50`}
+                title="Deselect"
+              >
+                Done
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ─── Edit selected text annotation ─────────────────────────── */}
+      {hasSelectedText && selectedText && onSelectedTextChange && (
+        <div className="flex flex-wrap items-center gap-3 bg-blue-50 rounded-xl border border-blue-300 px-3 py-2">
+          <span className="text-[10px] font-bold text-blue-700 uppercase tracking-wider">Edit text</span>
+
+          {/* Colour */}
+          <div className="flex items-center gap-1.5">
+            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Colour</span>
+            <div className="flex items-center gap-1">
+              {SWATCH_COLOURS.map((c) =>
+                swatch(c, selectedText.color, (color) => onSelectedTextChange({ color })),
+              )}
+            </div>
+          </div>
+
+          {/* Size */}
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Size</span>
+            <input
+              type="range"
+              min={10}
+              max={48}
+              step={2}
+              value={selectedText.fontSize}
+              onChange={(e) => onSelectedTextChange({ fontSize: parseInt(e.target.value, 10) })}
+              className="w-24 h-1 accent-blue-500"
+            />
+            <span className="text-[10px] text-gray-500 w-7">{selectedText.fontSize}px</span>
+          </div>
+
+          {/* Opacity */}
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Opacity</span>
+            <input
+              type="range"
+              min={0.1}
+              max={1}
+              step={0.05}
+              value={selectedText.opacity}
+              onChange={(e) => onSelectedTextChange({ opacity: parseFloat(e.target.value) })}
+              className="w-20 h-1 accent-blue-500"
+            />
+            <span className="text-[10px] text-gray-500 w-7">{Math.round(selectedText.opacity * 100)}%</span>
+          </div>
+
+          <div className="flex items-center gap-1.5 ml-auto">
+            {onSelectedTextDelete && (
+              <button
+                onClick={onSelectedTextDelete}
+                className={`${btnBase} text-red-600 border border-red-200 hover:bg-red-50`}
+                title="Delete this text"
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="3 6 5 6 21 6" />
+                  <path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
+                </svg>
+                Delete
+              </button>
+            )}
+            {onDeselectText && (
+              <button
+                onClick={onDeselectText}
+                className={`${btnBase} text-gray-600 border border-gray-200 hover:bg-gray-50`}
+                title="Deselect"
+              >
+                Done
+              </button>
+            )}
+          </div>
         </div>
       )}
     </div>

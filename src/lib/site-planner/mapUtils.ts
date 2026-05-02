@@ -103,19 +103,23 @@ export async function fetchSatelliteImage(
   lat: number,
   lng: number,
   pixelsPerMetre: number,
-  gridSize = 15,
+  gridSize = 9,
 ): Promise<{ image: HTMLImageElement; scale: number; coverageMetres: number }> {
-  // Try highest resolution first (zoom 20 = ~15cm/px in QLD) with large grid for coverage
+  // Modest grids — the browser only opens ~6 concurrent connections per
+  // origin, so a 21-tile (441) grid means the LAST tiles wait ages for a
+  // socket and the per-tile timer fires before they even start. A 9-tile
+  // (81) grid is plenty of coverage for a 60m × 40m planner canvas and
+  // loads reliably on cellular.
   const providers: { url: string; zooms: number[]; grids: number[] }[] = [
-    { url: QLD_TILE_URL, zooms: [20, 19, 18], grids: [21, 17, 13] },
-    { url: ESRI_TILE_URL, zooms: [19, 18, 17], grids: [17, 13, 11] },
+    { url: QLD_TILE_URL, zooms: [20, 19, 18], grids: [9, 7, 7] },
+    { url: ESRI_TILE_URL, zooms: [19, 18, 17], grids: [9, 7, 7] },
   ];
 
   // Overall watchdog so the spinner can never run forever — if the entire
-  // ladder of providers/zooms hasn't produced an image in 45s, bail with a
+  // ladder of providers/zooms hasn't produced an image in 90s, bail with a
   // clear error instead of leaving the user staring at the spinner.
   const watchdog = new Promise<never>((_, reject) => {
-    setTimeout(() => reject(new Error("Satellite imagery timed out — please check your connection and try again.")), 45000);
+    setTimeout(() => reject(new Error("Satellite imagery timed out — please check your connection and try again.")), 90000);
   });
 
   const work = (async () => {
@@ -153,8 +157,10 @@ async function fetchTilesAtZoom(
   const total = gridSize * gridSize;
 
   // Per-tile timeout — without this, a single slow / stalled tile fetch on
-  // mobile can hang Promise.all forever (spinner that never resolves).
-  const TILE_TIMEOUT_MS = 8000;
+  // mobile can hang Promise.all forever (spinner that never resolves). 20s
+  // is generous because browsers cap concurrent connections per origin to
+  // 6, so the last few tiles in an 81-tile grid wait their turn.
+  const TILE_TIMEOUT_MS = 20000;
 
   const loads: Promise<void>[] = [];
   for (let dy = -half; dy <= half; dy++) {

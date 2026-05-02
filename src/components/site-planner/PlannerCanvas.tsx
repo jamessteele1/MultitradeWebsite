@@ -543,7 +543,16 @@ export default function PlannerCanvas({
     }
     setTextInput(null);
     setTextInputValue("");
-  }, [textInput, textInputValue, onAddText, textStyle]);
+    // iOS Safari pushes the page up when the keyboard opens for the text
+    // input — and frequently leaves the page scrolled past the canvas
+    // when the keyboard closes. Pull the canvas back into view after the
+    // input dismisses (next frame, so the viewport has settled).
+    if (isMobile) {
+      requestAnimationFrame(() => {
+        containerRef.current?.scrollIntoView({ block: "center", behavior: "smooth" });
+      });
+    }
+  }, [textInput, textInputValue, onAddText, textStyle, isMobile]);
 
   useEffect(() => {
     if (textInput && textInputRef.current) {
@@ -1575,6 +1584,11 @@ export default function PlannerCanvas({
                 if (e.key === "Escape") {
                   setTextInput(null);
                   setTextInputValue("");
+                  if (isMobile) {
+                    requestAnimationFrame(() => {
+                      containerRef.current?.scrollIntoView({ block: "center", behavior: "smooth" });
+                    });
+                  }
                 }
               }}
               onBlur={commitTextInput}

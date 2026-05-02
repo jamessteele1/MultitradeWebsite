@@ -175,23 +175,57 @@ export default function DrawingTools({
         {tool !== "select" && (
           <button
             onClick={() => onToolChange("select")}
-            className={`${compact ? "px-2.5 py-1 text-[11px] font-bold" : btnBase} ml-auto text-gray-500 hover:bg-gray-100 rounded-lg`}
+            className={`${compact ? "ml-1 px-2.5 py-1 text-[11px] font-bold" : `${btnBase} ml-auto`} text-gray-500 hover:bg-gray-100 rounded-lg`}
             title="Exit drawing mode"
           >
             Done
           </button>
         )}
+      </div>
 
-        {/* In compact mode, fold the active style row into the SAME bar so
-            we never grow taller than one toolbar row. Colour, thickness and
-            opacity sit on the right; edge cases (dashed, clear-all) hide. */}
-        {compact && isDrawing && (
-          <div className="flex items-center gap-1.5 ml-auto pl-2 border-l border-gray-200">
-            <div className="flex items-center gap-0.5">
-              {SWATCH_COLOURS.slice(0, 6).map((c) =>
-                swatch(c, drawStyle.color, (color) => onDrawStyleChange({ ...drawStyle, color })),
-              )}
-            </div>
+      {/* Compact style row — only when a drawing or text tool is active.
+          Lives on its own line below the tool selector so colours can hug
+          the left edge, the opacity slider gets generous flex-1 width on
+          the right, the dashed/solid toggle is plainly visible, and the
+          percentage label is always shown. */}
+      {compact && isDrawing && (
+        <div className="flex items-center gap-2 bg-white rounded-xl border border-amber-200 px-2 py-1.5">
+          {/* Colour swatches — pinned left */}
+          <div className="flex items-center gap-0.5 flex-shrink-0">
+            {SWATCH_COLOURS.slice(0, 6).map((c) =>
+              swatch(c, drawStyle.color, (color) => onDrawStyleChange({ ...drawStyle, color })),
+            )}
+          </div>
+
+          {/* Solid / Dashed toggle as two icon buttons */}
+          <div className="flex items-center gap-0.5 flex-shrink-0 border-l border-gray-200 pl-1.5">
+            <button
+              onClick={() => onDrawStyleChange({ ...drawStyle, dashed: false })}
+              className={`w-7 h-6 flex items-center justify-center rounded transition-colors ${
+                !drawStyle.dashed ? "bg-gray-900 text-white" : "text-gray-500 hover:bg-gray-100"
+              }`}
+              title="Solid line"
+              aria-label="Solid line"
+              aria-pressed={!drawStyle.dashed}
+            >
+              <svg width="16" height="6" viewBox="0 0 16 6"><line x1="1" y1="3" x2="15" y2="3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" /></svg>
+            </button>
+            <button
+              onClick={() => onDrawStyleChange({ ...drawStyle, dashed: true })}
+              className={`w-7 h-6 flex items-center justify-center rounded transition-colors ${
+                drawStyle.dashed ? "bg-gray-900 text-white" : "text-gray-500 hover:bg-gray-100"
+              }`}
+              title="Dashed line"
+              aria-label="Dashed line"
+              aria-pressed={drawStyle.dashed}
+            >
+              <svg width="16" height="6" viewBox="0 0 16 6"><line x1="1" y1="3" x2="15" y2="3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeDasharray="3 2" /></svg>
+            </button>
+          </div>
+
+          {/* Thickness — slim slider with icon + value */}
+          <div className="flex items-center gap-1 flex-shrink-0">
+            <span className="text-[10px] font-bold text-gray-500">T</span>
             <input
               type="range"
               min={1}
@@ -200,8 +234,14 @@ export default function DrawingTools({
               value={drawStyle.thickness}
               onChange={(e) => onDrawStyleChange({ ...drawStyle, thickness: parseInt(e.target.value, 10) })}
               className="w-14 h-1 accent-amber-500"
-              title={`Thickness ${drawStyle.thickness}px`}
+              aria-label="Thickness"
             />
+            <span className="text-[10px] text-gray-500 w-3 text-right">{drawStyle.thickness}</span>
+          </div>
+
+          {/* Opacity — soaks up the remaining width with flex-1, % always visible */}
+          <div className="flex items-center gap-1 flex-1 min-w-0">
+            <span className="text-[10px] font-bold text-gray-500">OPACITY</span>
             <input
               type="range"
               min={0.1}
@@ -209,18 +249,25 @@ export default function DrawingTools({
               step={0.05}
               value={drawStyle.opacity}
               onChange={(e) => onDrawStyleChange({ ...drawStyle, opacity: parseFloat(e.target.value) })}
-              className="w-14 h-1 accent-amber-500"
-              title={`Opacity ${Math.round(drawStyle.opacity * 100)}%`}
+              className="flex-1 min-w-[60px] h-1 accent-amber-500"
+              aria-label="Opacity"
             />
+            <span className="text-[10px] text-gray-600 font-mono w-8 text-right">{Math.round(drawStyle.opacity * 100)}%</span>
           </div>
-        )}
-        {compact && isText && (
-          <div className="flex items-center gap-1.5 ml-auto pl-2 border-l border-gray-200">
-            <div className="flex items-center gap-0.5">
-              {SWATCH_COLOURS.slice(0, 6).map((c) =>
-                swatch(c, textStyle.color, (color) => onTextStyleChange({ ...textStyle, color })),
-              )}
-            </div>
+        </div>
+      )}
+      {compact && isText && (
+        <div className="flex items-center gap-2 bg-white rounded-xl border border-amber-200 px-2 py-1.5">
+          {/* Colour swatches — left */}
+          <div className="flex items-center gap-0.5 flex-shrink-0">
+            {SWATCH_COLOURS.slice(0, 6).map((c) =>
+              swatch(c, textStyle.color, (color) => onTextStyleChange({ ...textStyle, color })),
+            )}
+          </div>
+
+          {/* Font size */}
+          <div className="flex items-center gap-1 flex-shrink-0 border-l border-gray-200 pl-1.5">
+            <span className="text-[10px] font-bold text-gray-500">SIZE</span>
             <input
               type="range"
               min={10}
@@ -228,12 +275,29 @@ export default function DrawingTools({
               step={2}
               value={textStyle.fontSize}
               onChange={(e) => onTextStyleChange({ ...textStyle, fontSize: parseInt(e.target.value, 10) })}
-              className="w-14 h-1 accent-amber-500"
-              title={`Size ${textStyle.fontSize}px`}
+              className="w-16 h-1 accent-amber-500"
+              aria-label="Text size"
             />
+            <span className="text-[10px] text-gray-500 w-7 text-right">{textStyle.fontSize}px</span>
           </div>
-        )}
-      </div>
+
+          {/* Opacity — fills remaining width */}
+          <div className="flex items-center gap-1 flex-1 min-w-0">
+            <span className="text-[10px] font-bold text-gray-500">OPACITY</span>
+            <input
+              type="range"
+              min={0.1}
+              max={1}
+              step={0.05}
+              value={textStyle.opacity}
+              onChange={(e) => onTextStyleChange({ ...textStyle, opacity: parseFloat(e.target.value) })}
+              className="flex-1 min-w-[60px] h-1 accent-amber-500"
+              aria-label="Opacity"
+            />
+            <span className="text-[10px] text-gray-600 font-mono w-8 text-right">{Math.round(textStyle.opacity * 100)}%</span>
+          </div>
+        </div>
+      )}
 
       {/* Style controls — drawing modes (full row, desktop only).
           On mobile (compact) the style controls are folded into the

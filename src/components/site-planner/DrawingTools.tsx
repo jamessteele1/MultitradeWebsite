@@ -50,6 +50,10 @@ type Props = {
   onSelectedTextChange?: (patch: Partial<SelectedTextEdit>) => void;
   onSelectedTextDelete?: () => void;
   onDeselectText?: () => void;
+  /** Compact mode squeezes everything into a single wrapping row — used on
+      mobile where vertical space is precious. The Done button moves inline
+      with the tool selectors and styles condense. */
+  compact?: boolean;
 };
 
 const btnBase =
@@ -71,6 +75,7 @@ export default function DrawingTools({
   onSelectedTextChange,
   onSelectedTextDelete,
   onDeselectText,
+  compact = false,
 }: Props) {
   const isDrawing = tool === "freehand" || tool === "line" || tool === "polygon";
   const isText = tool === "text";
@@ -84,19 +89,23 @@ export default function DrawingTools({
     title: string,
   ) => {
     const active = tool === name;
+    const baseCls = compact
+      ? "flex items-center justify-center w-9 h-9 rounded-lg transition-colors"
+      : btnBase;
     return (
       <button
         key={name}
         onClick={() => onToolChange(active ? "select" : name)}
         title={title}
-        className={`${btnBase} ${
+        aria-label={label}
+        className={`${baseCls} ${
           active
             ? "bg-amber-500 text-white border border-amber-500"
             : "border border-gray-200 text-gray-700 hover:bg-gray-100"
         }`}
       >
         {icon}
-        {label}
+        {!compact && label}
       </button>
     );
   };
@@ -115,10 +124,12 @@ export default function DrawingTools({
   );
 
   return (
-    <div className="space-y-2">
+    <div className={compact ? "space-y-1" : "space-y-2"}>
       {/* Tool selector */}
-      <div className="flex flex-wrap items-center gap-1.5 bg-white rounded-xl border border-gray-200 px-3 py-1.5">
-        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mr-1">Draw</span>
+      <div className={`flex flex-wrap items-center gap-1.5 bg-white rounded-xl border border-gray-200 ${compact ? "px-2 py-1" : "px-3 py-1.5"}`}>
+        {!compact && (
+          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mr-1">Draw</span>
+        )}
 
         {toolBtn(
           "freehand",
@@ -164,16 +175,70 @@ export default function DrawingTools({
         {tool !== "select" && (
           <button
             onClick={() => onToolChange("select")}
-            className={`${btnBase} ml-auto text-gray-500 hover:bg-gray-100`}
+            className={`${compact ? "px-2.5 py-1 text-[11px] font-bold" : btnBase} ml-auto text-gray-500 hover:bg-gray-100 rounded-lg`}
             title="Exit drawing mode"
           >
             Done
           </button>
         )}
+
+        {/* In compact mode, fold the active style row into the SAME bar so
+            we never grow taller than one toolbar row. Colour, thickness and
+            opacity sit on the right; edge cases (dashed, clear-all) hide. */}
+        {compact && isDrawing && (
+          <div className="flex items-center gap-1.5 ml-auto pl-2 border-l border-gray-200">
+            <div className="flex items-center gap-0.5">
+              {SWATCH_COLOURS.slice(0, 6).map((c) =>
+                swatch(c, drawStyle.color, (color) => onDrawStyleChange({ ...drawStyle, color })),
+              )}
+            </div>
+            <input
+              type="range"
+              min={1}
+              max={12}
+              step={1}
+              value={drawStyle.thickness}
+              onChange={(e) => onDrawStyleChange({ ...drawStyle, thickness: parseInt(e.target.value, 10) })}
+              className="w-14 h-1 accent-amber-500"
+              title={`Thickness ${drawStyle.thickness}px`}
+            />
+            <input
+              type="range"
+              min={0.1}
+              max={1}
+              step={0.05}
+              value={drawStyle.opacity}
+              onChange={(e) => onDrawStyleChange({ ...drawStyle, opacity: parseFloat(e.target.value) })}
+              className="w-14 h-1 accent-amber-500"
+              title={`Opacity ${Math.round(drawStyle.opacity * 100)}%`}
+            />
+          </div>
+        )}
+        {compact && isText && (
+          <div className="flex items-center gap-1.5 ml-auto pl-2 border-l border-gray-200">
+            <div className="flex items-center gap-0.5">
+              {SWATCH_COLOURS.slice(0, 6).map((c) =>
+                swatch(c, textStyle.color, (color) => onTextStyleChange({ ...textStyle, color })),
+              )}
+            </div>
+            <input
+              type="range"
+              min={10}
+              max={48}
+              step={2}
+              value={textStyle.fontSize}
+              onChange={(e) => onTextStyleChange({ ...textStyle, fontSize: parseInt(e.target.value, 10) })}
+              className="w-14 h-1 accent-amber-500"
+              title={`Size ${textStyle.fontSize}px`}
+            />
+          </div>
+        )}
       </div>
 
-      {/* Style controls — drawing modes */}
-      {isDrawing && (
+      {/* Style controls — drawing modes (full row, desktop only).
+          On mobile (compact) the style controls are folded into the
+          tool selector row above. */}
+      {isDrawing && !compact && (
         <div className="flex flex-wrap items-center gap-3 bg-white rounded-xl border border-amber-200 px-3 py-2">
           {/* Colour */}
           <div className="flex items-center gap-1.5">
@@ -247,8 +312,8 @@ export default function DrawingTools({
         </div>
       )}
 
-      {/* Style controls — text mode */}
-      {isText && (
+      {/* Style controls — text mode (desktop only) */}
+      {isText && !compact && (
         <div className="flex flex-wrap items-center gap-3 bg-white rounded-xl border border-amber-200 px-3 py-2">
           <div className="flex items-center gap-1.5">
             <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Colour</span>

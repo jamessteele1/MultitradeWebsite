@@ -7,6 +7,18 @@ export const metadata = {
     "Plan your site layout with our drag-and-drop tool. Place portable buildings to scale and export your layout as PDF.",
 };
 
+// Lock the page itself from pinch-zoom — the planner uses pinch-to-zoom on
+// its canvas (handled by Konva), and accidental page-level zoom makes the
+// toolbar / address bar ergonomics painful on mobile. Konva still handles
+// canvas pinch internally because the gesture is captured before the
+// viewport scaler kicks in.
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
+
 export default function SitePlannerPage() {
   return (
     <>

@@ -11,11 +11,13 @@ type Props = {
   isSelected: boolean;
   isAttached: boolean;
   onSelect: () => void;
-  onDragEnd: (x: number, y: number) => void;
+  onDragEnd: (x: number, y: number, dropClientPoint: { x: number; y: number } | null) => void;
+  onDragStart?: () => void;
+  onDragMove?: (clientPoint: { x: number; y: number }) => void;
   onDblClick?: () => void;
 };
 
-export default function BuildingShape({ building, type, isSelected, isAttached, onSelect, onDragEnd, onDblClick }: Props) {
+export default function BuildingShape({ building, type, isSelected, isAttached, onSelect, onDragEnd, onDragStart, onDragMove, onDblClick }: Props) {
   const ppm = PIXELS_PER_METRE;
   const w = type.widthM * ppm;
   const h = type.depthM * ppm;
@@ -47,11 +49,24 @@ export default function BuildingShape({ building, type, isSelected, isAttached, 
       onDragStart={() => {
         setCursor("grabbing");
         onSelect();
+        onDragStart?.();
+      }}
+      onDragMove={(e) => {
+        const stage = e.target.getStage();
+        const ptr = stage?.getPointerPosition();
+        const container = stage?.container().getBoundingClientRect();
+        if (ptr && container && onDragMove) {
+          onDragMove({ x: container.left + ptr.x, y: container.top + ptr.y });
+        }
       }}
       onDragEnd={(e) => {
         setCursor("grab");
         const node = e.target;
-        onDragEnd((node.x() - w / 2) / ppm, (node.y() - h / 2) / ppm);
+        const stage = node.getStage();
+        const ptr = stage?.getPointerPosition();
+        const container = stage?.container().getBoundingClientRect();
+        const drop = ptr && container ? { x: container.left + ptr.x, y: container.top + ptr.y } : null;
+        onDragEnd((node.x() - w / 2) / ppm, (node.y() - h / 2) / ppm, drop);
       }}
       onMouseEnter={() => setCursor("grab")}
       onMouseLeave={() => setCursor("default")}

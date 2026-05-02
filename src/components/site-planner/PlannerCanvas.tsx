@@ -3,6 +3,7 @@
 import { useRef, useState, useCallback, useEffect } from "react";
 import { Stage, Layer, Line, Rect, Text as KonvaText, Image as KonvaImage, Circle, Arrow, Group } from "react-konva";
 import BuildingShape from "./BuildingShape";
+import MobileSelectionBar from "./MobileSelectionBar";
 import { getBuildingType } from "@/lib/site-planner/buildings";
 import {
   PIXELS_PER_METRE,
@@ -97,6 +98,10 @@ type Props = {
   onSelect: (id: string | null) => void;
   onMove: (id: string, x: number, y: number) => void;
   onLabelEdit?: (id: string) => void;
+  /** Lets the canvas delete a building when the user drops it on the
+      mobile trash chip. Optional — drag-to-trash falls back to no-op
+      when not provided. */
+  onRemoveBuilding?: (id: string) => void;
   onAdd: (typeId: string, x: number, y: number, label: string) => void;
   onAddCustom?: (widthM: number, depthM: number, x: number, y: number, label: string) => void;
   stageRef: React.RefObject<Konva.Stage>;
@@ -152,6 +157,7 @@ export default function PlannerCanvas({
   onSelect,
   onMove,
   onLabelEdit,
+  onRemoveBuilding,
   onAdd,
   onAddCustom,
   stageRef,
@@ -206,6 +212,24 @@ export default function PlannerCanvas({
   // Selection state for texts and drawings (so they can be edited / deleted)
   const [selectedTextId, setSelectedTextId] = useState<string | null>(null);
   const [selectedDrawingId, setSelectedDrawingId] = useState<string | null>(null);
+
+  // Mobile trash drop-zone — see <MobileSelectionBar/>. The bar exposes a
+  // [data-trash-slot] element; we hit-test pointer position against its
+  // bounding rect during a building / text drag to give the iOS-style
+  // "drag to trash" feel.
+  const trashRef = useRef<HTMLDivElement>(null);
+  const [trashHover, setTrashHover] = useState(false);
+  const isOverTrash = useCallback((clientPoint: { x: number; y: number } | null) => {
+    if (!clientPoint || !trashRef.current) return false;
+    const slot = trashRef.current.querySelector("[data-trash-slot]") as HTMLElement | null;
+    const rect = (slot ?? trashRef.current).getBoundingClientRect();
+    return (
+      clientPoint.x >= rect.left &&
+      clientPoint.x <= rect.right &&
+      clientPoint.y >= rect.top &&
+      clientPoint.y <= rect.bottom
+    );
+  }, []);
 
   // Surface selection changes to the parent so it can render edit controls
   useEffect(() => {
@@ -1051,7 +1075,16 @@ export default function PlannerCanvas({
                   isSelected={b.instanceId === selectedId}
                   isAttached={!!b.parentId}
                   onSelect={() => onSelect(b.instanceId)}
-                  onDragEnd={(x, y) => onMove(b.instanceId, x, y)}
+                  onDragStart={() => setTrashHover(false)}
+                  onDragMove={(p) => setTrashHover(isOverTrash(p))}
+                  onDragEnd={(x, y, drop) => {
+                    if (isOverTrash(drop) && onRemoveBuilding) {
+                      onRemoveBuilding(b.instanceId);
+                    } else {
+                      onMove(b.instanceId, x, y);
+                    }
+                    setTrashHover(false);
+                  }}
                   onDblClick={() => onLabelEdit?.(b.instanceId)}
                 />
               );
@@ -1303,8 +1336,27 @@ export default function PlannerCanvas({
                     y={t.y}
                     opacity={op}
                     draggable
+                    onDragStart={() => setTrashHover(false)}
+                    onDragMove={(e) => {
+                      const stage = e.target.getStage();
+                      const ptr = stage?.getPointerPosition();
+                      const cRect = stage?.container().getBoundingClientRect();
+                      if (ptr && cRect) {
+                        setTrashHover(isOverTrash({ x: cRect.left + ptr.x, y: cRect.top + ptr.y }));
+                      }
+                    }}
                     onDragEnd={(e) => {
-                      onMoveText?.(t.id, e.target.x(), e.target.y());
+                      const stage = e.target.getStage();
+                      const ptr = stage?.getPointerPosition();
+                      const cRect = stage?.container().getBoundingClientRect();
+                      const drop = ptr && cRect ? { x: cRect.left + ptr.x, y: cRect.top + ptr.y } : null;
+                      if (isOverTrash(drop) && onRemoveText) {
+                        onRemoveText(t.id);
+                        setSelectedTextId(null);
+                      } else {
+                        onMoveText?.(t.id, e.target.x(), e.target.y());
+                      }
+                      setTrashHover(false);
                     }}
                     onClick={selectThis}
                     onTap={selectThis}
@@ -1537,6 +1589,68 @@ export default function PlannerCanvas({
             />
           </div>
         )}
+
+        {/* ─── Mobile floating selection bar ───────────────────────
+            Shows when something is selected on a small screen. Tap the
+            trash to delete; or drag the building / text into the trash
+            chip. The bar is also where you tweak opacity & colour for
+            drawings / text — keeps the main toolbar compact. */}
+        {isMobile && selectedId && (() => {
+          const b = buildings.find((bb) => bb.instanceId === selectedId);
+          if (!b) return null;
+          return (
+            <MobileSelectionBar
+              ref={trashRef}
+              kind="building"
+              hovered={trashHover}
+              onDelete={() => {
+                onRemoveBuilding?.(selectedId);
+                onSelect(null);
+              }}
+              onDone={() => onSelect(null)}
+            />
+          );
+        })()}
+        {isMobile && selectedDrawingId && (() => {
+          const d = drawings.find((dd) => dd.id === selectedDrawingId);
+          if (!d) return null;
+          return (
+            <MobileSelectionBar
+              ref={trashRef}
+              kind="drawing"
+              hovered={trashHover}
+              opacity={d.opacity ?? 1}
+              onOpacityChange={(v) => onUpdateDrawing?.(d.id, { opacity: v })}
+              color={d.color}
+              onColorChange={(c) => onUpdateDrawing?.(d.id, { color: c })}
+              onDelete={() => {
+                onRemoveDrawing?.(d.id);
+                setSelectedDrawingId(null);
+              }}
+              onDone={() => setSelectedDrawingId(null)}
+            />
+          );
+        })()}
+        {isMobile && selectedTextId && (() => {
+          const t = texts.find((tt) => tt.id === selectedTextId);
+          if (!t) return null;
+          return (
+            <MobileSelectionBar
+              ref={trashRef}
+              kind="text"
+              hovered={trashHover}
+              opacity={t.opacity ?? 1}
+              onOpacityChange={(v) => onUpdateText?.(t.id, { opacity: v })}
+              color={t.color}
+              onColorChange={(c) => onUpdateText?.(t.id, { color: c })}
+              onDelete={() => {
+                onRemoveText?.(t.id);
+                setSelectedTextId(null);
+              }}
+              onDone={() => setSelectedTextId(null)}
+            />
+          );
+        })()}
       </div>
     </div>
   );

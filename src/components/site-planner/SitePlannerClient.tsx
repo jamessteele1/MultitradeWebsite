@@ -360,10 +360,14 @@ export default function SitePlannerClient() {
         x: canvasCenterX - imgDisplayW / 2,
         y: canvasCenterY - imgDisplayH / 2,
       });
-    } catch {
-      alert("Failed to load satellite imagery. Please try again.");
+    } catch (err) {
+      const msg = (err as Error)?.message || "Failed to load satellite imagery.";
+      console.error("Satellite imagery failed:", err);
+      alert(msg);
+    } finally {
+      // Always clear the spinner so we never leave the user stuck loading.
+      setMapLoading(false);
     }
-    setMapLoading(false);
   }, []);
 
   const handleMapMove = useCallback((x: number, y: number) => {
@@ -570,7 +574,9 @@ export default function SitePlannerClient() {
           </div>
         )}
 
-        {/* Drawing tools (mobile) — collapsible row above canvas */}
+        {/* Drawing tools (mobile) — only the new-shape style row. The
+            edit-after-creation controls move to the floating mobile
+            selection bar over the canvas, so the toolbar stays short. */}
         <DrawingTools
           tool={tool}
           onToolChange={setTool}
@@ -579,24 +585,19 @@ export default function SitePlannerClient() {
           textStyle={textStyle}
           onTextStyleChange={setTextStyle}
           onClearDrawings={state.drawings.length > 0 ? state.clearDrawings : undefined}
-          selectedDrawing={selectedDrawingForTools}
-          onSelectedDrawingChange={handleSelectedDrawingChange}
-          onSelectedDrawingDelete={handleSelectedDrawingDelete}
-          onDeselectDrawing={handleDeselectDrawing}
-          selectedText={selectedTextForTools}
-          onSelectedTextChange={handleSelectedTextChange}
-          onSelectedTextDelete={handleSelectedTextDelete}
-          onDeselectText={handleDeselectText}
+          compact
         />
 
-        {/* Canvas */}
-        <div className="rounded-xl border border-gray-200 overflow-hidden" style={{ height: placingTypeId || tool !== "select" ? "calc(100vh - 260px)" : "calc(100vh - 200px)", minHeight: 350 }}>
+        {/* Canvas — toolbar above is now compact (one row regardless of
+            tool) so we can give the canvas more vertical room. */}
+        <div className="rounded-xl border border-gray-200 overflow-hidden" style={{ height: "calc(100vh - 200px)", minHeight: 380 }}>
           <PlannerCanvas
             buildings={state.buildings}
             selectedId={state.selectedId}
             onSelect={state.setSelectedId}
             onMove={handleBuildingMove}
             onLabelEdit={handleLabelEdit}
+            onRemoveBuilding={state.removeBuilding}
             onAdd={state.addBuilding}
             onAddCustom={(w, d, x, y, label) => handleAddCustom(w, d, x, y, label)}
             stageRef={stageRef}
@@ -718,6 +719,7 @@ export default function SitePlannerClient() {
           onSelect={state.setSelectedId}
           onMove={handleBuildingMove}
           onLabelEdit={handleLabelEdit}
+          onRemoveBuilding={state.removeBuilding}
           onAdd={state.addBuilding}
           onAddCustom={(w, d, x, y, label) => handleAddCustom(w, d, x, y, label)}
           stageRef={stageRef}

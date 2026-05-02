@@ -111,16 +111,26 @@ export async function fetchSatelliteImage(
     { url: ESRI_TILE_URL, zooms: [19, 18, 17], grids: [17, 13, 11] },
   ];
 
-  for (const provider of providers) {
-    for (let i = 0; i < provider.zooms.length; i++) {
-      const tileZoom = provider.zooms[i];
-      const grid = provider.grids[i] || gridSize;
-      const result = await fetchTilesAtZoom(lat, lng, pixelsPerMetre, tileZoom, grid, provider.url);
-      if (result) return result;
-    }
-  }
+  // Overall watchdog so the spinner can never run forever — if the entire
+  // ladder of providers/zooms hasn't produced an image in 45s, bail with a
+  // clear error instead of leaving the user staring at the spinner.
+  const watchdog = new Promise<never>((_, reject) => {
+    setTimeout(() => reject(new Error("Satellite imagery timed out — please check your connection and try again.")), 45000);
+  });
 
-  throw new Error("Failed to load satellite imagery at any zoom level");
+  const work = (async () => {
+    for (const provider of providers) {
+      for (let i = 0; i < provider.zooms.length; i++) {
+        const tileZoom = provider.zooms[i];
+        const grid = provider.grids[i] || gridSize;
+        const result = await fetchTilesAtZoom(lat, lng, pixelsPerMetre, tileZoom, grid, provider.url);
+        if (result) return result;
+      }
+    }
+    throw new Error("Failed to load satellite imagery — no tile provider returned enough coverage.");
+  })();
+
+  return Promise.race([work, watchdog]);
 }
 
 async function fetchTilesAtZoom(
@@ -142,6 +152,10 @@ async function fetchTilesAtZoom(
   let loadedCount = 0;
   const total = gridSize * gridSize;
 
+  // Per-tile timeout — without this, a single slow / stalled tile fetch on
+  // mobile can hang Promise.all forever (spinner that never resolves).
+  const TILE_TIMEOUT_MS = 8000;
+
   const loads: Promise<void>[] = [];
   for (let dy = -half; dy <= half; dy++) {
     for (let dx = -half; dx <= half; dx++) {
@@ -152,15 +166,32 @@ async function fetchTilesAtZoom(
       loads.push(
         new Promise<void>((resolve) => {
           const img = new Image();
-          img.crossOrigin = "anonymous";
-          img.onload = () => {
-            if (img.naturalWidth === TILE_SIZE && img.naturalHeight === TILE_SIZE) {
-              ctx.drawImage(img, px, py);
-              loadedCount++;
-            }
+          let settled = false;
+          const settle = () => {
+            if (settled) return;
+            settled = true;
+            clearTimeout(timer);
             resolve();
           };
-          img.onerror = () => resolve();
+          const timer = setTimeout(() => {
+            // Force the image to abort by clearing its src — release memory
+            // and let the slot resolve so Promise.all can move on.
+            img.src = "";
+            settle();
+          }, TILE_TIMEOUT_MS);
+          img.crossOrigin = "anonymous";
+          img.onload = () => {
+            if (!settled && img.naturalWidth === TILE_SIZE && img.naturalHeight === TILE_SIZE) {
+              try {
+                ctx.drawImage(img, px, py);
+                loadedCount++;
+              } catch {
+                // CORS taint or out-of-memory — treat as load failure
+              }
+            }
+            settle();
+          };
+          img.onerror = () => settle();
           img.src = `${tileBaseUrl}/${tileZoom}/${ty}/${tx}`;
         }),
       );

@@ -48,8 +48,10 @@ export default function MobileMapBar({
   const ref = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
 
+  const [searchedNoResults, setSearchedNoResults] = useState(false);
   const handleQueryChange = useCallback((value: string) => {
     setQuery(value);
+    setSearchedNoResults(false);
     if (debounceRef.current) clearTimeout(debounceRef.current);
     if (value.length < 3) {
       setSuggestions([]);
@@ -57,12 +59,14 @@ export default function MobileMapBar({
       return;
     }
     setSearching(true);
+    setShowSuggestions(true); // open the panel immediately so user sees feedback
     debounceRef.current = setTimeout(async () => {
       const results = await searchSuggestions(value);
       setSuggestions(results);
-      setShowSuggestions(results.length > 0);
+      setShowSuggestions(true);
+      setSearchedNoResults(results.length === 0);
       setSearching(false);
-    }, 400);
+    }, 250);
   }, []);
 
   const handleSelect = (r: GeoResult) => {
@@ -112,11 +116,15 @@ export default function MobileMapBar({
         <div className="relative flex-1">
           <input
             type="text"
+            inputMode="search"
+            autoComplete="off"
+            autoCorrect="off"
+            spellCheck={false}
             value={query}
             onChange={(e) => handleQueryChange(e.target.value)}
             onKeyDown={handleEnter}
-            onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
-            placeholder="Search address for satellite map…"
+            onFocus={() => (suggestions.length > 0 || query.length >= 3) && setShowSuggestions(true)}
+            placeholder="Type your site address to bring up a map…"
             className="w-full px-2 py-1.5 text-xs rounded-lg border border-gray-200 focus:outline-none focus:ring-1 focus:ring-amber-500 focus:border-amber-500 pr-7"
           />
           {(searching || mapLoading) && (
@@ -159,9 +167,21 @@ export default function MobileMapBar({
           </button>
         )}
 
-        {/* Suggestions dropdown */}
-        {showSuggestions && suggestions.length > 0 && (
+        {/* Suggestions dropdown — shows "Searching…", real results, or
+            "No matches" so the user always knows what's happening. */}
+        {showSuggestions && query.length >= 3 && (
           <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-lg border border-gray-200 shadow-lg z-50 overflow-hidden">
+            {searching && suggestions.length === 0 && (
+              <div className="px-3 py-2 text-xs text-gray-500 flex items-center gap-2">
+                <div className="w-3 h-3 border-2 border-gray-200 border-t-amber-500 rounded-full animate-spin" />
+                Searching addresses…
+              </div>
+            )}
+            {!searching && searchedNoResults && (
+              <div className="px-3 py-2 text-xs text-gray-500">
+                No matches. Try adding the suburb &amp; state, or hit Enter to geocode.
+              </div>
+            )}
             {suggestions.map((s, i) => (
               <button
                 key={i}

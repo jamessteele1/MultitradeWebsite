@@ -133,6 +133,10 @@ type Props = {
   onSelectionChange?: (sel: { drawingId: string | null; textId: string | null }) => void;
   /** Active tool mode + style */
   tool?: ToolMode;
+  /** Allow the canvas to switch the active tool (e.g. when the user taps an
+      existing drawing in pen/area mode, we flip to "select" so the edit
+      panel shows up and they can drag/delete the shape). */
+  onToolChange?: (tool: ToolMode) => void;
   drawStyle?: DrawStyle;
   textStyle?: TextStyle;
   /** Mobile: building type ID queued for tap-to-place */
@@ -176,6 +180,7 @@ export default function PlannerCanvas({
   onRemoveText,
   onSelectionChange,
   tool = "select",
+  onToolChange,
   drawStyle,
   textStyle,
   placingTypeId,
@@ -1072,8 +1077,31 @@ export default function PlannerCanvas({
                 const labelPos = !d.closed ? computeMidpoint(d.points) : null;
                 // Hex colour with opacity for the closed-polygon fill
                 const fillRGBA = d.closed ? hexToRGBA(d.color, op * 0.18) : undefined;
+                // Tap/click → select this drawing. If the user is in a
+                // drawing tool we flip them to select mode so the edit
+                // panel shows up and they can drag the vertex / change
+                // colour without first hitting "Done".
+                const selectThis = (e: Konva.KonvaEventObject<MouseEvent | TouchEvent>) => {
+                  e.cancelBubble = true;
+                  setSelectedDrawingId(d.id);
+                  setSelectedTextId(null);
+                  if (tool !== "select") onToolChange?.("select");
+                };
                 return (
                   <Group key={d.id}>
+                    {/* White halo behind the stroke — guarantees visibility on
+                        bright satellite imagery without changing the user's
+                        chosen colour. Drawn first so the colour sits on top. */}
+                    <Line
+                      points={d.points}
+                      stroke="rgba(255,255,255,0.9)"
+                      strokeWidth={d.thickness + 3}
+                      closed={d.closed}
+                      lineCap="round"
+                      lineJoin="round"
+                      opacity={op}
+                      listening={false}
+                    />
                     <Line
                       points={d.points}
                       stroke={d.color}
@@ -1087,7 +1115,6 @@ export default function PlannerCanvas({
                       // Hit area is generous so thin lines are tappable
                       hitStrokeWidth={Math.max(d.thickness + 12, 16)}
                       onMouseEnter={(e) => {
-                        if (tool !== "select") return;
                         const c = e.target.getStage()?.container();
                         if (c) c.style.cursor = "pointer";
                       }}
@@ -1095,18 +1122,8 @@ export default function PlannerCanvas({
                         const c = e.target.getStage()?.container();
                         if (c) c.style.cursor = "default";
                       }}
-                      onClick={(e) => {
-                        if (tool !== "select") return;
-                        e.cancelBubble = true;
-                        setSelectedDrawingId(d.id);
-                        setSelectedTextId(null);
-                      }}
-                      onTap={(e) => {
-                        if (tool !== "select") return;
-                        e.cancelBubble = true;
-                        setSelectedDrawingId(d.id);
-                        setSelectedTextId(null);
-                      }}
+                      onClick={selectThis}
+                      onTap={selectThis}
                     />
 
                     {/* Selection halo — re-stroke at lower opacity */}
@@ -1114,51 +1131,73 @@ export default function PlannerCanvas({
                       <Line
                         points={d.points}
                         stroke="#2563EB"
-                        strokeWidth={Math.max(d.thickness + 4, 6)}
+                        strokeWidth={Math.max(d.thickness + 6, 8)}
                         closed={d.closed}
-                        opacity={0.18}
+                        opacity={0.28}
                         lineCap="round"
                         lineJoin="round"
                         listening={false}
                       />
                     )}
 
-                    {/* Length label — at midpoint for open strokes (>= 0.5m) */}
+                    {/* Length label — at midpoint for open strokes (>= 0.5m).
+                        White pill behind the text guarantees readability on
+                        any background. */}
                     {!d.closed && labelPos && lengthM >= 0.5 && (
-                      <KonvaText
-                        x={labelPos.x - 28}
-                        y={labelPos.y - 22 / zoom}
-                        width={56}
-                        align="center"
-                        text={`${lengthM.toFixed(1)} m`}
-                        fontSize={12}
-                        fontStyle="bold"
-                        fontFamily="system-ui, sans-serif"
-                        fill={d.color}
-                        shadowColor="rgba(255,255,255,0.95)"
-                        shadowBlur={3}
-                        shadowOpacity={0.95}
-                        listening={false}
-                      />
+                      <>
+                        <Rect
+                          x={labelPos.x - 30}
+                          y={labelPos.y - 22 / zoom - 2}
+                          width={60}
+                          height={18}
+                          fill="rgba(255,255,255,0.92)"
+                          stroke={d.color}
+                          strokeWidth={1}
+                          cornerRadius={4}
+                          listening={false}
+                        />
+                        <KonvaText
+                          x={labelPos.x - 28}
+                          y={labelPos.y - 22 / zoom}
+                          width={56}
+                          align="center"
+                          text={`${lengthM.toFixed(1)} m`}
+                          fontSize={12}
+                          fontStyle="bold"
+                          fontFamily="system-ui, sans-serif"
+                          fill={d.color}
+                          listening={false}
+                        />
+                      </>
                     )}
 
                     {/* Area + perimeter label inside closed polygons */}
                     {d.closed && centroid && (
-                      <KonvaText
-                        x={centroid.x - 50}
-                        y={centroid.y - 16}
-                        width={100}
-                        align="center"
-                        text={`${formatArea(areaMSq)}\n${lengthM.toFixed(1)} m perim.`}
-                        fontSize={12}
-                        fontStyle="bold"
-                        fontFamily="system-ui, sans-serif"
-                        fill={d.color}
-                        shadowColor="rgba(255,255,255,0.95)"
-                        shadowBlur={3}
-                        shadowOpacity={0.95}
-                        listening={false}
-                      />
+                      <>
+                        <Rect
+                          x={centroid.x - 52}
+                          y={centroid.y - 18}
+                          width={104}
+                          height={36}
+                          fill="rgba(255,255,255,0.92)"
+                          stroke={d.color}
+                          strokeWidth={1}
+                          cornerRadius={4}
+                          listening={false}
+                        />
+                        <KonvaText
+                          x={centroid.x - 50}
+                          y={centroid.y - 16}
+                          width={100}
+                          align="center"
+                          text={`${formatArea(areaMSq)}\n${lengthM.toFixed(1)} m perim.`}
+                          fontSize={12}
+                          fontStyle="bold"
+                          fontFamily="system-ui, sans-serif"
+                          fill={d.color}
+                          listening={false}
+                        />
+                      </>
                     )}
 
                     {/* Vertex handles — closed polygons (any vertex count)
@@ -1248,6 +1287,15 @@ export default function PlannerCanvas({
               {texts.map((t) => {
                 const isSel = selectedTextId === t.id;
                 const op = t.opacity ?? 1;
+                // Approx pill size — covers the rendered text plus padding
+                const pillW = Math.max(60, t.text.length * t.fontSize * 0.6) + 12;
+                const pillH = t.fontSize * 1.35 + 8;
+                const selectThis = (e: Konva.KonvaEventObject<MouseEvent | TouchEvent>) => {
+                  e.cancelBubble = true;
+                  setSelectedTextId(t.id);
+                  setSelectedDrawingId(null);
+                  if (tool !== "select") onToolChange?.("select");
+                };
                 return (
                   <Group
                     key={t.id}
@@ -1258,14 +1306,8 @@ export default function PlannerCanvas({
                     onDragEnd={(e) => {
                       onMoveText?.(t.id, e.target.x(), e.target.y());
                     }}
-                    onClick={(e) => {
-                      e.cancelBubble = true;
-                      setSelectedTextId(t.id);
-                    }}
-                    onTap={(e) => {
-                      e.cancelBubble = true;
-                      setSelectedTextId(t.id);
-                    }}
+                    onClick={selectThis}
+                    onTap={selectThis}
                     onDblClick={(e) => {
                       e.cancelBubble = true;
                       const next = window.prompt("Edit text", t.text);
@@ -1281,17 +1323,31 @@ export default function PlannerCanvas({
                       }
                     }}
                   >
+                    {/* White backing pill — guarantees the text reads on any
+                        background (satellite, grass, dark surfaces). */}
+                    <Rect
+                      x={-6}
+                      y={-4}
+                      width={pillW}
+                      height={pillH}
+                      fill="rgba(255,255,255,0.92)"
+                      stroke={t.color}
+                      strokeWidth={1}
+                      cornerRadius={4}
+                      listening={false}
+                    />
                     {isSel && (
                       <Rect
-                        x={-3}
-                        y={-3}
-                        width={Math.max(60, t.text.length * t.fontSize * 0.55) + 6}
-                        height={t.fontSize * 1.3 + 6}
+                        x={-9}
+                        y={-7}
+                        width={pillW + 6}
+                        height={pillH + 6}
                         fill="transparent"
                         stroke="#2563EB"
-                        strokeWidth={1.5}
-                        dash={[5, 3]}
-                        cornerRadius={3}
+                        strokeWidth={2}
+                        dash={[6, 4]}
+                        cornerRadius={5}
+                        listening={false}
                       />
                     )}
                     <KonvaText
@@ -1300,9 +1356,6 @@ export default function PlannerCanvas({
                       fontStyle="bold"
                       fontFamily="system-ui, sans-serif"
                       fill={t.color}
-                      shadowColor="rgba(255,255,255,0.9)"
-                      shadowBlur={3}
-                      shadowOpacity={0.9}
                     />
                   </Group>
                 );

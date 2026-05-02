@@ -68,22 +68,103 @@ async function loadImageAsDataUrl(src: string): Promise<string | null> {
 /**
  * Render a transparent PNG data URL onto a white canvas and re-encode as JPEG.
  * Without this step, JPEG export fills transparent regions with black.
+ *
+ * Returns the original PNG data URL as a fallback if anything in the JPEG
+ * re-encode step fails (e.g. mobile memory limits).
  */
 async function pngDataUrlToJpeg(pngDataUrl: string, quality = 0.85): Promise<string> {
-  const img = new Image();
-  await new Promise<void>((resolve, reject) => {
-    img.onload = () => resolve();
-    img.onerror = reject;
-    img.src = pngDataUrl;
-  });
-  const canvas = document.createElement("canvas");
-  canvas.width = img.naturalWidth;
-  canvas.height = img.naturalHeight;
-  const ctx = canvas.getContext("2d")!;
-  ctx.fillStyle = "#ffffff";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.drawImage(img, 0, 0);
-  return canvas.toDataURL("image/jpeg", quality);
+  try {
+    const img = new Image();
+    await new Promise<void>((resolve, reject) => {
+      img.onload = () => resolve();
+      img.onerror = reject;
+      img.src = pngDataUrl;
+    });
+    const canvas = document.createElement("canvas");
+    canvas.width = img.naturalWidth;
+    canvas.height = img.naturalHeight;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return pngDataUrl;
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, 0, 0);
+    return canvas.toDataURL("image/jpeg", quality);
+  } catch {
+    // Mobile Safari occasionally throws here on big canvases. Falling back
+    // to the PNG keeps the PDF readable, just slightly larger.
+    return pngDataUrl;
+  }
+}
+
+/**
+ * Detect a "small device" we should be conservative on. Hard mobile-Safari
+ * canvas-area limit is ~16M pixels (4096×4096); we stay well under to leave
+ * headroom for the 2D context.
+ */
+function isSmallDevice(): boolean {
+  if (typeof window === "undefined") return false;
+  const vw = window.innerWidth;
+  const memory = (navigator as Navigator & { deviceMemory?: number }).deviceMemory;
+  return vw < 768 || (typeof memory === "number" && memory <= 4);
+}
+
+/**
+ * Capture the stage to a PNG dataURL, with progressive fallback on failure.
+ * Mobile browsers (especially iOS Safari) routinely fail at high pixelRatio
+ * or large canvas sizes — drop down a step and retry rather than blowing up
+ * the whole PDF.
+ */
+async function captureStageWithFallback(
+  stage: Konva.Stage,
+  cropX: number,
+  cropY: number,
+  cropW: number,
+  cropH: number,
+): Promise<string> {
+  const prev = {
+    x: stage.x(),
+    y: stage.y(),
+    sx: stage.scaleX(),
+    sy: stage.scaleY(),
+    w: stage.width(),
+    h: stage.height(),
+  };
+
+  // pixel-ratio ladder — quality high → low. Each step also caps the longer
+  // edge so we never ask the browser for a > 4096px canvas.
+  const MAX_EDGE = 3800;
+  const baseLong = Math.max(cropW, cropH);
+  const ratioCap = Math.max(0.5, MAX_EDGE / baseLong);
+  const isSmall = isSmallDevice();
+  const ladder = isSmall
+    ? [Math.min(1, ratioCap), Math.min(0.75, ratioCap), Math.min(0.5, ratioCap)]
+    : [Math.min(1.5, ratioCap), Math.min(1, ratioCap), Math.min(0.75, ratioCap)];
+
+  let lastErr: unknown = null;
+  for (const pixelRatio of ladder) {
+    try {
+      stage.scale({ x: 1, y: 1 });
+      stage.position({ x: -cropX, y: -cropY });
+      stage.size({ width: cropW, height: cropH });
+      stage.draw();
+      const url = stage.toDataURL({ pixelRatio, mimeType: "image/png" });
+      // Restore before returning
+      stage.scale({ x: prev.sx, y: prev.sy });
+      stage.position({ x: prev.x, y: prev.y });
+      stage.size({ width: prev.w, height: prev.h });
+      stage.draw();
+      return url;
+    } catch (err) {
+      lastErr = err;
+      // Loop and try a lower pixelRatio
+    }
+  }
+  // Restore stage before re-throwing
+  stage.scale({ x: prev.sx, y: prev.sy });
+  stage.position({ x: prev.x, y: prev.y });
+  stage.size({ width: prev.w, height: prev.h });
+  stage.draw();
+  throw lastErr instanceof Error ? lastErr : new Error("Stage capture failed");
 }
 
 /**
@@ -213,33 +294,11 @@ async function populatePDF(
   //
   // Konva's layer canvases are sized to the *displayed* stage, so exporting
   // with the user's current zoom/pan would only capture the visible area and
-  // leave the rest transparent. Temporarily reset the stage to a 1:1 transform
-  // sized to the crop so every layer redraws at full resolution, then restore.
-  const prev = {
-    x: stage.x(),
-    y: stage.y(),
-    sx: stage.scaleX(),
-    sy: stage.scaleY(),
-    w: stage.width(),
-    h: stage.height(),
-  };
-  stage.scale({ x: 1, y: 1 });
-  stage.position({ x: -cropX, y: -cropY });
-  stage.size({ width: cropW, height: cropH });
-  stage.draw();
-
-  let pngUrl = "";
-  try {
-    pngUrl = stage.toDataURL({
-      pixelRatio: 1.5,
-      mimeType: "image/png",
-    });
-  } finally {
-    stage.scale({ x: prev.sx, y: prev.sy });
-    stage.position({ x: prev.x, y: prev.y });
-    stage.size({ width: prev.w, height: prev.h });
-    stage.draw();
-  }
+  // leave the rest transparent. captureStageWithFallback resets the stage to
+  // a 1:1 transform sized to the crop, then restores it. It also walks down a
+  // pixelRatio ladder if any step fails, so mobile Safari memory limits don't
+  // kill the whole PDF.
+  const pngUrl = await captureStageWithFallback(stage, cropX, cropY, cropW, cropH);
   const jpegUrl = await pngDataUrlToJpeg(pngUrl, 0.82);
 
   // Fit the crop into the available space on the A3 page while preserving its

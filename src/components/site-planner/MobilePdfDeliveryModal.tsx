@@ -5,8 +5,9 @@ import { useState, useEffect } from "react";
 type Props = {
   open: boolean;
   onClose: () => void;
-  /** Generates the PDF on demand and returns a base64 dataURL. */
-  generatePdf: () => Promise<string | null>;
+  /** Generates the PDF on demand and returns a base64 dataURL. Should throw
+      on failure so the modal can show the actual error. */
+  generatePdf: () => Promise<string>;
   productName?: string;
 };
 
@@ -60,15 +61,26 @@ export default function MobilePdfDeliveryModal({
     return new Blob([ab], { type: "application/pdf" });
   };
 
+  const friendlyError = (err: unknown): string => {
+    const e = err as Error & { name?: string };
+    const msg = e?.message || String(err);
+    if (e?.name === "SecurityError" || /tainted|cross-origin/i.test(msg)) {
+      return "Couldn't capture the satellite imagery — try removing the map background and exporting again.";
+    }
+    if (/quota|out of memory|allocation/i.test(msg)) {
+      return "Your phone ran out of memory generating the PDF. Try removing the map background, or zoom in on a smaller area.";
+    }
+    if (/canvas|toDataURL/i.test(msg)) {
+      return "Couldn't render the layout for export. Try removing the satellite map and exporting again.";
+    }
+    return msg.length > 0 ? msg : "Couldn't generate the PDF — please try again.";
+  };
+
   const handleShare = async () => {
     setError(null);
     setBusy(true);
     try {
       const pdfBase64 = await generatePdf();
-      if (!pdfBase64) {
-        setError("Couldn't generate the PDF — please try again.");
-        return;
-      }
       const blob = dataUrlToBlob(pdfBase64);
       const file = new File([blob], "site-layout.pdf", { type: "application/pdf" });
       if (!navigator.canShare?.({ files: [file] })) {
@@ -85,7 +97,7 @@ export default function MobilePdfDeliveryModal({
       // AbortError = user cancelled the share sheet, that's fine
       if ((err as Error).name !== "AbortError") {
         console.error(err);
-        setError("Something went wrong — try 'Open in browser' instead.");
+        setError(friendlyError(err));
       }
     } finally {
       setBusy(false);
@@ -97,17 +109,13 @@ export default function MobilePdfDeliveryModal({
     setBusy(true);
     try {
       const pdfBase64 = await generatePdf();
-      if (!pdfBase64) {
-        setError("Couldn't generate the PDF — please try again.");
-        return;
-      }
       const blob = dataUrlToBlob(pdfBase64);
       const url = URL.createObjectURL(blob);
       window.open(url, "_blank", "noopener");
       onClose();
     } catch (err) {
       console.error(err);
-      setError("Couldn't open the PDF.");
+      setError(friendlyError(err));
     } finally {
       setBusy(false);
     }

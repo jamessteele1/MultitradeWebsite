@@ -207,14 +207,13 @@ export default function SitePlannerClient() {
     downloadPDF(stageRef.current, state.buildings, mapRotation, siteAddress, siteCoords);
   }, [isMobile, state.buildings, mapRotation, siteAddress, siteCoords]);
 
-  const generatePdfBase64 = useCallback(async (): Promise<string | null> => {
-    if (!stageRef.current) return null;
-    try {
-      return await generatePDFBase64(stageRef.current, state.buildings, mapRotation, siteAddress, siteCoords);
-    } catch (err) {
-      console.error("PDF generation failed:", err);
-      return null;
+  // The modal expects this to throw on failure so it can show a useful
+  // message — swallowing the error here would hide *why* it failed.
+  const generatePdfBase64 = useCallback(async (): Promise<string> => {
+    if (!stageRef.current) {
+      throw new Error("Canvas isn't ready yet — please reload and try again.");
     }
+    return await generatePDFBase64(stageRef.current, state.buildings, mapRotation, siteAddress, siteCoords);
   }, [state.buildings, mapRotation, siteAddress, siteCoords]);
 
   // Building move with deck snap detection
@@ -626,6 +625,7 @@ export default function SitePlannerClient() {
             onRemoveText={state.removeText}
             onSelectionChange={handleSelectionChange}
             tool={tool}
+            onToolChange={setTool}
             drawStyle={drawStyle}
             textStyle={textStyle}
             placingTypeId={placingTypeId}
@@ -738,6 +738,7 @@ export default function SitePlannerClient() {
           onRemoveText={state.removeText}
           onSelectionChange={handleSelectionChange}
           tool={tool}
+          onToolChange={setTool}
           drawStyle={drawStyle}
           textStyle={textStyle}
         />

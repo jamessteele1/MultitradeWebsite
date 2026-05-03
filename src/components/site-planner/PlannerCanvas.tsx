@@ -977,6 +977,16 @@ export default function PlannerCanvas({
             const handleOffset = imgH / 2 + 30; // 30px above the map's top edge
             const handleX = cx + Math.sin(rad) * handleOffset;
             const handleY = cy - Math.cos(rad) * handleOffset;
+            // The map only intercepts pointer events while the user is in
+            // plain "select" mode with nothing queued for placement. As soon
+            // as they pick a drawing tool (pen / line / area / polygon /
+            // text) or queue a building for tap-to-place, we set
+            // listening={false} so the tap falls through to the Stage and
+            // the drawing/placement handlers fire. Without this the map
+            // captures every tap and the user can't put anything on top of
+            // it — the symptom is most obvious on mobile, where dragging
+            // the map is the only thing taps ever do.
+            const mapListening = tool === "select" && !placingTypeId && !mapLocked;
             return (
               <Layer>
                 <KonvaImage
@@ -989,7 +999,8 @@ export default function PlannerCanvas({
                   scaleY={effectiveScale}
                   rotation={mapRotation}
                   opacity={mapOpacity}
-                  draggable={!mapLocked}
+                  listening={mapListening}
+                  draggable={mapListening}
                   onDragEnd={(e) => {
                     const newX = e.target.x() - imgW / 2;
                     const newY = e.target.y() - imgH / 2;
@@ -1002,8 +1013,11 @@ export default function PlannerCanvas({
                   }}
                 />
 
-                {/* Rotation handle — only when map isn't locked */}
-                {!mapLocked && onMapRotation && (
+                {/* Rotation handle — only in select mode, with no
+                    placement queued, and only when the map isn't locked.
+                    Hiding it during drawing/placement prevents stray taps
+                    near the map's top edge from rotating it. */}
+                {mapListening && onMapRotation && (
                   <>
                     {/* Connector line from map centre to handle */}
                     <Line

@@ -168,9 +168,55 @@ async function captureStageWithFallback(
 }
 
 /**
+ * Compute the crop region (in canvas pixels) around the placed buildings,
+ * with sensible padding + minimum-side enforcement. Returns the full canvas
+ * if nothing's been placed yet.
+ */
+function computeCropRegion(buildings: PlacedBuilding[]) {
+  const ppm = PIXELS_PER_METRE;
+  const fullW = CANVAS_WIDTH_M * ppm;
+  const fullH = CANVAS_HEIGHT_M * ppm;
+  const bbox = computeBuildingsBoundsPx(buildings);
+
+  let cropX = 0, cropY = 0, cropW = fullW, cropH = fullH;
+  if (bbox) {
+    // 8m of padding around the buildings — leaves room for the sun
+    // overlay, dimension lines, and shows useful context of the
+    // surrounding satellite imagery.
+    const padPx = 8 * ppm;
+    cropX = Math.max(0, bbox.minX - padPx);
+    cropY = Math.max(0, bbox.minY - padPx);
+    const cropMaxX = Math.min(fullW, bbox.maxX + padPx);
+    const cropMaxY = Math.min(fullH, bbox.maxY + padPx);
+    cropW = cropMaxX - cropX;
+    cropH = cropMaxY - cropY;
+
+    // Enforce a minimum visible area so a single building isn't comically zoomed
+    const minSidePx = 20 * ppm;
+    if (cropW < minSidePx) {
+      const grow = (minSidePx - cropW) / 2;
+      cropX = Math.max(0, cropX - grow);
+      cropW = Math.min(fullW - cropX, minSidePx);
+    }
+    if (cropH < minSidePx) {
+      const grow = (minSidePx - cropH) / 2;
+      cropY = Math.max(0, cropY - grow);
+      cropH = Math.min(fullH - cropY, minSidePx);
+    }
+  }
+  return { cropX, cropY, cropW, cropH };
+}
+
+/**
  * Build the PDF and return both the jsPDF instance and a base64 dataURL.
  * `downloadPDF` triggers the browser save; `generatePDFBase64` is for when
  * we need the raw bytes (e.g. emailing the PDF on mobile).
+ *
+ * Orientation is decided from the layout's aspect ratio so the user gets
+ * the maximum image size on the page — a tall-aspect site (e.g. a long
+ * narrow driveway) renders portrait; a wide spread renders landscape.
+ * Previously the PDF was always landscape, which made tall layouts
+ * letterbox into a small square at the top of the page.
  */
 async function buildPDF(
   stage: Konva.Stage,
@@ -180,8 +226,17 @@ async function buildPDF(
   siteCoords?: { lat: number; lng: number },
 ) {
   const { jsPDF } = await import("jspdf");
-  const pdf = new jsPDF({ orientation: "landscape", unit: "mm", format: "a3" });
-  await populatePDF(pdf, stage, buildings, mapRotation, siteAddress, siteCoords);
+  const crop = computeCropRegion(buildings);
+  const aspect = crop.cropW / crop.cropH;
+  // Crossover where portrait vs landscape yields the same image area on
+  // an A3 page (with our 36mm header + 60mm legend reserve) is ≈ 1.328.
+  // Below that, portrait wins — and the win is significant: at aspect
+  // 1.0 (square layout) portrait gives 267×267 mm vs landscape's 201×201,
+  // ≈ 75% more image area. This single tweak fixes the "lil square in
+  // the middle of a big landscape page" problem.
+  const orientation: "portrait" | "landscape" = aspect < 1.3 ? "portrait" : "landscape";
+  const pdf = new jsPDF({ orientation, unit: "mm", format: "a3" });
+  await populatePDF(pdf, stage, buildings, mapRotation, siteAddress, siteCoords, crop);
   return pdf;
 }
 
@@ -216,9 +271,13 @@ async function populatePDF(
   mapRotation: number,
   siteAddress?: string,
   siteCoords?: { lat: number; lng: number },
+  cropRegion?: { cropX: number; cropY: number; cropW: number; cropH: number },
 ) {
-  // We're inside an async helper now; the original body of downloadPDF
-  // moves here verbatim (sans the final pdf.save call).
+  // Page dimensions — we used to hard-code 420×297 (landscape A3) but
+  // orientation is now dynamic, so pull the real numbers from the PDF
+  // every time. All subsequent layout uses pageW / pageH.
+  const pageW = pdf.internal.pageSize.getWidth();
+  const pageH = pdf.internal.pageSize.getHeight();
 
   // Logo
   const logoDataUrl = await loadImageAsDataUrl("/images/logos/logo-color.png");
@@ -257,37 +316,10 @@ async function populatePDF(
   }
 
   // --- Crop region ---
-  // Zoom in to the actual buildings (with padding) instead of exporting the
-  // whole 60×40m grid. Falls back to full canvas if nothing has been placed.
+  // Use the crop computed by buildPDF (which used it to pick page
+  // orientation), or compute it on the fly if called directly.
+  const { cropX, cropY, cropW, cropH } = cropRegion ?? computeCropRegion(buildings);
   const ppm = PIXELS_PER_METRE;
-  const fullW = CANVAS_WIDTH_M * ppm;
-  const fullH = CANVAS_HEIGHT_M * ppm;
-  const bbox = computeBuildingsBoundsPx(buildings);
-
-  let cropX = 0, cropY = 0, cropW = fullW, cropH = fullH;
-  if (bbox) {
-    // Padding in metres around the buildings (also leaves room for the sun overlay)
-    const padPx = 5 * ppm;
-    cropX = Math.max(0, bbox.minX - padPx);
-    cropY = Math.max(0, bbox.minY - padPx);
-    const cropMaxX = Math.min(fullW, bbox.maxX + padPx);
-    const cropMaxY = Math.min(fullH, bbox.maxY + padPx);
-    cropW = cropMaxX - cropX;
-    cropH = cropMaxY - cropY;
-
-    // Enforce a minimum visible area so a single building isn't comically zoomed
-    const minSidePx = 20 * ppm;
-    if (cropW < minSidePx) {
-      const grow = (minSidePx - cropW) / 2;
-      cropX = Math.max(0, cropX - grow);
-      cropW = Math.min(fullW - cropX, minSidePx);
-    }
-    if (cropH < minSidePx) {
-      const grow = (minSidePx - cropH) / 2;
-      cropY = Math.max(0, cropY - grow);
-      cropH = Math.min(fullH - cropY, minSidePx);
-    }
-  }
 
   // Render the crop to PNG (preserves transparency for compositing) then re-
   // encode as JPEG over a white background to keep the file under a few MB.
@@ -301,10 +333,16 @@ async function populatePDF(
   const pngUrl = await captureStageWithFallback(stage, cropX, cropY, cropW, cropH);
   const jpegUrl = await pngDataUrlToJpeg(pngUrl, 0.82);
 
-  // Fit the crop into the available space on the A3 page while preserving its
-  // aspect ratio. A3 landscape = 420 × 297 mm; reserve room for header + legend.
-  const maxImgW = 390;
-  const maxImgH = 210;
+  // Fit the crop into the available space on the page while preserving its
+  // aspect ratio. Reserve room for header (top 36mm) + legend (bottom 60mm)
+  // and 15mm side margins. Since the page orientation now matches the
+  // layout aspect (landscape vs portrait), the image fills the available
+  // area instead of letterboxing into a small square.
+  const sideMargin = 15;
+  const headerH = 36;
+  const legendH = 60;
+  const maxImgW = pageW - sideMargin * 2;
+  const maxImgH = pageH - headerH - legendH;
   const aspect = cropW / cropH;
   let imgWidth = maxImgW;
   let imgHeight = imgWidth / aspect;
@@ -312,8 +350,9 @@ async function populatePDF(
     imgHeight = maxImgH;
     imgWidth = imgHeight * aspect;
   }
-  const imgX = 15;
-  const imgY = 36;
+  // Centre horizontally on the page
+  const imgX = (pageW - imgWidth) / 2;
+  const imgY = headerH;
   pdf.addImage(jpegUrl, "JPEG", imgX, imgY, imgWidth, imgHeight);
 
   // North compass — top right of the image area

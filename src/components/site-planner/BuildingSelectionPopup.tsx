@@ -32,6 +32,7 @@ const SIDEBAR_LABELS: Record<string, string> = {
   containers: "Containers",
   ancillary: "Ancillary",
   utilities: "Utilities",
+  misc: "Misc",
   custom: "Custom",
   templates: "Templates",
 };
@@ -108,6 +109,16 @@ function CategoryIcon({ cat }: { cat: string }) {
   }
   if (cat === "utilities") {
     return <svg {...baseProps}><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" /></svg>;
+  }
+  if (cat === "misc") {
+    // Three dots — universal "more / extras" glyph
+    return (
+      <svg {...baseProps}>
+        <circle cx="6" cy="12" r="1.5" fill="currentColor" />
+        <circle cx="12" cy="12" r="1.5" fill="currentColor" />
+        <circle cx="18" cy="12" r="1.5" fill="currentColor" />
+      </svg>
+    );
   }
   if (cat === "custom") {
     // Sliders / configurator glyph

@@ -6,7 +6,7 @@ export type BuildingType = {
   depthM: number;
   color: string;
   stroke: string;
-  category: "offices" | "crib-rooms" | "ablutions" | "containers" | "ancillary" | "decks" | "complexes" | "utilities";
+  category: "offices" | "crib-rooms" | "ablutions" | "containers" | "ancillary" | "decks" | "complexes" | "utilities" | "misc";
   cartId?: string;
   icon?: string; // emoji/symbol for utility markers
   /** Optional fill colour for plain-text icons (e.g. "●" for grey water).
@@ -57,13 +57,18 @@ export const BUILDING_TYPES: BuildingType[] = [
 
   // Ablutions
   { id: "1x1-chem-toilet", name: "1×1m Chemical Toilet", shortLabel: "Chem Toilet",  widthM: 1,    depthM: 1,   color: "#EDE9FE", stroke: "#7C3AED", category: "ablutions",  cartId: "1x1m-chem-toilet" },
+  { id: "3x3-pwd-toilet",  name: "3×3m PWD Toilet",      shortLabel: "3×3 PWD",        widthM: 3,    depthM: 3,   color: "#DDD6FE", stroke: "#6D28D9", category: "ablutions",  cartId: "3x3m-pwd-toilet" },
   { id: "3.6x2.4-toilet", name: "3.6x2.4m Toilet",    shortLabel: "3.6×2.4 Toilet", widthM: 3.6,  depthM: 2.4, color: "#EDE9FE", stroke: "#8B5CF6", category: "ablutions",  cartId: "3-6x2-4m-toilet" },
   { id: "6x3-toilet",     name: "6x3m Toilet Block",   shortLabel: "6×3 Toilet",     widthM: 6,    depthM: 3,   color: "#DDD6FE", stroke: "#7C3AED", category: "ablutions",  cartId: "6x3m-toilet-block" },
   { id: "6x3-shower",     name: "6x3m Shower Block",   shortLabel: "6×3 Shower",     widthM: 6,    depthM: 3,   color: "#E0E7FF", stroke: "#4F46E5", category: "ablutions",  cartId: "6x3m-shower-block" },
+  // 12×3 male+female combo with a 3×3 PWD section integrated. Treated
+  // as a single 12×3 building; the PWD partition is implicit.
+  { id: "12x3-mf-pwd-toilet", name: "12×3m M/F + PWD Toilet", shortLabel: "12×3 M/F+PWD", widthM: 12, depthM: 3, color: "#C4B5FD", stroke: "#6D28D9", category: "ablutions",  cartId: "12x3m-mf-pwd-toilet" },
   { id: "solar-toilet",   name: "Solar Toilet",         shortLabel: "Solar Toilet",   widthM: 5.45, depthM: 2.4, color: "#C4B5FD", stroke: "#6D28D9", category: "ablutions",  cartId: "solar-toilet" },
 
   // Covered Decks
   { id: "12x3-deck",    name: "12x3m Covered Deck",   shortLabel: "12×3 Deck",      widthM: 12,   depthM: 3,   color: "#D2B48C", stroke: "#8B4513", category: "decks",     cartId: "12x3m-deck" },
+  { id: "13.2x3-deck",  name: "13.2×3m Covered Deck", shortLabel: "13.2×3 Deck",    widthM: 13.2, depthM: 3,   color: "#D2B48C", stroke: "#8B4513", category: "decks",     cartId: "13-2x3m-deck" },
   { id: "6x3-deck",     name: "6x3m Covered Deck",    shortLabel: "6×3 Deck",       widthM: 6,    depthM: 3,   color: "#DEB887", stroke: "#A0522D", category: "decks",     cartId: "6x3m-deck" },
 
   // Complexes
@@ -91,6 +96,13 @@ export const BUILDING_TYPES: BuildingType[] = [
   { id: "wash-trough",     name: "Free-Standing Wash Trough", shortLabel: "Wash Trough", widthM: 2, depthM: 0.5, color: "#CFFAFE", stroke: "#0891B2", category: "ancillary",  cartId: "wash-trough" },
   { id: "dual-hand-wash",  name: "Dual Hand Wash Station",  shortLabel: "Hand Wash",    widthM: 0.5,  depthM: 0.5, color: "#A5F3FC", stroke: "#0E7490", category: "ancillary",  cartId: "dual-hand-wash" },
   { id: "stair-landing",   name: "Stair & Landing",         shortLabel: "Stairs",       widthM: 2,    depthM: 1.5, color: "#FED7AA", stroke: "#EA580C", category: "ancillary",  cartId: "stair-landing" },
+  { id: "generator",       name: "Generator",                shortLabel: "Generator",    widthM: 3,    depthM: 1.2, color: "#FEF3C7", stroke: "#92400E", category: "ancillary",  cartId: "generator" },
+  { id: "fuel-pod",        name: "Fuel Pod",                 shortLabel: "Fuel Pod",     widthM: 1.5,  depthM: 1.5, color: "#FECACA", stroke: "#B91C1C", category: "ancillary",  cartId: "fuel-pod" },
+
+  // Miscellaneous — purpose-built rooms that don't fit the other
+  // categories (cold storage, first aid, etc.)
+  { id: "6x3-ice-room",    name: "6×3m Ice Room",           shortLabel: "6×3 Ice Room", widthM: 6,    depthM: 3,   color: "#CFFAFE", stroke: "#0E7490", category: "misc",       cartId: "6x3m-ice-room" },
+  { id: "6x3-first-aid",   name: "6×3m First Aid Room",     shortLabel: "6×3 First Aid", widthM: 6,   depthM: 3,   color: "#FEE2E2", stroke: "#B91C1C", category: "misc",       cartId: "6x3m-first-aid-room" },
 
   // Utilities (icon markers) — render as a saturated coloured ring
   // around a white inner plate so the emoji icon always has high
@@ -114,6 +126,7 @@ export const CATEGORY_LABELS: Record<string, string> = {
   containers: "Containers",
   ancillary: "Ancillary Equipment",
   utilities: "Utility Points",
+  misc: "Miscellaneous",
 };
 
 export function getBuildingType(id: string): BuildingType | undefined {

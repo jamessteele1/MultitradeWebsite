@@ -370,9 +370,24 @@ export default function PlannerCanvas({
     [zoom, stagePos, onAdd, onAddCustom],
   );
 
+  /**
+   * Click/tap dedupe: Konva fires BOTH `click` and `tap` for a single
+   * touch on mobile, so the click handler ran twice per tap. That broke
+   * the line / dimension two-tap flow (the second invocation found the
+   * anchor that the first invocation just set, then computed a
+   * zero-length commit and cleared it — the user saw the anchor flash
+   * on and back off and no line drew on the second tap). 50ms is a
+   * generous window for the within-same-tap double-fire, well below
+   * any human's tap-tap rhythm.
+   */
+  const lastTapHandledAt = useRef(0);
+
   // Click/tap on empty space — place building (mobile), drop text, or deselect
   const handleStageClick = useCallback(
     (e: Konva.KonvaEventObject<MouseEvent>) => {
+      const now = typeof performance !== "undefined" ? performance.now() : Date.now();
+      if (now - lastTapHandledAt.current < 60) return;
+      lastTapHandledAt.current = now;
       if (e.target !== e.target.getStage()) return;
 
       // Mobile tap-to-place

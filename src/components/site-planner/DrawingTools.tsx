@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useRef, useEffect } from "react";
 import { type ToolMode, type DrawStyle, type TextStyle } from "@/lib/site-planner/toolState";
 
 const SWATCH_COLOURS = [
@@ -81,7 +82,35 @@ export default function DrawingTools({
   onDeselectText,
   compact = false,
 }: Props) {
-  const isDrawing = tool === "freehand" || tool === "line" || tool === "dimension" || tool === "polygon";
+  const isDrawing =
+    tool === "freehand" ||
+    tool === "line" ||
+    tool === "dimension" ||
+    tool === "polygon" ||
+    tool === "shape-rect" ||
+    tool === "shape-circle" ||
+    tool === "shape-triangle";
+  const isShapeMode = tool === "shape-rect" || tool === "shape-circle" || tool === "shape-triangle";
+
+  // Shape picker popover state — anchored under the Shape button. Click
+  // a shape, the tool becomes "shape-<kind>" and the popover closes.
+  const [shapesOpen, setShapesOpen] = useState(false);
+  const shapesAnchorRef = useRef<HTMLDivElement>(null);
+  // Click outside closes the popover
+  useEffect(() => {
+    if (!shapesOpen) return;
+    const handler = (e: MouseEvent | TouchEvent) => {
+      if (shapesAnchorRef.current && !shapesAnchorRef.current.contains(e.target as Node)) {
+        setShapesOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    document.addEventListener("touchstart", handler);
+    return () => {
+      document.removeEventListener("mousedown", handler);
+      document.removeEventListener("touchstart", handler);
+    };
+  }, [shapesOpen]);
   const isText = tool === "text";
   const hasSelectedDrawing = !!selectedDrawing && !!onSelectedDrawingChange;
   const hasSelectedText = !!selectedText && !!onSelectedTextChange;
@@ -173,8 +202,23 @@ export default function DrawingTools({
         {toolBtn(
           "polygon",
           "Area",
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-            <polygon points="12 2 22 8.5 18 21 6 21 2 8.5" />
+          // Square box with "m²" inside — reads as "this tool measures
+          // an area in square metres" much more directly than a
+          // generic polygon glyph.
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="1.5" />
+            <text
+              x="12"
+              y="16"
+              textAnchor="middle"
+              fontSize="10"
+              fontWeight="800"
+              fill="currentColor"
+              stroke="none"
+              fontFamily="system-ui, -apple-system, sans-serif"
+            >
+              m²
+            </text>
           </svg>,
           "Click to add corners. Click first point or double-click to close (work area)",
         )}
@@ -189,6 +233,91 @@ export default function DrawingTools({
           </svg>,
           "Add free text",
         )}
+
+        {/* Shape picker — opens a small popover of standard shapes
+            (rectangle / circle / triangle). Picking one switches the
+            tool to "shape-<kind>"; tapping the canvas drops a 5×5m
+            shape there using the current colour / opacity / dashed
+            settings. Tap "Done" to exit shape mode. */}
+        <div ref={shapesAnchorRef} className="relative">
+          <button
+            type="button"
+            onClick={() => setShapesOpen((v) => !v)}
+            title="Standard shapes — rectangle, circle, triangle"
+            aria-label="Add a standard shape"
+            aria-expanded={shapesOpen}
+            className={`${
+              compact
+                ? "flex items-center justify-center w-9 h-9 rounded-lg transition-colors"
+                : btnBase
+            } ${
+              isShapeMode
+                ? "bg-amber-500 text-white border border-amber-500"
+                : "border border-gray-200 text-gray-700 hover:bg-gray-100"
+            }`}
+          >
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              {/* Three nested standard shapes — rect + circle + triangle */}
+              <rect x="3" y="3" width="9" height="9" rx="0.5" />
+              <circle cx="17" cy="7.5" r="4.5" />
+              <polygon points="12 21 3 21 7.5 13" />
+            </svg>
+            {!compact && "Shape"}
+          </button>
+
+          {shapesOpen && (
+            <div className="absolute top-full left-0 mt-1 z-50 bg-white rounded-xl border border-gray-200 shadow-xl p-1 flex items-center gap-0.5">
+              <button
+                type="button"
+                onClick={() => {
+                  onToolChange("shape-rect");
+                  setShapesOpen(false);
+                }}
+                title="Rectangle"
+                aria-label="Rectangle"
+                className={`flex items-center justify-center w-10 h-10 rounded-lg ${
+                  tool === "shape-rect" ? "bg-amber-500 text-white" : "text-gray-700 hover:bg-gray-100"
+                }`}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="4" y="6" width="16" height="12" rx="1" />
+                </svg>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  onToolChange("shape-circle");
+                  setShapesOpen(false);
+                }}
+                title="Circle"
+                aria-label="Circle"
+                className={`flex items-center justify-center w-10 h-10 rounded-lg ${
+                  tool === "shape-circle" ? "bg-amber-500 text-white" : "text-gray-700 hover:bg-gray-100"
+                }`}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="8" />
+                </svg>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  onToolChange("shape-triangle");
+                  setShapesOpen(false);
+                }}
+                title="Triangle"
+                aria-label="Triangle"
+                className={`flex items-center justify-center w-10 h-10 rounded-lg ${
+                  tool === "shape-triangle" ? "bg-amber-500 text-white" : "text-gray-700 hover:bg-gray-100"
+                }`}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polygon points="12 4 21 20 3 20" />
+                </svg>
+              </button>
+            </div>
+          )}
+        </div>
 
         {tool !== "select" && (
           <button

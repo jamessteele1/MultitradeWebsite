@@ -432,6 +432,57 @@ export default function PlannerCanvas({
         return;
       }
 
+      // Shape mode — tap once to drop a standard shape (rect / circle /
+      // triangle) centred on the tap point. Stays in shape mode so the
+      // user can drop more; "Done" exits to select. Default size 5m on
+      // each side, which is a sensible starter and the user can drag
+      // vertices to resize afterwards.
+      if (tool.startsWith("shape-") && onAddDrawing && drawStyle) {
+        const c = pointerToCanvas();
+        if (!c) return;
+        const ppm = PIXELS_PER_METRE;
+        const sizeM = 5;
+        const halfPx = (sizeM * ppm) / 2;
+        let pts: number[] = [];
+        if (tool === "shape-rect") {
+          pts = [
+            c.x - halfPx, c.y - halfPx,
+            c.x + halfPx, c.y - halfPx,
+            c.x + halfPx, c.y + halfPx,
+            c.x - halfPx, c.y + halfPx,
+          ];
+        } else if (tool === "shape-circle") {
+          // 32-segment polygon approximation. Vertex handles still work
+          // (each segment vertex is draggable) so the user can squash
+          // it into an ellipse if needed.
+          const segs = 32;
+          pts = [];
+          for (let i = 0; i < segs; i++) {
+            const a = (i / segs) * Math.PI * 2;
+            pts.push(c.x + Math.cos(a) * halfPx, c.y + Math.sin(a) * halfPx);
+          }
+        } else if (tool === "shape-triangle") {
+          // Equilateral, point up
+          const r = halfPx * 1.05;
+          pts = [
+            c.x, c.y - r,
+            c.x + r * Math.sin((2 * Math.PI) / 3), c.y - r * Math.cos((2 * Math.PI) / 3),
+            c.x - r * Math.sin((2 * Math.PI) / 3), c.y - r * Math.cos((2 * Math.PI) / 3),
+          ];
+        }
+        if (pts.length) {
+          onAddDrawing({
+            points: pts,
+            color: drawStyle.color,
+            thickness: drawStyle.thickness,
+            dashed: drawStyle.dashed,
+            closed: true,
+            opacity: drawStyle.opacity,
+          });
+        }
+        return;
+      }
+
       // Line / dimension mode — two-click flow (matches polygon UX).
       // First tap drops an anchor circle, the line then follows the
       // pointer; second tap commits. Dimension lines are forced-dashed
@@ -1027,7 +1078,7 @@ export default function PlannerCanvas({
             handleTouchEnd(e);
             handleStageMouseUp();
           }}
-          style={{ cursor: tool === "freehand" || tool === "line" || tool === "dimension" || tool === "polygon" ? "crosshair" : tool === "text" ? "text" : "default" }}
+          style={{ cursor: tool === "freehand" || tool === "line" || tool === "dimension" || tool === "polygon" || tool.startsWith("shape-") ? "crosshair" : tool === "text" ? "text" : "default" }}
         >
           {/* Map background layer */}
           {mapData && (() => {

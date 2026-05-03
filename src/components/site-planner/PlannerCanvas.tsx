@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useCallback, useEffect } from "react";
+import { useRef, useState, useCallback, useEffect, useMemo } from "react";
 import { Stage, Layer, Line, Rect, Text as KonvaText, Image as KonvaImage, Circle, Arrow, Group } from "react-konva";
 import BuildingShape from "./BuildingShape";
 import MobileSelectionBar from "./MobileSelectionBar";
@@ -958,6 +958,22 @@ export default function PlannerCanvas({
     return { metres, widthPx: metres * ppm * zoom };
   })();
 
+  // Live totals chip — surfaces the building count + total footprint
+  // m² so the user can see the camp size growing as they drop buildings.
+  // Cheap reduce: only the buildings array changes drive recomputation.
+  const totals = useMemo(() => {
+    let area = 0;
+    for (const b of buildings) {
+      const t = getBuildingType(b.typeId);
+      if (!t) continue;
+      area += t.widthM * t.depthM;
+    }
+    // 1 dp under 100, 0 dp at or above (matches the area-label formatting
+    // we already use on closed-polygon labels).
+    const formatted = area >= 100 ? `${area.toFixed(0)}` : `${area.toFixed(1)}`;
+    return { count: buildings.length, areaM2: formatted };
+  }, [buildings]);
+
   // Zoom controls — anchor zoom on the centre of the visible viewport so
   // whatever the user is looking at stays roughly in the same spot rather
   // than the canvas drifting off-screen. Same maths the wheel-zoom uses,
@@ -987,6 +1003,31 @@ export default function PlannerCanvas({
 
   return (
     <div className="relative flex-1 bg-white rounded-xl border border-gray-200 overflow-hidden">
+      {/* Live totals chip — count + total footprint of placed buildings.
+          Only renders when there's at least one building so it doesn't
+          chrome up the empty canvas. Sits top-left so it doesn't fight
+          with the zoom controls (top-right) or the tap-to-place pill
+          (top-centre). */}
+      {totals.count > 0 && (
+        <div className="absolute top-3 left-3 z-10 flex items-center gap-2 bg-white/95 backdrop-blur rounded-xl border border-gray-200 shadow-md px-3 py-1.5 pointer-events-none select-none">
+          <div className="flex items-baseline gap-1">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500">
+              <rect x="3" y="3" width="7" height="7" rx="0.5" />
+              <rect x="14" y="3" width="7" height="7" rx="0.5" />
+              <rect x="3" y="14" width="7" height="7" rx="0.5" />
+              <rect x="14" y="14" width="7" height="7" rx="0.5" />
+            </svg>
+            <span className="text-xs font-extrabold text-gray-900 tabular-nums">{totals.count}</span>
+            <span className="text-[10px] text-gray-500">{totals.count === 1 ? "building" : "buildings"}</span>
+          </div>
+          <span className="text-gray-300 text-xs">·</span>
+          <div className="flex items-baseline gap-1">
+            <span className="text-xs font-extrabold text-gray-900 tabular-nums">{totals.areaM2}</span>
+            <span className="text-[10px] text-gray-500">m²</span>
+          </div>
+        </div>
+      )}
+
       {/* Tap-to-place indicator */}
       {placingTypeId && isMobile && (
         <div className="absolute top-3 left-1/2 -translate-x-1/2 z-20 px-4 py-2 bg-amber-500 text-white text-xs font-bold rounded-full shadow-lg animate-pulse">

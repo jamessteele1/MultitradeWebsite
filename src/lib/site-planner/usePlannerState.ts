@@ -318,6 +318,27 @@ export function usePlannerState() {
     setSelectedId(null);
   }, [pushUndo, buildings, drawings, texts]);
 
+  /**
+   * Wholesale replace the planner state — used when loading a saved
+   * layout or applying a Template. Pushes the previous state onto the
+   * undo stack so the user can ⌘Z back to what they had.
+   */
+  const replaceState = useCallback(
+    (next: { buildings: PlacedBuilding[]; drawings: Drawing[]; texts: TextItem[] }) => {
+      pushUndo(buildings, drawings, texts);
+      // Re-id incoming items so they don't clash with anything else if
+      // the same layout is loaded twice in quick succession.
+      const reIdBuilding = (b: PlacedBuilding): PlacedBuilding => ({ ...b, instanceId: nextId("bld"), parentId: undefined });
+      const reIdDrawing = (d: Drawing): Drawing => ({ ...d, id: nextId("drw") });
+      const reIdText = (t: TextItem): TextItem => ({ ...t, id: nextId("txt") });
+      setBuildings(next.buildings.map(reIdBuilding));
+      setDrawings(next.drawings.map(reIdDrawing));
+      setTexts(next.texts.map(reIdText));
+      setSelectedId(null);
+    },
+    [pushUndo, buildings, drawings, texts],
+  );
+
   const undo = useCallback(() => {
     setUndoStack((stack) => {
       if (stack.length === 0) return stack;
@@ -350,6 +371,7 @@ export function usePlannerState() {
     moveText,
     removeText,
     clearAll,
+    replaceState,
     undo,
     canUndo: undoStack.length > 0,
   };

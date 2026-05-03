@@ -1,14 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { BUILDING_TYPES, CATEGORY_LABELS, type BuildingType } from "@/lib/site-planner/buildings";
+import { getTemplates, type SavedLayout } from "@/lib/site-planner/layoutStorage";
 
 type Props = {
   open: boolean;
   onClose: () => void;
   onSelect: (typeId: string, label: string) => void;
   onAddCustom?: (widthM: number, depthM: number, label: string) => void;
+  /** Apply a Template (saved layout flagged as template) — replaces the
+      current canvas with the layout. The parent confirms with the user. */
+  onApplyTemplate?: (template: SavedLayout) => void;
 };
 
 const grouped = Object.entries(
@@ -29,6 +33,7 @@ const SIDEBAR_LABELS: Record<string, string> = {
   ancillary: "Ancillary",
   utilities: "Utilities",
   custom: "Custom",
+  templates: "Templates",
 };
 
 /** Eight preset fills for the custom-building configurator. */
@@ -117,21 +122,38 @@ function CategoryIcon({ cat }: { cat: string }) {
       </svg>
     );
   }
+  if (cat === "templates") {
+    // Stacked rectangles = "templates / layouts"
+    return (
+      <svg {...baseProps}>
+        <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" />
+        <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+        <line x1="12" y1="22.08" x2="12" y2="12" />
+      </svg>
+    );
+  }
   return null;
 }
 
-export default function BuildingSelectionPopup({ open, onClose, onSelect, onAddCustom }: Props) {
+export default function BuildingSelectionPopup({ open, onClose, onSelect, onAddCustom, onApplyTemplate }: Props) {
   const [activeCategory, setActiveCategory] = useState<string>(grouped[0]?.[0] || "offices");
   const [customW, setCustomW] = useState(6);
   const [customD, setCustomD] = useState(3);
   const [customLabel, setCustomLabel] = useState("Custom");
   const [customFill, setCustomFill] = useState<string>(CUSTOM_FILLS[0].fill);
+  const [templates, setTemplates] = useState<SavedLayout[]>([]);
+
+  // Re-read templates from storage every time the popup opens so newly
+  // saved templates appear without needing a page refresh.
+  useEffect(() => {
+    if (open) setTemplates(getTemplates());
+  }, [open]);
 
   if (!open) return null;
 
   // Sidebar list — start with the data-driven categories then append the
-  // synthetic "custom" tab (no preset buildings, just the configurator).
-  const sidebarCategories: string[] = [...grouped.map(([c]) => c), "custom"];
+  // synthetic "templates" + "custom" tabs.
+  const sidebarCategories: string[] = [...grouped.map(([c]) => c), "templates", "custom"];
   const activeItems = grouped.find(([cat]) => cat === activeCategory)?.[1] || [];
 
   return createPortal(
@@ -213,8 +235,68 @@ export default function BuildingSelectionPopup({ open, onClose, onSelect, onAddC
             <h3 className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-3">
               {activeCategory === "custom"
                 ? "Custom Building"
-                : CATEGORY_LABELS[activeCategory] || activeCategory}
+                : activeCategory === "templates"
+                  ? "Templates"
+                  : CATEGORY_LABELS[activeCategory] || activeCategory}
             </h3>
+
+            {/* Templates tab — saved layouts the user (or you) flagged as
+                templates. Tapping one applies it to the canvas. To add
+                a new template: design a layout, hit Layouts → Save with
+                "Save as template" ticked. */}
+            {activeCategory === "templates" && (
+              <div className="space-y-3">
+                <p className="text-xs text-gray-500 leading-relaxed">
+                  Tap a template to drop a pre-arranged site layout onto the canvas. To add a new template:
+                  design a layout you like, hit <span className="font-bold">Layouts → Save</span> and tick
+                  <span className="font-bold"> &quot;Also save as a Template&quot;</span>.
+                </p>
+
+                {templates.length === 0 ? (
+                  <div className="p-6 rounded-xl border border-dashed border-gray-300 text-center">
+                    <p className="text-sm text-gray-700 font-bold">No templates saved yet</p>
+                    <p className="text-xs text-gray-500 mt-1.5 leading-relaxed">
+                      Build out a layout you&apos;d like to reuse — a 30-person camp, a small site office, a
+                      standard ablution block — then save it as a template.
+                    </p>
+                  </div>
+                ) : (
+                  <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {templates.map((t) => (
+                      <li key={t.id}>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (onApplyTemplate) onApplyTemplate(t);
+                            onClose();
+                          }}
+                          className="w-full flex flex-col gap-2 p-2 rounded-xl border border-gray-200 hover:border-amber-400 hover:bg-amber-50 hover:shadow-md transition-all text-left"
+                        >
+                          <div className="aspect-[5/3] rounded-lg bg-gray-100 border border-gray-200 overflow-hidden flex items-center justify-center">
+                            {t.thumbnail ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img src={t.thumbnail} alt="" className="w-full h-full object-cover" />
+                            ) : (
+                              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <rect x="3" y="3" width="18" height="18" rx="2" />
+                                <circle cx="8.5" cy="8.5" r="1.5" />
+                                <polyline points="21 15 16 10 5 21" />
+                              </svg>
+                            )}
+                          </div>
+                          <div className="px-1">
+                            <p className="text-sm font-bold text-gray-900 leading-tight truncate">{t.name}</p>
+                            <p className="text-[11px] text-gray-500 mt-0.5">
+                              {t.buildings.length} buildings · {t.drawings.length} drawings
+                            </p>
+                          </div>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            )}
 
             {/* Custom Building configurator — pick width × depth, name +
                 colour, then "Place" places a custom-WxD-c{HEX} building
@@ -298,7 +380,7 @@ export default function BuildingSelectionPopup({ open, onClose, onSelect, onAddC
               </div>
             )}
 
-            <div className={`grid grid-cols-2 sm:grid-cols-3 gap-3 ${activeCategory === "custom" ? "hidden" : ""}`}>
+            <div className={`grid grid-cols-2 sm:grid-cols-3 gap-3 ${activeCategory === "custom" || activeCategory === "templates" ? "hidden" : ""}`}>
               {activeItems.map((bt) => (
               <button
                 key={bt.id}

@@ -428,6 +428,37 @@ export default function PlannerCanvas({
         return;
       }
 
+      // Line mode — two-click flow (matches polygon UX). First tap drops
+      // an anchor circle, the line then follows the pointer; second tap
+      // commits the line. No drag required, which is much friendlier on
+      // mobile than press-and-drag.
+      if (tool === "line" && onAddDrawing && drawStyle) {
+        const c = pointerToCanvas();
+        if (!c) return;
+        if (!activeStroke) {
+          // First tap — anchor the start point. The fourth coord starts
+          // equal to the first so the preview line has zero length until
+          // the pointer moves.
+          setActiveStroke([c.x, c.y, c.x, c.y]);
+          return;
+        }
+        // Second tap — commit unless the user double-tapped on the same
+        // pixel (would draw a zero-length line).
+        const dx = c.x - activeStroke[0];
+        const dy = c.y - activeStroke[1];
+        if (Math.hypot(dx, dy) >= 4 / zoom) {
+          onAddDrawing({
+            points: [activeStroke[0], activeStroke[1], c.x, c.y],
+            color: drawStyle.color,
+            thickness: drawStyle.thickness,
+            dashed: drawStyle.dashed,
+            closed: false,
+            opacity: drawStyle.opacity,
+          });
+        }
+        setActiveStroke(null);
+        return;
+      }
 
       onSelect(null);
       setSelectedTextId(null);
@@ -449,6 +480,7 @@ export default function PlannerCanvas({
       onAddDrawing,
       drawStyle,
       activePolygon,
+      activeStroke,
       pointerToCanvas,
     ],
   );
@@ -481,20 +513,16 @@ export default function PlannerCanvas({
   // the second point to the new touch position.
   const handleStageMouseDown = useCallback(
     (e: Konva.KonvaEventObject<MouseEvent | TouchEvent>) => {
-      if ((tool !== "freehand" && tool !== "line") || !drawStyle) return;
+      // Only the freehand pen draws on press-and-drag now. The straight
+      // line tool is click-to-anchor / click-to-commit (handled in
+      // handleStageClick) — same UX as polygon, much friendlier on touch.
+      if (tool !== "freehand" || !drawStyle) return;
       if (e.target !== e.target.getStage()) return;
       const c = pointerToCanvas();
       if (!c) return;
-      if (tool === "line" && activeStroke && activeStroke.length === 4) {
-        // Line is mid-flight (first tap landed, waiting for second). Move
-        // the second endpoint to the new touch position; mouse-up will
-        // commit if the line has length.
-        setActiveStroke([activeStroke[0], activeStroke[1], c.x, c.y]);
-      } else {
-        setActiveStroke(tool === "line" ? [c.x, c.y, c.x, c.y] : [c.x, c.y]);
-      }
+      setActiveStroke([c.x, c.y]);
     },
-    [tool, drawStyle, pointerToCanvas, activeStroke],
+    [tool, drawStyle, pointerToCanvas],
   );
 
   // Mouse-move → extend the in-progress freehand stroke, OR update the
@@ -517,6 +545,8 @@ export default function PlannerCanvas({
 
   const handleStageMouseUp = useCallback(() => {
     if (!activeStroke || !drawStyle || !onAddDrawing) return;
+    // Only freehand commits on mouse-up — the line tool now commits via
+    // its second click in handleStageClick.
     if (tool === "freehand" && activeStroke.length >= 4) {
       onAddDrawing({
         points: activeStroke,
@@ -529,25 +559,7 @@ export default function PlannerCanvas({
       setActiveStroke(null);
       return;
     }
-    if (tool === "line" && activeStroke.length === 4) {
-      const dx = activeStroke[2] - activeStroke[0];
-      const dy = activeStroke[3] - activeStroke[1];
-      if (Math.hypot(dx, dy) >= 4 / zoom) {
-        // Tap-and-drag (or second tap of tap-then-tap) → commit.
-        onAddDrawing({
-          points: activeStroke,
-          color: drawStyle.color,
-          thickness: drawStyle.thickness,
-          dashed: drawStyle.dashed,
-          closed: false,
-          opacity: drawStyle.opacity,
-        });
-        setActiveStroke(null);
-      }
-      // else: zero-length tap → keep activeStroke alive so the next touch
-      // (tap-then-tap pattern) can finish the line.
-    }
-  }, [tool, activeStroke, drawStyle, onAddDrawing, zoom]);
+  }, [tool, activeStroke, drawStyle, onAddDrawing]);
 
   // Commit an inline text input
   const commitTextInput = useCallback(() => {
@@ -1363,18 +1375,48 @@ export default function PlannerCanvas({
                 );
               })}
 
-              {/* In-progress freehand stroke */}
+              {/* In-progress freehand stroke or line preview. For the
+                  line tool we also drop a white anchor circle on the
+                  start point (matches the polygon UX) so the user can
+                  see exactly where the line is anchored before they
+                  tap to commit the second endpoint. */}
               {activeStroke && drawStyle && (
-                <Line
-                  points={activeStroke}
-                  stroke={drawStyle.color}
-                  strokeWidth={drawStyle.thickness}
-                  dash={drawStyle.dashed ? [drawStyle.thickness * 3, drawStyle.thickness * 2] : undefined}
-                  lineCap="round"
-                  lineJoin="round"
-                  opacity={drawStyle.opacity}
-                  listening={false}
-                />
+                <Group listening={false}>
+                  <Line
+                    points={activeStroke}
+                    stroke={drawStyle.color}
+                    strokeWidth={drawStyle.thickness}
+                    dash={drawStyle.dashed ? [drawStyle.thickness * 3, drawStyle.thickness * 2] : undefined}
+                    lineCap="round"
+                    lineJoin="round"
+                    opacity={drawStyle.opacity}
+                  />
+                  {tool === "line" && activeStroke.length === 4 && (
+                    <>
+                      {/* Anchored start point */}
+                      <Circle
+                        x={activeStroke[0]}
+                        y={activeStroke[1]}
+                        radius={6 / zoom}
+                        fill="#fff"
+                        stroke={drawStyle.color}
+                        strokeWidth={2 / zoom}
+                      />
+                      {/* Live cursor / second-tap target — only show if
+                          the user has moved away from the anchor */}
+                      {(activeStroke[2] !== activeStroke[0] || activeStroke[3] !== activeStroke[1]) && (
+                        <Circle
+                          x={activeStroke[2]}
+                          y={activeStroke[3]}
+                          radius={4 / zoom}
+                          fill={drawStyle.color}
+                          stroke="#fff"
+                          strokeWidth={1.5 / zoom}
+                        />
+                      )}
+                    </>
+                  )}
+                </Group>
               )}
 
               {/* In-progress polygon outline */}

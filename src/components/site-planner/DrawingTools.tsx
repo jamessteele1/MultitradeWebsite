@@ -175,9 +175,16 @@ export default function DrawingTools({
         {tool !== "select" && (
           <button
             onClick={() => onToolChange("select")}
-            className={`${compact ? "ml-1 px-2.5 py-1 text-[11px] font-bold" : `${btnBase} ml-auto`} text-gray-500 hover:bg-gray-100 rounded-lg`}
+            className={
+              compact
+                ? "ml-auto inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-gray-900 text-white text-[11px] font-bold shadow-sm hover:bg-gray-800 active:bg-black transition-colors"
+                : `${btnBase} ml-auto bg-gray-900 text-white border border-gray-900 hover:bg-gray-800`
+            }
             title="Exit drawing mode"
           >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
             Done
           </button>
         )}

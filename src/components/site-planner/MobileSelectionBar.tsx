@@ -48,12 +48,12 @@ const MobileSelectionBar = forwardRef<HTMLDivElement, Props>(function MobileSele
     <div
       ref={ref}
       data-mobile-selection-bar
-      // Pin to the bottom of the canvas with a generous offset so iOS
-      // Safari's bottom URL bar can't cover the trash chip. The
-      // safe-area inset takes care of the home indicator on notched
-      // phones; the calc() adds extra room for the URL bar overlap.
-      className="absolute left-3 right-3 z-30 pointer-events-auto"
-      style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 16px)" }}
+      // position: fixed so the bar is always anchored to the viewport
+      // bottom — never clipped by the canvas wrapper, never lost below
+      // the page fold. iOS Safari's URL bar / home indicator are kept
+      // clear via safe-area-inset-bottom + a generous 18px gap.
+      className="fixed left-3 right-3 z-50 pointer-events-auto"
+      style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 18px)" }}
     >
       {/* Hint pill above the bar so users know what to do */}
       <div className="text-center mb-1.5">

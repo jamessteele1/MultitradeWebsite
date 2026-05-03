@@ -12,7 +12,7 @@ import MobilePdfDeliveryModal from "./MobilePdfDeliveryModal";
 import { usePlannerState } from "@/lib/site-planner/usePlannerState";
 import { getBuildingType } from "@/lib/site-planner/buildings";
 import { downloadPNG, downloadPDF, generatePDFBase64 } from "@/lib/site-planner/exportUtils";
-import { fetchSatelliteImage, type GeoResult } from "@/lib/site-planner/mapUtils";
+import { fetchSatelliteImage, canvasPointToLatLng, extendSatelliteImage, type GeoResult } from "@/lib/site-planner/mapUtils";
 import { findDeckSnap } from "@/lib/site-planner/snapUtils";
 import { useQuoteCart } from "@/context/QuoteCartContext";
 import { PIXELS_PER_METRE, CANVAS_WIDTH_M, CANVAS_HEIGHT_M } from "@/lib/site-planner/constants";
@@ -434,6 +434,53 @@ export default function SitePlannerClient() {
     [state],
   );
 
+  /**
+   * Progressive map extension. When the user pans to whitespace beyond
+   * the loaded imagery and taps the "+ Add map here" button on the
+   * canvas, we fetch a fresh patch of satellite tiles centred at that
+   * canvas point and composite them onto the existing map. Avoids
+   * pre-fetching huge grids you may never need.
+   */
+  const handleMapExtend = useCallback(
+    async (canvasX: number, canvasY: number) => {
+      if (!mapData || !siteCoords) return;
+      setMapLoading(true);
+      try {
+        const click = canvasPointToLatLng(
+          canvasX,
+          canvasY,
+          mapData.x,
+          mapData.y,
+          mapData.image.width,
+          mapData.image.height,
+          mapData.scale,
+          siteCoords.lat,
+          siteCoords.lng,
+          PIXELS_PER_METRE,
+        );
+        const next = await extendSatelliteImage({
+          currentImage: mapData.image,
+          currentX: mapData.x,
+          currentY: mapData.y,
+          scale: mapData.scale,
+          siteLat: siteCoords.lat,
+          siteLng: siteCoords.lng,
+          newCenterLat: click.lat,
+          newCenterLng: click.lng,
+          pixelsPerMetre: PIXELS_PER_METRE,
+        });
+        setMapData({ image: next.image, scale: next.scale, x: next.x, y: next.y });
+      } catch (err) {
+        const msg = (err as Error)?.message || "Couldn't load that area — please try again.";
+        console.error("Map extend failed:", err);
+        alert(msg);
+      } finally {
+        setMapLoading(false);
+      }
+    },
+    [mapData, siteCoords],
+  );
+
   // Keyboard shortcuts
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -643,6 +690,7 @@ export default function SitePlannerClient() {
             onMoveSiteAsOneChange={setMoveSiteAsOne}
             onMapRecenter={handleMapRecenter}
             onMapDragShift={handleMapDragShift}
+            onMapExtend={handleMapExtend}
             sunDirection={sunEnabled ? mapRotation : null}
             drawings={state.drawings}
             texts={state.texts}
@@ -759,6 +807,7 @@ export default function SitePlannerClient() {
           mapRotation={mapRotation}
           onMapMove={handleMapMove}
           onMapRotation={setMapRotation}
+          onMapExtend={handleMapExtend}
           sunDirection={sunEnabled ? mapRotation : null}
           drawings={state.drawings}
           texts={state.texts}

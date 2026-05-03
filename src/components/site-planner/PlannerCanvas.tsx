@@ -124,6 +124,11 @@ type Props = {
   onMoveSiteAsOneChange?: (on: boolean) => void;
   onMapRecenter?: () => void;
   onMapDragShift?: (dxMetres: number, dyMetres: number) => void;
+  /** Fetch additional satellite tiles centred at the given canvas-pixel
+      coordinates and composite them onto the existing map. Wired to the
+      "+ Add map here" button that appears when the user has panned to
+      whitespace beyond the loaded imagery. */
+  onMapExtend?: (canvasX: number, canvasY: number) => void;
   sunDirection?: number | null;
   /** Drawings + text annotations */
   drawings?: Drawing[];
@@ -181,6 +186,7 @@ export default function PlannerCanvas({
   onMoveSiteAsOneChange,
   onMapRecenter,
   onMapDragShift,
+  onMapExtend,
   sunDirection,
   drawings = [],
   texts = [],
@@ -989,6 +995,38 @@ export default function PlannerCanvas({
           Pinch to zoom
         </div>
       )}
+
+      {/* "+ Add map here" button — appears at the visible viewport centre
+          when the user has panned beyond the loaded satellite imagery and
+          is looking at whitespace. Tapping fetches a fresh patch of tiles
+          centred at that point and composites them onto the existing map.
+          Hidden when no map is loaded (use the address search instead),
+          when the centre is already over imagery, or while loading. */}
+      {mapData && onMapExtend && tool === "select" && !placingTypeId && (() => {
+        // Visible viewport centre in canvas-pixel coords.
+        const cx = (dims.w / 2 - stagePos.x) / zoom;
+        const cy = (dims.h / 2 - stagePos.y) / zoom;
+        const eff = mapData.scale * mapScaleMultiplier;
+        const imgL = mapData.x;
+        const imgT = mapData.y;
+        const imgR = imgL + mapData.image.width * eff;
+        const imgB = imgT + mapData.image.height * eff;
+        const overMap = cx >= imgL && cx <= imgR && cy >= imgT && cy <= imgB;
+        if (overMap) return null;
+        return (
+          <button
+            onClick={() => onMapExtend(cx, cy)}
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20 inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-amber-500 text-white text-sm font-extrabold shadow-xl ring-2 ring-amber-300 hover:bg-amber-600 active:scale-95 transition-all"
+            title="Load satellite tiles for this area"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round">
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            Add map here
+          </button>
+        );
+      })()}
 
       {/* Scale bar — bottom left */}
       <div className="absolute bottom-3 left-3 z-10 bg-white/90 backdrop-blur rounded-lg border border-gray-200 shadow-sm px-3 py-2">

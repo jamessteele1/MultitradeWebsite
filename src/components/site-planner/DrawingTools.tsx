@@ -159,11 +159,13 @@ export default function DrawingTools({
         {toolBtn(
           "dimension",
           "Dim",
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            {/* Dashed dimension line with arrowheads each end */}
-            <line x1="6" y1="12" x2="18" y2="12" strokeDasharray="2 2" />
-            <polyline points="6 12 9 9 9 15 6 12" fill="currentColor" />
-            <polyline points="18 12 15 9 15 15 18 12" fill="currentColor" />
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            {/* Dashed dimension line with arrowheads each end — line spans
+                edge-to-edge with the arrows tucked at the very ends so the
+                dashed measurement is visible at small sizes. */}
+            <line x1="2" y1="12" x2="22" y2="12" strokeDasharray="3 2" />
+            <polyline points="2 12 6 9 6 15 2 12" fill="currentColor" />
+            <polyline points="22 12 18 9 18 15 22 12" fill="currentColor" />
           </svg>,
           "Dimension line — tap two points to mark a measurement",
         )}

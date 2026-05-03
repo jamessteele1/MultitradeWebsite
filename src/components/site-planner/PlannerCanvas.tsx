@@ -535,7 +535,7 @@ export default function PlannerCanvas({
     if (!activeStroke) return;
     const c = pointerToCanvas();
     if (!c) return;
-    if (tool === "line") {
+    if (tool === "line" || tool === "dimension") {
       setActiveStroke([activeStroke[0], activeStroke[1], c.x, c.y]);
       return;
     }
@@ -580,22 +580,51 @@ export default function PlannerCanvas({
     }
     setTextInput(null);
     setTextInputValue("");
-    // iOS Safari pushes the page up when the keyboard opens for the text
-    // input — and frequently leaves the page scrolled past the canvas
-    // when the keyboard closes. Pull the canvas back into view after the
-    // input dismisses (next frame, so the viewport has settled).
-    if (isMobile) {
-      requestAnimationFrame(() => {
-        containerRef.current?.scrollIntoView({ block: "center", behavior: "smooth" });
-      });
-    }
-  }, [textInput, textInputValue, onAddText, textStyle, isMobile]);
+    // No need to scroll the canvas back into view — the body-lock
+    // effect prevents the page from moving in the first place, and
+    // restores scroll on cleanup.
+  }, [textInput, textInputValue, onAddText, textStyle]);
 
   useEffect(() => {
     if (textInput && textInputRef.current) {
       textInputRef.current.focus();
     }
   }, [textInput]);
+
+  // While the text input is open on mobile, freeze the document so iOS
+  // Safari can't pull the page upwards to make room for the keyboard.
+  // We pin the body in place at the current scroll, then restore on
+  // close. The input itself is rendered position:fixed at the top of
+  // the visual viewport, so it sits above the keyboard already and iOS
+  // has no reason to scroll.
+  useEffect(() => {
+    if (!textInput || !isMobile) return;
+    const scrollY = window.scrollY;
+    const body = document.body;
+    const prev = {
+      position: body.style.position,
+      top: body.style.top,
+      left: body.style.left,
+      right: body.style.right,
+      width: body.style.width,
+      overflow: body.style.overflow,
+    };
+    body.style.position = "fixed";
+    body.style.top = `-${scrollY}px`;
+    body.style.left = "0";
+    body.style.right = "0";
+    body.style.width = "100%";
+    body.style.overflow = "hidden";
+    return () => {
+      body.style.position = prev.position;
+      body.style.top = prev.top;
+      body.style.left = prev.left;
+      body.style.right = prev.right;
+      body.style.width = prev.width;
+      body.style.overflow = prev.overflow;
+      window.scrollTo(0, scrollY);
+    };
+  }, [textInput, isMobile]);
 
   // Delete-key removes selected text annotation OR selected drawing
   useEffect(() => {
@@ -998,7 +1027,7 @@ export default function PlannerCanvas({
             handleTouchEnd(e);
             handleStageMouseUp();
           }}
-          style={{ cursor: tool === "freehand" || tool === "line" || tool === "polygon" ? "crosshair" : tool === "text" ? "text" : "default" }}
+          style={{ cursor: tool === "freehand" || tool === "line" || tool === "dimension" || tool === "polygon" ? "crosshair" : tool === "text" ? "text" : "default" }}
         >
           {/* Map background layer */}
           {mapData && (() => {
@@ -1466,9 +1495,10 @@ export default function PlannerCanvas({
                     lineJoin="round"
                     opacity={drawStyle.opacity}
                   />
-                  {tool === "line" && activeStroke.length === 4 && (
+                  {(tool === "line" || tool === "dimension") && activeStroke.length === 4 && (
                     <>
-                      {/* Anchored start point */}
+                      {/* Anchored start point — same UX as polygon's
+                          first vertex so the user sees their tap landed. */}
                       <Circle
                         x={activeStroke[0]}
                         y={activeStroke[1]}
@@ -1764,9 +1794,14 @@ export default function PlannerCanvas({
         </Stage>
 
         {/* Inline text input overlay (HTML) — appears when user clicks on
-            stage in text mode. Positioned in screen coords matching the
-            Konva pointer location. */}
-        {textInput && textStyle && (
+            stage in text mode.
+            Desktop: positioned at the click point, in place.
+            Mobile : pinned to the top of the visual viewport (above the
+                     iOS keyboard) so iOS Safari doesn't yank the whole
+                     page upwards to bring the input into view. The text
+                     still drops at the user's tap point on the canvas
+                     when they hit Enter — only the input UI moves. */}
+        {textInput && textStyle && !isMobile && (
           <div
             className="absolute z-30"
             style={{
@@ -1783,11 +1818,6 @@ export default function PlannerCanvas({
                 if (e.key === "Escape") {
                   setTextInput(null);
                   setTextInputValue("");
-                  if (isMobile) {
-                    requestAnimationFrame(() => {
-                      containerRef.current?.scrollIntoView({ block: "center", behavior: "smooth" });
-                    });
-                  }
                 }
               }}
               onBlur={commitTextInput}
@@ -1800,6 +1830,52 @@ export default function PlannerCanvas({
                 minWidth: 120,
               }}
             />
+          </div>
+        )}
+        {textInput && textStyle && isMobile && (
+          <div
+            className="fixed left-3 right-3 z-50"
+            style={{ top: "calc(env(safe-area-inset-top, 0px) + 12px)" }}
+          >
+            <div className="flex items-center gap-2 bg-gray-900/95 backdrop-blur-md text-white rounded-2xl shadow-2xl ring-1 ring-white/10 px-2 py-2">
+              <input
+                ref={textInputRef}
+                value={textInputValue}
+                onChange={(e) => setTextInputValue(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") commitTextInput();
+                  if (e.key === "Escape") {
+                    setTextInput(null);
+                    setTextInputValue("");
+                  }
+                }}
+                placeholder="Type text — drops at your tap point"
+                className="flex-1 min-w-0 px-3 py-2 rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-400"
+                style={{ fontSize: 16 /* keep ≥16 so iOS doesn't auto-zoom */, fontWeight: 700 }}
+              />
+              <button
+                type="button"
+                onClick={commitTextInput}
+                className="flex-shrink-0 px-3 py-2 rounded-lg bg-amber-500 text-gray-900 text-sm font-bold hover:bg-amber-400"
+              >
+                Add
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setTextInput(null);
+                  setTextInputValue("");
+                }}
+                className="flex-shrink-0 w-9 h-9 rounded-lg text-white/70 hover:bg-white/10"
+                aria-label="Cancel"
+                title="Cancel"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
+            </div>
           </div>
         )}
 

@@ -520,7 +520,13 @@ export default function SitePlannerClient() {
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" /></svg>
           </button>
           <button onClick={state.undo} disabled={!state.canUndo} className="flex-shrink-0 p-1.5 rounded-lg text-gray-600 disabled:text-gray-300" aria-label="Undo" title="Undo">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 7v6h6" /><path d="M3 13a9 9 0 0115.36-6.36L21 9" /></svg>
+            {/* Universal "u-turn" undo glyph — left-pointing arrowhead with
+                a curved tail dropping down-right. Reads as "step back" at
+                a glance. */}
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="9 14 4 9 9 4" />
+              <path d="M20 20v-7a4 4 0 00-4-4H4" />
+            </svg>
           </button>
           <button onClick={handleClear} disabled={state.buildings.length === 0 && state.drawings.length === 0 && state.texts.length === 0} className="flex-shrink-0 p-1.5 rounded-lg text-gray-500 disabled:text-gray-300" aria-label="Clear" title="Clear">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

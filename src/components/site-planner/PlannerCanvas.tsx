@@ -274,7 +274,9 @@ export default function PlannerCanvas({
         const canvasW = CANVAS_WIDTH_M * PIXELS_PER_METRE;
         const canvasH = CANVAS_HEIGHT_M * PIXELS_PER_METRE;
         const fitZoom = Math.min(w / canvasW, h / canvasH) * 0.95;
-        setZoom(Math.min(1, fitZoom));
+        // Clamp to MIN_ZOOM so tiny viewports don't end up at 5%
+        // (where the canvas turns into a blank haze).
+        setZoom(Math.max(MIN_ZOOM, Math.min(1, fitZoom)));
         setInitialFit(true);
       }
     });
@@ -788,9 +790,28 @@ export default function PlannerCanvas({
     return { metres, widthPx: metres * ppm * zoom };
   })();
 
-  // Zoom controls
-  const zoomIn = () => setZoom((z) => Math.min(MAX_ZOOM, z + ZOOM_STEP));
-  const zoomOut = () => setZoom((z) => Math.max(MIN_ZOOM, z - ZOOM_STEP));
+  // Zoom controls — anchor zoom on the centre of the visible viewport so
+  // whatever the user is looking at stays roughly in the same spot rather
+  // than the canvas drifting off-screen. Same maths the wheel-zoom uses,
+  // just with the viewport centre instead of the cursor position.
+  const zoomAtViewportCenter = useCallback((newZoom: number) => {
+    const oldZoom = zoom;
+    if (newZoom === oldZoom) return;
+    const cx = dims.w / 2;
+    const cy = dims.h / 2;
+    const pointTo = {
+      x: (cx - stagePos.x) / oldZoom,
+      y: (cy - stagePos.y) / oldZoom,
+    };
+    setZoom(newZoom);
+    setStagePos({
+      x: cx - pointTo.x * newZoom,
+      y: cy - pointTo.y * newZoom,
+    });
+  }, [zoom, dims, stagePos]);
+
+  const zoomIn = () => zoomAtViewportCenter(Math.min(MAX_ZOOM, zoom + ZOOM_STEP));
+  const zoomOut = () => zoomAtViewportCenter(Math.max(MIN_ZOOM, zoom - ZOOM_STEP));
   const zoomReset = () => {
     setZoom(1);
     setStagePos({ x: 0, y: 0 });

@@ -152,7 +152,9 @@ export default function MobileMapBar({
           )}
         </div>
 
-        {/* Map rotation toggle (only when map loaded) */}
+        {/* Map rotation toggle (only when map loaded). Refresh-style
+            circular arrow icon — reads as "rotate" more universally than
+            the broken-arrow Lucide variant. */}
         {hasMap && (
           <button
             onClick={() => setRotateOpen((s) => !s)}
@@ -160,9 +162,12 @@ export default function MobileMapBar({
               rotateOpen ? "bg-amber-500 text-white" : "bg-gray-100 text-gray-700"
             }`}
             title="Rotate map for correct orientation"
+            aria-label="Rotate map"
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M21.5 2v6h-6" /><path d="M21.34 13.5A10 10 0 115.5 3.36L21.5 8" />
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+              {/* Near-full circular arrow with arrowhead — refresh / rotate glyph */}
+              <path d="M20.5 12a8.5 8.5 0 1 1-3.1-6.55" />
+              <polyline points="20.5 3.5 20.5 9 15 9" />
             </svg>
             {Math.round(mapRotation)}°
           </button>
@@ -214,20 +219,43 @@ export default function MobileMapBar({
         )}
       </div>
 
-      {/* Full map controls — appears when the rotate/settings button is toggled */}
+      {/* Full map controls — appears when the rotate/settings button is
+          toggled. Wrapped so we can drop a prominent "Done" button at the
+          bottom that locks the map (so taps stop dragging it around) and
+          collapses the panel, letting the user get back to placing
+          buildings without a separate lock+close ritual. */}
       {hasMap && rotateOpen && onMapLockedChange && onMapScaleChange && onMoveSiteAsOneChange && onMapRecenter && (
-        <MapControls
-          rotation={mapRotation}
-          onRotationChange={onMapRotation}
-          locked={mapLocked}
-          onLockedChange={onMapLockedChange}
-          scaleMultiplier={mapScaleMultiplier}
-          onScaleChange={onMapScaleChange}
-          moveAsOne={moveSiteAsOne}
-          onMoveAsOneChange={onMoveSiteAsOneChange}
-          onRecenter={onMapRecenter}
-          hideScale
-        />
+        <div className="flex flex-col gap-1.5">
+          <MapControls
+            rotation={mapRotation}
+            onRotationChange={onMapRotation}
+            locked={mapLocked}
+            onLockedChange={onMapLockedChange}
+            scaleMultiplier={mapScaleMultiplier}
+            onScaleChange={onMapScaleChange}
+            moveAsOne={moveSiteAsOne}
+            onMoveAsOneChange={onMoveSiteAsOneChange}
+            onRecenter={onMapRecenter}
+            hideScale
+          />
+          {/* Done — locks the map so further taps don't accidentally drag
+              it, then collapses this panel so the user can get back to
+              placing buildings / drawing without a separate lock+close
+              ritual. */}
+          <button
+            type="button"
+            onClick={() => {
+              onMapLockedChange(true);
+              setRotateOpen(false);
+            }}
+            className="w-full flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg bg-gold text-gray-900 text-sm font-extrabold shadow-sm hover:brightness-110 active:brightness-95 transition-all"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+            Done — lock map &amp; continue
+          </button>
+        </div>
       )}
     </div>
   );

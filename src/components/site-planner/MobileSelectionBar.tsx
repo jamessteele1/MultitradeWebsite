@@ -116,7 +116,28 @@ const MobileSelectionBar = forwardRef<HTMLDivElement, Props>(function MobileSele
 
           {showStyleControls && typeof opacity === "number" && onOpacityChange && (
             <div className="flex items-center gap-1.5 flex-1 min-w-0">
-              <span className="text-[9px] font-bold text-white/60 flex-shrink-0">OPACITY</span>
+              {/* Drop the verbose "OPACITY" label when the bar is also
+                  carrying a dimension Flip button — on iPhone SE width
+                  the label + slider + % + Flip + Delete + Done overflow
+                  the bar and the % collides with Flip. A small fade-disc
+                  icon keeps the meaning without burning ~50px of width. */}
+              {isDimension ? (
+                <svg
+                  width="13"
+                  height="13"
+                  viewBox="0 0 24 24"
+                  className="flex-shrink-0 text-white/60"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  aria-hidden="true"
+                >
+                  <circle cx="12" cy="12" r="9" />
+                  <path d="M12 3a9 9 0 010 18z" fill="currentColor" />
+                </svg>
+              ) : (
+                <span className="text-[9px] font-bold text-white/60 flex-shrink-0">OPACITY</span>
+              )}
               <input
                 type="range"
                 min={0.1}
@@ -124,8 +145,9 @@ const MobileSelectionBar = forwardRef<HTMLDivElement, Props>(function MobileSele
                 step={0.05}
                 value={opacity}
                 onChange={(e) => onOpacityChange(parseFloat(e.target.value))}
-                className="flex-1 min-w-[60px] h-1 accent-amber-400"
+                className="flex-1 min-w-[50px] h-1 accent-amber-400"
                 aria-label="Opacity"
+                title={`Opacity ${Math.round(opacity * 100)}%`}
               />
               <span className="text-[10px] font-mono text-white/80 w-8 text-right flex-shrink-0">{Math.round(opacity * 100)}%</span>
             </div>
@@ -167,17 +189,16 @@ const MobileSelectionBar = forwardRef<HTMLDivElement, Props>(function MobileSele
           {isDimension && onFlipSide && (
             <button
               onClick={onFlipSide}
-              className="flex items-center gap-1 px-2.5 h-10 rounded-xl text-[11px] font-bold bg-white/10 hover:bg-white/20 text-white/90"
-              title="Move the dimension label to the other side"
+              className="flex items-center justify-center w-10 h-10 rounded-xl bg-white/10 hover:bg-white/20 text-white/90"
+              title="Flip — move the dimension label to the other side"
               aria-label="Flip dimension label side"
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M17 1l4 4-4 4" />
                 <path d="M3 11V9a4 4 0 014-4h14" />
                 <path d="M7 23l-4-4 4-4" />
                 <path d="M21 13v2a4 4 0 01-4 4H3" />
               </svg>
-              Flip
             </button>
           )}
           <button

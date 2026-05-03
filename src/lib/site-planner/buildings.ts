@@ -12,20 +12,41 @@ export type BuildingType = {
   /** Optional fill colour for plain-text icons (e.g. "●" for grey water).
       Emoji icons keep their native colours and ignore this. */
   iconColor?: string;
+  /** Render shape on the canvas. Default rect; "circle" is used for
+      cylindrical things like the 5000L Grey Water tank. */
+  shape?: "rect" | "circle";
 };
+
+/**
+ * Darken a 6-char hex colour by a multiplicative factor (no #).
+ * Used to derive a sensible stroke colour from a user-picked fill.
+ */
+function darkenHex(hex: string, factor: number): string {
+  const r = Math.round(parseInt(hex.slice(0, 2), 16) * factor);
+  const g = Math.round(parseInt(hex.slice(2, 4), 16) * factor);
+  const b = Math.round(parseInt(hex.slice(4, 6), 16) * factor);
+  const clamp = (n: number) => Math.max(0, Math.min(255, n));
+  return `#${clamp(r).toString(16).padStart(2, "0")}${clamp(g).toString(16).padStart(2, "0")}${clamp(b).toString(16).padStart(2, "0")}`.toUpperCase();
+}
 
 export const BUILDING_TYPES: BuildingType[] = [
   // Offices
   { id: "3x3-office",   name: "3x3m Office",          shortLabel: "3×3 Office",     widthM: 3,    depthM: 3,   color: "#DBEAFE", stroke: "#3B82F6", category: "offices",    cartId: "3x3m-office" },
   { id: "6x3-office",   name: "6x3m Office",          shortLabel: "6×3 Office",     widthM: 6,    depthM: 3,   color: "#BFDBFE", stroke: "#2563EB", category: "offices",    cartId: "6x3m-office" },
   { id: "12x3-office",  name: "12x3m Office",         shortLabel: "12×3 Office",    widthM: 12,   depthM: 3,   color: "#93C5FD", stroke: "#1D4ED8", category: "offices",    cartId: "12x3m-office" },
+  // Solar Facility — combined office/crib unit, lives in both tabs.
+  { id: "solar-facility-office", name: "12×3.4m Solar Facility", shortLabel: "Solar Facility", widthM: 12, depthM: 3.4, color: "#FEF3C7", stroke: "#B45309", category: "offices",    cartId: "solar-facility" },
 
   // Crib Rooms
   { id: "3x3-crib",     name: "3x3m Crib Room",       shortLabel: "3×3 Crib",       widthM: 3,    depthM: 3,   color: "#D1FAE5", stroke: "#22C55E", category: "crib-rooms", cartId: "3x3m-crib-room" },
   { id: "6x3-crib",     name: "6x3m Crib Room",       shortLabel: "6×3 Crib",       widthM: 6,    depthM: 3,   color: "#D1FAE5", stroke: "#22C55E", category: "crib-rooms", cartId: "6x3m-crib-room" },
   { id: "12x3-crib",    name: "12x3m Crib Room",      shortLabel: "12×3 Crib",      widthM: 12,   depthM: 3,   color: "#A7F3D0", stroke: "#16A34A", category: "crib-rooms", cartId: "12x3m-crib-room" },
+  { id: "7.2x3-self-contained-crib", name: "7.2×3m Self-Contained Crib", shortLabel: "7.2×3 SC Crib", widthM: 7.2, depthM: 3, color: "#86EFAC", stroke: "#15803D", category: "crib-rooms", cartId: "7-2x3-self-contained-crib" },
+  // Same Solar Facility, exposed under crib-rooms too.
+  { id: "solar-facility-crib", name: "12×3.4m Solar Facility",         shortLabel: "Solar Facility", widthM: 12, depthM: 3.4, color: "#FEF3C7", stroke: "#B45309", category: "crib-rooms", cartId: "solar-facility" },
 
   // Ablutions
+  { id: "1x1-chem-toilet", name: "1×1m Chemical Toilet", shortLabel: "Chem Toilet",  widthM: 1,    depthM: 1,   color: "#EDE9FE", stroke: "#7C3AED", category: "ablutions",  cartId: "1x1m-chem-toilet" },
   { id: "3.6x2.4-toilet", name: "3.6x2.4m Toilet",    shortLabel: "3.6×2.4 Toilet", widthM: 3.6,  depthM: 2.4, color: "#EDE9FE", stroke: "#8B5CF6", category: "ablutions",  cartId: "3-6x2-4m-toilet" },
   { id: "6x3-toilet",     name: "6x3m Toilet Block",   shortLabel: "6×3 Toilet",     widthM: 6,    depthM: 3,   color: "#DDD6FE", stroke: "#7C3AED", category: "ablutions",  cartId: "6x3m-toilet-block" },
   { id: "6x3-shower",     name: "6x3m Shower Block",   shortLabel: "6×3 Shower",     widthM: 6,    depthM: 3,   color: "#E0E7FF", stroke: "#4F46E5", category: "ablutions",  cartId: "6x3m-shower-block" },
@@ -48,8 +69,11 @@ export const BUILDING_TYPES: BuildingType[] = [
   { id: "12x12-igloo",    name: "12×12m Igloo Shelter", shortLabel: "12×12 Igloo",    widthM: 12,   depthM: 12,  color: "#FEF08A", stroke: "#A16207", category: "containers", cartId: "12x12m-igloo" },
 
   // Ancillary
-  { id: "water-tank",    name: "5000L Water Tank & Pump", shortLabel: "Water Tank",  widthM: 2,    depthM: 2,   color: "#FEF3C7", stroke: "#F59E0B", category: "ancillary",  cartId: "5000l-tank-pump" },
-  { id: "stair-landing", name: "Stair & Landing",       shortLabel: "Stairs",         widthM: 2,    depthM: 1.5, color: "#FED7AA", stroke: "#EA580C", category: "ancillary",  cartId: "stair-landing" },
+  { id: "water-tank",      name: "5000L Water Tank & Pump", shortLabel: "Water Tank",   widthM: 2,    depthM: 2,   color: "#FEF3C7", stroke: "#F59E0B", category: "ancillary",  cartId: "5000l-tank-pump", shape: "circle" },
+  { id: "grey-water-tank", name: "5000L Grey Water Tank",   shortLabel: "Grey Water Tank", widthM: 2, depthM: 2,   color: "#CBD5E1", stroke: "#475569", category: "ancillary",  cartId: "5000l-grey-water-tank", shape: "circle" },
+  { id: "wash-trough",     name: "Free-Standing Wash Trough", shortLabel: "Wash Trough", widthM: 2, depthM: 0.5, color: "#CFFAFE", stroke: "#0891B2", category: "ancillary",  cartId: "wash-trough" },
+  { id: "dual-hand-wash",  name: "Dual Hand Wash Station",  shortLabel: "Hand Wash",    widthM: 0.5,  depthM: 0.5, color: "#A5F3FC", stroke: "#0E7490", category: "ancillary",  cartId: "dual-hand-wash" },
+  { id: "stair-landing",   name: "Stair & Landing",         shortLabel: "Stairs",       widthM: 2,    depthM: 1.5, color: "#FED7AA", stroke: "#EA580C", category: "ancillary",  cartId: "stair-landing" },
 
   // Utilities (icon markers) — render as a saturated coloured ring
   // around a white inner plate so the emoji icon always has high
@@ -60,6 +84,8 @@ export const BUILDING_TYPES: BuildingType[] = [
   { id: "sewer-point",   name: "Sewage Connection",     shortLabel: "🚽 Sewage",      widthM: 1,    depthM: 1,   color: "#FEF3C7", stroke: "#92400E", category: "utilities",  icon: "🚽" },
   // Grey water — plain "●" glyph rendered in grey on the white plate
   { id: "grey-water",    name: "Grey Water Connection", shortLabel: "● Grey Water",   widthM: 1,    depthM: 1,   color: "#F3F4F6", stroke: "#6B7280", category: "utilities",  icon: "●", iconColor: "#6B7280" },
+  // Data / networking — globe emoji on a teal ring
+  { id: "data-point",    name: "Data Connection",       shortLabel: "🌐 Data",        widthM: 1,    depthM: 1,   color: "#CFFAFE", stroke: "#0891B2", category: "utilities",  icon: "🌐" },
 ];
 
 export const CATEGORY_LABELS: Record<string, string> = {
@@ -106,19 +132,22 @@ export function getBuildingType(id: string): BuildingType | undefined {
       category: "complexes",
     };
   }
-  // Generic custom building IDs (format: custom-WxD)
-  const customMatch = id.match(/^custom-(\d+(?:\.\d+)?)x(\d+(?:\.\d+)?)$/);
+  // Generic custom building IDs.
+  //   custom-WxD              → default grey
+  //   custom-WxD-c{HEX}       → user-picked fill (stroke darkened from fill)
+  const customMatch = id.match(/^custom-(\d+(?:\.\d+)?)x(\d+(?:\.\d+)?)(?:-c([\da-fA-F]{6}))?$/);
   if (customMatch) {
     const w = parseFloat(customMatch[1]);
     const d = parseFloat(customMatch[2]);
+    const hex = customMatch[3]?.toUpperCase();
     return {
       id,
       name: `${w}×${d}m Custom`,
       shortLabel: `${w}×${d}m`,
       widthM: w,
       depthM: d,
-      color: "#E5E7EB",
-      stroke: "#6B7280",
+      color: hex ? `#${hex}` : "#E5E7EB",
+      stroke: hex ? darkenHex(hex, 0.5) : "#6B7280",
       category: "containers",
     };
   }

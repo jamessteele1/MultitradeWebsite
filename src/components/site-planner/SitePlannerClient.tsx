@@ -66,6 +66,9 @@ export default function SitePlannerClient() {
   // Drawing/text tool state
   const [tool, setTool] = useState<ToolMode>("select");
   const [drawStyle, setDrawStyle] = useState<DrawStyle>(DEFAULT_DRAW_STYLE);
+  /** Default size (metres) for the next Shape-tool placement — set via
+      the slider in the Shape popover. */
+  const [shapeSize, setShapeSize] = useState<number>(5);
   const [textStyle, setTextStyle] = useState<TextStyle>(DEFAULT_TEXT_STYLE);
 
   // Selection state for drawings + text annotations — surfaced from the
@@ -654,6 +657,8 @@ export default function SitePlannerClient() {
           textStyle={textStyle}
           onTextStyleChange={setTextStyle}
           onClearDrawings={state.drawings.length > 0 ? state.clearDrawings : undefined}
+          shapeSize={shapeSize}
+          onShapeSizeChange={setShapeSize}
           compact
         />
 
@@ -706,6 +711,7 @@ export default function SitePlannerClient() {
             onToolChange={setTool}
             drawStyle={drawStyle}
             textStyle={textStyle}
+            shapeSize={shapeSize}
             placingTypeId={placingTypeId}
             placingLabel={placingLabel}
             onPlaced={handlePlaced}
@@ -778,6 +784,8 @@ export default function SitePlannerClient() {
         textStyle={textStyle}
         onTextStyleChange={setTextStyle}
         onClearDrawings={state.drawings.length > 0 ? state.clearDrawings : undefined}
+        shapeSize={shapeSize}
+        onShapeSizeChange={setShapeSize}
         selectedDrawing={selectedDrawingForTools}
         onSelectedDrawingChange={handleSelectedDrawingChange}
         onSelectedDrawingDelete={handleSelectedDrawingDelete}
@@ -823,6 +831,7 @@ export default function SitePlannerClient() {
           onToolChange={setTool}
           drawStyle={drawStyle}
           textStyle={textStyle}
+          shapeSize={shapeSize}
         />
       </div>
 

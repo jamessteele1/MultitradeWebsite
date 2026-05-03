@@ -28,7 +28,20 @@ const SIDEBAR_LABELS: Record<string, string> = {
   containers: "Containers",
   ancillary: "Ancillary",
   utilities: "Utilities",
+  custom: "Custom",
 };
+
+/** Eight preset fills for the custom-building configurator. */
+const CUSTOM_FILLS: { fill: string; label: string }[] = [
+  { fill: "#E5E7EB", label: "Grey" },
+  { fill: "#DBEAFE", label: "Blue" },
+  { fill: "#D1FAE5", label: "Green" },
+  { fill: "#FEF3C7", label: "Yellow" },
+  { fill: "#FED7AA", label: "Orange" },
+  { fill: "#FEE2E2", label: "Red" },
+  { fill: "#EDE9FE", label: "Purple" },
+  { fill: "#FCE7F3", label: "Pink" },
+];
 
 /** Tiny inline icons for each category — visual cue beside the label */
 function CategoryIcon({ cat }: { cat: string }) {
@@ -91,6 +104,19 @@ function CategoryIcon({ cat }: { cat: string }) {
   if (cat === "utilities") {
     return <svg {...baseProps}><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" /></svg>;
   }
+  if (cat === "custom") {
+    // Sliders / configurator glyph
+    return (
+      <svg {...baseProps}>
+        <line x1="4" y1="6" x2="20" y2="6" />
+        <line x1="4" y1="12" x2="20" y2="12" />
+        <line x1="4" y1="18" x2="20" y2="18" />
+        <circle cx="9" cy="6" r="2" fill="currentColor" />
+        <circle cx="15" cy="12" r="2" fill="currentColor" />
+        <circle cx="11" cy="18" r="2" fill="currentColor" />
+      </svg>
+    );
+  }
   return null;
 }
 
@@ -99,9 +125,13 @@ export default function BuildingSelectionPopup({ open, onClose, onSelect, onAddC
   const [customW, setCustomW] = useState(6);
   const [customD, setCustomD] = useState(3);
   const [customLabel, setCustomLabel] = useState("Custom");
+  const [customFill, setCustomFill] = useState<string>(CUSTOM_FILLS[0].fill);
 
   if (!open) return null;
 
+  // Sidebar list — start with the data-driven categories then append the
+  // synthetic "custom" tab (no preset buildings, just the configurator).
+  const sidebarCategories: string[] = [...grouped.map(([c]) => c), "custom"];
   const activeItems = grouped.find(([cat]) => cat === activeCategory)?.[1] || [];
 
   return createPortal(
@@ -140,9 +170,10 @@ export default function BuildingSelectionPopup({ open, onClose, onSelect, onAddC
             className="flex-shrink-0 w-[128px] sm:w-[150px] bg-gray-50 border-r border-gray-100 overflow-y-auto py-2"
             aria-label="Building categories"
           >
-            {grouped.map(([cat]) => {
+            {sidebarCategories.map((cat) => {
               // Pick a colour swatch from the first building in the category
-              // so each tab carries a visual cue matching the canvas.
+              // so each tab carries a visual cue matching the canvas. The
+              // synthetic "custom" tab uses an amber accent.
               const sample = grouped.find(([c]) => c === cat)?.[1]?.[0];
               const active = activeCategory === cat;
               return (
@@ -180,9 +211,94 @@ export default function BuildingSelectionPopup({ open, onClose, onSelect, onAddC
           {/* Building grid */}
           <div className="flex-1 overflow-y-auto p-4 sm:p-5">
             <h3 className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-3">
-              {CATEGORY_LABELS[activeCategory] || activeCategory}
+              {activeCategory === "custom"
+                ? "Custom Building"
+                : CATEGORY_LABELS[activeCategory] || activeCategory}
             </h3>
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+
+            {/* Custom Building configurator — pick width × depth, name +
+                colour, then "Place" places a custom-WxD-c{HEX} building
+                that the user can drag/resize/relabel like any other. */}
+            {activeCategory === "custom" && (
+              <div className="p-4 rounded-xl border border-dashed border-amber-300 bg-amber-50/50 space-y-4">
+                <p className="text-xs text-amber-900/80 leading-relaxed">
+                  Drop any size building you need. Pick its dimensions, give
+                  it a name, and choose a colour — perfect for one-off site
+                  buildings that aren&apos;t in our standard catalogue.
+                </p>
+
+                <div className="flex flex-wrap items-end gap-3">
+                  <div>
+                    <label className="text-[10px] text-amber-900/80 block mb-1">Width (m)</label>
+                    <input
+                      type="number"
+                      value={customW}
+                      onChange={(e) => setCustomW(Math.min(24, Math.max(0.5, parseFloat(e.target.value) || 0.5)))}
+                      className="w-20 px-2 py-1.5 text-sm text-center rounded-lg border border-amber-200 bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                      min={0.5} max={24} step={0.1}
+                    />
+                  </div>
+                  <span className="text-amber-700 text-sm pb-1.5">×</span>
+                  <div>
+                    <label className="text-[10px] text-amber-900/80 block mb-1">Depth (m)</label>
+                    <input
+                      type="number"
+                      value={customD}
+                      onChange={(e) => setCustomD(Math.min(24, Math.max(0.5, parseFloat(e.target.value) || 0.5)))}
+                      className="w-20 px-2 py-1.5 text-sm text-center rounded-lg border border-amber-200 bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                      min={0.5} max={24} step={0.1}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-[10px] text-amber-900/80 block mb-1">Name (label on canvas)</label>
+                  <input
+                    type="text"
+                    value={customLabel}
+                    onChange={(e) => setCustomLabel(e.target.value.slice(0, 24))}
+                    placeholder="e.g. Mess hall, Workshop"
+                    className="w-full px-2.5 py-1.5 text-sm rounded-lg border border-amber-200 bg-white focus:outline-none focus:ring-2 focus:ring-amber-500"
+                    maxLength={24}
+                  />
+                </div>
+
+                <div>
+                  <label className="text-[10px] text-amber-900/80 block mb-2">Colour</label>
+                  <div className="flex flex-wrap gap-2">
+                    {CUSTOM_FILLS.map(({ fill, label }) => (
+                      <button
+                        key={fill}
+                        type="button"
+                        onClick={() => setCustomFill(fill)}
+                        title={label}
+                        aria-label={label}
+                        className={`w-8 h-8 rounded-lg border-2 transition-transform ${
+                          customFill === fill ? "border-gray-900 scale-110 shadow-md" : "border-gray-200 hover:scale-105"
+                        }`}
+                        style={{ backgroundColor: fill }}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => {
+                    const w = Math.min(24, Math.max(0.5, customW));
+                    const d = Math.min(24, Math.max(0.5, customD));
+                    const hex = customFill.replace("#", "").toUpperCase();
+                    const label = customLabel.trim() || `${w}×${d}m`;
+                    onSelect(`custom-${w}x${d}-c${hex}`, label);
+                    onClose();
+                  }}
+                  className="w-full px-4 py-2.5 text-sm font-bold rounded-lg bg-amber-600 text-white hover:bg-amber-700 transition-colors"
+                >
+                  Place {customW}×{customD}m “{customLabel || "Custom"}”
+                </button>
+              </div>
+            )}
+
+            <div className={`grid grid-cols-2 sm:grid-cols-3 gap-3 ${activeCategory === "custom" ? "hidden" : ""}`}>
               {activeItems.map((bt) => (
               <button
                 key={bt.id}

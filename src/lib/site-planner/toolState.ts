@@ -16,7 +16,11 @@ export type ToolMode =
   | "text"
   | "shape-rect"
   | "shape-circle"
-  | "shape-triangle";
+  | "shape-triangle"
+  | "shape-arrow"   // 4-way directional indicator (traffic flow)
+  | "shape-car"     // car-proportioned rectangle (4 × 2 m)
+  | "shape-bus"     // bus-proportioned rectangle (12 × 2.5 m)
+  | "shape-truck";  // truck-proportioned rectangle (8 × 2.5 m)
 
 export type DrawStyle = {
   color: string;

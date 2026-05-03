@@ -152,6 +152,10 @@ type Props = {
   onToolChange?: (tool: ToolMode) => void;
   drawStyle?: DrawStyle;
   textStyle?: TextStyle;
+  /** Default size (metres) for the next Shape-tool placement. Used as
+      "longer side" for elongated shapes (cars/buses/trucks) and as the
+      bounding-box side for rect/circle/triangle/arrow. */
+  shapeSize?: number;
   /** Mobile: building type ID queued for tap-to-place */
   placingTypeId?: string | null;
   placingLabel?: string;
@@ -202,6 +206,7 @@ export default function PlannerCanvas({
   onToolChange,
   drawStyle,
   textStyle,
+  shapeSize = 5,
   placingTypeId,
   placingLabel,
   onPlaced,
@@ -438,16 +443,15 @@ export default function PlannerCanvas({
         return;
       }
 
-      // Shape mode — tap once to drop a standard shape (rect / circle /
-      // triangle) centred on the tap point. Stays in shape mode so the
-      // user can drop more; "Done" exits to select. Default size 5m on
-      // each side, which is a sensible starter and the user can drag
-      // vertices to resize afterwards.
+      // Shape mode — tap once to drop a standard shape centred on the
+      // tap point. Stays in shape mode so the user can drop more; "Done"
+      // exits to select. Size comes from `shapeSize` (in metres) which
+      // the user adjusts via the slider in the Shape popover.
       if (tool.startsWith("shape-") && onAddDrawing && drawStyle) {
         const c = pointerToCanvas();
         if (!c) return;
         const ppm = PIXELS_PER_METRE;
-        const sizeM = 5;
+        const sizeM = Math.max(0.5, shapeSize);
         const halfPx = (sizeM * ppm) / 2;
         let pts: number[] = [];
         if (tool === "shape-rect") {
@@ -458,9 +462,6 @@ export default function PlannerCanvas({
             c.x - halfPx, c.y + halfPx,
           ];
         } else if (tool === "shape-circle") {
-          // 32-segment polygon approximation. Vertex handles still work
-          // (each segment vertex is draggable) so the user can squash
-          // it into an ellipse if needed.
           const segs = 32;
           pts = [];
           for (let i = 0; i < segs; i++) {
@@ -468,12 +469,58 @@ export default function PlannerCanvas({
             pts.push(c.x + Math.cos(a) * halfPx, c.y + Math.sin(a) * halfPx);
           }
         } else if (tool === "shape-triangle") {
-          // Equilateral, point up
           const r = halfPx * 1.05;
           pts = [
             c.x, c.y - r,
             c.x + r * Math.sin((2 * Math.PI) / 3), c.y - r * Math.cos((2 * Math.PI) / 3),
             c.x - r * Math.sin((2 * Math.PI) / 3), c.y - r * Math.cos((2 * Math.PI) / 3),
+          ];
+        } else if (tool === "shape-arrow") {
+          // 4-way directional arrow — useful as a traffic-flow / "drive
+          // through here" annotation. Cross with arrowheads, fits a
+          // sizeM × sizeM bbox.
+          const t = halfPx * 0.4; // arm thickness (½ width)
+          const a = halfPx * 0.65; // arm-end inset before arrowhead
+          pts = [
+            c.x,           c.y - halfPx,         // N tip
+            c.x + t,       c.y - a,
+            c.x + t,       c.y - t,
+            c.x + a,       c.y - t,
+            c.x + halfPx,  c.y,                  // E tip
+            c.x + a,       c.y + t,
+            c.x + t,       c.y + t,
+            c.x + t,       c.y + a,
+            c.x,           c.y + halfPx,         // S tip
+            c.x - t,       c.y + a,
+            c.x - t,       c.y + t,
+            c.x - a,       c.y + t,
+            c.x - halfPx,  c.y,                  // W tip
+            c.x - a,       c.y - t,
+            c.x - t,       c.y - t,
+            c.x - t,       c.y - a,
+          ];
+        } else if (tool === "shape-car" || tool === "shape-bus" || tool === "shape-truck") {
+          // Vehicle markers — render as a rectangle proportional to the
+          // real vehicle. Width fixed (vehicle "length"), depth fixed at
+          // a realistic ratio. shapeSize sets the LENGTH; depth follows.
+          const ratios: Record<string, { lenRatio: number; widthM: number }> = {
+            "shape-car":   { lenRatio: 1,    widthM: 2 },     // 4 × 2 m at sizeM=4
+            "shape-bus":   { lenRatio: 1,    widthM: 2.5 },   // 12 × 2.5 m at sizeM=12
+            "shape-truck": { lenRatio: 1,    widthM: 2.5 },   // 8 × 2.5 m at sizeM=8
+          };
+          // Default lengths if user hasn't bumped size from the 5m default
+          const defaults: Record<string, number> = {
+            "shape-car": 4, "shape-bus": 12, "shape-truck": 8,
+          };
+          const lenM = sizeM === 5 ? defaults[tool] ?? sizeM : sizeM;
+          const cfg = ratios[tool];
+          const lenPx = (lenM * cfg.lenRatio * ppm) / 2;
+          const widPx = (cfg.widthM * ppm) / 2;
+          pts = [
+            c.x - lenPx, c.y - widPx,
+            c.x + lenPx, c.y - widPx,
+            c.x + lenPx, c.y + widPx,
+            c.x - lenPx, c.y + widPx,
           ];
         }
         if (pts.length) {

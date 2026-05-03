@@ -59,6 +59,10 @@ type Props = {
       mobile where vertical space is precious. The Done button moves inline
       with the tool selectors and styles condense. */
   compact?: boolean;
+  /** Shape tool — default size in metres for the next shape placement.
+      Lives in parent state so the canvas + popover share it. */
+  shapeSize?: number;
+  onShapeSizeChange?: (m: number) => void;
 };
 
 const btnBase =
@@ -81,16 +85,16 @@ export default function DrawingTools({
   onSelectedTextDelete,
   onDeselectText,
   compact = false,
+  shapeSize = 5,
+  onShapeSizeChange,
 }: Props) {
   const isDrawing =
     tool === "freehand" ||
     tool === "line" ||
     tool === "dimension" ||
     tool === "polygon" ||
-    tool === "shape-rect" ||
-    tool === "shape-circle" ||
-    tool === "shape-triangle";
-  const isShapeMode = tool === "shape-rect" || tool === "shape-circle" || tool === "shape-triangle";
+    tool.startsWith("shape-");
+  const isShapeMode = tool.startsWith("shape-");
 
   // Shape picker popover state — anchored under the Shape button. Click
   // a shape, the tool becomes "shape-<kind>" and the popover closes.
@@ -266,55 +270,103 @@ export default function DrawingTools({
           </button>
 
           {shapesOpen && (
-            <div className="absolute top-full left-0 mt-1 z-50 bg-white rounded-xl border border-gray-200 shadow-xl p-1 flex items-center gap-0.5">
-              <button
-                type="button"
-                onClick={() => {
-                  onToolChange("shape-rect");
-                  setShapesOpen(false);
-                }}
-                title="Rectangle"
-                aria-label="Rectangle"
-                className={`flex items-center justify-center w-10 h-10 rounded-lg ${
-                  tool === "shape-rect" ? "bg-amber-500 text-white" : "text-gray-700 hover:bg-gray-100"
-                }`}
-              >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="4" y="6" width="16" height="12" rx="1" />
-                </svg>
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  onToolChange("shape-circle");
-                  setShapesOpen(false);
-                }}
-                title="Circle"
-                aria-label="Circle"
-                className={`flex items-center justify-center w-10 h-10 rounded-lg ${
-                  tool === "shape-circle" ? "bg-amber-500 text-white" : "text-gray-700 hover:bg-gray-100"
-                }`}
-              >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="8" />
-                </svg>
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  onToolChange("shape-triangle");
-                  setShapesOpen(false);
-                }}
-                title="Triangle"
-                aria-label="Triangle"
-                className={`flex items-center justify-center w-10 h-10 rounded-lg ${
-                  tool === "shape-triangle" ? "bg-amber-500 text-white" : "text-gray-700 hover:bg-gray-100"
-                }`}
-              >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <polygon points="12 4 21 20 3 20" />
-                </svg>
-              </button>
+            <div className="absolute top-full left-0 mt-1 z-50 bg-white rounded-xl border border-gray-200 shadow-xl p-2 w-[280px]">
+              <div className="grid grid-cols-4 gap-1 mb-2">
+                {/* Geometric shapes */}
+                {[
+                  { kind: "shape-rect" as const, title: "Rectangle", svg: <rect x="4" y="6" width="16" height="12" rx="1" /> },
+                  { kind: "shape-circle" as const, title: "Circle", svg: <circle cx="12" cy="12" r="8" /> },
+                  { kind: "shape-triangle" as const, title: "Triangle", svg: <polygon points="12 4 21 20 3 20" /> },
+                  {
+                    kind: "shape-arrow" as const,
+                    title: "All-direction arrow",
+                    svg: (
+                      <>
+                        <line x1="12" y1="3" x2="12" y2="21" />
+                        <line x1="3" y1="12" x2="21" y2="12" />
+                        <polyline points="9 6 12 3 15 6" />
+                        <polyline points="6 9 3 12 6 15" />
+                        <polyline points="9 18 12 21 15 18" />
+                        <polyline points="18 9 21 12 18 15" />
+                      </>
+                    ),
+                  },
+                  {
+                    kind: "shape-car" as const,
+                    title: "Car (4×2 m)",
+                    svg: (
+                      <>
+                        <rect x="3" y="9" width="18" height="6" rx="1.5" />
+                        <circle cx="7.5" cy="17" r="1.5" fill="currentColor" />
+                        <circle cx="16.5" cy="17" r="1.5" fill="currentColor" />
+                      </>
+                    ),
+                  },
+                  {
+                    kind: "shape-bus" as const,
+                    title: "Bus (12×2.5 m)",
+                    svg: (
+                      <>
+                        <rect x="3" y="6" width="18" height="11" rx="1.5" />
+                        <line x1="3" y1="11" x2="21" y2="11" />
+                        <line x1="9" y1="6" x2="9" y2="11" />
+                        <line x1="15" y1="6" x2="15" y2="11" />
+                        <circle cx="7" cy="19" r="1.2" fill="currentColor" />
+                        <circle cx="17" cy="19" r="1.2" fill="currentColor" />
+                      </>
+                    ),
+                  },
+                  {
+                    kind: "shape-truck" as const,
+                    title: "Truck (8×2.5 m)",
+                    svg: (
+                      <>
+                        <rect x="3" y="8" width="11" height="9" rx="1" />
+                        <path d="M14 11h4l3 3v3h-7z" />
+                        <circle cx="7" cy="19" r="1.4" fill="currentColor" />
+                        <circle cx="17" cy="19" r="1.4" fill="currentColor" />
+                      </>
+                    ),
+                  },
+                ].map(({ kind, title, svg }) => (
+                  <button
+                    key={kind}
+                    type="button"
+                    onClick={() => {
+                      onToolChange(kind);
+                      setShapesOpen(false);
+                    }}
+                    title={title}
+                    aria-label={title}
+                    className={`flex items-center justify-center h-11 rounded-lg ${
+                      tool === kind ? "bg-amber-500 text-white" : "text-gray-700 hover:bg-gray-100"
+                    }`}
+                  >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      {svg}
+                    </svg>
+                  </button>
+                ))}
+              </div>
+
+              {/* Size slider — sets the default size for the next shape
+                  placement (the longer side will be this many metres). */}
+              {onShapeSizeChange && (
+                <div className="flex items-center gap-2 px-1.5 pt-2 border-t border-gray-100">
+                  <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Size</span>
+                  <input
+                    type="range"
+                    min={1}
+                    max={20}
+                    step={0.5}
+                    value={shapeSize}
+                    onChange={(e) => onShapeSizeChange(parseFloat(e.target.value))}
+                    className="flex-1 h-1 accent-amber-500"
+                    aria-label="Shape size"
+                  />
+                  <span className="text-[11px] font-mono text-gray-700 w-12 text-right">{shapeSize.toFixed(1)} m</span>
+                </div>
+              )}
             </div>
           )}
         </div>

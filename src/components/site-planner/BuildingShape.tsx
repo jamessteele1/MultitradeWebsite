@@ -22,12 +22,16 @@ export default function BuildingShape({ building, type, isSelected, isAttached, 
   const w = type.widthM * ppm;
   const h = type.depthM * ppm;
   const isUtility = type.category === "utilities";
+  const isCircular = !isUtility && type.shape === "circle";
 
   // Font size scales with the smaller dimension, clamped. Utility icons
   // scale with the (oversized) marker radius so the emoji fills the
   // white inner plate without clipping.
   const minDim = Math.min(w, h);
   const fontSize = isUtility ? Math.round(ppm * 0.65 * 0.95) : Math.max(9, Math.min(14, minDim * 0.22));
+  // Half the smaller dimension is the natural radius for a circular
+  // building (e.g. the 5000L Grey Water tank, 2m diameter).
+  const circleRadius = isCircular ? Math.min(w, h) / 2 : 0;
 
   const setCursor = (cursor: string) => {
     const stage = document.querySelector("canvas");
@@ -125,6 +129,47 @@ export default function BuildingShape({ building, type, isSelected, isAttached, 
             fontSize={fontSize}
             fill={type.iconColor || "#111827"}
             listening={false}
+          />
+        </>
+      ) : isCircular ? (
+        <>
+          {/* Selection ring around the circle */}
+          {isSelected && (
+            <Circle
+              x={w / 2}
+              y={h / 2}
+              radius={circleRadius + 3}
+              fill="transparent"
+              stroke="#2563EB"
+              strokeWidth={2.5}
+              dash={[6, 3]}
+            />
+          )}
+          {/* Building disc — flat fill + stroke, the same look-and-feel
+              as the rectangular buildings but circular (e.g. 5000L Grey
+              Water tank, 2m diameter cylindrical tank) */}
+          <Circle
+            x={w / 2}
+            y={h / 2}
+            radius={circleRadius}
+            fill={type.color}
+            stroke={type.stroke}
+            strokeWidth={1.5}
+          />
+          <Text
+            text={building.label}
+            x={0}
+            y={0}
+            width={w}
+            height={h}
+            align="center"
+            verticalAlign="middle"
+            fontSize={fontSize}
+            fontStyle="bold"
+            fontFamily="system-ui, sans-serif"
+            fill={type.stroke}
+            listening={false}
+            padding={2}
           />
         </>
       ) : (

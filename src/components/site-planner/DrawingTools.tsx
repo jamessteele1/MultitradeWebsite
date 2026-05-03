@@ -50,6 +50,9 @@ type Props = {
   onSelectedDrawingChange?: (patch: Partial<SelectedDrawingEdit>) => void;
   onSelectedDrawingDelete?: () => void;
   onDeselectDrawing?: () => void;
+  /** Scale the selected drawing up/down by a factor (1.1 / 1/1.1) — wired
+      to the +/- "size" buttons in the edit panel. */
+  onSelectedDrawingResize?: (factor: number) => void;
   /** Currently-selected text annotation in the canvas (or null). */
   selectedText?: SelectedTextEdit | null;
   onSelectedTextChange?: (patch: Partial<SelectedTextEdit>) => void;
@@ -80,6 +83,7 @@ export default function DrawingTools({
   onSelectedDrawingChange,
   onSelectedDrawingDelete,
   onDeselectDrawing,
+  onSelectedDrawingResize,
   selectedText,
   onSelectedTextChange,
   onSelectedTextDelete,
@@ -270,24 +274,50 @@ export default function DrawingTools({
           </button>
 
           {shapesOpen && (
-            <div className="absolute top-full left-0 mt-1 z-50 bg-white rounded-xl border border-gray-200 shadow-xl p-2 w-[280px]">
-              <div className="grid grid-cols-4 gap-1 mb-2">
+            <div className="absolute top-full left-0 mt-1 z-50 bg-white rounded-xl border border-gray-200 shadow-xl p-2 w-[300px]">
+              <div className="grid grid-cols-5 gap-1 mb-2">
                 {/* Geometric shapes */}
                 {[
                   { kind: "shape-rect" as const, title: "Rectangle", svg: <rect x="4" y="6" width="16" height="12" rx="1" /> },
                   { kind: "shape-circle" as const, title: "Circle", svg: <circle cx="12" cy="12" r="8" /> },
                   { kind: "shape-triangle" as const, title: "Triangle", svg: <polygon points="12 4 21 20 3 20" /> },
                   {
-                    kind: "shape-arrow" as const,
-                    title: "All-direction arrow",
+                    kind: "shape-arrow-up" as const,
+                    title: "Arrow ↑",
                     svg: (
                       <>
-                        <line x1="12" y1="3" x2="12" y2="21" />
-                        <line x1="3" y1="12" x2="21" y2="12" />
-                        <polyline points="9 6 12 3 15 6" />
-                        <polyline points="6 9 3 12 6 15" />
-                        <polyline points="9 18 12 21 15 18" />
-                        <polyline points="18 9 21 12 18 15" />
+                        <line x1="12" y1="20" x2="12" y2="5" />
+                        <polyline points="6 11 12 5 18 11" />
+                      </>
+                    ),
+                  },
+                  {
+                    kind: "shape-arrow-down" as const,
+                    title: "Arrow ↓",
+                    svg: (
+                      <>
+                        <line x1="12" y1="4" x2="12" y2="19" />
+                        <polyline points="6 13 12 19 18 13" />
+                      </>
+                    ),
+                  },
+                  {
+                    kind: "shape-arrow-left" as const,
+                    title: "Arrow ←",
+                    svg: (
+                      <>
+                        <line x1="20" y1="12" x2="5" y2="12" />
+                        <polyline points="11 6 5 12 11 18" />
+                      </>
+                    ),
+                  },
+                  {
+                    kind: "shape-arrow-right" as const,
+                    title: "Arrow →",
+                    svg: (
+                      <>
+                        <line x1="4" y1="12" x2="19" y2="12" />
+                        <polyline points="13 6 19 12 13 18" />
                       </>
                     ),
                   },
@@ -697,6 +727,29 @@ export default function DrawingTools({
           </div>
 
           <div className="flex items-center gap-1.5 ml-auto">
+            {/* Quick resize — scales the drawing's vertices around its
+                centroid by ±10%. */}
+            {onSelectedDrawingResize && (
+              <div className="flex items-center gap-0.5 px-1 rounded-lg border border-gray-200 bg-white">
+                <button
+                  onClick={() => onSelectedDrawingResize(1 / 1.1)}
+                  className="w-6 h-7 flex items-center justify-center text-gray-700 hover:bg-gray-100 rounded text-base font-bold"
+                  title="Resize smaller (10%)"
+                  aria-label="Resize smaller"
+                >
+                  −
+                </button>
+                <span className="text-[9px] font-bold text-gray-500 px-0.5 uppercase">Size</span>
+                <button
+                  onClick={() => onSelectedDrawingResize(1.1)}
+                  className="w-6 h-7 flex items-center justify-center text-gray-700 hover:bg-gray-100 rounded text-base font-bold"
+                  title="Resize bigger (10%)"
+                  aria-label="Resize bigger"
+                >
+                  +
+                </button>
+              </div>
+            )}
             {/* Flip-side toggle for dimension lines — moves the
                 measurement label to the other side of the line. */}
             {selectedDrawing.dimension && (

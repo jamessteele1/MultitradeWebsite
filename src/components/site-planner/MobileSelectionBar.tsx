@@ -30,6 +30,9 @@ type Props = {
   /** Rename / edit text. Buildings get a label prompt, text annotations
       get the text content prompt. */
   onRename?: () => void;
+  /** Scale the selection up (factor > 1) or down (factor < 1) around
+      its own centroid. Used for one-tap resizing of drawings. */
+  onResize?: (factor: number) => void;
   /** When this is a dimension drawing, surface a "flip side" toggle so
       the user can move the measurement label to the other side. */
   isDimension?: boolean;
@@ -49,7 +52,7 @@ const KIND_LABELS: Record<Kind, string> = {
 };
 
 const MobileSelectionBar = forwardRef<HTMLDivElement, Props>(function MobileSelectionBar(
-  { kind, hovered, opacity, onOpacityChange, color, onColorChange, onRotate, onRename, isDimension, onFlipSide, onDelete, onDone },
+  { kind, hovered, opacity, onOpacityChange, color, onColorChange, onRotate, onRename, onResize, isDimension, onFlipSide, onDelete, onDone },
   ref,
 ) {
   const showStyleControls = kind !== "building";
@@ -185,6 +188,30 @@ const MobileSelectionBar = forwardRef<HTMLDivElement, Props>(function MobileSele
                 <path d="M16.5 3.5a2.121 2.121 0 113 3L7 19l-4 1 1-4L16.5 3.5z" />
               </svg>
             </button>
+          )}
+          {/* Quick resize — scales the selected shape up/down by 10%
+              around its centroid. Only shown when a resize handler is
+              wired (drawings; not buildings or text). */}
+          {onResize && (
+            <div className="flex items-center gap-0.5 px-1 h-10 rounded-xl bg-white/10">
+              <button
+                onClick={() => onResize(1 / 1.1)}
+                className="w-7 h-8 flex items-center justify-center rounded-lg hover:bg-white/15 text-white/90 text-base font-bold"
+                title="Resize smaller (10%)"
+                aria-label="Resize smaller"
+              >
+                −
+              </button>
+              <span className="text-[9px] font-bold text-white/60 px-0.5">SIZE</span>
+              <button
+                onClick={() => onResize(1.1)}
+                className="w-7 h-8 flex items-center justify-center rounded-lg hover:bg-white/15 text-white/90 text-base font-bold"
+                title="Resize bigger (10%)"
+                aria-label="Resize bigger"
+              >
+                +
+              </button>
+            </div>
           )}
           {isDimension && onFlipSide && (
             <button

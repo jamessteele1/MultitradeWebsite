@@ -17,10 +17,13 @@ export type ToolMode =
   | "shape-rect"
   | "shape-circle"
   | "shape-triangle"
-  | "shape-arrow"   // 4-way directional indicator (traffic flow)
-  | "shape-car"     // car-proportioned rectangle (4 × 2 m)
-  | "shape-bus"     // bus-proportioned rectangle (12 × 2.5 m)
-  | "shape-truck";  // truck-proportioned rectangle (8 × 2.5 m)
+  | "shape-arrow-up"     // arrow pointing north
+  | "shape-arrow-down"   // arrow pointing south
+  | "shape-arrow-left"   // arrow pointing west
+  | "shape-arrow-right"  // arrow pointing east
+  | "shape-car"          // car-proportioned rectangle (4 × 2 m)
+  | "shape-bus"          // bus-proportioned rectangle (12 × 2.5 m)
+  | "shape-truck";       // truck-proportioned rectangle (8 × 2.5 m)
 
 export type DrawStyle = {
   color: string;

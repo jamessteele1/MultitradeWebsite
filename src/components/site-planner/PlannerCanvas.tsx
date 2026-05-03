@@ -475,30 +475,35 @@ export default function PlannerCanvas({
             c.x + r * Math.sin((2 * Math.PI) / 3), c.y - r * Math.cos((2 * Math.PI) / 3),
             c.x - r * Math.sin((2 * Math.PI) / 3), c.y - r * Math.cos((2 * Math.PI) / 3),
           ];
-        } else if (tool === "shape-arrow") {
-          // 4-way directional arrow — useful as a traffic-flow / "drive
-          // through here" annotation. Cross with arrowheads, fits a
-          // sizeM × sizeM bbox.
-          const t = halfPx * 0.4; // arm thickness (½ width)
-          const a = halfPx * 0.65; // arm-end inset before arrowhead
-          pts = [
-            c.x,           c.y - halfPx,         // N tip
-            c.x + t,       c.y - a,
-            c.x + t,       c.y - t,
-            c.x + a,       c.y - t,
-            c.x + halfPx,  c.y,                  // E tip
-            c.x + a,       c.y + t,
-            c.x + t,       c.y + t,
-            c.x + t,       c.y + a,
-            c.x,           c.y + halfPx,         // S tip
-            c.x - t,       c.y + a,
-            c.x - t,       c.y + t,
-            c.x - a,       c.y + t,
-            c.x - halfPx,  c.y,                  // W tip
-            c.x - a,       c.y - t,
-            c.x - t,       c.y - t,
-            c.x - t,       c.y - a,
+        } else if (tool.startsWith("shape-arrow-")) {
+          // Single directional arrow (one of up/down/left/right) — handy
+          // for marking traffic flow, vehicle access direction, gate
+          // ingress, etc. The shape is a 7-vertex arrow defined for
+          // "up" then rotated for the other directions.
+          const dir = tool.slice("shape-arrow-".length);
+          const tThick = halfPx * 0.25;  // shaft thickness (half-width)
+          const aw = halfPx * 0.55;      // arrowhead half-width
+          const ah = halfPx * 0.45;      // arrowhead height (from tip)
+          // Local vertices for an UP arrow centred at origin
+          const local: Array<[number, number]> = [
+            [0, -halfPx],          // tip
+            [aw, -halfPx + ah],    // right of tip base
+            [tThick, -halfPx + ah],// right inner
+            [tThick, halfPx],      // right bottom of shaft
+            [-tThick, halfPx],     // left bottom of shaft
+            [-tThick, -halfPx + ah],// left inner
+            [-aw, -halfPx + ah],   // left of tip base
           ];
+          // Rotate to direction
+          const rotated: Array<[number, number]> = local.map(([x, y]) => {
+            switch (dir) {
+              case "down":  return [-x, -y];
+              case "left":  return [y, -x];
+              case "right": return [-y, x];
+              default:      return [x, y]; // up
+            }
+          });
+          pts = rotated.flatMap(([x, y]) => [c.x + x, c.y + y]);
         } else if (tool === "shape-car" || tool === "shape-bus" || tool === "shape-truck") {
           // Vehicle markers — render as a rectangle proportional to the
           // real vehicle. Width fixed (vehicle "length"), depth fixed at
@@ -2041,6 +2046,28 @@ export default function PlannerCanvas({
         {isMobile && selectedDrawingId && (() => {
           const d = drawings.find((dd) => dd.id === selectedDrawingId);
           if (!d) return null;
+          // Scale the drawing's vertices around its centroid by `factor`.
+          // Used by the +/- buttons in the selection bar — gives the
+          // user a quick "make this 10% bigger / smaller" without having
+          // to drag every vertex by hand.
+          const handleResize = (factor: number) => {
+            if (!onUpdateDrawing) return;
+            const n = d.points.length / 2;
+            if (n === 0) return;
+            let cx = 0, cy = 0;
+            for (let i = 0; i < n; i++) {
+              cx += d.points[i * 2];
+              cy += d.points[i * 2 + 1];
+            }
+            cx /= n;
+            cy /= n;
+            const next = d.points.slice();
+            for (let i = 0; i < n; i++) {
+              next[i * 2]     = cx + (d.points[i * 2]     - cx) * factor;
+              next[i * 2 + 1] = cy + (d.points[i * 2 + 1] - cy) * factor;
+            }
+            onUpdateDrawing(d.id, { points: next });
+          };
           return (
             <MobileSelectionBar
               ref={trashRef}
@@ -2050,6 +2077,7 @@ export default function PlannerCanvas({
               onOpacityChange={(v) => onUpdateDrawing?.(d.id, { opacity: v })}
               color={d.color}
               onColorChange={(c) => onUpdateDrawing?.(d.id, { color: c })}
+              onResize={handleResize}
               isDimension={!!d.dimension}
               onFlipSide={d.dimension ? () => onUpdateDrawing?.(d.id, { dimensionFlip: !d.dimensionFlip }) : undefined}
               onDelete={() => {

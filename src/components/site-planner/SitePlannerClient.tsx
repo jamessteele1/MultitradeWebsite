@@ -155,6 +155,26 @@ export default function SitePlannerClient() {
       setSelectedDrawingId(null);
     }
   }, [selectedDrawingId, state]);
+  /** Scale the selected drawing's vertices around its centroid by `factor`. */
+  const handleSelectedDrawingResize = useCallback(
+    (factor: number) => {
+      if (!selectedDrawingId) return;
+      const d = state.drawings.find((dd) => dd.id === selectedDrawingId);
+      if (!d) return;
+      const n = d.points.length / 2;
+      if (n === 0) return;
+      let cx = 0, cy = 0;
+      for (let i = 0; i < n; i++) { cx += d.points[i * 2]; cy += d.points[i * 2 + 1]; }
+      cx /= n; cy /= n;
+      const next = d.points.slice();
+      for (let i = 0; i < n; i++) {
+        next[i * 2]     = cx + (d.points[i * 2]     - cx) * factor;
+        next[i * 2 + 1] = cy + (d.points[i * 2 + 1] - cy) * factor;
+      }
+      state.updateDrawing(d.id, { points: next });
+    },
+    [selectedDrawingId, state],
+  );
   const handleDeselectDrawing = useCallback(() => setSelectedDrawingId(null), []);
 
   const handleSelectedTextChange = useCallback(
@@ -770,6 +790,7 @@ export default function SitePlannerClient() {
         selectedDrawing={selectedDrawingForTools}
         onSelectedDrawingChange={handleSelectedDrawingChange}
         onSelectedDrawingDelete={handleSelectedDrawingDelete}
+        onSelectedDrawingResize={handleSelectedDrawingResize}
         onDeselectDrawing={handleDeselectDrawing}
         selectedText={selectedTextForTools}
         onSelectedTextChange={handleSelectedTextChange}

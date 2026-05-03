@@ -75,8 +75,6 @@ export const BUILDING_TYPES: BuildingType[] = [
   { id: "10ft-container", name: "10ft Container",       shortLabel: "10ft Container", widthM: 3,    depthM: 2.4, color: "#F3F4F6", stroke: "#6B7280", category: "containers", cartId: "10ft-container" },
   { id: "20ft-container", name: "20ft Container",       shortLabel: "20ft Container", widthM: 6,    depthM: 2.4, color: "#E5E7EB", stroke: "#6B7280", category: "containers", cartId: "20ft-container" },
   { id: "40ft-container", name: "40ft Container",       shortLabel: "40ft Container", widthM: 12,   depthM: 2.4, color: "#D1D5DB", stroke: "#4B5563", category: "containers", cartId: "40ft-container" },
-  { id: "6x12-igloo",     name: "6×12m Igloo Shelter",  shortLabel: "6×12 Igloo",     widthM: 6,    depthM: 12,  color: "#FEF9C3", stroke: "#CA8A04", category: "containers", cartId: "6x12m-igloo" },
-  { id: "12x12-igloo",    name: "12×12m Igloo Shelter", shortLabel: "12×12 Igloo",    widthM: 12,   depthM: 12,  color: "#FEF08A", stroke: "#A16207", category: "containers", cartId: "12x12m-igloo" },
 
   // Container-Dome Shelters — two end containers with a fabric dome
   // spanning between them. Total depth = 2.4 + shelter + 2.4.

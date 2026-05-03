@@ -1,6 +1,6 @@
 "use client";
 
-import { Group, Rect, Text, Circle } from "react-konva";
+import { Group, Rect, Text, Circle, Path, Line } from "react-konva";
 import type { PlacedBuilding } from "@/lib/site-planner/usePlannerState";
 import type { BuildingType } from "@/lib/site-planner/buildings";
 import { PIXELS_PER_METRE } from "@/lib/site-planner/constants";
@@ -23,6 +23,7 @@ export default function BuildingShape({ building, type, isSelected, isAttached, 
   const h = type.depthM * ppm;
   const isUtility = type.category === "utilities";
   const isCircular = !isUtility && type.shape === "circle";
+  const isContainerShelter = type.shape === "container-shelter";
 
   // Font size scales with the smaller dimension, clamped. Utility icons
   // scale with the (oversized) marker radius so the emoji fills the
@@ -172,6 +173,139 @@ export default function BuildingShape({ building, type, isSelected, isAttached, 
             padding={2}
           />
         </>
+      ) : isContainerShelter ? (
+        (() => {
+          const cLen = type.containerLengthM ?? 6;
+          const sDepth = type.shelterDepthM ?? 6;
+          const containerH = 2.4 * ppm;
+          const shelterH = sDepth * ppm;
+          const fullW = cLen * ppm;
+          const shelterTop = containerH;
+          const shelterBottom = containerH + shelterH;
+          // Container colour scheme — distinct from the shelter so the
+          // composite reads as "containers + dome".
+          const containerFill = "#E5E7EB";
+          const containerStroke = "#4B5563";
+          // Dome ribs — 5 evenly spaced curved arcs across the shelter,
+          // peaking toward the centre so the user instantly reads
+          // "fabric dome" rather than "flat slab".
+          const ribCount = Math.max(4, Math.round(sDepth / 1.5));
+          const ribs: { d: string }[] = [];
+          for (let i = 1; i < ribCount; i++) {
+            const t = i / ribCount;
+            const y = shelterTop + t * shelterH;
+            // Apex offset peaks at the middle of the shelter span
+            const peak = Math.sin(t * Math.PI) * (containerH * 0.18);
+            ribs.push({
+              d: `M 0 ${y} Q ${fullW / 2} ${y - peak} ${fullW} ${y}`,
+            });
+          }
+          return (
+            <>
+              {/* Selection border around the whole composite */}
+              {isSelected && (
+                <Rect
+                  x={-3}
+                  y={-3}
+                  width={w + 6}
+                  height={h + 6}
+                  fill="transparent"
+                  stroke="#2563EB"
+                  strokeWidth={2.5}
+                  cornerRadius={3}
+                  dash={[6, 3]}
+                />
+              )}
+              {/* End container 1 (top of footprint) */}
+              <Rect
+                x={0}
+                y={0}
+                width={fullW}
+                height={containerH}
+                fill={containerFill}
+                stroke={containerStroke}
+                strokeWidth={1.5}
+                cornerRadius={1}
+              />
+              {/* Container corrugation hint — three short interior strokes */}
+              <Line points={[fullW * 0.25, 0, fullW * 0.25, containerH]} stroke={containerStroke} strokeWidth={0.6} opacity={0.5} listening={false} />
+              <Line points={[fullW * 0.5,  0, fullW * 0.5,  containerH]} stroke={containerStroke} strokeWidth={0.6} opacity={0.5} listening={false} />
+              <Line points={[fullW * 0.75, 0, fullW * 0.75, containerH]} stroke={containerStroke} strokeWidth={0.6} opacity={0.5} listening={false} />
+
+              {/* Shelter — sandy fabric tone with a dashed outline.
+                  Dashed reads as "tent / fabric" vs solid "wall". */}
+              <Rect
+                x={0}
+                y={shelterTop}
+                width={fullW}
+                height={shelterH}
+                fill={type.color}
+                stroke={type.stroke}
+                strokeWidth={2}
+                dash={[5, 3]}
+                cornerRadius={2}
+              />
+              {/* Dome ribs — curved arcs across the shelter span */}
+              {ribs.map((rib, i) => (
+                <Path
+                  key={`rib-${i}`}
+                  data={rib.d}
+                  stroke={type.stroke}
+                  strokeWidth={1}
+                  opacity={0.55}
+                  listening={false}
+                />
+              ))}
+
+              {/* "SHELTER" label centred in the shelter portion */}
+              <Text
+                text={`SHELTER\n${cLen}×${sDepth}m`}
+                x={0}
+                y={shelterTop + shelterH / 2 - fontSize}
+                width={fullW}
+                align="center"
+                fontSize={Math.max(10, Math.min(16, sDepth * 1.2))}
+                fontStyle="bold"
+                fontFamily="system-ui, sans-serif"
+                fill={type.stroke}
+                listening={false}
+                padding={2}
+              />
+
+              {/* End container 2 (bottom of footprint) */}
+              <Rect
+                x={0}
+                y={shelterBottom}
+                width={fullW}
+                height={containerH}
+                fill={containerFill}
+                stroke={containerStroke}
+                strokeWidth={1.5}
+                cornerRadius={1}
+              />
+              <Line points={[fullW * 0.25, shelterBottom, fullW * 0.25, shelterBottom + containerH]} stroke={containerStroke} strokeWidth={0.6} opacity={0.5} listening={false} />
+              <Line points={[fullW * 0.5,  shelterBottom, fullW * 0.5,  shelterBottom + containerH]} stroke={containerStroke} strokeWidth={0.6} opacity={0.5} listening={false} />
+              <Line points={[fullW * 0.75, shelterBottom, fullW * 0.75, shelterBottom + containerH]} stroke={containerStroke} strokeWidth={0.6} opacity={0.5} listening={false} />
+
+              {/* User-supplied label sits below the bottom container so
+                  it doesn't obscure the SHELTER text inside. Konva.Text
+                  inside the bounds will overflow the building if the
+                  label is long, but rotation is fine. */}
+              <Text
+                text={building.label}
+                x={0}
+                y={shelterBottom + containerH + 4}
+                width={fullW}
+                align="center"
+                fontSize={Math.max(9, Math.min(12, fullW * 0.04))}
+                fontStyle="bold"
+                fontFamily="system-ui, sans-serif"
+                fill={containerStroke}
+                listening={false}
+              />
+            </>
+          );
+        })()
       ) : (
         <>
           {/* Attached indicator */}

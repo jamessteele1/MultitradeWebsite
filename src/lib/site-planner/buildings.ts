@@ -12,9 +12,19 @@ export type BuildingType = {
   /** Optional fill colour for plain-text icons (e.g. "●" for grey water).
       Emoji icons keep their native colours and ignore this. */
   iconColor?: string;
-  /** Render shape on the canvas. Default rect; "circle" is used for
-      cylindrical things like the 5000L Grey Water tank. */
-  shape?: "rect" | "circle";
+  /** Render shape on the canvas.
+       - "rect" (default) — standard rectangular building
+       - "circle"         — cylindrical things (e.g. tanks)
+       - "container-shelter" — composite of two end containers with a
+                               fabric/dome shelter spanning between them */
+  shape?: "rect" | "circle" | "container-shelter";
+  /** For "container-shelter": length of EACH end container in metres
+      (typically 6 for 20ft, 12 for 40ft). The total footprint depth
+      becomes 2.4 + shelterDepthM + 2.4. */
+  containerLengthM?: number;
+  /** For "container-shelter": depth of the shelter span between the
+      two end containers, in metres. */
+  shelterDepthM?: number;
 };
 
 /**
@@ -67,6 +77,15 @@ export const BUILDING_TYPES: BuildingType[] = [
   { id: "40ft-container", name: "40ft Container",       shortLabel: "40ft Container", widthM: 12,   depthM: 2.4, color: "#D1D5DB", stroke: "#4B5563", category: "containers", cartId: "40ft-container" },
   { id: "6x12-igloo",     name: "6×12m Igloo Shelter",  shortLabel: "6×12 Igloo",     widthM: 6,    depthM: 12,  color: "#FEF9C3", stroke: "#CA8A04", category: "containers", cartId: "6x12m-igloo" },
   { id: "12x12-igloo",    name: "12×12m Igloo Shelter", shortLabel: "12×12 Igloo",    widthM: 12,   depthM: 12,  color: "#FEF08A", stroke: "#A16207", category: "containers", cartId: "12x12m-igloo" },
+
+  // Container-Dome Shelters — two end containers with a fabric dome
+  // spanning between them. Total depth = 2.4 + shelter + 2.4.
+  // 20ft pair (6m long containers):
+  { id: "20-dome-6x6",  name: "20ft + 6×6m Dome Shelter",  shortLabel: "20ft + 6×6 Shelter",  widthM: 6,  depthM: 10.8, color: "#FAFAF9", stroke: "#57534E", category: "containers", cartId: "20-dome-6x6",  shape: "container-shelter", containerLengthM: 6,  shelterDepthM: 6 },
+  { id: "20-dome-6x9",  name: "20ft + 6×9m Dome Shelter",  shortLabel: "20ft + 6×9 Shelter",  widthM: 6,  depthM: 13.8, color: "#FAFAF9", stroke: "#57534E", category: "containers", cartId: "20-dome-6x9",  shape: "container-shelter", containerLengthM: 6,  shelterDepthM: 9 },
+  // 40ft pair (12m long containers):
+  { id: "40-dome-12x12", name: "40ft + 12×12m Dome Shelter", shortLabel: "40ft + 12×12 Shelter", widthM: 12, depthM: 16.8, color: "#FAFAF9", stroke: "#57534E", category: "containers", cartId: "40-dome-12x12", shape: "container-shelter", containerLengthM: 12, shelterDepthM: 12 },
+  { id: "40-dome-12x18", name: "40ft + 12×18m Dome Shelter", shortLabel: "40ft + 12×18 Shelter", widthM: 12, depthM: 22.8, color: "#FAFAF9", stroke: "#57534E", category: "containers", cartId: "40-dome-12x18", shape: "container-shelter", containerLengthM: 12, shelterDepthM: 18 },
 
   // Ancillary
   { id: "water-tank",      name: "5000L Water Tank & Pump", shortLabel: "Water Tank",   widthM: 2,    depthM: 2,   color: "#FEF3C7", stroke: "#F59E0B", category: "ancillary",  cartId: "5000l-tank-pump", shape: "circle" },

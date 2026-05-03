@@ -273,24 +273,6 @@ export default function SitePlannerClient() {
     [state],
   );
 
-  // Legacy "Add Note" toolbar — drops a styled text annotation at the canvas centre
-  const handleAddAnnotation = useCallback(
-    (text: string) => {
-      const ppm = PIXELS_PER_METRE;
-      const cx = (CANVAS_WIDTH_M * ppm) / 2;
-      const cy = (CANVAS_HEIGHT_M * ppm) / 2;
-      state.addText({
-        x: cx,
-        y: cy,
-        text,
-        fontSize: textStyle.fontSize,
-        color: textStyle.color,
-        opacity: textStyle.opacity,
-      });
-    },
-    [state, textStyle],
-  );
-
   // Get a Quote — add planner items to the quote cart (skip custom shapes & utility markers)
   const handleGetQuote = useCallback(() => {
     const counts: Record<string, number> = {};
@@ -772,7 +754,6 @@ export default function SitePlannerClient() {
         sunEnabled={sunEnabled}
         onSunToggle={() => setSunEnabled((prev) => !prev)}
         onGetQuote={handleGetQuote}
-        onAddAnnotation={handleAddAnnotation}
       />
 
       {/* Drawing/text tools — colour, thickness, dashed, free-text size */}

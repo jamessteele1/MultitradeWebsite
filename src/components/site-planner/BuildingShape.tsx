@@ -23,16 +23,21 @@ export default function BuildingShape({ building, type, isSelected, isAttached, 
   const h = type.depthM * ppm;
   const isUtility = type.category === "utilities";
 
-  // Font size scales with the smaller dimension, clamped
+  // Font size scales with the smaller dimension, clamped. Utility icons
+  // scale with the (oversized) marker radius so the emoji fills the
+  // white inner plate without clipping.
   const minDim = Math.min(w, h);
-  const fontSize = isUtility ? 20 : Math.max(9, Math.min(14, minDim * 0.22));
+  const fontSize = isUtility ? Math.round(ppm * 0.65 * 0.95) : Math.max(9, Math.min(14, minDim * 0.22));
 
   const setCursor = (cursor: string) => {
     const stage = document.querySelector("canvas");
     if (stage) stage.style.cursor = cursor;
   };
 
-  const radius = isUtility ? ppm * 0.5 : 0;
+  // Utility markers slightly oversized vs their nominal 1m bounds so
+  // they read clearly against the satellite at typical zooms. The
+  // emoji icon and white inner plate scale with the radius.
+  const radius = isUtility ? ppm * 0.65 : 0;
 
   return (
     <Group
@@ -85,16 +90,30 @@ export default function BuildingShape({ building, type, isSelected, isAttached, 
               dash={[6, 3]}
             />
           )}
-          {/* Utility circle */}
+          {/* Utility marker — saturated coloured ring around a white inner
+              plate. Native emoji icons (⚡ yellow, 💧 blue, 🔵 blue) sit
+              on the white plate with full contrast; the coloured ring
+              still hints at the utility type from a distance. The pale
+              type.color was the wrong layer for the emoji to live on
+              (yellow ⚡ on cream-pink read as "yellow on yellow"). */}
           <Circle
             x={w / 2}
             y={h / 2}
             radius={radius}
-            fill={type.color}
-            stroke={type.stroke}
-            strokeWidth={2}
+            fill={type.stroke}
+            shadowColor="rgba(0,0,0,0.35)"
+            shadowBlur={4}
+            shadowOpacity={0.6}
           />
-          {/* Icon */}
+          <Circle
+            x={w / 2}
+            y={h / 2}
+            radius={radius * 0.78}
+            fill="#FFFFFF"
+          />
+          {/* Icon — emojis pick their own colours, but plain unicode
+              glyphs (e.g. "●" for grey-water) honour type.iconColor so we
+              can render a coloured dot on the white plate. */}
           <Text
             text={type.icon || "●"}
             x={0}
@@ -104,6 +123,7 @@ export default function BuildingShape({ building, type, isSelected, isAttached, 
             align="center"
             verticalAlign="middle"
             fontSize={fontSize}
+            fill={type.iconColor || "#111827"}
             listening={false}
           />
         </>

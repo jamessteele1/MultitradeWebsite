@@ -9,6 +9,9 @@ export type BuildingType = {
   category: "offices" | "crib-rooms" | "ablutions" | "containers" | "ancillary" | "decks" | "complexes" | "utilities";
   cartId?: string;
   icon?: string; // emoji/symbol for utility markers
+  /** Optional fill colour for plain-text icons (e.g. "●" for grey water).
+      Emoji icons keep their native colours and ignore this. */
+  iconColor?: string;
 };
 
 export const BUILDING_TYPES: BuildingType[] = [
@@ -48,10 +51,15 @@ export const BUILDING_TYPES: BuildingType[] = [
   { id: "water-tank",    name: "5000L Water Tank & Pump", shortLabel: "Water Tank",  widthM: 2,    depthM: 2,   color: "#FEF3C7", stroke: "#F59E0B", category: "ancillary",  cartId: "5000l-tank-pump" },
   { id: "stair-landing", name: "Stair & Landing",       shortLabel: "Stairs",         widthM: 2,    depthM: 1.5, color: "#FED7AA", stroke: "#EA580C", category: "ancillary",  cartId: "stair-landing" },
 
-  // Utilities (icon markers)
+  // Utilities (icon markers) — render as a saturated coloured ring
+  // around a white inner plate so the emoji icon always has high
+  // contrast regardless of the satellite background.
   { id: "power-point",   name: "Power Connection",      shortLabel: "⚡ Power",       widthM: 1,    depthM: 1,   color: "#FEE2E2", stroke: "#EF4444", category: "utilities",  icon: "⚡" },
   { id: "water-point",   name: "Water Connection",      shortLabel: "💧 Water",       widthM: 1,    depthM: 1,   color: "#DBEAFE", stroke: "#3B82F6", category: "utilities",  icon: "💧" },
-  { id: "sewer-point",   name: "Sewage Connection",     shortLabel: "🔵 Sewage",      widthM: 1,    depthM: 1,   color: "#D1FAE5", stroke: "#059669", category: "utilities",  icon: "🔵" },
+  // Sewage — toilet emoji on a brown ring
+  { id: "sewer-point",   name: "Sewage Connection",     shortLabel: "🚽 Sewage",      widthM: 1,    depthM: 1,   color: "#FEF3C7", stroke: "#92400E", category: "utilities",  icon: "🚽" },
+  // Grey water — plain "●" glyph rendered in grey on the white plate
+  { id: "grey-water",    name: "Grey Water Connection", shortLabel: "● Grey Water",   widthM: 1,    depthM: 1,   color: "#F3F4F6", stroke: "#6B7280", category: "utilities",  icon: "●", iconColor: "#6B7280" },
 ];
 
 export const CATEGORY_LABELS: Record<string, string> = {

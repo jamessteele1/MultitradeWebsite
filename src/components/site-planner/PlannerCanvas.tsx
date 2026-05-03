@@ -1991,7 +1991,10 @@ export default function PlannerCanvas({
         {textInput && textStyle && isMobile && (
           <div
             className="fixed left-3 right-3 z-50"
-            style={{ top: "calc(env(safe-area-inset-top, 0px) + 12px)" }}
+            // Centred vertically — sits just above where iOS slides the
+            // keyboard up from. The body is locked so the page can't drift
+            // while the input is open.
+            style={{ top: "50%", transform: "translateY(-50%)" }}
           >
             <div className="flex items-center gap-2 bg-gray-900/95 backdrop-blur-md text-white rounded-2xl shadow-2xl ring-1 ring-white/10 px-2 py-2">
               <input
@@ -1999,12 +2002,19 @@ export default function PlannerCanvas({
                 value={textInputValue}
                 onChange={(e) => setTextInputValue(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter") commitTextInput();
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    commitTextInput();
+                  }
                   if (e.key === "Escape") {
                     setTextInput(null);
                     setTextInputValue("");
                   }
                 }}
+                // enterKeyHint makes iOS / Android render the keyboard's
+                // return key as an obvious tickable "Done" — tapping it
+                // fires the Enter handler above and commits the text.
+                enterKeyHint="done"
                 placeholder="Type text — drops at your tap point"
                 className="flex-1 min-w-0 px-3 py-2 rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-400"
                 style={{ fontSize: 16 /* keep ≥16 so iOS doesn't auto-zoom */, fontWeight: 700 }}

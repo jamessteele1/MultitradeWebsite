@@ -366,11 +366,15 @@ async function populatePDF(
   const legendBodyH = Math.max(18, 6 + itemsPerCol * legendItemH + 2);
 
   // Fit the crop into the available space on the page while preserving
-  // its aspect ratio. Margins trimmed from 15 mm → 8 mm side and 36 mm →
-  // 28 mm header reserve so the image takes most of the page width on
-  // landscape A3. Legend reserve is now dynamic (see above).
+  // its aspect ratio. Side margins trimmed from 15 mm → 8 mm so the
+  // image takes most of the page width. Header reserve is dynamic:
+  //   • 38 mm when an address is shown (its baseline is at y=35 + ~3 mm
+  //     descender, so the image must start at y=38 or it paints over
+  //     the address line — which is what site-layout (25).pdf showed).
+  //   • 32 mm when no address (last header line is the date at y=29).
+  // Legend reserve also dynamic (see above).
   const sideMargin = 8;
-  const headerH = 28;
+  const headerH = siteAddress ? 38 : 32;
   const legendH = legendBodyH;
   const maxImgW = pageW - sideMargin * 2;
   const maxImgH = pageH - headerH - legendH - 5; // 5 mm gap above legend

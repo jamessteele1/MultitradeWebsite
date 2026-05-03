@@ -977,6 +977,14 @@ export default function PlannerCanvas({
             const handleOffset = imgH / 2 + 30; // 30px above the map's top edge
             const handleX = cx + Math.sin(rad) * handleOffset;
             const handleY = cy - Math.cos(rad) * handleOffset;
+            // The map image covers most of the canvas — if it stays
+            // interactive while the user is trying to place a building or
+            // draw a line, every tap hits the map first and silently does
+            // nothing. Disable hit-testing on the map whenever the user
+            // has a placement queued OR has a drawing/text tool active so
+            // touches fall through to the stage and the placement / draw
+            // handlers fire normally.
+            const mapInteractive = !placingTypeId && tool === "select";
             return (
               <Layer>
                 <KonvaImage
@@ -989,7 +997,8 @@ export default function PlannerCanvas({
                   scaleY={effectiveScale}
                   rotation={mapRotation}
                   opacity={mapOpacity}
-                  draggable={!mapLocked}
+                  listening={mapInteractive}
+                  draggable={mapInteractive && !mapLocked}
                   onDragEnd={(e) => {
                     const newX = e.target.x() - imgW / 2;
                     const newY = e.target.y() - imgH / 2;
@@ -1002,8 +1011,11 @@ export default function PlannerCanvas({
                   }}
                 />
 
-                {/* Rotation handle — only when map isn't locked */}
-                {!mapLocked && onMapRotation && (
+                {/* Rotation handle — only when map isn't locked AND the
+                    user isn't trying to place / draw something. Otherwise
+                    a stray tap on the handle hijacks the placement
+                    gesture. */}
+                {!mapLocked && onMapRotation && mapInteractive && (
                   <>
                     {/* Connector line from map centre to handle */}
                     <Line

@@ -333,16 +333,47 @@ async function populatePDF(
   const pngUrl = await captureStageWithFallback(stage, cropX, cropY, cropW, cropH);
   const jpegUrl = await pngDataUrlToJpeg(pngUrl, 0.82);
 
-  // Fit the crop into the available space on the page while preserving its
-  // aspect ratio. Reserve room for header (top 36mm) + legend (bottom 60mm)
-  // and 15mm side margins. Since the page orientation now matches the
-  // layout aspect (landscape vs portrait), the image fills the available
-  // area instead of letterboxing into a small square.
-  const sideMargin = 15;
-  const headerH = 36;
-  const legendH = 60;
+  // Collect legend metadata up-front so we can size the legend reserve
+  // to the actual content rather than always burning 60 mm at the
+  // bottom (most layouts only have 4–8 distinct types, which fits in
+  // a 2-column block ~ 30 mm tall).
+  const legendItems: { name: string; count: number; color: string; stroke: string; dims: string }[] = [];
+  {
+    const seen = new Map<string, number>();
+    for (const b of buildings) {
+      const type = getBuildingType(b.typeId);
+      if (!type) continue;
+      const idx = seen.get(type.id);
+      if (idx !== undefined) {
+        legendItems[idx].count++;
+      } else {
+        seen.set(type.id, legendItems.length);
+        legendItems.push({
+          name: type.name,
+          count: 1,
+          color: type.color,
+          stroke: type.stroke,
+          dims: `${type.widthM}×${type.depthM}m`,
+        });
+      }
+    }
+  }
+  const legendCols = legendItems.length > 5 ? 2 : 1;
+  const itemsPerCol = Math.max(1, Math.ceil(legendItems.length / legendCols));
+  const legendItemH = 5.5;
+  // Header line + items per column + a small bottom gap. Keep a min of 18 mm
+  // so a single-item legend doesn't look orphaned at the page foot.
+  const legendBodyH = Math.max(18, 6 + itemsPerCol * legendItemH + 2);
+
+  // Fit the crop into the available space on the page while preserving
+  // its aspect ratio. Margins trimmed from 15 mm → 8 mm side and 36 mm →
+  // 28 mm header reserve so the image takes most of the page width on
+  // landscape A3. Legend reserve is now dynamic (see above).
+  const sideMargin = 8;
+  const headerH = 28;
+  const legendH = legendBodyH;
   const maxImgW = pageW - sideMargin * 2;
-  const maxImgH = pageH - headerH - legendH;
+  const maxImgH = pageH - headerH - legendH - 5; // 5 mm gap above legend
   const aspect = cropW / cropH;
   let imgWidth = maxImgW;
   let imgHeight = imgWidth / aspect;
@@ -396,33 +427,22 @@ async function populatePDF(
   pdf.setTextColor(0, 0, 0);
   pdf.setFontSize(11);
   pdf.setFont("helvetica", "bold");
-  pdf.text("Building Legend", 15, legendY);
+  pdf.text("Building Legend", sideMargin + 7, legendY);
   pdf.setFontSize(9);
   pdf.setFont("helvetica", "normal");
 
-  // Collect counts and colors per building type
-  const legendItems: { name: string; count: number; color: string; stroke: string; dims: string }[] = [];
-  const seen = new Map<string, number>();
-  for (const b of buildings) {
-    const type = getBuildingType(b.typeId);
-    if (!type) continue;
-    const idx = seen.get(type.id);
-    if (idx !== undefined) {
-      legendItems[idx].count++;
-    } else {
-      seen.set(type.id, legendItems.length);
-      legendItems.push({
-        name: type.name,
-        count: 1,
-        color: type.color,
-        stroke: type.stroke,
-        dims: `${type.widthM}×${type.depthM}m`,
-      });
-    }
-  }
+  // Render the legend in `legendCols` columns. Each column gets equal
+  // share of the page width minus the side margins; items split top-
+  // down then column-by-column (col 0 fills first, then col 1).
+  const colWidth = (pageW - sideMargin * 2) / legendCols;
+  const itemsBaseY = legendY + 6;
+  for (let i = 0; i < legendItems.length; i++) {
+    const item = legendItems[i];
+    const col = Math.floor(i / itemsPerCol);
+    const row = i % itemsPerCol;
+    const xCol = sideMargin + col * colWidth;
+    const yRow = itemsBaseY + row * legendItemH;
 
-  let y = legendY + 6;
-  for (const item of legendItems) {
     // Color swatch
     const hex = item.color;
     const r = parseInt(hex.slice(1, 3), 16);
@@ -435,12 +455,11 @@ async function populatePDF(
     const sb = parseInt(sHex.slice(5, 7), 16);
     pdf.setDrawColor(sr, sg, sb);
     pdf.setLineWidth(0.3);
-    pdf.rect(18, y - 3, 5, 3.5, "FD");
+    pdf.rect(xCol + 3, yRow - 3, 5, 3.5, "FD");
 
     // Text
     pdf.setTextColor(40, 40, 40);
-    pdf.text(`${item.count}×  ${item.name}  (${item.dims})`, 25, y);
-    y += 5.5;
+    pdf.text(`${item.count}×  ${item.name}  (${item.dims})`, xCol + 10, yRow);
   }
 
   // Scale bar on PDF — bottom right of image area. Compute mm-per-metre from

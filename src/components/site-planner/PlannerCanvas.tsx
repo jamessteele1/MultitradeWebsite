@@ -1250,11 +1250,17 @@ export default function PlannerCanvas({
                     {/* Thin black outline behind the stroke — reads on any
                         background (satellite grass / road / shadows) without
                         washing out the user's chosen colour the way a thick
-                        white halo did. */}
+                        white halo did.
+                        For dashed strokes (incl. dimension lines), the halo
+                        gets the same dash pattern so the gaps don't reveal a
+                        solid black bar underneath the dashes. */}
                     <Line
                       points={d.points}
                       stroke="rgba(0,0,0,0.8)"
                       strokeWidth={d.thickness + 2}
+                      dash={(d.dashed || d.dimension)
+                        ? [d.thickness * 3, d.thickness * 2]
+                        : undefined}
                       closed={d.closed}
                       lineCap="round"
                       lineJoin="round"

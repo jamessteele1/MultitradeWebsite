@@ -89,6 +89,64 @@ export default function LayoutManagerModal({ open, onClose, onSave, onLoad, hasC
     onClose();
   };
 
+  /**
+   * Generate a TS snippet of the layout suitable for pasting into
+   * `lib/site-planner/builtinTemplates.ts`. Strips runtime IDs so the
+   * source stays clean (the planner re-IDs on apply).
+   */
+  const handleExport = async (layout: SavedLayout) => {
+    const slug = layout.name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "")
+      .slice(0, 40) || "layout";
+    const stripped = {
+      id: `builtin-${slug}`,
+      name: layout.name,
+      description: "",
+      buildings: layout.buildings.map((b) => ({
+        typeId: b.typeId,
+        x: b.x,
+        y: b.y,
+        rotation: b.rotation,
+        label: b.label,
+      })),
+      drawings: layout.drawings.map((d) => ({
+        points: d.points,
+        color: d.color,
+        thickness: d.thickness,
+        dashed: d.dashed,
+        closed: d.closed,
+        ...(typeof d.opacity === "number" ? { opacity: d.opacity } : {}),
+        ...(d.dimension ? { dimension: true } : {}),
+        ...(d.dimensionFlip ? { dimensionFlip: true } : {}),
+      })),
+      texts: layout.texts.map((t) => ({
+        x: t.x,
+        y: t.y,
+        text: t.text,
+        fontSize: t.fontSize,
+        color: t.color,
+        ...(typeof t.opacity === "number" ? { opacity: t.opacity } : {}),
+      })),
+    };
+    const snippet = JSON.stringify(stripped, null, 2);
+    // Tab-friendly output — JSON stringify uses double-quotes which TS
+    // will accept inside a TS object literal. We wrap with a leading
+    // comma so the user can paste straight into the array.
+    const formatted = `  ${snippet.replace(/\n/g, "\n  ")},\n`;
+    try {
+      await navigator.clipboard.writeText(formatted);
+      alert(
+        "Template snippet copied to your clipboard.\n\nPaste it into\n  src/lib/site-planner/builtinTemplates.ts\nbetween the [] of BUILTIN_TEMPLATES,\nthen send the change my way to ship.",
+      );
+    } catch {
+      // Clipboard blocked — show the JSON in a prompt so the user can
+      // copy it manually.
+      window.prompt("Copy this template snippet (Cmd+C):", formatted);
+    }
+  };
+
   if (!open) return null;
 
   return createPortal(
@@ -233,6 +291,19 @@ export default function LayoutManagerModal({ open, onClose, onSave, onLoad, hasC
                       className="px-3 py-1.5 rounded-lg bg-amber-500 text-white text-[11px] font-bold hover:bg-amber-600 active:bg-amber-700 transition-colors"
                     >
                       Load
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleExport(l)}
+                      className="w-8 h-8 flex items-center justify-center rounded-lg text-emerald-700 hover:bg-emerald-50"
+                      aria-label={`Export ${l.name} as a built-in template snippet`}
+                      title="Copy a TS snippet ready to paste into builtinTemplates.ts (so this template ships with the site)"
+                    >
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="16 16 12 12 8 16" />
+                        <line x1="12" y1="12" x2="12" y2="21" />
+                        <path d="M20.39 18.39A5 5 0 0018 9h-1.26a8 8 0 10-13.27 7.7" />
+                      </svg>
                     </button>
                     <button
                       type="button"

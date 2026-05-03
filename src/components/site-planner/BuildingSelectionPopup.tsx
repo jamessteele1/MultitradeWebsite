@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { BUILDING_TYPES, CATEGORY_LABELS, type BuildingType } from "@/lib/site-planner/buildings";
-import { getTemplates, type SavedLayout } from "@/lib/site-planner/layoutStorage";
+import { getAllTemplates, type SavedLayout } from "@/lib/site-planner/layoutStorage";
 
 type Props = {
   open: boolean;
@@ -141,12 +141,13 @@ export default function BuildingSelectionPopup({ open, onClose, onSelect, onAddC
   const [customD, setCustomD] = useState(3);
   const [customLabel, setCustomLabel] = useState("Custom");
   const [customFill, setCustomFill] = useState<string>(CUSTOM_FILLS[0].fill);
-  const [templates, setTemplates] = useState<SavedLayout[]>([]);
+  const [templates, setTemplates] = useState<Array<SavedLayout & { isBuiltin?: boolean }>>([]);
 
   // Re-read templates from storage every time the popup opens so newly
-  // saved templates appear without needing a page refresh.
+  // saved templates appear without needing a page refresh. Includes
+  // built-in templates (shipped with the app, available to everyone).
   useEffect(() => {
-    if (open) setTemplates(getTemplates());
+    if (open) setTemplates(getAllTemplates());
   }, [open]);
 
   if (!open) return null;
@@ -285,7 +286,14 @@ export default function BuildingSelectionPopup({ open, onClose, onSelect, onAddC
                             )}
                           </div>
                           <div className="px-1">
-                            <p className="text-sm font-bold text-gray-900 leading-tight truncate">{t.name}</p>
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <p className="text-sm font-bold text-gray-900 leading-tight truncate">{t.name}</p>
+                              {t.isBuiltin && (
+                                <span className="flex-shrink-0 px-1.5 py-0.5 rounded text-[9px] font-extrabold uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                  Built-in
+                                </span>
+                              )}
+                            </div>
                             <p className="text-[11px] text-gray-500 mt-0.5">
                               {t.buildings.length} buildings · {t.drawings.length} drawings
                             </p>

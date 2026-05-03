@@ -14,6 +14,7 @@
  */
 
 import type { Drawing, PlacedBuilding, TextItem } from "./usePlannerState";
+import { BUILTIN_TEMPLATES } from "./builtinTemplates";
 
 const STORAGE_KEY = "multitrade-planner-saved-layouts";
 
@@ -70,9 +71,32 @@ export function getSavedLayouts(): SavedLayout[] {
   return [...readAll()].sort((a, b) => (b.savedAt > a.savedAt ? 1 : -1));
 }
 
-/** Just the ones flagged as templates. */
+/** Just the ones flagged as templates (user-saved only). */
 export function getTemplates(): SavedLayout[] {
   return getSavedLayouts().filter((l) => l.isTemplate);
+}
+
+/**
+ * All templates available to the user — built-in (shipped with the app,
+ * visible to everyone) followed by their own saved templates. Built-in
+ * entries get isBuiltin: true so the UI can badge them and prevent
+ * deletion.
+ */
+export function getAllTemplates(): Array<SavedLayout & { isBuiltin?: boolean }> {
+  const builtins: Array<SavedLayout & { isBuiltin?: boolean }> = BUILTIN_TEMPLATES.map((t) => ({
+    id: t.id,
+    name: t.name,
+    savedAt: "0000-00-00T00:00:00Z",
+    isTemplate: true,
+    isBuiltin: true,
+    thumbnail: t.thumbnail,
+    // Templates ship without runtime IDs — fill in placeholders. The
+    // replaceState action re-IDs everything anyway when applying.
+    buildings: t.buildings.map((b) => ({ ...b, instanceId: "" })),
+    drawings: t.drawings.map((d) => ({ ...d, id: "" })),
+    texts: t.texts.map((tx) => ({ ...tx, id: "" })),
+  }));
+  return [...builtins, ...getTemplates()];
 }
 
 /**

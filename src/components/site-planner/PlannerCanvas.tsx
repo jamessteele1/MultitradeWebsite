@@ -1350,6 +1350,52 @@ export default function PlannerCanvas({
             );
           })()}
 
+          {/* Closed-polygon visual underlay — areas / m² boundaries /
+              filled shapes sit BENEATH the buildings so a building
+              dropped inside the boundary isn't obscured by the
+              translucent fill. The interactive copy of each closed
+              polygon (selection halo, vertex handles, labels, click
+              target) still lives in the Drawings layer below the
+              buildings, so selection / resize / vertex-drag work as
+              before — only the fill + stroke are demoted to this
+              non-listening underlay. */}
+          {drawings.some((d) => d.closed) && (
+            <Layer listening={false}>
+              {drawings.filter((d) => d.closed).map((d) => {
+                const op = d.opacity ?? 1;
+                const fillRGBA = hexToRGBA(d.color, op * 0.32);
+                const dashArr = d.dashed ? [d.thickness * 3, d.thickness * 2] : undefined;
+                return (
+                  <Group key={`bg-${d.id}`}>
+                    {/* Black halo behind the colour — keeps the boundary
+                        legible on bright satellite imagery. */}
+                    <Line
+                      points={d.points}
+                      stroke="rgba(0,0,0,0.8)"
+                      strokeWidth={d.thickness + 2}
+                      dash={dashArr}
+                      closed
+                      lineCap="round"
+                      lineJoin="round"
+                      opacity={op}
+                    />
+                    <Line
+                      points={d.points}
+                      stroke={d.color}
+                      strokeWidth={d.thickness}
+                      dash={dashArr}
+                      closed
+                      fill={fillRGBA}
+                      lineCap="round"
+                      lineJoin="round"
+                      opacity={op}
+                    />
+                  </Group>
+                );
+              })}
+            </Layer>
+          )}
+
           {/* Buildings layer */}
           <Layer>
             {buildings.map((b) => {
@@ -1416,10 +1462,8 @@ export default function PlannerCanvas({
                   const offset = 22 / zoom; // pixel offset, scale-independent
                   return { x: mx + px * offset * sign, y: my + py * offset * sign };
                 })();
-                // Hex colour with opacity for the closed-polygon fill —
-                // bumped from 0.18 to 0.32 so the area is clearly readable
-                // when overlaid on a satellite background.
-                const fillRGBA = d.closed ? hexToRGBA(d.color, op * 0.32) : undefined;
+                // (Closed-polygon fill colour is computed inline in the
+                // underlay layer above buildings — not needed here.)
                 // Tap/click → select this drawing. If the user is in a
                 // drawing tool we flip them to select mode so the edit
                 // panel shows up and they can drag the vertex / change
@@ -1432,26 +1476,27 @@ export default function PlannerCanvas({
                 };
                 return (
                   <Group key={d.id}>
-                    {/* Thin black outline behind the stroke — reads on any
-                        background (satellite grass / road / shadows) without
-                        washing out the user's chosen colour the way a thick
-                        white halo did.
-                        For dashed strokes (incl. dimension lines), the halo
-                        gets the same dash pattern so the gaps don't reveal a
-                        solid black bar underneath the dashes. */}
-                    <Line
-                      points={d.points}
-                      stroke="rgba(0,0,0,0.8)"
-                      strokeWidth={d.thickness + 2}
-                      dash={(d.dashed || d.dimension)
-                        ? [d.thickness * 3, d.thickness * 2]
-                        : undefined}
-                      closed={d.closed}
-                      lineCap="round"
-                      lineJoin="round"
-                      opacity={op}
-                      listening={false}
-                    />
+                    {/* Open drawings (lines / dimensions / freehand) get a
+                        black halo behind the colour for satellite legibility.
+                        Closed polygons render their visible halo + colour in
+                        the underlay layer above buildings — here we only
+                        keep an invisible hit target so taps still select the
+                        polygon. */}
+                    {!d.closed && (
+                      <Line
+                        points={d.points}
+                        stroke="rgba(0,0,0,0.8)"
+                        strokeWidth={d.thickness + 2}
+                        dash={(d.dashed || d.dimension)
+                          ? [d.thickness * 3, d.thickness * 2]
+                          : undefined}
+                        closed={false}
+                        lineCap="round"
+                        lineJoin="round"
+                        opacity={op}
+                        listening={false}
+                      />
+                    )}
                     {d.dimension ? (
                       // Dimension line: dashed Arrow with arrowheads on
                       // both ends. Konva.Arrow extends Line so we can
@@ -1481,18 +1526,45 @@ export default function PlannerCanvas({
                         onClick={selectThis}
                         onTap={selectThis}
                       />
-                    ) : (
+                    ) : !d.closed ? (
+                      // Open lines / freehand strokes — full visual + hit
+                      // target lives in this layer (above buildings).
                       <Line
                         points={d.points}
                         stroke={d.color}
                         strokeWidth={d.thickness}
                         dash={d.dashed ? [d.thickness * 3, d.thickness * 2] : undefined}
-                        closed={d.closed}
-                        fill={fillRGBA}
+                        closed={false}
                         lineCap="round"
                         lineJoin="round"
                         opacity={op}
-                        // Hit area is generous so thin lines are tappable
+                        hitStrokeWidth={Math.max(d.thickness + 12, 16)}
+                        onMouseEnter={(e) => {
+                          const c = e.target.getStage()?.container();
+                          if (c) c.style.cursor = "pointer";
+                        }}
+                        onMouseLeave={(e) => {
+                          const c = e.target.getStage()?.container();
+                          if (c) c.style.cursor = "default";
+                        }}
+                        onClick={selectThis}
+                        onTap={selectThis}
+                      />
+                    ) : (
+                      // Closed polygon — invisible click target above the
+                      // buildings. The visible fill + outline are in the
+                      // underlay layer; this Line just owns the tap area
+                      // (transparent stroke + transparent fill, but a
+                      // generous hitStrokeWidth so thin polygons are still
+                      // tappable). Without this, a closed area dropped under
+                      // a building couldn't be selected because the building
+                      // would intercept every tap.
+                      <Line
+                        points={d.points}
+                        stroke="transparent"
+                        strokeWidth={1}
+                        closed
+                        fill="transparent"
                         hitStrokeWidth={Math.max(d.thickness + 12, 16)}
                         onMouseEnter={(e) => {
                           const c = e.target.getStage()?.container();

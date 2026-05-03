@@ -43,7 +43,16 @@ function CategoryIcon({ cat }: { cat: string }) {
     strokeLinejoin: "round" as const,
   };
   if (cat === "offices") {
-    return <svg {...baseProps}><rect x="3" y="3" width="18" height="18" rx="2" /><path d="M3 9h18M9 21V9" /></svg>;
+    // Desk + monitor — clearly says "office" not "house"
+    return (
+      <svg {...baseProps}>
+        <rect x="3" y="6" width="18" height="2" rx="0.5" />
+        <path d="M5 8v8" />
+        <path d="M19 8v8" />
+        <line x1="3" y1="16" x2="21" y2="16" />
+        <rect x="9" y="2" width="6" height="4" rx="0.5" />
+      </svg>
+    );
   }
   if (cat === "crib-rooms") {
     return <svg {...baseProps}><path d="M17 8h1a4 4 0 010 8h-1" /><path d="M3 8h14v9a4 4 0 01-4 4H7a4 4 0 01-4-4V8z" /></svg>;
@@ -52,16 +61,32 @@ function CategoryIcon({ cat }: { cat: string }) {
     return <svg {...baseProps}><path d="M12 2.69l5.66 5.66a8 8 0 11-11.31 0z" /></svg>;
   }
   if (cat === "decks") {
-    return <svg {...baseProps}><path d="M3 12l9-9 9 9" /><path d="M5 10v10h14V10" /></svg>;
+    // House / structure with a roof — re-using what was previously the
+    // offices icon, per user feedback (he liked it for decks).
+    return <svg {...baseProps}><rect x="3" y="3" width="18" height="18" rx="2" /><path d="M3 9h18M9 21V9" /></svg>;
   }
   if (cat === "complexes") {
-    return <svg {...baseProps}><rect x="3" y="11" width="8" height="10" /><rect x="13" y="6" width="8" height="15" /></svg>;
+    // Three equal-length rectangles joined — visual cue for a multi-
+    // building complex.
+    return (
+      <svg {...baseProps}>
+        <rect x="2" y="9" width="6.6" height="11" />
+        <rect x="8.7" y="9" width="6.6" height="11" />
+        <rect x="15.4" y="9" width="6.6" height="11" />
+      </svg>
+    );
   }
   if (cat === "containers") {
     return <svg {...baseProps}><rect x="3" y="6" width="18" height="12" rx="1" /><line x1="3" y1="10" x2="21" y2="10" /><line x1="3" y1="14" x2="21" y2="14" /></svg>;
   }
   if (cat === "ancillary") {
-    return <svg {...baseProps}><circle cx="12" cy="12" r="3" /><path d="M12 1v3M12 20v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M1 12h3M20 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1" /></svg>;
+    // Gear / cog — accessories & misc gear
+    return (
+      <svg {...baseProps}>
+        <circle cx="12" cy="12" r="3" />
+        <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09a1.65 1.65 0 001.51-1 1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z" />
+      </svg>
+    );
   }
   if (cat === "utilities") {
     return <svg {...baseProps}><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" /></svg>;
@@ -112,7 +137,7 @@ export default function BuildingSelectionPopup({ open, onClose, onSelect, onAddC
         <div className="flex flex-1 min-h-0">
           {/* Vertical category sidebar — all categories visible, no swipe needed */}
           <nav
-            className="flex-shrink-0 w-[110px] sm:w-[140px] bg-gray-50 border-r border-gray-100 overflow-y-auto py-2"
+            className="flex-shrink-0 w-[128px] sm:w-[150px] bg-gray-50 border-r border-gray-100 overflow-y-auto py-2"
             aria-label="Building categories"
           >
             {grouped.map(([cat]) => {
@@ -124,7 +149,7 @@ export default function BuildingSelectionPopup({ open, onClose, onSelect, onAddC
                 <button
                   key={cat}
                   onClick={() => setActiveCategory(cat)}
-                  className={`w-full flex items-center gap-2 px-3 py-2.5 text-left text-[11px] font-bold transition-colors border-l-[3px] ${
+                  className={`w-full flex items-center gap-1.5 px-2 py-2.5 text-left text-[11px] font-bold transition-colors border-l-[3px] ${
                     active
                       ? "border-amber-500 bg-amber-50 text-amber-900"
                       : "border-transparent text-gray-600 hover:bg-white hover:text-gray-900"
@@ -142,7 +167,11 @@ export default function BuildingSelectionPopup({ open, onClose, onSelect, onAddC
                   >
                     <CategoryIcon cat={cat} />
                   </span>
-                  <span className="leading-tight">{SIDEBAR_LABELS[cat] || CATEGORY_LABELS[cat] || cat}</span>
+                  {/* Allow word-wrap so "Crib Rooms" / "Containers" /
+                      "Complexes" never get truncated on narrow phones. */}
+                  <span className="leading-tight whitespace-normal break-words flex-1 min-w-0">
+                    {SIDEBAR_LABELS[cat] || CATEGORY_LABELS[cat] || cat}
+                  </span>
                 </button>
               );
             })}

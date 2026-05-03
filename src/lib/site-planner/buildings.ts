@@ -18,12 +18,14 @@ export const BUILDING_TYPES: BuildingType[] = [
   { id: "12x3-office",  name: "12x3m Office",         shortLabel: "12×3 Office",    widthM: 12,   depthM: 3,   color: "#93C5FD", stroke: "#1D4ED8", category: "offices",    cartId: "12x3m-office" },
 
   // Crib Rooms
+  { id: "3x3-crib",     name: "3x3m Crib Room",       shortLabel: "3×3 Crib",       widthM: 3,    depthM: 3,   color: "#D1FAE5", stroke: "#22C55E", category: "crib-rooms", cartId: "3x3m-crib-room" },
   { id: "6x3-crib",     name: "6x3m Crib Room",       shortLabel: "6×3 Crib",       widthM: 6,    depthM: 3,   color: "#D1FAE5", stroke: "#22C55E", category: "crib-rooms", cartId: "6x3m-crib-room" },
   { id: "12x3-crib",    name: "12x3m Crib Room",      shortLabel: "12×3 Crib",      widthM: 12,   depthM: 3,   color: "#A7F3D0", stroke: "#16A34A", category: "crib-rooms", cartId: "12x3m-crib-room" },
 
   // Ablutions
   { id: "3.6x2.4-toilet", name: "3.6x2.4m Toilet",    shortLabel: "3.6×2.4 Toilet", widthM: 3.6,  depthM: 2.4, color: "#EDE9FE", stroke: "#8B5CF6", category: "ablutions",  cartId: "3-6x2-4m-toilet" },
   { id: "6x3-toilet",     name: "6x3m Toilet Block",   shortLabel: "6×3 Toilet",     widthM: 6,    depthM: 3,   color: "#DDD6FE", stroke: "#7C3AED", category: "ablutions",  cartId: "6x3m-toilet-block" },
+  { id: "6x3-shower",     name: "6x3m Shower Block",   shortLabel: "6×3 Shower",     widthM: 6,    depthM: 3,   color: "#E0E7FF", stroke: "#4F46E5", category: "ablutions",  cartId: "6x3m-shower-block" },
   { id: "solar-toilet",   name: "Solar Toilet",         shortLabel: "Solar Toilet",   widthM: 5.45, depthM: 2.4, color: "#C4B5FD", stroke: "#6D28D9", category: "ablutions",  cartId: "solar-toilet" },
 
   // Covered Decks

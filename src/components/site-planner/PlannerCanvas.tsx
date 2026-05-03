@@ -148,6 +148,9 @@ type Props = {
   placingTypeId?: string | null;
   placingLabel?: string;
   onPlaced?: () => void;
+  /** Mobile: pop the building selection picker. Wired to a prominent
+      floating "+ Add Items" button overlaid on the canvas. */
+  onRequestAdd?: () => void;
   isMobile?: boolean;
 };
 
@@ -192,6 +195,7 @@ export default function PlannerCanvas({
   placingTypeId,
   placingLabel,
   onPlaced,
+  onRequestAdd,
   isMobile,
 }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -422,6 +426,7 @@ export default function PlannerCanvas({
         return;
       }
 
+
       onSelect(null);
       setSelectedTextId(null);
       setSelectedDrawingId(null);
@@ -464,30 +469,40 @@ export default function PlannerCanvas({
     [tool, activePolygon, onAddDrawing, drawStyle],
   );
 
-  // Mouse-down / touchstart → start a stroke (freehand) or line (straight).
-  // Accepts either event since the same handler is wired to both onMouseDown
-  // and onTouchStart.
+  // Mouse-down / touchstart → anchor a freehand stroke OR a straight line.
+  // The line tool supports BOTH gestures so the user can choose what's
+  // comfortable on a phone:
+  //   • tap-and-drag: hold finger, drag to second point, lift = commit
+  //   • tap-then-tap: tap, lift, drag finger across (no contact, no
+  //     preview), tap again to commit. Same gesture as the polygon tool.
+  // If a line is already mid-flight (waiting for second tap), this anchors
+  // the second point to the new touch position.
   const handleStageMouseDown = useCallback(
     (e: Konva.KonvaEventObject<MouseEvent | TouchEvent>) => {
       if ((tool !== "freehand" && tool !== "line") || !drawStyle) return;
-      // Don't draw if the user clicked on a building or text — only on empty stage
       if (e.target !== e.target.getStage()) return;
       const c = pointerToCanvas();
       if (!c) return;
-      // For a straight line we kick off with two identical points; mouse-move
-      // updates only the second one so the first stays anchored.
-      setActiveStroke(tool === "line" ? [c.x, c.y, c.x, c.y] : [c.x, c.y]);
+      if (tool === "line" && activeStroke && activeStroke.length === 4) {
+        // Line is mid-flight (first tap landed, waiting for second). Move
+        // the second endpoint to the new touch position; mouse-up will
+        // commit if the line has length.
+        setActiveStroke([activeStroke[0], activeStroke[1], c.x, c.y]);
+      } else {
+        setActiveStroke(tool === "line" ? [c.x, c.y, c.x, c.y] : [c.x, c.y]);
+      }
     },
-    [tool, drawStyle, pointerToCanvas],
+    [tool, drawStyle, pointerToCanvas, activeStroke],
   );
 
-  // Mouse-move → extend (freehand) or update (line) the in-progress stroke
+  // Mouse-move → extend the in-progress freehand stroke, OR update the
+  // second endpoint of the line preview (so the user sees where their
+  // line will land before the second tap).
   const handleStageMouseMove = useCallback(() => {
     if (!activeStroke) return;
     const c = pointerToCanvas();
     if (!c) return;
     if (tool === "line") {
-      // Replace the second endpoint with the current pointer
       setActiveStroke([activeStroke[0], activeStroke[1], c.x, c.y]);
       return;
     }
@@ -509,11 +524,14 @@ export default function PlannerCanvas({
         closed: false,
         opacity: drawStyle.opacity,
       });
-    } else if (tool === "line" && activeStroke.length === 4) {
-      // Discard zero-length lines (user clicked without dragging)
+      setActiveStroke(null);
+      return;
+    }
+    if (tool === "line" && activeStroke.length === 4) {
       const dx = activeStroke[2] - activeStroke[0];
       const dy = activeStroke[3] - activeStroke[1];
       if (Math.hypot(dx, dy) >= 4 / zoom) {
+        // Tap-and-drag (or second tap of tap-then-tap) → commit.
         onAddDrawing({
           points: activeStroke,
           color: drawStyle.color,
@@ -522,9 +540,11 @@ export default function PlannerCanvas({
           closed: false,
           opacity: drawStyle.opacity,
         });
+        setActiveStroke(null);
       }
+      // else: zero-length tap → keep activeStroke alive so the next touch
+      // (tap-then-tap pattern) can finish the line.
     }
-    setActiveStroke(null);
   }, [tool, activeStroke, drawStyle, onAddDrawing, zoom]);
 
   // Commit an inline text input
@@ -828,9 +848,28 @@ export default function PlannerCanvas({
         </button>
       </div>
 
-      {/* Mobile hint: pinch-to-zoom or use buttons */}
-      {isMobile && (
-        <div className="absolute top-3 left-3 z-10 px-2.5 py-1 rounded-md bg-white/80 backdrop-blur border border-gray-200 text-[10px] font-semibold text-gray-500 pointer-events-none select-none">
+      {/* Prominent + Add Items button — top-left of the canvas. The little
+          "+ Add" in the action toolbar above was easy to miss on mobile;
+          this floating button is the obvious entry point for new users. */}
+      {isMobile && onRequestAdd && !placingTypeId && (
+        <button
+          onClick={onRequestAdd}
+          className="absolute top-3 left-3 z-10 flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-500 text-white text-xs font-extrabold shadow-lg shadow-amber-500/30 hover:bg-amber-600 active:scale-95 transition-all"
+          aria-label="Add building"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+          Add Items
+        </button>
+      )}
+
+      {/* Mobile hint: pinch-to-zoom — moved to bottom-centre so it doesn't
+          clash with the +Add button, and only shown when no shape is in
+          flight. Tiny / faded so it doesn't draw the eye. */}
+      {isMobile && !placingTypeId && (
+        <div className="absolute bottom-1 left-1/2 -translate-x-1/2 z-10 px-2 py-0.5 rounded-md bg-white/60 backdrop-blur text-[9px] font-semibold text-gray-500 pointer-events-none select-none">
           Pinch to zoom
         </div>
       )}
@@ -1124,8 +1163,10 @@ export default function PlannerCanvas({
                 const centroid = d.closed ? computeCentroid(d.points) : null;
                 // Label position for open paths: midpoint of last segment
                 const labelPos = !d.closed ? computeMidpoint(d.points) : null;
-                // Hex colour with opacity for the closed-polygon fill
-                const fillRGBA = d.closed ? hexToRGBA(d.color, op * 0.18) : undefined;
+                // Hex colour with opacity for the closed-polygon fill —
+                // bumped from 0.18 to 0.32 so the area is clearly readable
+                // when overlaid on a satellite background.
+                const fillRGBA = d.closed ? hexToRGBA(d.color, op * 0.32) : undefined;
                 // Tap/click → select this drawing. If the user is in a
                 // drawing tool we flip them to select mode so the edit
                 // panel shows up and they can drag the vertex / change
@@ -1138,13 +1179,14 @@ export default function PlannerCanvas({
                 };
                 return (
                   <Group key={d.id}>
-                    {/* White halo behind the stroke — guarantees visibility on
-                        bright satellite imagery without changing the user's
-                        chosen colour. Drawn first so the colour sits on top. */}
+                    {/* Thin black outline behind the stroke — reads on any
+                        background (satellite grass / road / shadows) without
+                        washing out the user's chosen colour the way a thick
+                        white halo did. */}
                     <Line
                       points={d.points}
-                      stroke="rgba(255,255,255,0.9)"
-                      strokeWidth={d.thickness + 3}
+                      stroke="rgba(0,0,0,0.8)"
+                      strokeWidth={d.thickness + 2}
                       closed={d.closed}
                       lineCap="round"
                       lineJoin="round"

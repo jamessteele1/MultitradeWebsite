@@ -217,7 +217,9 @@ export default function DrawingTools({
                 aria-label="Dashed line"
                 aria-pressed={drawStyle.dashed}
               >
-                <svg width="20" height="6" viewBox="0 0 20 6"><line x1="1" y1="3" x2="19" y2="3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeDasharray="3 2" /></svg>
+                {/* Wider gaps so the dashed pattern is unmistakable next
+                    to the solid line button. */}
+                <svg width="22" height="6" viewBox="0 0 22 6"><line x1="1" y1="3" x2="21" y2="3" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeDasharray="4 4" /></svg>
               </button>
             </div>
           </div>

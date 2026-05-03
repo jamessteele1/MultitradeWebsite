@@ -46,7 +46,12 @@ export default function MobileMapBar({
   const [searching, setSearching] = useState(false);
   const [rotateOpen, setRotateOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+  // Becomes true the moment the user taps an autocomplete suggestion. Used
+  // to suppress the input's onFocus auto-reopen briefly afterwards — without
+  // this, the dropdown re-pops as soon as the input regains focus on iOS.
+  const justSelectedRef = useRef(false);
 
   const [searchedNoResults, setSearchedNoResults] = useState(false);
   const handleQueryChange = useCallback((value: string) => {
@@ -70,10 +75,17 @@ export default function MobileMapBar({
   }, []);
 
   const handleSelect = (r: GeoResult) => {
+    justSelectedRef.current = true;
     setQuery(r.displayName.split(",").slice(0, 2).join(","));
     setSuggestions([]);
     setShowSuggestions(false);
+    setSearchedNoResults(false);
+    // Drop input focus immediately so iOS doesn't refocus and re-trigger
+    // the dropdown. Also close the iOS keyboard.
+    inputRef.current?.blur();
     onMapSelect(r);
+    // Re-allow auto-open after a short cooldown so future typing works.
+    setTimeout(() => { justSelectedRef.current = false; }, 600);
   };
 
   const handleEnter = useCallback(
@@ -115,6 +127,7 @@ export default function MobileMapBar({
         </svg>
         <div className="relative flex-1">
           <input
+            ref={inputRef}
             type="text"
             inputMode="search"
             autoComplete="off"
@@ -123,7 +136,12 @@ export default function MobileMapBar({
             value={query}
             onChange={(e) => handleQueryChange(e.target.value)}
             onKeyDown={handleEnter}
-            onFocus={() => (suggestions.length > 0 || query.length >= 3) && setShowSuggestions(true)}
+            onFocus={() => {
+              // Don't reopen the dropdown if the user just picked a result
+              // (iOS will briefly refocus the input behind the scenes).
+              if (justSelectedRef.current) return;
+              if (suggestions.length > 0 || query.length >= 3) setShowSuggestions(true);
+            }}
             placeholder="Type your site address to bring up a map…"
             className="w-full px-2 py-1.5 text-xs rounded-lg border border-gray-200 focus:outline-none focus:ring-1 focus:ring-amber-500 focus:border-amber-500 pr-7"
           />

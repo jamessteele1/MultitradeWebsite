@@ -31,11 +31,13 @@ const CART_PRODUCTS: Record<string, { id: string; name: string; size: string; im
   "3x3m-office":       { id: "3x3m-office",       name: "3x3m Office",             size: "3x3m",       img: "/images/products/3x3-office/1.jpg",        category: "site-offices" },
   "6x3m-office":       { id: "6x3m-office",       name: "6x3m Office",             size: "6x3m",       img: "/images/products/6x3-office/1.jpg",        category: "site-offices" },
   "12x3m-office":      { id: "12x3m-office",      name: "12x3m Office",            size: "12x3m",      img: "/images/products/12x3-office/1.jpg",       category: "site-offices" },
+  "3x3m-crib-room":    { id: "3x3m-crib-room",    name: "3x3m Crib Room",          size: "3x3m",       img: "/images/products/6x3-crib/1.jpg",          category: "crib-rooms" },
   "6x3m-crib-room":    { id: "6x3m-crib-room",    name: "6x3m Crib Room",          size: "6x3m",       img: "/images/products/6x3-crib/1.jpg",          category: "crib-rooms" },
   "12x3m-crib-room":   { id: "12x3m-crib-room",   name: "12x3m Crib Room",         size: "12x3m",      img: "/images/products/12x3-crib-room/1.jpg",    category: "crib-rooms" },
   "solar-toilet":      { id: "solar-toilet",      name: "Solar Toilet",            size: "5.45x2.4m",  img: "/images/products/solar-toilet-6x24/1.jpg",  category: "ablutions" },
   "3-6x2-4m-toilet":   { id: "3-6x2-4m-toilet",   name: "3.6x2.4m Toilet",        size: "3.6x2.4m",   img: "/images/products/36x24-toilet/1.jpg",      category: "ablutions" },
   "6x3m-toilet-block": { id: "6x3m-toilet-block", name: "6x3m Toilet Block",      size: "6x3m",       img: "/images/products/6x3-toilet/1.jpg",        category: "ablutions" },
+  "6x3m-shower-block": { id: "6x3m-shower-block", name: "6x3m Shower Block",      size: "6x3m",       img: "/images/products/6x3-toilet/1.jpg",        category: "ablutions" },
   "20ft-container":    { id: "20ft-container",    name: "20ft Container",          size: "6x2.4m",     img: "/images/products/20ft-container/1.jpg",     category: "containers" },
   "5000l-tank-pump":   { id: "5000l-tank-pump",   name: "5000L Water Tank & Pump", size: "Skid mounted", img: "/images/products/5000l-tank-pump/1.jpg",  category: "ancillary" },
   "stair-landing":     { id: "stair-landing",     name: "Stair & Landing",         size: "Various",     img: "/images/products/stair-landing/1.jpg",     category: "ancillary" },
@@ -457,7 +459,11 @@ export default function SitePlannerClient() {
   }, []);
 
   const handlePlaced = useCallback(() => {
-    // Keep the type selected so user can place multiple — click the cancel button or press Escape to stop
+    // Auto-exit placement mode after a single drop. Vast majority of users
+    // place one building at a time; previously they had to hit Cancel to
+    // get back to the canvas. They can re-tap "+ Add" to place another.
+    setPlacingTypeId(null);
+    setPlacingLabel("");
   }, []);
 
   const handleCancelPlacing = useCallback(() => {
@@ -497,8 +503,16 @@ export default function SitePlannerClient() {
             Add
           </button>
 
-          <button onClick={handleRotate} disabled={!state.selectedId} className="flex-shrink-0 p-1.5 rounded-lg text-gray-600 disabled:text-gray-300" aria-label="Rotate" title="Rotate">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21.5 2v6h-6" /><path d="M21.34 13.5A10 10 0 115.5 3.36L21.5 8" /></svg>
+          <button onClick={handleRotate} disabled={!state.selectedId} className="flex-shrink-0 p-1.5 rounded-lg text-gray-600 disabled:text-gray-300" aria-label="Rotate" title="Rotate 90°">
+            {/* Object-rotation icon: rectangle below + curved arrow above
+                — reads as "rotate the selected object" rather than the
+                generic "refresh / undo" arrow we had before. */}
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="6" y="13" width="12" height="8" rx="1" />
+              <path d="M6 13a6 6 0 0 1 12 0" />
+              <polyline points="15 3 18 6 15 9" />
+              <path d="M18 6h-6" />
+            </svg>
           </button>
           <button onClick={handleDelete} disabled={!state.selectedId} className="flex-shrink-0 p-1.5 rounded-lg text-red-500 disabled:text-gray-300" aria-label="Delete" title="Delete">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" /></svg>
@@ -638,6 +652,7 @@ export default function SitePlannerClient() {
             placingTypeId={placingTypeId}
             placingLabel={placingLabel}
             onPlaced={handlePlaced}
+            onRequestAdd={() => setBuildingPopupOpen(true)}
             isMobile
           />
         </div>

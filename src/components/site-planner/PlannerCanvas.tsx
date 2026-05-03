@@ -1351,20 +1351,30 @@ export default function PlannerCanvas({
           })()}
 
           {/* Closed-polygon visual underlay — areas / m² boundaries /
-              filled shapes sit BENEATH the buildings so a building
-              dropped inside the boundary isn't obscured by the
-              translucent fill. The interactive copy of each closed
-              polygon (selection halo, vertex handles, labels, click
-              target) still lives in the Drawings layer below the
-              buildings, so selection / resize / vertex-drag work as
-              before — only the fill + stroke are demoted to this
-              non-listening underlay. */}
+              filled shapes sit BENEATH the buildings layer so a
+              building dropped inside the boundary isn't obscured by
+              the translucent fill.
+              The polygon's CLICK target also lives here (not in the
+              FG drawings layer) so Konva's top-down hit detection
+              naturally lets the buildings layer win wherever the two
+              overlap. Result: tap inside-the-polygon-but-on-a-
+              building → building selects; tap inside-the-polygon-
+              over-empty-space → polygon selects.
+              Selection halo, vertex handles, length / area labels
+              still render in the FG drawings layer above buildings,
+              so they remain visible + tappable. */}
           {drawings.some((d) => d.closed) && (
-            <Layer listening={false}>
+            <Layer>
               {drawings.filter((d) => d.closed).map((d) => {
                 const op = d.opacity ?? 1;
                 const fillRGBA = hexToRGBA(d.color, op * 0.32);
                 const dashArr = d.dashed ? [d.thickness * 3, d.thickness * 2] : undefined;
+                const selectThis = (e: Konva.KonvaEventObject<MouseEvent | TouchEvent>) => {
+                  e.cancelBubble = true;
+                  setSelectedDrawingId(d.id);
+                  setSelectedTextId(null);
+                  if (tool !== "select") onToolChange?.("select");
+                };
                 return (
                   <Group key={`bg-${d.id}`}>
                     {/* Black halo behind the colour — keeps the boundary
@@ -1378,6 +1388,7 @@ export default function PlannerCanvas({
                       lineCap="round"
                       lineJoin="round"
                       opacity={op}
+                      listening={false}
                     />
                     <Line
                       points={d.points}
@@ -1389,6 +1400,17 @@ export default function PlannerCanvas({
                       lineCap="round"
                       lineJoin="round"
                       opacity={op}
+                      hitStrokeWidth={Math.max(d.thickness + 12, 16)}
+                      onMouseEnter={(e) => {
+                        const c = e.target.getStage()?.container();
+                        if (c) c.style.cursor = "pointer";
+                      }}
+                      onMouseLeave={(e) => {
+                        const c = e.target.getStage()?.container();
+                        if (c) c.style.cursor = "default";
+                      }}
+                      onClick={selectThis}
+                      onTap={selectThis}
                     />
                   </Group>
                 );
@@ -1550,34 +1572,7 @@ export default function PlannerCanvas({
                         onClick={selectThis}
                         onTap={selectThis}
                       />
-                    ) : (
-                      // Closed polygon — invisible click target above the
-                      // buildings. The visible fill + outline are in the
-                      // underlay layer; this Line just owns the tap area
-                      // (transparent stroke + transparent fill, but a
-                      // generous hitStrokeWidth so thin polygons are still
-                      // tappable). Without this, a closed area dropped under
-                      // a building couldn't be selected because the building
-                      // would intercept every tap.
-                      <Line
-                        points={d.points}
-                        stroke="transparent"
-                        strokeWidth={1}
-                        closed
-                        fill="transparent"
-                        hitStrokeWidth={Math.max(d.thickness + 12, 16)}
-                        onMouseEnter={(e) => {
-                          const c = e.target.getStage()?.container();
-                          if (c) c.style.cursor = "pointer";
-                        }}
-                        onMouseLeave={(e) => {
-                          const c = e.target.getStage()?.container();
-                          if (c) c.style.cursor = "default";
-                        }}
-                        onClick={selectThis}
-                        onTap={selectThis}
-                      />
-                    )}
+                    ) : null /* closed polygons are rendered + click-handled in the underlay layer above buildings */}
 
                     {/* Selection halo — re-stroke at lower opacity */}
                     {isSelected && (

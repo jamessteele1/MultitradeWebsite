@@ -102,6 +102,9 @@ type Props = {
       mobile trash chip. Optional — drag-to-trash falls back to no-op
       when not provided. */
   onRemoveBuilding?: (id: string) => void;
+  /** Rotate a building 90° clockwise — wired to the mobile selection
+      bar's rotate button. */
+  onRotateBuilding?: (id: string) => void;
   onAdd: (typeId: string, x: number, y: number, label: string) => void;
   onAddCustom?: (widthM: number, depthM: number, x: number, y: number, label: string) => void;
   stageRef: React.RefObject<Konva.Stage>;
@@ -161,6 +164,7 @@ export default function PlannerCanvas({
   onMove,
   onLabelEdit,
   onRemoveBuilding,
+  onRotateBuilding,
   onAdd,
   onAddCustom,
   stageRef,
@@ -428,32 +432,31 @@ export default function PlannerCanvas({
         return;
       }
 
-      // Line mode — two-click flow (matches polygon UX). First tap drops
-      // an anchor circle, the line then follows the pointer; second tap
-      // commits the line. No drag required, which is much friendlier on
-      // mobile than press-and-drag.
-      if (tool === "line" && onAddDrawing && drawStyle) {
+      // Line / dimension mode — two-click flow (matches polygon UX).
+      // First tap drops an anchor circle, the line then follows the
+      // pointer; second tap commits. Dimension lines are forced-dashed
+      // and get arrowheads at both ends in the renderer.
+      if ((tool === "line" || tool === "dimension") && onAddDrawing && drawStyle) {
         const c = pointerToCanvas();
         if (!c) return;
         if (!activeStroke) {
-          // First tap — anchor the start point. The fourth coord starts
-          // equal to the first so the preview line has zero length until
-          // the pointer moves.
+          // First tap — anchor the start point.
           setActiveStroke([c.x, c.y, c.x, c.y]);
           return;
         }
-        // Second tap — commit unless the user double-tapped on the same
-        // pixel (would draw a zero-length line).
+        // Second tap — commit unless zero-length.
         const dx = c.x - activeStroke[0];
         const dy = c.y - activeStroke[1];
         if (Math.hypot(dx, dy) >= 4 / zoom) {
+          const isDim = tool === "dimension";
           onAddDrawing({
             points: [activeStroke[0], activeStroke[1], c.x, c.y],
             color: drawStyle.color,
             thickness: drawStyle.thickness,
-            dashed: drawStyle.dashed,
+            dashed: isDim ? true : drawStyle.dashed,
             closed: false,
             opacity: drawStyle.opacity,
+            dimension: isDim || undefined,
           });
         }
         setActiveStroke(null);
@@ -1208,6 +1211,26 @@ export default function PlannerCanvas({
                 const centroid = d.closed ? computeCentroid(d.points) : null;
                 // Label position for open paths: midpoint of last segment
                 const labelPos = !d.closed ? computeMidpoint(d.points) : null;
+                // Dimension lines get the label offset perpendicular to
+                // the line so it reads as a measurement annotation rather
+                // than text-on-top-of-the-line. dimensionFlip moves it to
+                // the other side. Falls back to mid-line for non-dim.
+                const dimLabelPos = (() => {
+                  if (!d.dimension || d.points.length !== 4) return null;
+                  const [x1, y1, x2, y2] = d.points;
+                  const dx = x2 - x1;
+                  const dy = y2 - y1;
+                  const len = Math.hypot(dx, dy);
+                  if (len === 0) return null;
+                  const mx = (x1 + x2) / 2;
+                  const my = (y1 + y2) / 2;
+                  // Perpendicular unit vector (rotate 90°); flip via sign.
+                  const px = -dy / len;
+                  const py = dx / len;
+                  const sign = d.dimensionFlip ? -1 : 1;
+                  const offset = 22 / zoom; // pixel offset, scale-independent
+                  return { x: mx + px * offset * sign, y: my + py * offset * sign };
+                })();
                 // Hex colour with opacity for the closed-polygon fill —
                 // bumped from 0.18 to 0.32 so the area is clearly readable
                 // when overlaid on a satellite background.
@@ -1238,29 +1261,60 @@ export default function PlannerCanvas({
                       opacity={op}
                       listening={false}
                     />
-                    <Line
-                      points={d.points}
-                      stroke={d.color}
-                      strokeWidth={d.thickness}
-                      dash={d.dashed ? [d.thickness * 3, d.thickness * 2] : undefined}
-                      closed={d.closed}
-                      fill={fillRGBA}
-                      lineCap="round"
-                      lineJoin="round"
-                      opacity={op}
-                      // Hit area is generous so thin lines are tappable
-                      hitStrokeWidth={Math.max(d.thickness + 12, 16)}
-                      onMouseEnter={(e) => {
-                        const c = e.target.getStage()?.container();
-                        if (c) c.style.cursor = "pointer";
-                      }}
-                      onMouseLeave={(e) => {
-                        const c = e.target.getStage()?.container();
-                        if (c) c.style.cursor = "default";
-                      }}
-                      onClick={selectThis}
-                      onTap={selectThis}
-                    />
+                    {d.dimension ? (
+                      // Dimension line: dashed Arrow with arrowheads on
+                      // both ends. Konva.Arrow extends Line so we can
+                      // reuse all the same hit / click handlers.
+                      <Arrow
+                        points={d.points}
+                        stroke={d.color}
+                        strokeWidth={d.thickness}
+                        dash={[d.thickness * 3, d.thickness * 2]}
+                        fill={d.color}
+                        pointerAtBeginning
+                        pointerAtEnding
+                        pointerLength={Math.max(d.thickness * 3, 11)}
+                        pointerWidth={Math.max(d.thickness * 2.5, 9)}
+                        lineCap="round"
+                        lineJoin="round"
+                        opacity={op}
+                        hitStrokeWidth={Math.max(d.thickness + 12, 16)}
+                        onMouseEnter={(e) => {
+                          const c = e.target.getStage()?.container();
+                          if (c) c.style.cursor = "pointer";
+                        }}
+                        onMouseLeave={(e) => {
+                          const c = e.target.getStage()?.container();
+                          if (c) c.style.cursor = "default";
+                        }}
+                        onClick={selectThis}
+                        onTap={selectThis}
+                      />
+                    ) : (
+                      <Line
+                        points={d.points}
+                        stroke={d.color}
+                        strokeWidth={d.thickness}
+                        dash={d.dashed ? [d.thickness * 3, d.thickness * 2] : undefined}
+                        closed={d.closed}
+                        fill={fillRGBA}
+                        lineCap="round"
+                        lineJoin="round"
+                        opacity={op}
+                        // Hit area is generous so thin lines are tappable
+                        hitStrokeWidth={Math.max(d.thickness + 12, 16)}
+                        onMouseEnter={(e) => {
+                          const c = e.target.getStage()?.container();
+                          if (c) c.style.cursor = "pointer";
+                        }}
+                        onMouseLeave={(e) => {
+                          const c = e.target.getStage()?.container();
+                          if (c) c.style.cursor = "default";
+                        }}
+                        onClick={selectThis}
+                        onTap={selectThis}
+                      />
+                    )}
 
                     {/* Selection halo — re-stroke at lower opacity */}
                     {isSelected && (
@@ -1277,35 +1331,50 @@ export default function PlannerCanvas({
                     )}
 
                     {/* Length label — at midpoint for open strokes (>= 0.5m).
-                        White pill behind the text guarantees readability on
-                        any background. */}
-                    {!d.closed && labelPos && lengthM >= 0.5 && (
-                      <>
-                        <Rect
-                          x={labelPos.x - 30}
-                          y={labelPos.y - 22 / zoom - 2}
-                          width={60}
-                          height={18}
-                          fill="rgba(255,255,255,0.92)"
-                          stroke={d.color}
-                          strokeWidth={1}
-                          cornerRadius={4}
-                          listening={false}
-                        />
-                        <KonvaText
-                          x={labelPos.x - 28}
-                          y={labelPos.y - 22 / zoom}
-                          width={56}
-                          align="center"
-                          text={`${lengthM.toFixed(1)} m`}
-                          fontSize={12}
-                          fontStyle="bold"
-                          fontFamily="system-ui, sans-serif"
-                          fill={d.color}
-                          listening={false}
-                        />
-                      </>
-                    )}
+                        For a dimension drawing, the label sits perpendicular
+                        to the line (one side, flippable via the edit panel)
+                        so it reads as a measurement annotation rather than
+                        sitting on top of the line. */}
+                    {!d.closed && (dimLabelPos || labelPos) && lengthM >= 0.5 && (() => {
+                      const pos = dimLabelPos ?? labelPos!;
+                      // Dimension labels are bold and slightly bigger; centred
+                      // on the offset point. Regular line labels stay where
+                      // they always were.
+                      const isDim = !!dimLabelPos;
+                      const fontSize = isDim ? 13 : 12;
+                      const text = `${lengthM.toFixed(2)} m`;
+                      const textW = isDim ? 78 : 56;
+                      const pillW = isDim ? 82 : 60;
+                      const pillH = isDim ? 20 : 18;
+                      const dy = isDim ? -pillH / 2 : -22 / zoom;
+                      return (
+                        <>
+                          <Rect
+                            x={pos.x - pillW / 2}
+                            y={pos.y + dy}
+                            width={pillW}
+                            height={pillH}
+                            fill="rgba(255,255,255,0.94)"
+                            stroke={d.color}
+                            strokeWidth={isDim ? 1.5 : 1}
+                            cornerRadius={4}
+                            listening={false}
+                          />
+                          <KonvaText
+                            x={pos.x - textW / 2}
+                            y={pos.y + dy + (pillH - fontSize) / 2}
+                            width={textW}
+                            align="center"
+                            text={text}
+                            fontSize={fontSize}
+                            fontStyle="bold"
+                            fontFamily="system-ui, sans-serif"
+                            fill={d.color}
+                            listening={false}
+                          />
+                        </>
+                      );
+                    })()}
 
                     {/* Area + perimeter label inside closed polygons */}
                     {d.closed && centroid && (
@@ -1741,6 +1810,8 @@ export default function PlannerCanvas({
               ref={trashRef}
               kind="building"
               hovered={trashHover}
+              onRotate={onRotateBuilding ? () => onRotateBuilding(selectedId) : undefined}
+              onRename={onLabelEdit ? () => onLabelEdit(selectedId) : undefined}
               onDelete={() => {
                 onRemoveBuilding?.(selectedId);
                 onSelect(null);
@@ -1761,6 +1832,8 @@ export default function PlannerCanvas({
               onOpacityChange={(v) => onUpdateDrawing?.(d.id, { opacity: v })}
               color={d.color}
               onColorChange={(c) => onUpdateDrawing?.(d.id, { color: c })}
+              isDimension={!!d.dimension}
+              onFlipSide={d.dimension ? () => onUpdateDrawing?.(d.id, { dimensionFlip: !d.dimensionFlip }) : undefined}
               onDelete={() => {
                 onRemoveDrawing?.(d.id);
                 setSelectedDrawingId(null);
@@ -1781,6 +1854,12 @@ export default function PlannerCanvas({
               onOpacityChange={(v) => onUpdateText?.(t.id, { opacity: v })}
               color={t.color}
               onColorChange={(c) => onUpdateText?.(t.id, { color: c })}
+              onRename={() => {
+                const next = window.prompt("Edit text", t.text);
+                if (next !== null && next.trim()) {
+                  onUpdateText?.(t.id, { text: next.trim() });
+                }
+              }}
               onDelete={() => {
                 onRemoveText?.(t.id);
                 setSelectedTextId(null);

@@ -127,6 +127,8 @@ export default function SitePlannerClient() {
         dashed: selectedDrawingObj.dashed,
         opacity: selectedDrawingObj.opacity ?? 1,
         closed: selectedDrawingObj.closed,
+        dimension: selectedDrawingObj.dimension,
+        dimensionFlip: selectedDrawingObj.dimensionFlip,
       }
     : null;
   const selectedTextForTools = selectedTextObj
@@ -139,7 +141,7 @@ export default function SitePlannerClient() {
     : null;
 
   const handleSelectedDrawingChange = useCallback(
-    (patch: Partial<{ color: string; thickness: number; dashed: boolean; opacity: number; closed: boolean }>) => {
+    (patch: Partial<{ color: string; thickness: number; dashed: boolean; opacity: number; closed: boolean; dimension: boolean; dimensionFlip: boolean }>) => {
       if (selectedDrawingId) state.updateDrawing(selectedDrawingId, patch);
     },
     [selectedDrawingId, state],
@@ -618,6 +620,7 @@ export default function SitePlannerClient() {
             onMove={handleBuildingMove}
             onLabelEdit={handleLabelEdit}
             onRemoveBuilding={state.removeBuilding}
+            onRotateBuilding={state.rotateBuilding}
             onAdd={state.addBuilding}
             onAddCustom={(w, d, x, y, label) => handleAddCustom(w, d, x, y, label)}
             stageRef={stageRef}
@@ -741,6 +744,7 @@ export default function SitePlannerClient() {
           onMove={handleBuildingMove}
           onLabelEdit={handleLabelEdit}
           onRemoveBuilding={state.removeBuilding}
+          onRotateBuilding={state.rotateBuilding}
           onAdd={state.addBuilding}
           onAddCustom={(w, d, x, y, label) => handleAddCustom(w, d, x, y, label)}
           stageRef={stageRef}

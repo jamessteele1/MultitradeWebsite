@@ -24,6 +24,16 @@ type Props = {
   /** Optional colour swatches (drawings + text only). */
   color?: string;
   onColorChange?: (c: string) => void;
+  /** Rotate the selected item 90° clockwise (buildings only — drawings
+      don't have a stable rotation pivot). */
+  onRotate?: () => void;
+  /** Rename / edit text. Buildings get a label prompt, text annotations
+      get the text content prompt. */
+  onRename?: () => void;
+  /** When this is a dimension drawing, surface a "flip side" toggle so
+      the user can move the measurement label to the other side. */
+  isDimension?: boolean;
+  onFlipSide?: () => void;
   /** Tap-to-delete fallback (also fires on drop). */
   onDelete: () => void;
   /** Deselect / dismiss the bar without changing anything. */
@@ -39,7 +49,7 @@ const KIND_LABELS: Record<Kind, string> = {
 };
 
 const MobileSelectionBar = forwardRef<HTMLDivElement, Props>(function MobileSelectionBar(
-  { kind, hovered, opacity, onOpacityChange, color, onColorChange, onDelete, onDone },
+  { kind, hovered, opacity, onOpacityChange, color, onColorChange, onRotate, onRename, isDimension, onFlipSide, onDelete, onDone },
   ref,
 ) {
   const showStyleControls = kind !== "building";
@@ -121,15 +131,55 @@ const MobileSelectionBar = forwardRef<HTMLDivElement, Props>(function MobileSele
             </div>
           )}
 
-          {kind === "building" && (
-            <span className="text-[11px] font-semibold text-white/70 px-2">
-              Drag the building onto the trash to remove it.
-            </span>
-          )}
         </div>
 
-        {/* Right: trash + done */}
+        {/* Right: per-kind actions (rotate / rename / flip) + trash + done.
+            Icon-only buttons so the bar stays narrow on small phones. */}
         <div className="flex items-center gap-1 flex-shrink-0">
+          {onRotate && (
+            <button
+              onClick={onRotate}
+              className="flex items-center justify-center w-10 h-10 rounded-xl bg-white/10 hover:bg-white/20 text-white/90"
+              title="Rotate 90°"
+              aria-label="Rotate 90 degrees"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                {/* Refresh-style circular arrow */}
+                <path d="M20.5 12a8.5 8.5 0 1 1-3.1-6.55" />
+                <polyline points="20.5 3.5 20.5 9 15 9" />
+              </svg>
+            </button>
+          )}
+          {onRename && (
+            <button
+              onClick={onRename}
+              className="flex items-center justify-center w-10 h-10 rounded-xl bg-white/10 hover:bg-white/20 text-white/90"
+              title={kind === "text" ? "Edit text" : "Rename"}
+              aria-label={kind === "text" ? "Edit text" : "Rename"}
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                {/* Pencil */}
+                <path d="M12 20h9" />
+                <path d="M16.5 3.5a2.121 2.121 0 113 3L7 19l-4 1 1-4L16.5 3.5z" />
+              </svg>
+            </button>
+          )}
+          {isDimension && onFlipSide && (
+            <button
+              onClick={onFlipSide}
+              className="flex items-center gap-1 px-2.5 h-10 rounded-xl text-[11px] font-bold bg-white/10 hover:bg-white/20 text-white/90"
+              title="Move the dimension label to the other side"
+              aria-label="Flip dimension label side"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M17 1l4 4-4 4" />
+                <path d="M3 11V9a4 4 0 014-4h14" />
+                <path d="M7 23l-4-4 4-4" />
+                <path d="M21 13v2a4 4 0 01-4 4H3" />
+              </svg>
+              Flip
+            </button>
+          )}
           <button
             data-trash-slot
             onClick={onDelete}

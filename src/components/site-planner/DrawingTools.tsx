@@ -20,6 +20,10 @@ export type SelectedDrawingEdit = {
   dashed: boolean;
   opacity: number;
   closed: boolean;
+  /** Set when the drawing is a dimension line — exposes the flip-side
+      toggle in the edit row. */
+  dimension?: boolean;
+  dimensionFlip?: boolean;
 };
 
 /** Subset of TextItem fields that can be edited after creation. */
@@ -77,7 +81,7 @@ export default function DrawingTools({
   onDeselectText,
   compact = false,
 }: Props) {
-  const isDrawing = tool === "freehand" || tool === "line" || tool === "polygon";
+  const isDrawing = tool === "freehand" || tool === "line" || tool === "dimension" || tool === "polygon";
   const isText = tool === "text";
   const hasSelectedDrawing = !!selectedDrawing && !!onSelectedDrawingChange;
   const hasSelectedText = !!selectedText && !!onSelectedTextChange;
@@ -149,7 +153,19 @@ export default function DrawingTools({
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round">
             <line x1="4" y1="20" x2="20" y2="4" />
           </svg>,
-          "Straight line — click and drag",
+          "Straight line — tap start, tap end",
+        )}
+
+        {toolBtn(
+          "dimension",
+          "Dim",
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            {/* Dashed dimension line with arrowheads each end */}
+            <line x1="6" y1="12" x2="18" y2="12" strokeDasharray="2 2" />
+            <polyline points="6 12 9 9 9 15 6 12" fill="currentColor" />
+            <polyline points="18 12 15 9 15 15 18 12" fill="currentColor" />
+          </svg>,
+          "Dimension line — tap two points to mark a measurement",
         )}
 
         {toolBtn(
@@ -498,6 +514,23 @@ export default function DrawingTools({
           </div>
 
           <div className="flex items-center gap-1.5 ml-auto">
+            {/* Flip-side toggle for dimension lines — moves the
+                measurement label to the other side of the line. */}
+            {selectedDrawing.dimension && (
+              <button
+                onClick={() => onSelectedDrawingChange({ dimensionFlip: !selectedDrawing.dimensionFlip })}
+                className={`${btnBase} text-gray-700 border border-gray-200 hover:bg-gray-50`}
+                title="Flip the dimension label to the other side"
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M17 1l4 4-4 4" />
+                  <path d="M3 11V9a4 4 0 014-4h14" />
+                  <path d="M7 23l-4-4 4-4" />
+                  <path d="M21 13v2a4 4 0 01-4 4H3" />
+                </svg>
+                Flip
+              </button>
+            )}
             {onSelectedDrawingDelete && (
               <button
                 onClick={onSelectedDrawingDelete}

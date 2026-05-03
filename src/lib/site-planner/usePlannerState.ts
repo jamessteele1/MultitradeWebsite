@@ -30,6 +30,13 @@ export type Drawing = {
   closed: boolean;
   /** 0–1; applied to stroke and (for closed polygons) the fill. Defaults to 1. */
   opacity?: number;
+  /** When true, this is a dimension line — rendered with arrowheads at
+      both ends and forced-dashed. Length label is offset perpendicular
+      to one side of the line. */
+  dimension?: boolean;
+  /** Which side of a dimension line the label sits on. false (default)
+      = left of the line direction, true = flipped to the right. */
+  dimensionFlip?: boolean;
 };
 
 /**

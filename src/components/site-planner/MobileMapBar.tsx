@@ -206,14 +206,29 @@ export default function MobileMapBar({
               </div>
             )}
             {suggestions.map((s, i) => (
-              <button
+              <div
                 key={i}
-                onClick={() => handleSelect(s)}
-                className="w-full px-3 py-2 text-left text-xs text-gray-700 active:bg-amber-50 border-b border-gray-50 last:border-0"
+                className="flex items-stretch border-b border-gray-50 last:border-0"
               >
-                <span className="font-medium">{s.displayName.split(",")[0]}</span>
-                <span className="text-gray-400">{s.displayName.split(",").slice(1).join(",")}</span>
-              </button>
+                {/* Address — tap to fill the input + select. */}
+                <button
+                  onClick={() => handleSelect(s)}
+                  className="flex-1 px-3 py-2 text-left text-xs text-gray-700 active:bg-amber-50 min-w-0"
+                >
+                  <span className="font-medium">{s.displayName.split(",")[0]}</span>
+                  <span className="text-gray-400">{s.displayName.split(",").slice(1).join(",")}</span>
+                </button>
+                {/* Green Select chip — same action, but visually
+                    explicit and obviously tappable so users don't sit
+                    on the dropdown wondering what to do. */}
+                <button
+                  onClick={() => handleSelect(s)}
+                  className="flex-shrink-0 m-1.5 px-3 rounded-md bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 text-white text-[11px] font-bold uppercase tracking-wide transition-colors"
+                  aria-label={`Select ${s.displayName}`}
+                >
+                  Select
+                </button>
+              </div>
             ))}
           </div>
         )}

@@ -226,9 +226,12 @@ export default function PlannerToolbar({
         {/* Spacer */}
         <div className="flex-1" />
 
-        {/* Export & Quote */}
+        {/* Export & Quote — note: the per-building count text that used to
+            sit before PNG was dropped because it duplicated the live
+            "N buildings · X m²" chip on the canvas (top-left), and it
+            counted utility markers as buildings which inflated the
+            number. The canvas chip is the single source of truth now. */}
         <div className="flex items-center gap-1.5">
-          <span className="text-[11px] text-gray-400 mr-1">{buildingCount} building{buildingCount !== 1 ? "s" : ""}</span>
           <button onClick={onExportPNG} disabled={buildingCount === 0} className={buildingCount > 0 ? `${btnBase} border border-gray-200 text-gray-700 hover:bg-gray-100` : btnDisabled}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
             PNG

@@ -877,6 +877,11 @@ export default function SitePlannerClient() {
         sunEnabled={sunEnabled}
         onSunToggle={() => setSunEnabled((prev) => !prev)}
         onGetQuote={handleGetQuote}
+        onOpenTemplates={() => {
+          setBuildingPopupCategory("templates");
+          setBuildingPopupOpen(true);
+        }}
+        onOpenLayouts={() => setLayoutModalOpen(true)}
       />
 
       {/* Drawing/text tools — colour, thickness, dashed, free-text size */}
@@ -940,39 +945,14 @@ export default function SitePlannerClient() {
         />
       </div>
 
-      {/* Keyboard shortcuts hint + Layouts button */}
+      {/* Keyboard shortcuts hint. The Templates + Layouts buttons that
+          used to live here moved up into PlannerToolbar (above) where
+          they're discoverable instead of hidden in the footer. */}
       <div className="flex items-center gap-4 text-[11px] text-gray-400 px-1">
         <span><kbd className="px-1.5 py-0.5 rounded bg-gray-100 border border-gray-200 text-gray-500 font-mono text-[10px]">R</kbd> Rotate 90°</span>
         <span><kbd className="px-1.5 py-0.5 rounded bg-gray-100 border border-gray-200 text-gray-500 font-mono text-[10px]">Del</kbd> Delete</span>
         <span><kbd className="px-1.5 py-0.5 rounded bg-gray-100 border border-gray-200 text-gray-500 font-mono text-[10px]">⌘Z</kbd> Undo</span>
         <span>Scroll to zoom · Drag canvas to pan</span>
-        <button
-          onClick={() => {
-            setBuildingPopupCategory("templates");
-            setBuildingPopupOpen(true);
-          }}
-          className="ml-auto inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-amber-800 border border-amber-200 bg-amber-50/40 hover:bg-amber-50 text-[11px] font-bold"
-          title="Browse templates — pre-arranged layouts you can drop on the canvas"
-        >
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" />
-            <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
-            <line x1="12" y1="22.08" x2="12" y2="12" />
-          </svg>
-          Templates
-        </button>
-        <button
-          onClick={() => setLayoutModalOpen(true)}
-          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-gray-700 border border-gray-200 hover:bg-gray-50 text-[11px] font-bold"
-          title="Save / load layouts"
-        >
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z" />
-            <polyline points="17 21 17 13 7 13 7 21" />
-            <polyline points="7 3 7 8 15 8" />
-          </svg>
-          Layouts
-        </button>
       </div>
 
       {/* Save / load layouts modal */}

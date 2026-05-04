@@ -29,6 +29,9 @@ type Props = {
   onSunToggle: () => void;
   // Quote
   onGetQuote: () => void;
+  // Templates + saved layouts entry points
+  onOpenTemplates?: () => void;
+  onOpenLayouts?: () => void;
 };
 
 export default function PlannerToolbar({
@@ -54,6 +57,8 @@ export default function PlannerToolbar({
   sunEnabled,
   onSunToggle,
   onGetQuote,
+  onOpenTemplates,
+  onOpenLayouts,
 }: Props) {
   const [editingLabel, setEditingLabel] = useState(false);
   const [labelText, setLabelText] = useState("");
@@ -225,6 +230,45 @@ export default function PlannerToolbar({
 
         {/* Spacer */}
         <div className="flex-1" />
+
+        {/* Templates + Layouts — file-level operations grouped together
+            so they're discoverable up top instead of buried in the
+            keyboard-hint footer. Templates gets the amber treatment
+            because it's the marketing-friendly "drop a starter" path. */}
+        {(onOpenTemplates || onOpenLayouts) && (
+          <div className="flex items-center gap-1.5">
+            {onOpenTemplates && (
+              <button
+                onClick={onOpenTemplates}
+                className={`${btnBase} bg-amber-50/60 border border-amber-200 text-amber-800 hover:bg-amber-100`}
+                title="Browse templates — pre-arranged layouts you can drop on the canvas"
+              >
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" />
+                  <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+                  <line x1="12" y1="22.08" x2="12" y2="12" />
+                </svg>
+                Templates
+              </button>
+            )}
+            {onOpenLayouts && (
+              <button
+                onClick={onOpenLayouts}
+                className={btnActive}
+                title="Save / load layouts"
+              >
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z" />
+                  <polyline points="17 21 17 13 7 13 7 21" />
+                  <polyline points="7 3 7 8 15 8" />
+                </svg>
+                Layouts
+              </button>
+            )}
+          </div>
+        )}
+
+        <div className="w-px h-6 bg-gray-200 mx-1" />
 
         {/* Export & Quote — note: the per-building count text that used to
             sit before PNG was dropped because it duplicated the live

@@ -973,18 +973,23 @@ export default function PlannerCanvas({
 
   // Live totals chip — surfaces the building count + total footprint
   // m² so the user can see the camp size growing as they drop buildings.
-  // Cheap reduce: only the buildings array changes drive recomputation.
+  // Utility markers (Power / Water / Sewage / Grey Water / Data) are
+  // 1×1m indicator points, not buildings, so they're excluded from
+  // both the count and the m² total — counting them as buildings
+  // would inflate the camp-size readout.
   const totals = useMemo(() => {
+    let count = 0;
     let area = 0;
     for (const b of buildings) {
       const t = getBuildingType(b.typeId);
-      if (!t) continue;
+      if (!t || t.category === "utilities") continue;
+      count++;
       area += t.widthM * t.depthM;
     }
     // 1 dp under 100, 0 dp at or above (matches the area-label formatting
     // we already use on closed-polygon labels).
     const formatted = area >= 100 ? `${area.toFixed(0)}` : `${area.toFixed(1)}`;
-    return { count: buildings.length, areaM2: formatted };
+    return { count, areaM2: formatted };
   }, [buildings]);
 
   // Zoom controls — anchor zoom on the centre of the visible viewport so

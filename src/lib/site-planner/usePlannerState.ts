@@ -37,6 +37,12 @@ export type Drawing = {
   /** Which side of a dimension line the label sits on. false (default)
       = left of the line direction, true = flipped to the right. */
   dimensionFlip?: boolean;
+  /** When true, suppress the auto-rendered length / area+perimeter
+      label. Used by the Shape tool (rect / circle / triangle / arrow /
+      vehicle) — those are decorative shapes, not measurements, so the
+      m² readout would be noise. The Area / Line / Dimension tools
+      leave this off so their labels still render. */
+  noLabel?: boolean;
 };
 
 /**

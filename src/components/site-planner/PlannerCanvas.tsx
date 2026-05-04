@@ -560,6 +560,10 @@ export default function PlannerCanvas({
             dashed: drawStyle.dashed,
             closed: true,
             opacity: drawStyle.opacity,
+            // Shapes are decorative — suppress the auto m² / perimeter
+            // label so the canvas stays clean. The Area tool still gets
+            // its label because it doesn't set this flag.
+            noLabel: true,
           });
         }
         return;
@@ -1668,7 +1672,7 @@ export default function PlannerCanvas({
                         to the line (one side, flippable via the edit panel)
                         so it reads as a measurement annotation rather than
                         sitting on top of the line. */}
-                    {!d.closed && (dimLabelPos || labelPos) && lengthM >= 0.5 && (() => {
+                    {!d.closed && !d.noLabel && (dimLabelPos || labelPos) && lengthM >= 0.5 && (() => {
                       const pos = dimLabelPos ?? labelPos!;
                       // Dimension labels are bold and slightly bigger; centred
                       // on the offset point. Regular line labels stay where
@@ -1710,7 +1714,7 @@ export default function PlannerCanvas({
                     })()}
 
                     {/* Area + perimeter label inside closed polygons */}
-                    {d.closed && centroid && (
+                    {d.closed && !d.noLabel && centroid && (
                       <>
                         <Rect
                           x={centroid.x - 52}

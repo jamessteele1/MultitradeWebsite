@@ -101,6 +101,10 @@ export default function SitePlannerClient() {
   const [placingTypeId, setPlacingTypeId] = useState<string | null>(null);
   const [placingLabel, setPlacingLabel] = useState("");
   const [buildingPopupOpen, setBuildingPopupOpen] = useState(false);
+  // Which tab the popup should open on. Mobile +Add lands on the
+  // first building category; the desktop "Templates" button lands on
+  // the Templates tab directly.
+  const [buildingPopupCategory, setBuildingPopupCategory] = useState<string | undefined>(undefined);
 
   // Mobile PDF delivery modal — opens instead of jsPDF.save() since mobile
   // browsers handle direct PDF downloads inconsistently.
@@ -799,10 +803,13 @@ export default function SitePlannerClient() {
           />
         </div>
 
-        {/* Building selection popup */}
+        {/* Building selection popup — open from the mobile +Add button */}
         <BuildingSelectionPopup
           open={buildingPopupOpen}
-          onClose={() => setBuildingPopupOpen(false)}
+          onClose={() => {
+            setBuildingPopupOpen(false);
+            setBuildingPopupCategory(undefined);
+          }}
           onSelect={handleSelectPlacingType}
           onAddCustom={(w, d, label) => {
             handleSelectPlacingType(`custom-${w}x${d}`, label);
@@ -816,6 +823,7 @@ export default function SitePlannerClient() {
             }
             handleLoadLayout(template);
           }}
+          defaultCategory={buildingPopupCategory}
         />
 
         {/* Mobile PDF delivery — Web Share API or open-in-tab */}
@@ -939,8 +947,23 @@ export default function SitePlannerClient() {
         <span><kbd className="px-1.5 py-0.5 rounded bg-gray-100 border border-gray-200 text-gray-500 font-mono text-[10px]">⌘Z</kbd> Undo</span>
         <span>Scroll to zoom · Drag canvas to pan</span>
         <button
+          onClick={() => {
+            setBuildingPopupCategory("templates");
+            setBuildingPopupOpen(true);
+          }}
+          className="ml-auto inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-amber-800 border border-amber-200 bg-amber-50/40 hover:bg-amber-50 text-[11px] font-bold"
+          title="Browse templates — pre-arranged layouts you can drop on the canvas"
+        >
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" />
+            <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+            <line x1="12" y1="22.08" x2="12" y2="12" />
+          </svg>
+          Templates
+        </button>
+        <button
           onClick={() => setLayoutModalOpen(true)}
-          className="ml-auto inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-gray-700 border border-gray-200 hover:bg-gray-50 text-[11px] font-bold"
+          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-gray-700 border border-gray-200 hover:bg-gray-50 text-[11px] font-bold"
           title="Save / load layouts"
         >
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -959,6 +982,33 @@ export default function SitePlannerClient() {
         onSave={handleSaveLayout}
         onLoad={handleLoadLayout}
         hasContent={state.buildings.length > 0 || state.drawings.length > 0 || state.texts.length > 0}
+      />
+
+      {/* Building / Templates popup — desktop counterpart of the mobile
+          +Add popup. Opened by the "Templates" chip in the keyboard-hint
+          row; pre-selects the Templates tab so the user lands directly
+          on the templates list. The same popup also handles regular
+          building selection if the user switches tabs. */}
+      <BuildingSelectionPopup
+        open={buildingPopupOpen}
+        onClose={() => {
+          setBuildingPopupOpen(false);
+          setBuildingPopupCategory(undefined);
+        }}
+        onSelect={handleSelectPlacingType}
+        onAddCustom={(w, d, label) => {
+          handleSelectPlacingType(`custom-${w}x${d}`, label);
+        }}
+        onApplyTemplate={(template) => {
+          if (
+            (state.buildings.length > 0 || state.drawings.length > 0 || state.texts.length > 0) &&
+            !confirm(`Apply "${template.name}"? Your current layout will be replaced (you can ⌘Z to undo).`)
+          ) {
+            return;
+          }
+          handleLoadLayout(template);
+        }}
+        defaultCategory={buildingPopupCategory}
       />
     </div>
   );

@@ -13,6 +13,10 @@ type Props = {
   /** Apply a Template (saved layout flagged as template) — replaces the
       current canvas with the layout. The parent confirms with the user. */
   onApplyTemplate?: (template: SavedLayout) => void;
+  /** When provided, the popup opens with this sidebar tab pre-selected
+      (useful for the desktop "Templates" button so it lands the user on
+      the Templates list instead of Offices). */
+  defaultCategory?: string;
 };
 
 const grouped = Object.entries(
@@ -146,8 +150,14 @@ function CategoryIcon({ cat }: { cat: string }) {
   return null;
 }
 
-export default function BuildingSelectionPopup({ open, onClose, onSelect, onAddCustom, onApplyTemplate }: Props) {
-  const [activeCategory, setActiveCategory] = useState<string>(grouped[0]?.[0] || "offices");
+export default function BuildingSelectionPopup({ open, onClose, onSelect, onAddCustom, onApplyTemplate, defaultCategory }: Props) {
+  const [activeCategory, setActiveCategory] = useState<string>(defaultCategory || grouped[0]?.[0] || "offices");
+  // Re-sync the active tab when the consumer changes defaultCategory
+  // (e.g. desktop Templates button vs. mobile +Add button open the same
+  // popup but want different tabs pre-selected).
+  useEffect(() => {
+    if (open && defaultCategory) setActiveCategory(defaultCategory);
+  }, [open, defaultCategory]);
   const [customW, setCustomW] = useState(6);
   const [customD, setCustomD] = useState(3);
   const [customLabel, setCustomLabel] = useState("Custom");

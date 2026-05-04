@@ -35,6 +35,12 @@ export default function LayoutManagerModal({ open, onClose, onSave, onLoad, hasC
   const [saving, setSaving] = useState(false);
   const [layouts, setLayouts] = useState<SavedLayout[]>([]);
   const [error, setError] = useState<string | null>(null);
+  // Inline export dialog — keeping the snippet visible in a selectable
+  // textarea is way more reliable than relying on alert() / clipboard
+  // APIs (which the Claude preview webview, some iOS in-app browsers,
+  // and a handful of other contexts block silently).
+  const [exportSnippet, setExportSnippet] = useState<{ name: string; text: string } | null>(null);
+  const [copyState, setCopyState] = useState<"idle" | "ok" | "fail">("idle");
 
   // Refresh the list whenever the modal opens — covers the case where
   // a save just happened and we want the new entry to appear.
@@ -92,9 +98,12 @@ export default function LayoutManagerModal({ open, onClose, onSave, onLoad, hasC
   /**
    * Generate a TS snippet of the layout suitable for pasting into
    * `lib/site-planner/builtinTemplates.ts`. Strips runtime IDs so the
-   * source stays clean (the planner re-IDs on apply).
+   * source stays clean (the planner re-IDs on apply). Pops an inline
+   * dialog with the snippet in a selectable textarea — that's way more
+   * reliable than alert / window.prompt / navigator.clipboard, all of
+   * which fail silently in restrictive webviews.
    */
-  const handleExport = async (layout: SavedLayout) => {
+  const handleExport = (layout: SavedLayout) => {
     const slug = layout.name
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
@@ -120,6 +129,7 @@ export default function LayoutManagerModal({ open, onClose, onSave, onLoad, hasC
         ...(typeof d.opacity === "number" ? { opacity: d.opacity } : {}),
         ...(d.dimension ? { dimension: true } : {}),
         ...(d.dimensionFlip ? { dimensionFlip: true } : {}),
+        ...(d.noLabel ? { noLabel: true } : {}),
       })),
       texts: layout.texts.map((t) => ({
         x: t.x,
@@ -131,19 +141,42 @@ export default function LayoutManagerModal({ open, onClose, onSave, onLoad, hasC
       })),
     };
     const snippet = JSON.stringify(stripped, null, 2);
-    // Tab-friendly output — JSON stringify uses double-quotes which TS
-    // will accept inside a TS object literal. We wrap with a leading
-    // comma so the user can paste straight into the array.
+    // Indent every line by 2 spaces and add a trailing comma so it can
+    // be pasted straight into the BUILTIN_TEMPLATES array.
     const formatted = `  ${snippet.replace(/\n/g, "\n  ")},\n`;
+    setExportSnippet({ name: layout.name, text: formatted });
+    setCopyState("idle");
+  };
+
+  /** Try to copy the visible snippet to the clipboard. Falls back to
+      a select-all + execCommand path which works in older / restricted
+      contexts where the Promise-based API is blocked. */
+  const handleCopySnippet = async (text: string) => {
     try {
-      await navigator.clipboard.writeText(formatted);
-      alert(
-        "Template snippet copied to your clipboard.\n\nPaste it into\n  src/lib/site-planner/builtinTemplates.ts\nbetween the [] of BUILTIN_TEMPLATES,\nthen send the change my way to ship.",
-      );
+      if (navigator.clipboard && typeof navigator.clipboard.writeText === "function") {
+        await navigator.clipboard.writeText(text);
+        setCopyState("ok");
+        return;
+      }
     } catch {
-      // Clipboard blocked — show the JSON in a prompt so the user can
-      // copy it manually.
-      window.prompt("Copy this template snippet (Cmd+C):", formatted);
+      /* fall through */
+    }
+    // Fallback: stuff the text into a hidden textarea, select it, exec
+    // the legacy copy command. Works in most webviews that block the
+    // modern Promise API.
+    try {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      const ok = document.execCommand("copy");
+      document.body.removeChild(ta);
+      setCopyState(ok ? "ok" : "fail");
+    } catch {
+      setCopyState("fail");
     }
   };
 
@@ -323,6 +356,93 @@ export default function LayoutManagerModal({ open, onClose, onSave, onLoad, hasC
             </ul>
           )}
         </div>
+
+        {/* Export-snippet sub-dialog. Renders inline (inside the same
+            modal card) so the user always SEES the snippet — works even
+            when alert() / clipboard / window.prompt are blocked by the
+            host webview (Claude preview, in-app browsers, etc.). */}
+        {exportSnippet && (
+          <div
+            className="absolute inset-0 z-10 bg-white/95 backdrop-blur-sm flex flex-col"
+            role="dialog"
+            aria-label="Export template snippet"
+          >
+            <div className="flex items-start justify-between px-5 py-4 border-b border-gray-100">
+              <div className="min-w-0 pr-3">
+                <h3 className="text-sm font-bold text-gray-900 truncate">
+                  Export template — {exportSnippet.name}
+                </h3>
+                <p className="text-[11px] text-gray-500 mt-1 leading-relaxed">
+                  Select all and copy this snippet. Paste it into{" "}
+                  <code className="text-[11px] bg-gray-100 px-1 py-0.5 rounded">src/lib/site-planner/builtinTemplates.ts</code>{" "}
+                  between the <code>[ ]</code> of <code>BUILTIN_TEMPLATES</code> and send the change to me to ship.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setExportSnippet(null);
+                  setCopyState("idle");
+                }}
+                className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-gray-700 hover:bg-gray-100"
+                aria-label="Close export"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
+            </div>
+
+            <textarea
+              readOnly
+              value={exportSnippet.text}
+              onFocus={(e) => e.currentTarget.select()}
+              onClick={(e) => e.currentTarget.select()}
+              className="flex-1 m-3 p-3 rounded-lg border border-gray-200 bg-gray-50 text-[11px] font-mono text-gray-800 leading-relaxed resize-none focus:outline-none focus:ring-2 focus:ring-amber-400"
+              spellCheck={false}
+            />
+
+            <div className="flex items-center justify-between gap-2 px-5 py-3 border-t border-gray-100 bg-white">
+              <span className={`text-[11px] font-bold ${
+                copyState === "ok"
+                  ? "text-emerald-700"
+                  : copyState === "fail"
+                    ? "text-amber-700"
+                    : "text-gray-400"
+              }`}>
+                {copyState === "ok"
+                  ? "✓ Copied to clipboard"
+                  : copyState === "fail"
+                    ? "Couldn't auto-copy — select all + copy manually"
+                    : "Tap the textarea to select all"}
+              </span>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleCopySnippet(exportSnippet.text)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500 text-white text-xs font-bold hover:bg-emerald-600 active:bg-emerald-700"
+                >
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="9" y="9" width="13" height="13" rx="2" />
+                    <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+                  </svg>
+                  Copy
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setExportSnippet(null);
+                    setCopyState("idle");
+                  }}
+                  className="px-3 py-1.5 rounded-lg text-xs font-bold text-gray-700 border border-gray-200 hover:bg-gray-50"
+                >
+                  Done
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>,
     document.body,

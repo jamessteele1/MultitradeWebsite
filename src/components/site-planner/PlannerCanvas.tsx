@@ -1014,11 +1014,15 @@ export default function PlannerCanvas({
     <div className="relative flex-1 bg-white rounded-xl border border-gray-200 overflow-hidden">
       {/* Live totals chip — count + total footprint of placed buildings.
           Only renders when there's at least one building so it doesn't
-          chrome up the empty canvas. Sits top-left so it doesn't fight
-          with the zoom controls (top-right) or the tap-to-place pill
-          (top-centre). */}
+          chrome up the empty canvas. Sits top-left, but pushed down on
+          mobile when the floating "+ Add Items" pill is visible so the
+          two don't overlap. */}
       {totals.count > 0 && (
-        <div className="absolute top-3 left-3 z-10 flex items-center gap-2 bg-white/95 backdrop-blur rounded-xl border border-gray-200 shadow-md px-3 py-1.5 pointer-events-none select-none">
+        <div
+          className={`absolute z-10 left-3 flex items-center gap-2 bg-white/95 backdrop-blur rounded-xl border border-gray-200 shadow-md px-3 py-1.5 pointer-events-none select-none ${
+            isMobile && onRequestAdd && !placingTypeId ? "top-[60px]" : "top-3"
+          }`}
+        >
           <div className="flex items-baseline gap-1">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500">
               <rect x="3" y="3" width="7" height="7" rx="0.5" />

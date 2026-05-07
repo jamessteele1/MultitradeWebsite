@@ -27,7 +27,10 @@ const path = require("path");
 const ROOT = path.resolve(__dirname, "..");
 const FLOORPLAN_DIR = path.join(ROOT, "public", "images", "floorplans");
 const OUT_DIR = path.join(ROOT, "public", "images", "floorplans-rebranded");
-const LOGO_PATH = path.join(ROOT, "public", "images", "logos", "Multitrade Logo.png");
+// Multitrade BUILDING HIRE primary logo (navy + red house silhouette).
+// `Multitrade Logo.png` is the older green Multitrade-group QBCC logo —
+// not what should appear on the building-hire PDFs.
+const LOGO_PATH = path.join(ROOT, "public", "images", "logos", "logo-color.png");
 
 // Pilot file — the 12x3m crib-room floor plan that the live site links
 // to from /hire/crib-rooms/12x3m-crib-room.

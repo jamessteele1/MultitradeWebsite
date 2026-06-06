@@ -295,33 +295,6 @@ export default async function ProjectPage({ params }: PageProps) {
         />
       </div>
 
-      {/* Bottom CTA Band */}
-      <section style={{ background: "#0f1216" }} className="py-14 md:py-20">
-        <div className="max-w-3xl mx-auto px-4 text-center">
-          <h2 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight">
-            Built Over 500 Buildings in 45 Years
-          </h2>
-          <p className="text-white/50 mt-3 max-w-xl mx-auto">
-            Whatever your site needs, chances are we&apos;ve already designed
-            and delivered it. Tell us about your project.
-          </p>
-          <div className="flex flex-col sm:flex-row justify-center gap-3 mt-6">
-            <a
-              href="#proposal-cta"
-              className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg text-sm font-semibold text-white bg-gold hover:bg-amber-600 transition-colors"
-            >
-              Get a Free Proposal
-            </a>
-            <a
-              href="tel:0749786122"
-              className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg text-sm font-semibold text-white border border-white/20 hover:border-white/40 transition-colors"
-            >
-              (07) 4978 6122
-            </a>
-          </div>
-        </div>
-      </section>
-
       {/* SEO Content */}
       <section className="bg-gray-50 border-y border-gray-200 py-10">
         <div className="max-w-4xl mx-auto px-4">

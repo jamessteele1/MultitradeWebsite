@@ -27,7 +27,7 @@ const IMAGE_MAP: Record<string, string> = {
   "First Aid Room": "/images/products/12x3-crib-room/1.jpg",
   "D&A Testing Room": "/images/products/12x3-crib-room/1.jpg",
   Bathhouse: "/images/products/12x6m-complex/1.jpg",
-  "Server Room": "/images/products/12x3-office/1.jpg",
+  "Server Room": "/images/bespoke/server-room/1.jpg",
   "Control Room": "/images/products/12x3-office/1.jpg",
   "Cool Room / Cold Storage": "/images/products/10ft-container/1.jpg",
   "Gatehouse / Security": "/images/products/12x3-office/1.jpg",

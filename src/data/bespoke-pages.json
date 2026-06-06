@@ -61,8 +61,7 @@
     "wind_rating": "B",
     "similar_slugs": [
       "/buy/projects/8x2-4-cool-room---cold-storage-queensland",
-      "/buy/projects/workshop---warehouse-construction",
-      "/buy/projects/12x3m-custom-lookout-queensland"
+      "/buy/projects/workshop---warehouse-construction"
     ]
   },
   {
@@ -200,74 +199,7 @@
     "wind_rating": "B",
     "similar_slugs": [
       "/buy/projects/change-room-queensland",
-      "/buy/projects/8x2-4-cool-room---cold-storage-queensland",
-      "/buy/projects/12x3m-custom-lookout-queensland"
-    ]
-  },
-  {
-    "id": "Q260128",
-    "category": "Custom Lookout",
-    "industry": "Other",
-    "dimensions": "12x3m",
-    "rooms": [],
-    "keywords": [
-      "observation",
-      "elevated",
-      "lookout",
-      "viewing platform"
-    ],
-    "slug": "/buy/projects/12x3m-custom-lookout-queensland",
-    "title": "12x3m Custom Lookout",
-    "available_as": [
-      "hire",
-      "purchase",
-      "custom"
-    ],
-    "year": "2026",
-    "has_page": true,
-    "summary": "Purpose-built 12x3m custom lookout designed for a commercial operation in Queensland. 12x3m Custom Lookout delivered turnkey by Multitrade Building Hire with full installation and connection.",
-    "brief": "The client required a purpose-built portable building for a commercial operation in Queensland. The facility needed to be manufactured to specific dimensions and configurations, designed for the unique operational requirements of the project site.",
-    "delivered": "A 12x3m portable building configured as a custom lookout.  Manufactured at our Gladstone facility with full quality control checks and delivered to site ready for immediate use. The building was installed, connected to site services, and handed over with complete documentation.",
-    "features": [
-      "Split-system air conditioning",
-      "Vinyl flooring throughout",
-      "Insulated wall and ceiling panels",
-      "240V power with RCD protection",
-      "LED internal lighting",
-      "Lockable entry door",
-      "Fire extinguisher mounting",
-      "Compliant electrical switchboard",
-      "External power connection point",
-      "Window with security screen",
-      "Data cabling provisions",
-      "Mine-spec construction standard"
-    ],
-    "specs": {
-      "Building Type": "Custom Lookout",
-      "Dimensions": "12x3m",
-      "Internal Height": "2,400mm",
-      "Wind Classification": "B",
-      "Air Conditioning": "Split-system",
-      "Power": "240V single phase",
-      "Flooring": "Commercial vinyl",
-      "Wall Linings": "Melamine-faced panels",
-      "Industry": "Other",
-      "Region": "Central Queensland"
-    },
-    "seo_title": "12x3m Custom Lookout | Custom Portable Building | Multitrade",
-    "seo_description": "Proven custom lookout design delivered for other operations in Queensland. 12x3m, available for hire or purchase. 45+ years experience.",
-    "seo_content": [
-      "Multitrade Building Hire designs and manufactures custom custom lookout buildings for other operations across Queensland. With over 45 years of experience delivering portable buildings to sites across the Bowen Basin, Central Queensland, Gladstone, Emerald, Central Highlands, and Surat Basin, we have the expertise to design a custom lookout that meets your specific requirements.",
-      "Every custom lookout we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution — from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
-    ],
-    "image": "/images/products/12x3-office/1.jpg",
-    "badge": "Proven Design",
-    "region": "Central Queensland",
-    "wind_rating": "B",
-    "similar_slugs": [
-      "/buy/projects/change-room-queensland",
-      "/buy/projects/8x2-4-cool-room---cold-storage-queensland",
-      "/buy/projects/workshop---warehouse-construction"
+      "/buy/projects/8x2-4-cool-room---cold-storage-queensland"
     ]
   },
   {
@@ -2506,73 +2438,6 @@
     ]
   },
   {
-    "id": "Q250306",
-    "category": "Nap Room",
-    "industry": "Construction",
-    "dimensions": "",
-    "rooms": [],
-    "keywords": [
-      "nap room",
-      "sleep",
-      "rest room",
-      "recovery",
-      "fatigue management"
-    ],
-    "slug": "/buy/projects/nap-room-construction",
-    "title": "Custom Nap Room",
-    "available_as": [
-      "hire",
-      "purchase",
-      "custom"
-    ],
-    "year": "2025",
-    "has_page": true,
-    "summary": "Purpose-built nap room designed for a construction project in Central Queensland. Custom Nap Room delivered turnkey by Multitrade Building Hire with full installation and connection.",
-    "brief": "The client required a purpose-built portable building for a construction project in Central Queensland. The facility needed to be manufactured to specific dimensions and configurations, designed for the unique operational requirements of the project site.",
-    "delivered": "A custom-dimensioned portable building configured as a nap room.  Manufactured at our Gladstone facility with full quality control checks and delivered to site ready for immediate use. The building was installed, connected to site services, and handed over with complete documentation.",
-    "features": [
-      "Split-system air conditioning",
-      "Vinyl flooring throughout",
-      "Insulated wall and ceiling panels",
-      "240V power with RCD protection",
-      "LED internal lighting",
-      "Lockable entry door",
-      "Fire extinguisher mounting",
-      "Compliant electrical switchboard",
-      "External power connection point",
-      "Window with security screen",
-      "Data cabling provisions",
-      "Mine-spec construction standard"
-    ],
-    "specs": {
-      "Building Type": "Nap Room",
-      "Dimensions": "Custom",
-      "Internal Height": "2,400mm",
-      "Wind Classification": "B",
-      "Air Conditioning": "Split-system",
-      "Power": "240V single phase",
-      "Flooring": "Commercial vinyl",
-      "Wall Linings": "Melamine-faced panels",
-      "Industry": "Construction",
-      "Region": "Central Queensland"
-    },
-    "seo_title": "Custom Nap Room | Custom Portable Building | Multitrade",
-    "seo_description": "Proven nap room design delivered for construction operations in Queensland. available for hire or purchase. 45+ years experience.",
-    "seo_content": [
-      "Multitrade Building Hire designs and manufactures custom nap room buildings for construction operations across Queensland. With over 45 years of experience delivering portable buildings to sites across the Bowen Basin, Central Queensland, Gladstone, Emerald, Central Highlands, and Surat Basin, we have the expertise to design a nap room that meets your specific requirements.",
-      "Every nap room we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution — from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
-    ],
-    "image": "/images/products/12x3-crib-room/1.jpg",
-    "badge": "Custom Build",
-    "region": "Central Queensland",
-    "wind_rating": "B",
-    "similar_slugs": [
-      "/buy/projects/change-room-queensland",
-      "/buy/projects/8x2-4-cool-room---cold-storage-queensland",
-      "/buy/projects/workshop---warehouse-construction"
-    ]
-  },
-  {
     "id": "Q250892",
     "category": "Double Stack / Stackable",
     "industry": "Mining",
@@ -2641,73 +2506,6 @@
       "/buy/projects/double-stack---stackable-resources",
       "/buy/projects/15x12m-large-format-complex-queensland",
       "/buy/projects/12x18m-large-format-complex-mining"
-    ]
-  },
-  {
-    "id": "Q250253",
-    "category": "Gymnasium",
-    "industry": "Mining",
-    "dimensions": "",
-    "rooms": [],
-    "keywords": [
-      "recreation",
-      "fitness",
-      "exercise",
-      "gymnasium",
-      "gym"
-    ],
-    "slug": "/buy/projects/gymnasium-mining",
-    "title": "Custom Gymnasium",
-    "available_as": [
-      "hire",
-      "purchase",
-      "custom"
-    ],
-    "year": "2025",
-    "has_page": true,
-    "summary": "Purpose-built gymnasium designed for a mining operation in the Bowen Basin. Custom Gymnasium delivered turnkey by Multitrade Building Hire with full installation and connection.",
-    "brief": "The client required a purpose-built portable building for a mining operation in the Bowen Basin. The facility needed to be manufactured to specific dimensions and configurations, designed for the unique operational requirements of the project site.",
-    "delivered": "A custom-dimensioned portable building configured as a gymnasium.  Manufactured at our Gladstone facility with full quality control checks and delivered to site ready for immediate use. The building was installed, connected to site services, and handed over with complete documentation.",
-    "features": [
-      "Split-system air conditioning",
-      "Vinyl flooring throughout",
-      "Insulated wall and ceiling panels",
-      "240V power with RCD protection",
-      "LED internal lighting",
-      "Lockable entry door",
-      "Fire extinguisher mounting",
-      "Compliant electrical switchboard",
-      "External power connection point",
-      "Window with security screen",
-      "Data cabling provisions",
-      "Mine-spec construction standard"
-    ],
-    "specs": {
-      "Building Type": "Gymnasium",
-      "Dimensions": "Custom",
-      "Internal Height": "2,400mm",
-      "Wind Classification": "C2",
-      "Air Conditioning": "Split-system",
-      "Power": "240V single phase",
-      "Flooring": "Commercial vinyl",
-      "Wall Linings": "Melamine-faced panels",
-      "Industry": "Mining",
-      "Region": "Central Highlands, QLD"
-    },
-    "seo_title": "Custom Gymnasium | Custom Portable Building | Multitrade",
-    "seo_description": "Proven gymnasium design delivered for mining operations in Queensland. available for hire or purchase. 45+ years experience.",
-    "seo_content": [
-      "Multitrade Building Hire designs and manufactures custom gymnasium buildings for mining operations across Queensland. With over 45 years of experience delivering portable buildings to sites across the Bowen Basin, Central Queensland, Gladstone, Emerald, Central Highlands, and Surat Basin, we have the expertise to design a gymnasium that meets your specific requirements.",
-      "Every gymnasium we build is manufactured at our Gladstone facility using quality materials and mine-spec construction standards. Whether you need a standard configuration or a completely bespoke design, our team can deliver a turnkey solution — from initial brief through to on-site installation and handover. Contact us to request a proposal based on this proven design."
-    ],
-    "image": "/images/products/12x6m-complex/1.jpg",
-    "badge": "Custom Build",
-    "region": "Central Highlands, QLD",
-    "wind_rating": "C2",
-    "similar_slugs": [
-      "/buy/projects/change-room-queensland",
-      "/buy/projects/8x2-4-cool-room---cold-storage-queensland",
-      "/buy/projects/workshop---warehouse-construction"
     ]
   },
   {

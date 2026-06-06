@@ -388,28 +388,6 @@
     "has_page": false
   },
   {
-    "id": "Q260128",
-    "category": "Custom Lookout",
-    "industry": "Other",
-    "dimensions": "12x3m",
-    "rooms": [],
-    "keywords": [
-      "observation",
-      "elevated",
-      "lookout",
-      "viewing platform"
-    ],
-    "slug": "/buy/projects/12x3m-custom-lookout-queensland",
-    "title": "12x3m Custom Lookout",
-    "available_as": [
-      "hire",
-      "purchase",
-      "custom"
-    ],
-    "year": "2026",
-    "has_page": true
-  },
-  {
     "id": "Q260167",
     "category": "First Aid Room",
     "industry": "Mining",
@@ -6466,29 +6444,6 @@
     "has_page": false
   },
   {
-    "id": "Q250306",
-    "category": "Nap Room",
-    "industry": "Construction",
-    "dimensions": "",
-    "rooms": [],
-    "keywords": [
-      "nap room",
-      "sleep",
-      "rest room",
-      "recovery",
-      "fatigue management"
-    ],
-    "slug": "/buy/projects/nap-room-construction",
-    "title": "Custom Nap Room",
-    "available_as": [
-      "hire",
-      "purchase",
-      "custom"
-    ],
-    "year": "2025",
-    "has_page": true
-  },
-  {
     "id": "Q250375",
     "category": "Custom Build",
     "industry": "Resources",
@@ -6531,29 +6486,6 @@
     ],
     "slug": "/buy/projects/12x12m-double-stack---stackable-mining",
     "title": "Complex (Bottom Floor)",
-    "available_as": [
-      "hire",
-      "purchase",
-      "custom"
-    ],
-    "year": "2025",
-    "has_page": true
-  },
-  {
-    "id": "Q250253",
-    "category": "Gymnasium",
-    "industry": "Mining",
-    "dimensions": "",
-    "rooms": [],
-    "keywords": [
-      "recreation",
-      "fitness",
-      "exercise",
-      "gymnasium",
-      "gym"
-    ],
-    "slug": "/buy/projects/gymnasium-mining",
-    "title": "Custom Gymnasium",
     "available_as": [
       "hire",
       "purchase",

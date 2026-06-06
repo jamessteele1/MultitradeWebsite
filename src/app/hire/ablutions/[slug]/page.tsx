@@ -21,7 +21,7 @@ const PRODUCTS: Record<string, Product> = {
     size: "600cm × 300cm",
     capacity: "High traffic",
     badge: null,
-    images: ["/images/products/6x3-toilet/1.jpg", "/images/products/6x3-toilet/2.jpg", "/images/products/6x3-toilet/3.jpg", "/images/products/6x3-toilet/4.jpg", "/images/products/6x3-toilet/5.jpg", "/images/products/6x3-toilet/6.jpg", "/images/products/6x3-toilet/7.jpg", "/images/products/6x3-toilet/8.jpg", "/images/products/6x3-toilet/9.jpg", "/images/products/6x3-toilet/10.jpg", "/images/products/6x3-toilet/11.jpg", "/images/products/6x3-toilet/12.jpg", "/images/products/6x3-toilet/13.jpg"],
+    images: ["/images/products/6x3-toilet/1.jpg", "/images/products/6x3-toilet/2.jpg", "/images/products/6x3-toilet/3.jpg", "/images/products/6x3-toilet/4.jpg", "/images/products/6x3-toilet/5.jpg", "/images/products/6x3-toilet/6.jpg", "/images/products/6x3-toilet/7.jpg", "/images/products/6x3-toilet/8.jpg", "/images/products/6x3-toilet/9.jpg", "/images/products/6x3-toilet/10.jpg", "/images/products/6x3-toilet/11.jpg", "/images/products/6x3-toilet/12.jpg", "/images/products/6x3-toilet/13.jpg", "/images/products/6x3-toilet/14.jpg"],
     floorPlan: "/images/floorplans/SQF-4381-02-A - 6.0x3.0m Male Female Toilet - Floor Plan.pdf",
     description: "The 6.0m × 3.0m Toilet Block is a high-capacity portable amenity designed for busy worksites with large crews. Featuring separate male and female configurations with multiple cubicles, urinals, and hand basins, this unit handles heavy foot traffic while maintaining hygiene standards. Built on a 75mm steel frame with Colorbond cladding, it's tough enough for mining and construction environments.",
     features: [

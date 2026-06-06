@@ -5,6 +5,10 @@ import { QuoteCartProvider } from "@/context/QuoteCartContext";
 import QuoteCartPanel from "@/components/QuoteCartPanel";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://www.multitrade.com.au"),
+  alternates: {
+    canonical: "/",
+  },
   title: {
     default: "Multitrade Building Hire | Portable Buildings Queensland",
     template: "%s | Multitrade Building Hire",

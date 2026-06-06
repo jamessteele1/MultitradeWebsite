@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     title: project.seo_title,
     description: project.seo_description,
     alternates: {
-      canonical: `https://multitrade-website.vercel.app/buy/projects/${slug}`,
+      canonical: `https://www.multitrade.com.au/buy/projects/${slug}`,
     },
   };
 }

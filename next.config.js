@@ -39,7 +39,7 @@ const nextConfig = {
       { source: "/decks", destination: "/hire/ancillary", permanent: true },
       { source: "/security-hut", destination: "/hire/ancillary", permanent: true },
       { source: "/custom-build", destination: "/hire/complexes", permanent: true },
-      { source: "/40ft-flat-rack", destination: "/hire/containers/40ft-flat-rack", permanent: true },
+      { source: "/40ft-flat-rack", destination: "/hire/ancillary/40ft-flat-rack", permanent: true },
       { source: "/facility-services", destination: "/hire", permanent: true },
 
       // --- Store category pages ---
@@ -84,7 +84,7 @@ const nextConfig = {
       { source: "/product-page/10ft-dangerous-goods-container", destination: "/hire/containers/10ft-dg-container", permanent: true },
       { source: "/product-page/10ft-dangerous-goods-container-1", destination: "/hire/containers/10ft-dg-container", permanent: true },
       { source: "/product-page/20ft-dangerous-goods-container-side-open", destination: "/hire/containers/20ft-dg-container", permanent: true },
-      { source: "/product-page/40ftflat-rack", destination: "/hire/containers/40ft-flat-rack", permanent: true },
+      { source: "/product-page/40ftflat-rack", destination: "/hire/ancillary/40ft-flat-rack", permanent: true },
 
       // --- Product pages: Ancillary ---
       { source: "/product-page/12x3m-covered-deck", destination: "/hire/ancillary/12x3m-covered-deck", permanent: true },

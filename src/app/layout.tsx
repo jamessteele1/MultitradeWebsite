@@ -5,6 +5,7 @@ import { QuoteCartProvider } from "@/context/QuoteCartContext";
 import QuoteCartPanel from "@/components/QuoteCartPanel";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/next";
+import { GoogleAnalytics } from "@next/third-parties/google";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.multitrade.com.au"),
@@ -60,6 +61,7 @@ export default function RootLayout({
         <SpeedInsights />
         <Analytics />
       </body>
+      <GoogleAnalytics gaId="G-D5JK1BWGE8" />
     </html>
   );
 }

@@ -98,11 +98,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   // Industries + locations + case studies (SEO landing pages)
   const industries: MetadataRoute.Sitemap = [
-    "mining",
-    "construction",
-    "oil-gas",
-    "civil",
-  ].map((i) => entry(`/industries/${i}`, 0.6));
+    entry("/industries", 0.7, "weekly"),
+    ...["mining", "construction", "oil-gas", "civil"].map((i) =>
+      entry(`/industries/${i}`, 0.6),
+    ),
+  ];
 
   const locations: MetadataRoute.Sitemap = [
     "gladstone",

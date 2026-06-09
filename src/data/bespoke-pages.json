@@ -1911,7 +1911,7 @@
       "drug testing",
       "d&a"
     ],
-    "slug": "/buy/projects/d&a-testing-room-mining",
+    "slug": "/buy/projects/da-testing-room-mining",
     "title": "D&A Testing Room",
     "available_as": [
       "hire",
@@ -1961,8 +1961,8 @@
     "region": "Bowen Basin, QLD",
     "wind_rating": "C2",
     "similar_slugs": [
-      "/buy/projects/7-2x3m-d&a-testing-room-mining",
-      "/buy/projects/d&a-testing-room-construction",
+      "/buy/projects/7-2x3m-da-testing-room-mining",
+      "/buy/projects/da-testing-room-construction",
       "/buy/projects/12x3-4m-first-aid-room-mining"
     ],
     "gallery": [
@@ -2817,7 +2817,7 @@
       "drug testing",
       "d&a"
     ],
-    "slug": "/buy/projects/7-2x3m-d&a-testing-room-mining",
+    "slug": "/buy/projects/7-2x3m-da-testing-room-mining",
     "title": "7.2x3m D&A Building",
     "available_as": [
       "hire",
@@ -2867,8 +2867,8 @@
     "region": "Bowen Basin, QLD",
     "wind_rating": "C2",
     "similar_slugs": [
-      "/buy/projects/d&a-testing-room-mining",
-      "/buy/projects/d&a-testing-room-construction",
+      "/buy/projects/da-testing-room-mining",
+      "/buy/projects/da-testing-room-construction",
       "/buy/projects/12x3-4m-first-aid-room-mining"
     ],
     "gallery": [
@@ -3345,7 +3345,7 @@
       "drug testing",
       "d&a"
     ],
-    "slug": "/buy/projects/d&a-testing-room-construction",
+    "slug": "/buy/projects/da-testing-room-construction",
     "title": "Custom D&A Testing Room",
     "available_as": [
       "hire",
@@ -3394,8 +3394,8 @@
     "region": "Central Queensland",
     "wind_rating": "B",
     "similar_slugs": [
-      "/buy/projects/d&a-testing-room-mining",
-      "/buy/projects/7-2x3m-d&a-testing-room-mining",
+      "/buy/projects/da-testing-room-mining",
+      "/buy/projects/7-2x3m-da-testing-room-mining",
       "/buy/projects/12x3-4m-first-aid-room-mining"
     ],
     "gallery": [

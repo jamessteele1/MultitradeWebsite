@@ -3,6 +3,7 @@ import "./globals.css";
 import Footer from "@/components/Footer";
 import { QuoteCartProvider } from "@/context/QuoteCartContext";
 import QuoteCartPanel from "@/components/QuoteCartPanel";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.multitrade.com.au"),
@@ -55,6 +56,7 @@ export default function RootLayout({
           <Footer />
           <QuoteCartPanel />
         </QuoteCartProvider>
+        <SpeedInsights />
       </body>
     </html>
   );

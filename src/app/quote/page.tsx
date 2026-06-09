@@ -7,6 +7,7 @@ import { useQuoteCart, type CartItem } from "@/context/QuoteCartContext";
 import Link from "next/link";
 import { useState, useCallback, type FormEvent } from "react";
 import STANDARD_INCLUSIONS from "@/data/standardInclusions";
+import { trackLead } from "@/lib/analytics";
 
 const CATEGORY_LABELS: Record<CartItem["category"], string> = {
   "crib-rooms": "Crib Room",
@@ -138,6 +139,10 @@ export default function QuotePage() {
 
       if (!res.ok) throw new Error("Submission failed");
 
+      trackLead(
+        siteLayout ? "site_planner" : items.length > 0 ? "quote_cart" : "quote",
+        { items: items.length },
+      );
       setSubmitted(true);
       clearCart();
     } catch {

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { trackLead } from "@/lib/analytics";
 
 interface ProposalFormProps {
   /** Pre-filled context from the project page */
@@ -50,6 +51,7 @@ export default function ProposalForm({
           projectDimensions: projectDimensions || null,
         }),
       });
+      trackLead("proposal", projectCategory ? { project_category: projectCategory } : {});
       setSubmitted(true);
     } catch {
       setSubmitted(true);

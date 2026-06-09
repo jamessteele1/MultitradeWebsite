@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { trackLead } from "@/lib/analytics";
 
 export default function LeadCaptureForm() {
   const [form, setForm] = useState({
@@ -24,6 +25,7 @@ export default function LeadCaptureForm() {
         body: JSON.stringify({ ...form, source: "buy-page-search" }),
       });
       if (res.ok) {
+        trackLead("buy_lead");
         setSubmitted(true);
       }
     } catch {

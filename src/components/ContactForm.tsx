@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { trackLead } from "@/lib/analytics";
 
 export default function ContactForm() {
   const [submitting, setSubmitting] = useState(false);
@@ -36,6 +37,7 @@ export default function ContactForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
+      trackLead("contact");
       setSubmitted(true);
     } catch {
       // Always show success to the user — the form was submitted, we just may

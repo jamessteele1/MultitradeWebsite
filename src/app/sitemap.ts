@@ -105,12 +105,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
   ];
 
   const locations: MetadataRoute.Sitemap = [
-    "gladstone",
-    "mackay",
-    "rockhampton",
-    "emerald",
-    "bowen-basin",
-  ].map((l) => entry(`/locations/${l}`, 0.6));
+    entry("/locations", 0.7, "weekly"),
+    ...["gladstone", "mackay", "rockhampton", "emerald", "bowen-basin"].map((l) =>
+      entry(`/locations/${l}`, 0.6),
+    ),
+  ];
 
   const caseStudies: MetadataRoute.Sitemap = [
     "gladstone-hockey",

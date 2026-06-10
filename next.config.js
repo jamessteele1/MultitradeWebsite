@@ -17,6 +17,14 @@ const nextConfig = {
       // Preserves Google Ads quality scores & SEO authority
       // ============================================================
 
+      // --- Tracking/SEO doc stragglers (Jun 2026) ---
+      { source: "/buy/projects", destination: "/case-studies", permanent: true },
+      { source: "/products", destination: "/hire", permanent: true },
+      { source: "/get-a-quote", destination: "/quote", permanent: true },
+      { source: "/building-hire", destination: "/hire", permanent: true },
+      { source: "/building-sales", destination: "/buy", permanent: true },
+      { source: "/solar-facilities", destination: "/solar-facility", permanent: true },
+
       // --- Category / listing pages ---
       { source: "/toilet", destination: "/hire/ablutions", permanent: true },
       { source: "/ablution", destination: "/hire/ablutions", permanent: true },

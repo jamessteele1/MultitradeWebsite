@@ -37,7 +37,7 @@ export default function ContactForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-      trackLead("contact");
+      trackLead("contact", { email: payload.email, phone: payload.phone });
       setSubmitted(true);
     } catch {
       // Always show success to the user — the form was submitted, we just may

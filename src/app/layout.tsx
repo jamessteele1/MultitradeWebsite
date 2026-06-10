@@ -6,6 +6,7 @@ import QuoteCartPanel from "@/components/QuoteCartPanel";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/next";
 import { GoogleAnalytics } from "@next/third-parties/google";
+import Script from "next/script";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.multitrade.com.au"),
@@ -62,6 +63,12 @@ export default function RootLayout({
         <Analytics />
       </body>
       <GoogleAnalytics gaId="G-D5JK1BWGE8" />
+      {/* Google Ads tag — shares the gtag.js loaded above (GA4 + Ads). */}
+      <Script id="google-ads-tag" strategy="afterInteractive">
+        {`window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('config', 'AW-869595025');`}
+      </Script>
     </html>
   );
 }

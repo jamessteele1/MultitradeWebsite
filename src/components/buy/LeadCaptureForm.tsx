@@ -25,7 +25,7 @@ export default function LeadCaptureForm() {
         body: JSON.stringify({ ...form, source: "buy-page-search" }),
       });
       if (res.ok) {
-        trackLead("buy_lead");
+        trackLead("buy_lead", { email: form.email, phone: form.phone });
         setSubmitted(true);
       }
     } catch {

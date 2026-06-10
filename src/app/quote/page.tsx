@@ -141,7 +141,7 @@ export default function QuotePage() {
 
       trackLead(
         siteLayout ? "site_planner" : items.length > 0 ? "quote_cart" : "quote",
-        { items: items.length },
+        { email: form.email, phone: form.phone },
       );
       setSubmitted(true);
       clearCart();

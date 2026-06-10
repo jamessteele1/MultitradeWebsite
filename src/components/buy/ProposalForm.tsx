@@ -51,7 +51,7 @@ export default function ProposalForm({
           projectDimensions: projectDimensions || null,
         }),
       });
-      trackLead("proposal", projectCategory ? { project_category: projectCategory } : {});
+      trackLead("proposal", { email: form.email, phone: form.phone });
       setSubmitted(true);
     } catch {
       setSubmitted(true);

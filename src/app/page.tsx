@@ -296,11 +296,11 @@ export default function HomePage() {
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold text-xs font-bold text-gray-900 mb-4">
                 MAJOR QLD PROJECT
               </div>
-              <h2 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight max-w-3xl leading-tight">
-                Full-Scale Site Villages, Delivered Turnkey
+              <h2 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight max-w-4xl leading-tight">
+                Supply &amp; Installation of Industry-Leading Workforce Amenities
               </h2>
               <p className="text-white/75 text-base md:text-lg mt-3 max-w-2xl leading-relaxed">
-                From a single office to a complete workforce village — accommodation, ablutions, crib rooms, and offices designed, manufactured, delivered, installed, and connected on-site.
+                From a single office to a complete site village — accommodation, ablutions, crib rooms, and offices designed, manufactured, delivered, installed, and connected on-site.
               </p>
               <div className="mt-5 flex flex-col sm:flex-row gap-3">
                 <Link

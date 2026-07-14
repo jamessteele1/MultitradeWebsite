@@ -278,6 +278,50 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* ─── SCALE / VILLAGE BAND ─── */}
+      {/* Full-width photo of a workforce and Multitrade village setup on
+          a major QLD project. Client name intentionally omitted from
+          copy — the photo speaks to scale on its own. */}
+      <section className="relative overflow-hidden">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/images/home/site-village.jpg"
+          alt="Multitrade buildings and full workforce village on a major Queensland industrial project"
+          className="w-full h-72 md:h-[560px] object-cover object-center"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/45 to-black/20" />
+        <div className="absolute inset-0 flex items-end">
+          <div className="max-w-7xl mx-auto px-4 pb-8 md:pb-16 w-full">
+            <FadeIn>
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold text-xs font-bold text-gray-900 mb-4">
+                MAJOR QLD PROJECT
+              </div>
+              <h2 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight max-w-3xl leading-tight">
+                Full-Scale Site Villages, Delivered Turnkey
+              </h2>
+              <p className="text-white/75 text-base md:text-lg mt-3 max-w-2xl leading-relaxed">
+                From a single office to a complete workforce village — accommodation, ablutions, crib rooms, and offices designed, manufactured, delivered, installed, and connected on-site.
+              </p>
+              <div className="mt-5 flex flex-col sm:flex-row gap-3">
+                <Link
+                  href="/quote"
+                  className="px-6 py-3 rounded-lg font-semibold text-gray-900 text-center bg-gold hover:brightness-110 transition-all flex items-center justify-center gap-2"
+                >
+                  Plan Your Site Setup
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                </Link>
+                <Link
+                  href="/case-studies"
+                  className="px-6 py-3 rounded-lg font-semibold text-white text-center border border-white/25 hover:bg-white/10 transition-all"
+                >
+                  See More Projects
+                </Link>
+              </div>
+            </FadeIn>
+          </div>
+        </div>
+      </section>
+
       {/* ─── CASE STUDY ─── */}
       <section className="relative overflow-hidden py-16 md:py-24" style={{ background: "linear-gradient(135deg, var(--navy) 0%, var(--navy-2) 60%, var(--navy-3) 100%)" }}>
         <div className="absolute inset-0 opacity-5" style={{ backgroundImage: "linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)", backgroundSize: "60px 60px" }} />

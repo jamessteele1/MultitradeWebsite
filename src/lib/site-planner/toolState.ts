@@ -2,7 +2,28 @@
  * Drawing/annotation tool state shared between toolbar and canvas.
  */
 
-export type ToolMode = "select" | "freehand" | "line" | "polygon" | "text";
+/**
+ * Editor tool modes. The shape-* modes drop pre-canned closed polygons
+ * (rectangle, ellipse, triangle) at the user's tap point — handy for
+ * marking out parking, no-go zones, hazard radii, etc.
+ */
+export type ToolMode =
+  | "select"
+  | "freehand"
+  | "line"
+  | "dimension"
+  | "polygon"
+  | "text"
+  | "shape-rect"
+  | "shape-circle"
+  | "shape-triangle"
+  | "shape-arrow-up"     // arrow pointing north
+  | "shape-arrow-down"   // arrow pointing south
+  | "shape-arrow-left"   // arrow pointing west
+  | "shape-arrow-right"  // arrow pointing east
+  | "shape-car"          // car-proportioned rectangle (4 × 2 m)
+  | "shape-bus"          // bus-proportioned rectangle (12 × 2.5 m)
+  | "shape-truck";       // truck-proportioned rectangle (8 × 2.5 m)
 
 export type DrawStyle = {
   color: string;

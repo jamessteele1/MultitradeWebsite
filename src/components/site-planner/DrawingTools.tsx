@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useRef, useEffect } from "react";
 import { type ToolMode, type DrawStyle, type TextStyle } from "@/lib/site-planner/toolState";
 
 const SWATCH_COLOURS = [
@@ -20,6 +21,10 @@ export type SelectedDrawingEdit = {
   dashed: boolean;
   opacity: number;
   closed: boolean;
+  /** Set when the drawing is a dimension line — exposes the flip-side
+      toggle in the edit row. */
+  dimension?: boolean;
+  dimensionFlip?: boolean;
 };
 
 /** Subset of TextItem fields that can be edited after creation. */
@@ -45,6 +50,9 @@ type Props = {
   onSelectedDrawingChange?: (patch: Partial<SelectedDrawingEdit>) => void;
   onSelectedDrawingDelete?: () => void;
   onDeselectDrawing?: () => void;
+  /** Scale the selected drawing up/down by a factor (1.1 / 1/1.1) — wired
+      to the +/- "size" buttons in the edit panel. */
+  onSelectedDrawingResize?: (factor: number) => void;
   /** Currently-selected text annotation in the canvas (or null). */
   selectedText?: SelectedTextEdit | null;
   onSelectedTextChange?: (patch: Partial<SelectedTextEdit>) => void;
@@ -54,6 +62,10 @@ type Props = {
       mobile where vertical space is precious. The Done button moves inline
       with the tool selectors and styles condense. */
   compact?: boolean;
+  /** Shape tool — default size in metres for the next shape placement.
+      Lives in parent state so the canvas + popover share it. */
+  shapeSize?: number;
+  onShapeSizeChange?: (m: number) => void;
 };
 
 const btnBase =
@@ -71,13 +83,42 @@ export default function DrawingTools({
   onSelectedDrawingChange,
   onSelectedDrawingDelete,
   onDeselectDrawing,
+  onSelectedDrawingResize,
   selectedText,
   onSelectedTextChange,
   onSelectedTextDelete,
   onDeselectText,
   compact = false,
+  shapeSize = 5,
+  onShapeSizeChange,
 }: Props) {
-  const isDrawing = tool === "freehand" || tool === "line" || tool === "polygon";
+  const isDrawing =
+    tool === "freehand" ||
+    tool === "line" ||
+    tool === "dimension" ||
+    tool === "polygon" ||
+    tool.startsWith("shape-");
+  const isShapeMode = tool.startsWith("shape-");
+
+  // Shape picker popover state — anchored under the Shape button. Click
+  // a shape, the tool becomes "shape-<kind>" and the popover closes.
+  const [shapesOpen, setShapesOpen] = useState(false);
+  const shapesAnchorRef = useRef<HTMLDivElement>(null);
+  // Click outside closes the popover
+  useEffect(() => {
+    if (!shapesOpen) return;
+    const handler = (e: MouseEvent | TouchEvent) => {
+      if (shapesAnchorRef.current && !shapesAnchorRef.current.contains(e.target as Node)) {
+        setShapesOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    document.addEventListener("touchstart", handler);
+    return () => {
+      document.removeEventListener("mousedown", handler);
+      document.removeEventListener("touchstart", handler);
+    };
+  }, [shapesOpen]);
   const isText = tool === "text";
   const hasSelectedDrawing = !!selectedDrawing && !!onSelectedDrawingChange;
   const hasSelectedText = !!selectedText && !!onSelectedTextChange;
@@ -149,14 +190,43 @@ export default function DrawingTools({
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round">
             <line x1="4" y1="20" x2="20" y2="4" />
           </svg>,
-          "Straight line — click and drag",
+          "Straight line — tap start, tap end",
+        )}
+
+        {toolBtn(
+          "dimension",
+          "Dim",
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            {/* Dashed dimension line with arrowheads each end — line spans
+                edge-to-edge with the arrows tucked at the very ends so the
+                dashed measurement is visible at small sizes. */}
+            <line x1="2" y1="12" x2="22" y2="12" strokeDasharray="3 2" />
+            <polyline points="2 12 6 9 6 15 2 12" fill="currentColor" />
+            <polyline points="22 12 18 9 18 15 22 12" fill="currentColor" />
+          </svg>,
+          "Dimension line — tap two points to mark a measurement",
         )}
 
         {toolBtn(
           "polygon",
           "Area",
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-            <polygon points="12 2 22 8.5 18 21 6 21 2 8.5" />
+          // Square box with "m²" inside — reads as "this tool measures
+          // an area in square metres" much more directly than a
+          // generic polygon glyph.
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="1.5" />
+            <text
+              x="12"
+              y="16"
+              textAnchor="middle"
+              fontSize="10"
+              fontWeight="800"
+              fill="currentColor"
+              stroke="none"
+              fontFamily="system-ui, -apple-system, sans-serif"
+            >
+              m²
+            </text>
           </svg>,
           "Click to add corners. Click first point or double-click to close (work area)",
         )}
@@ -172,12 +242,178 @@ export default function DrawingTools({
           "Add free text",
         )}
 
+        {/* Shape picker — opens a small popover of standard shapes
+            (rectangle / circle / triangle). Picking one switches the
+            tool to "shape-<kind>"; tapping the canvas drops a 5×5m
+            shape there using the current colour / opacity / dashed
+            settings. Tap "Done" to exit shape mode. */}
+        <div ref={shapesAnchorRef} className="relative">
+          <button
+            type="button"
+            onClick={() => setShapesOpen((v) => !v)}
+            title="Standard shapes — rectangle, circle, triangle"
+            aria-label="Add a standard shape"
+            aria-expanded={shapesOpen}
+            className={`${
+              compact
+                ? "flex items-center justify-center w-9 h-9 rounded-lg transition-colors"
+                : btnBase
+            } ${
+              isShapeMode
+                ? "bg-amber-500 text-white border border-amber-500"
+                : "border border-gray-200 text-gray-700 hover:bg-gray-100"
+            }`}
+          >
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              {/* Three nested standard shapes — rect + circle + triangle */}
+              <rect x="3" y="3" width="9" height="9" rx="0.5" />
+              <circle cx="17" cy="7.5" r="4.5" />
+              <polygon points="12 21 3 21 7.5 13" />
+            </svg>
+            {!compact && "Shape"}
+          </button>
+
+          {shapesOpen && (
+            <div className="absolute top-full left-0 mt-1 z-50 bg-white rounded-xl border border-gray-200 shadow-xl p-2 w-[300px]">
+              <div className="grid grid-cols-5 gap-1 mb-2">
+                {/* Geometric shapes */}
+                {[
+                  { kind: "shape-rect" as const, title: "Rectangle", svg: <rect x="4" y="6" width="16" height="12" rx="1" /> },
+                  { kind: "shape-circle" as const, title: "Circle", svg: <circle cx="12" cy="12" r="8" /> },
+                  { kind: "shape-triangle" as const, title: "Triangle", svg: <polygon points="12 4 21 20 3 20" /> },
+                  {
+                    kind: "shape-arrow-up" as const,
+                    title: "Arrow ↑",
+                    svg: (
+                      <>
+                        <line x1="12" y1="20" x2="12" y2="5" />
+                        <polyline points="6 11 12 5 18 11" />
+                      </>
+                    ),
+                  },
+                  {
+                    kind: "shape-arrow-down" as const,
+                    title: "Arrow ↓",
+                    svg: (
+                      <>
+                        <line x1="12" y1="4" x2="12" y2="19" />
+                        <polyline points="6 13 12 19 18 13" />
+                      </>
+                    ),
+                  },
+                  {
+                    kind: "shape-arrow-left" as const,
+                    title: "Arrow ←",
+                    svg: (
+                      <>
+                        <line x1="20" y1="12" x2="5" y2="12" />
+                        <polyline points="11 6 5 12 11 18" />
+                      </>
+                    ),
+                  },
+                  {
+                    kind: "shape-arrow-right" as const,
+                    title: "Arrow →",
+                    svg: (
+                      <>
+                        <line x1="4" y1="12" x2="19" y2="12" />
+                        <polyline points="13 6 19 12 13 18" />
+                      </>
+                    ),
+                  },
+                  {
+                    kind: "shape-car" as const,
+                    title: "Car (4×2 m)",
+                    svg: (
+                      <>
+                        <rect x="3" y="9" width="18" height="6" rx="1.5" />
+                        <circle cx="7.5" cy="17" r="1.5" fill="currentColor" />
+                        <circle cx="16.5" cy="17" r="1.5" fill="currentColor" />
+                      </>
+                    ),
+                  },
+                  {
+                    kind: "shape-bus" as const,
+                    title: "Bus (12×2.5 m)",
+                    svg: (
+                      <>
+                        <rect x="3" y="6" width="18" height="11" rx="1.5" />
+                        <line x1="3" y1="11" x2="21" y2="11" />
+                        <line x1="9" y1="6" x2="9" y2="11" />
+                        <line x1="15" y1="6" x2="15" y2="11" />
+                        <circle cx="7" cy="19" r="1.2" fill="currentColor" />
+                        <circle cx="17" cy="19" r="1.2" fill="currentColor" />
+                      </>
+                    ),
+                  },
+                  {
+                    kind: "shape-truck" as const,
+                    title: "Truck (8×2.5 m)",
+                    svg: (
+                      <>
+                        <rect x="3" y="8" width="11" height="9" rx="1" />
+                        <path d="M14 11h4l3 3v3h-7z" />
+                        <circle cx="7" cy="19" r="1.4" fill="currentColor" />
+                        <circle cx="17" cy="19" r="1.4" fill="currentColor" />
+                      </>
+                    ),
+                  },
+                ].map(({ kind, title, svg }) => (
+                  <button
+                    key={kind}
+                    type="button"
+                    onClick={() => {
+                      onToolChange(kind);
+                      setShapesOpen(false);
+                    }}
+                    title={title}
+                    aria-label={title}
+                    className={`flex items-center justify-center h-11 rounded-lg ${
+                      tool === kind ? "bg-amber-500 text-white" : "text-gray-700 hover:bg-gray-100"
+                    }`}
+                  >
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      {svg}
+                    </svg>
+                  </button>
+                ))}
+              </div>
+
+              {/* Size slider — sets the default size for the next shape
+                  placement (the longer side will be this many metres). */}
+              {onShapeSizeChange && (
+                <div className="flex items-center gap-2 px-1.5 pt-2 border-t border-gray-100">
+                  <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Size</span>
+                  <input
+                    type="range"
+                    min={1}
+                    max={20}
+                    step={0.5}
+                    value={shapeSize}
+                    onChange={(e) => onShapeSizeChange(parseFloat(e.target.value))}
+                    className="flex-1 h-1 accent-amber-500"
+                    aria-label="Shape size"
+                  />
+                  <span className="text-[11px] font-mono text-gray-700 w-12 text-right">{shapeSize.toFixed(1)} m</span>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
         {tool !== "select" && (
           <button
             onClick={() => onToolChange("select")}
-            className={`${compact ? "ml-1 px-2.5 py-1 text-[11px] font-bold" : `${btnBase} ml-auto`} text-gray-500 hover:bg-gray-100 rounded-lg`}
+            className={
+              compact
+                ? "ml-auto inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-gray-900 text-white text-[11px] font-bold shadow-sm hover:bg-gray-800 active:bg-black transition-colors"
+                : `${btnBase} ml-auto bg-gray-900 text-white border border-gray-900 hover:bg-gray-800`
+            }
             title="Exit drawing mode"
           >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
             Done
           </button>
         )}
@@ -491,6 +727,46 @@ export default function DrawingTools({
           </div>
 
           <div className="flex items-center gap-1.5 ml-auto">
+            {/* Quick resize — scales the drawing's vertices around its
+                centroid by ±10%. */}
+            {onSelectedDrawingResize && (
+              <div className="flex items-center gap-0.5 px-1 rounded-lg border border-gray-200 bg-white">
+                <button
+                  onClick={() => onSelectedDrawingResize(1 / 1.1)}
+                  className="w-6 h-7 flex items-center justify-center text-gray-700 hover:bg-gray-100 rounded text-base font-bold"
+                  title="Resize smaller (10%)"
+                  aria-label="Resize smaller"
+                >
+                  −
+                </button>
+                <span className="text-[9px] font-bold text-gray-500 px-0.5 uppercase">Size</span>
+                <button
+                  onClick={() => onSelectedDrawingResize(1.1)}
+                  className="w-6 h-7 flex items-center justify-center text-gray-700 hover:bg-gray-100 rounded text-base font-bold"
+                  title="Resize bigger (10%)"
+                  aria-label="Resize bigger"
+                >
+                  +
+                </button>
+              </div>
+            )}
+            {/* Flip-side toggle for dimension lines — moves the
+                measurement label to the other side of the line. */}
+            {selectedDrawing.dimension && (
+              <button
+                onClick={() => onSelectedDrawingChange({ dimensionFlip: !selectedDrawing.dimensionFlip })}
+                className={`${btnBase} text-gray-700 border border-gray-200 hover:bg-gray-50`}
+                title="Flip the dimension label to the other side"
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M17 1l4 4-4 4" />
+                  <path d="M3 11V9a4 4 0 014-4h14" />
+                  <path d="M7 23l-4-4 4-4" />
+                  <path d="M21 13v2a4 4 0 01-4 4H3" />
+                </svg>
+                Flip
+              </button>
+            )}
             {onSelectedDrawingDelete && (
               <button
                 onClick={onSelectedDrawingDelete}

@@ -9,10 +9,12 @@ import DrawingTools from "./DrawingTools";
 import MobileMapBar from "./MobileMapBar";
 import PlannerOnboarding from "./PlannerOnboarding";
 import MobilePdfDeliveryModal from "./MobilePdfDeliveryModal";
+import LayoutManagerModal from "./LayoutManagerModal";
+import { saveLayout, type SavedLayout } from "@/lib/site-planner/layoutStorage";
 import { usePlannerState } from "@/lib/site-planner/usePlannerState";
 import { getBuildingType } from "@/lib/site-planner/buildings";
 import { downloadPNG, downloadPDF, generatePDFBase64 } from "@/lib/site-planner/exportUtils";
-import { fetchSatelliteImage, type GeoResult } from "@/lib/site-planner/mapUtils";
+import { fetchSatelliteImage, canvasPointToLatLng, extendSatelliteImage, type GeoResult } from "@/lib/site-planner/mapUtils";
 import { findDeckSnap } from "@/lib/site-planner/snapUtils";
 import { useQuoteCart } from "@/context/QuoteCartContext";
 import { PIXELS_PER_METRE, CANVAS_WIDTH_M, CANVAS_HEIGHT_M } from "@/lib/site-planner/constants";
@@ -66,6 +68,9 @@ export default function SitePlannerClient() {
   // Drawing/text tool state
   const [tool, setTool] = useState<ToolMode>("select");
   const [drawStyle, setDrawStyle] = useState<DrawStyle>(DEFAULT_DRAW_STYLE);
+  /** Default size (metres) for the next Shape-tool placement — set via
+      the slider in the Shape popover. */
+  const [shapeSize, setShapeSize] = useState<number>(5);
   const [textStyle, setTextStyle] = useState<TextStyle>(DEFAULT_TEXT_STYLE);
 
   // Selection state for drawings + text annotations — surfaced from the
@@ -96,10 +101,15 @@ export default function SitePlannerClient() {
   const [placingTypeId, setPlacingTypeId] = useState<string | null>(null);
   const [placingLabel, setPlacingLabel] = useState("");
   const [buildingPopupOpen, setBuildingPopupOpen] = useState(false);
+  // Which tab the popup should open on. Mobile +Add lands on the
+  // first building category; the desktop "Templates" button lands on
+  // the Templates tab directly.
+  const [buildingPopupCategory, setBuildingPopupCategory] = useState<string | undefined>(undefined);
 
   // Mobile PDF delivery modal — opens instead of jsPDF.save() since mobile
   // browsers handle direct PDF downloads inconsistently.
   const [pdfModalOpen, setPdfModalOpen] = useState(false);
+  const [layoutModalOpen, setLayoutModalOpen] = useState(false);
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);
@@ -127,6 +137,8 @@ export default function SitePlannerClient() {
         dashed: selectedDrawingObj.dashed,
         opacity: selectedDrawingObj.opacity ?? 1,
         closed: selectedDrawingObj.closed,
+        dimension: selectedDrawingObj.dimension,
+        dimensionFlip: selectedDrawingObj.dimensionFlip,
       }
     : null;
   const selectedTextForTools = selectedTextObj
@@ -139,7 +151,7 @@ export default function SitePlannerClient() {
     : null;
 
   const handleSelectedDrawingChange = useCallback(
-    (patch: Partial<{ color: string; thickness: number; dashed: boolean; opacity: number; closed: boolean }>) => {
+    (patch: Partial<{ color: string; thickness: number; dashed: boolean; opacity: number; closed: boolean; dimension: boolean; dimensionFlip: boolean }>) => {
       if (selectedDrawingId) state.updateDrawing(selectedDrawingId, patch);
     },
     [selectedDrawingId, state],
@@ -150,6 +162,26 @@ export default function SitePlannerClient() {
       setSelectedDrawingId(null);
     }
   }, [selectedDrawingId, state]);
+  /** Scale the selected drawing's vertices around its centroid by `factor`. */
+  const handleSelectedDrawingResize = useCallback(
+    (factor: number) => {
+      if (!selectedDrawingId) return;
+      const d = state.drawings.find((dd) => dd.id === selectedDrawingId);
+      if (!d) return;
+      const n = d.points.length / 2;
+      if (n === 0) return;
+      let cx = 0, cy = 0;
+      for (let i = 0; i < n; i++) { cx += d.points[i * 2]; cy += d.points[i * 2 + 1]; }
+      cx /= n; cy /= n;
+      const next = d.points.slice();
+      for (let i = 0; i < n; i++) {
+        next[i * 2]     = cx + (d.points[i * 2]     - cx) * factor;
+        next[i * 2 + 1] = cy + (d.points[i * 2 + 1] - cy) * factor;
+      }
+      state.updateDrawing(d.id, { points: next });
+    },
+    [selectedDrawingId, state],
+  );
   const handleDeselectDrawing = useCallback(() => setSelectedDrawingId(null), []);
 
   const handleSelectedTextChange = useCallback(
@@ -218,6 +250,72 @@ export default function SitePlannerClient() {
     return await generatePDFBase64(stageRef.current, state.buildings, mapRotation, siteAddress, siteCoords);
   }, [state.buildings, mapRotation, siteAddress, siteCoords]);
 
+  /**
+   * Snapshot the current canvas as a SavedLayout. Includes a small PNG
+   * thumbnail of the visible canvas so the load list shows a preview
+   * instead of just a name.
+   */
+  const handleSaveLayout = useCallback(
+    async (input: { name: string; isTemplate: boolean }) => {
+      let thumbnail: string | undefined;
+      const stage = stageRef.current;
+      if (stage) {
+        try {
+          // Reset transform briefly so the thumbnail captures the full
+          // canvas content rather than the user's current viewport.
+          const prev = { x: stage.x(), y: stage.y(), sx: stage.scaleX(), sy: stage.scaleY(), w: stage.width(), h: stage.height() };
+          const targetW = 320;
+          const ratio = (CANVAS_HEIGHT_M * PIXELS_PER_METRE) / (CANVAS_WIDTH_M * PIXELS_PER_METRE);
+          stage.scale({ x: 1, y: 1 });
+          stage.position({ x: 0, y: 0 });
+          stage.size({ width: CANVAS_WIDTH_M * PIXELS_PER_METRE, height: CANVAS_HEIGHT_M * PIXELS_PER_METRE });
+          stage.draw();
+          thumbnail = stage.toDataURL({
+            mimeType: "image/jpeg",
+            quality: 0.55,
+            pixelRatio: targetW / (CANVAS_WIDTH_M * PIXELS_PER_METRE),
+          });
+          // Restore
+          stage.scale({ x: prev.sx, y: prev.sy });
+          stage.position({ x: prev.x, y: prev.y });
+          stage.size({ width: prev.w, height: prev.h });
+          stage.draw();
+          // Suppress unused-warning if ratio not used
+          void ratio;
+        } catch {
+          thumbnail = undefined;
+        }
+      }
+      saveLayout({
+        name: input.name,
+        isTemplate: input.isTemplate,
+        thumbnail,
+        buildings: state.buildings,
+        drawings: state.drawings,
+        texts: state.texts,
+        mapRotation,
+        siteAddress,
+      });
+    },
+    [state.buildings, state.drawings, state.texts, mapRotation, siteAddress],
+  );
+
+  /**
+   * Load a saved layout into the planner. Pushes the existing state to
+   * the undo stack so the user can ⌘Z back if they didn't mean to.
+   */
+  const handleLoadLayout = useCallback(
+    (layout: SavedLayout) => {
+      state.replaceState({
+        buildings: layout.buildings,
+        drawings: layout.drawings,
+        texts: layout.texts,
+      });
+      if (typeof layout.mapRotation === "number") setMapRotation(layout.mapRotation);
+    },
+    [state],
+  );
+
   // Building move with deck snap detection
   const handleBuildingMove = useCallback(
     (instanceId: string, x: number, y: number) => {
@@ -266,24 +364,6 @@ export default function SitePlannerClient() {
       }
     },
     [state],
-  );
-
-  // Legacy "Add Note" toolbar — drops a styled text annotation at the canvas centre
-  const handleAddAnnotation = useCallback(
-    (text: string) => {
-      const ppm = PIXELS_PER_METRE;
-      const cx = (CANVAS_WIDTH_M * ppm) / 2;
-      const cy = (CANVAS_HEIGHT_M * ppm) / 2;
-      state.addText({
-        x: cx,
-        y: cy,
-        text,
-        fontSize: textStyle.fontSize,
-        color: textStyle.color,
-        opacity: textStyle.opacity,
-      });
-    },
-    [state, textStyle],
   );
 
   // Get a Quote — add planner items to the quote cart (skip custom shapes & utility markers)
@@ -432,6 +512,53 @@ export default function SitePlannerClient() {
     [state],
   );
 
+  /**
+   * Progressive map extension. When the user pans to whitespace beyond
+   * the loaded imagery and taps the "+ Add map here" button on the
+   * canvas, we fetch a fresh patch of satellite tiles centred at that
+   * canvas point and composite them onto the existing map. Avoids
+   * pre-fetching huge grids you may never need.
+   */
+  const handleMapExtend = useCallback(
+    async (canvasX: number, canvasY: number) => {
+      if (!mapData || !siteCoords) return;
+      setMapLoading(true);
+      try {
+        const click = canvasPointToLatLng(
+          canvasX,
+          canvasY,
+          mapData.x,
+          mapData.y,
+          mapData.image.width,
+          mapData.image.height,
+          mapData.scale,
+          siteCoords.lat,
+          siteCoords.lng,
+          PIXELS_PER_METRE,
+        );
+        const next = await extendSatelliteImage({
+          currentImage: mapData.image,
+          currentX: mapData.x,
+          currentY: mapData.y,
+          scale: mapData.scale,
+          siteLat: siteCoords.lat,
+          siteLng: siteCoords.lng,
+          newCenterLat: click.lat,
+          newCenterLng: click.lng,
+          pixelsPerMetre: PIXELS_PER_METRE,
+        });
+        setMapData({ image: next.image, scale: next.scale, x: next.x, y: next.y });
+      } catch (err) {
+        const msg = (err as Error)?.message || "Couldn't load that area — please try again.";
+        console.error("Map extend failed:", err);
+        alert(msg);
+      } finally {
+        setMapLoading(false);
+      }
+    },
+    [mapData, siteCoords],
+  );
+
   // Keyboard shortcuts
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -518,7 +645,13 @@ export default function SitePlannerClient() {
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" /></svg>
           </button>
           <button onClick={state.undo} disabled={!state.canUndo} className="flex-shrink-0 p-1.5 rounded-lg text-gray-600 disabled:text-gray-300" aria-label="Undo" title="Undo">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 7v6h6" /><path d="M3 13a9 9 0 0115.36-6.36L21 9" /></svg>
+            {/* Universal "u-turn" undo glyph — left-pointing arrowhead with
+                a curved tail dropping down-right. Reads as "step back" at
+                a glance. */}
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="9 14 4 9 9 4" />
+              <path d="M20 20v-7a4 4 0 00-4-4H4" />
+            </svg>
           </button>
           <button onClick={handleClear} disabled={state.buildings.length === 0 && state.drawings.length === 0 && state.texts.length === 0} className="flex-shrink-0 p-1.5 rounded-lg text-gray-500 disabled:text-gray-300" aria-label="Clear" title="Clear">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -536,6 +669,14 @@ export default function SitePlannerClient() {
           </button>
 
           <div className="flex-1" />
+
+          <button onClick={() => setLayoutModalOpen(true)} className="flex-shrink-0 p-1.5 rounded-lg text-gray-600 border border-gray-200" aria-label="Layouts — save and load" title="Save / load layouts">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z" />
+              <polyline points="17 21 17 13 7 13 7 21" />
+              <polyline points="7 3 7 8 15 8" />
+            </svg>
+          </button>
 
           <button onClick={handleExportPDF} disabled={state.buildings.length === 0} className="flex-shrink-0 p-1.5 rounded-lg text-gray-600 disabled:text-gray-300 border border-gray-200" aria-label="Export PDF" title="Export PDF">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -599,6 +740,8 @@ export default function SitePlannerClient() {
           textStyle={textStyle}
           onTextStyleChange={setTextStyle}
           onClearDrawings={state.drawings.length > 0 ? state.clearDrawings : undefined}
+          shapeSize={shapeSize}
+          onShapeSizeChange={setShapeSize}
           compact
         />
 
@@ -618,6 +761,7 @@ export default function SitePlannerClient() {
             onMove={handleBuildingMove}
             onLabelEdit={handleLabelEdit}
             onRemoveBuilding={state.removeBuilding}
+            onRotateBuilding={state.rotateBuilding}
             onAdd={state.addBuilding}
             onAddCustom={(w, d, x, y, label) => handleAddCustom(w, d, x, y, label)}
             stageRef={stageRef}
@@ -634,6 +778,7 @@ export default function SitePlannerClient() {
             onMoveSiteAsOneChange={setMoveSiteAsOne}
             onMapRecenter={handleMapRecenter}
             onMapDragShift={handleMapDragShift}
+            onMapExtend={handleMapExtend}
             sunDirection={sunEnabled ? mapRotation : null}
             drawings={state.drawings}
             texts={state.texts}
@@ -649,6 +794,7 @@ export default function SitePlannerClient() {
             onToolChange={setTool}
             drawStyle={drawStyle}
             textStyle={textStyle}
+            shapeSize={shapeSize}
             placingTypeId={placingTypeId}
             placingLabel={placingLabel}
             onPlaced={handlePlaced}
@@ -657,14 +803,27 @@ export default function SitePlannerClient() {
           />
         </div>
 
-        {/* Building selection popup */}
+        {/* Building selection popup — open from the mobile +Add button */}
         <BuildingSelectionPopup
           open={buildingPopupOpen}
-          onClose={() => setBuildingPopupOpen(false)}
+          onClose={() => {
+            setBuildingPopupOpen(false);
+            setBuildingPopupCategory(undefined);
+          }}
           onSelect={handleSelectPlacingType}
           onAddCustom={(w, d, label) => {
             handleSelectPlacingType(`custom-${w}x${d}`, label);
           }}
+          onApplyTemplate={(template) => {
+            if (
+              (state.buildings.length > 0 || state.drawings.length > 0 || state.texts.length > 0) &&
+              !confirm(`Apply "${template.name}"? Your current layout will be replaced (you can ⌘Z to undo).`)
+            ) {
+              return;
+            }
+            handleLoadLayout(template);
+          }}
+          defaultCategory={buildingPopupCategory}
         />
 
         {/* Mobile PDF delivery — Web Share API or open-in-tab */}
@@ -673,6 +832,15 @@ export default function SitePlannerClient() {
           onClose={() => setPdfModalOpen(false)}
           generatePdf={generatePdfBase64}
           productName={siteAddress ? `Site Layout — ${siteAddress.split(",")[0]}` : "Site Layout"}
+        />
+
+        {/* Save / load layouts */}
+        <LayoutManagerModal
+          open={layoutModalOpen}
+          onClose={() => setLayoutModalOpen(false)}
+          onSave={handleSaveLayout}
+          onLoad={handleLoadLayout}
+          hasContent={state.buildings.length > 0 || state.drawings.length > 0 || state.texts.length > 0}
         />
       </div>
     );
@@ -709,7 +877,11 @@ export default function SitePlannerClient() {
         sunEnabled={sunEnabled}
         onSunToggle={() => setSunEnabled((prev) => !prev)}
         onGetQuote={handleGetQuote}
-        onAddAnnotation={handleAddAnnotation}
+        onOpenTemplates={() => {
+          setBuildingPopupCategory("templates");
+          setBuildingPopupOpen(true);
+        }}
+        onOpenLayouts={() => setLayoutModalOpen(true)}
       />
 
       {/* Drawing/text tools — colour, thickness, dashed, free-text size */}
@@ -721,9 +893,12 @@ export default function SitePlannerClient() {
         textStyle={textStyle}
         onTextStyleChange={setTextStyle}
         onClearDrawings={state.drawings.length > 0 ? state.clearDrawings : undefined}
+        shapeSize={shapeSize}
+        onShapeSizeChange={setShapeSize}
         selectedDrawing={selectedDrawingForTools}
         onSelectedDrawingChange={handleSelectedDrawingChange}
         onSelectedDrawingDelete={handleSelectedDrawingDelete}
+        onSelectedDrawingResize={handleSelectedDrawingResize}
         onDeselectDrawing={handleDeselectDrawing}
         selectedText={selectedTextForTools}
         onSelectedTextChange={handleSelectedTextChange}
@@ -741,6 +916,7 @@ export default function SitePlannerClient() {
           onMove={handleBuildingMove}
           onLabelEdit={handleLabelEdit}
           onRemoveBuilding={state.removeBuilding}
+          onRotateBuilding={state.rotateBuilding}
           onAdd={state.addBuilding}
           onAddCustom={(w, d, x, y, label) => handleAddCustom(w, d, x, y, label)}
           stageRef={stageRef}
@@ -749,6 +925,7 @@ export default function SitePlannerClient() {
           mapRotation={mapRotation}
           onMapMove={handleMapMove}
           onMapRotation={setMapRotation}
+          onMapExtend={handleMapExtend}
           sunDirection={sunEnabled ? mapRotation : null}
           drawings={state.drawings}
           texts={state.texts}
@@ -764,16 +941,55 @@ export default function SitePlannerClient() {
           onToolChange={setTool}
           drawStyle={drawStyle}
           textStyle={textStyle}
+          shapeSize={shapeSize}
         />
       </div>
 
-      {/* Keyboard shortcuts hint */}
+      {/* Keyboard shortcuts hint. The Templates + Layouts buttons that
+          used to live here moved up into PlannerToolbar (above) where
+          they're discoverable instead of hidden in the footer. */}
       <div className="flex items-center gap-4 text-[11px] text-gray-400 px-1">
         <span><kbd className="px-1.5 py-0.5 rounded bg-gray-100 border border-gray-200 text-gray-500 font-mono text-[10px]">R</kbd> Rotate 90°</span>
         <span><kbd className="px-1.5 py-0.5 rounded bg-gray-100 border border-gray-200 text-gray-500 font-mono text-[10px]">Del</kbd> Delete</span>
         <span><kbd className="px-1.5 py-0.5 rounded bg-gray-100 border border-gray-200 text-gray-500 font-mono text-[10px]">⌘Z</kbd> Undo</span>
         <span>Scroll to zoom · Drag canvas to pan</span>
       </div>
+
+      {/* Save / load layouts modal */}
+      <LayoutManagerModal
+        open={layoutModalOpen}
+        onClose={() => setLayoutModalOpen(false)}
+        onSave={handleSaveLayout}
+        onLoad={handleLoadLayout}
+        hasContent={state.buildings.length > 0 || state.drawings.length > 0 || state.texts.length > 0}
+      />
+
+      {/* Building / Templates popup — desktop counterpart of the mobile
+          +Add popup. Opened by the "Templates" chip in the keyboard-hint
+          row; pre-selects the Templates tab so the user lands directly
+          on the templates list. The same popup also handles regular
+          building selection if the user switches tabs. */}
+      <BuildingSelectionPopup
+        open={buildingPopupOpen}
+        onClose={() => {
+          setBuildingPopupOpen(false);
+          setBuildingPopupCategory(undefined);
+        }}
+        onSelect={handleSelectPlacingType}
+        onAddCustom={(w, d, label) => {
+          handleSelectPlacingType(`custom-${w}x${d}`, label);
+        }}
+        onApplyTemplate={(template) => {
+          if (
+            (state.buildings.length > 0 || state.drawings.length > 0 || state.texts.length > 0) &&
+            !confirm(`Apply "${template.name}"? Your current layout will be replaced (you can ⌘Z to undo).`)
+          ) {
+            return;
+          }
+          handleLoadLayout(template);
+        }}
+        defaultCategory={buildingPopupCategory}
+      />
     </div>
   );
 }

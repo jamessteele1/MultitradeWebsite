@@ -24,6 +24,19 @@ type Props = {
   /** Optional colour swatches (drawings + text only). */
   color?: string;
   onColorChange?: (c: string) => void;
+  /** Rotate the selected item 90° clockwise (buildings only — drawings
+      don't have a stable rotation pivot). */
+  onRotate?: () => void;
+  /** Rename / edit text. Buildings get a label prompt, text annotations
+      get the text content prompt. */
+  onRename?: () => void;
+  /** Scale the selection up (factor > 1) or down (factor < 1) around
+      its own centroid. Used for one-tap resizing of drawings. */
+  onResize?: (factor: number) => void;
+  /** When this is a dimension drawing, surface a "flip side" toggle so
+      the user can move the measurement label to the other side. */
+  isDimension?: boolean;
+  onFlipSide?: () => void;
   /** Tap-to-delete fallback (also fires on drop). */
   onDelete: () => void;
   /** Deselect / dismiss the bar without changing anything. */
@@ -39,7 +52,7 @@ const KIND_LABELS: Record<Kind, string> = {
 };
 
 const MobileSelectionBar = forwardRef<HTMLDivElement, Props>(function MobileSelectionBar(
-  { kind, hovered, opacity, onOpacityChange, color, onColorChange, onDelete, onDone },
+  { kind, hovered, opacity, onOpacityChange, color, onColorChange, onRotate, onRename, onResize, isDimension, onFlipSide, onDelete, onDone },
   ref,
 ) {
   const showStyleControls = kind !== "building";
@@ -48,12 +61,12 @@ const MobileSelectionBar = forwardRef<HTMLDivElement, Props>(function MobileSele
     <div
       ref={ref}
       data-mobile-selection-bar
-      // Pin to the bottom of the canvas with a generous offset so iOS
-      // Safari's bottom URL bar can't cover the trash chip. The
-      // safe-area inset takes care of the home indicator on notched
-      // phones; the calc() adds extra room for the URL bar overlap.
-      className="absolute left-3 right-3 z-30 pointer-events-auto"
-      style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 16px)" }}
+      // position: fixed so the bar is always anchored to the viewport
+      // bottom — never clipped by the canvas wrapper, never lost below
+      // the page fold. iOS Safari's URL bar / home indicator are kept
+      // clear via safe-area-inset-bottom + a generous 18px gap.
+      className="fixed left-3 right-3 z-50 pointer-events-auto"
+      style={{ bottom: "calc(env(safe-area-inset-bottom, 0px) + 18px)" }}
     >
       {/* Hint pill above the bar so users know what to do */}
       <div className="text-center mb-1.5">
@@ -106,7 +119,28 @@ const MobileSelectionBar = forwardRef<HTMLDivElement, Props>(function MobileSele
 
           {showStyleControls && typeof opacity === "number" && onOpacityChange && (
             <div className="flex items-center gap-1.5 flex-1 min-w-0">
-              <span className="text-[9px] font-bold text-white/60 flex-shrink-0">OPACITY</span>
+              {/* Drop the verbose "OPACITY" label when the bar is also
+                  carrying a dimension Flip button — on iPhone SE width
+                  the label + slider + % + Flip + Delete + Done overflow
+                  the bar and the % collides with Flip. A small fade-disc
+                  icon keeps the meaning without burning ~50px of width. */}
+              {isDimension ? (
+                <svg
+                  width="13"
+                  height="13"
+                  viewBox="0 0 24 24"
+                  className="flex-shrink-0 text-white/60"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  aria-hidden="true"
+                >
+                  <circle cx="12" cy="12" r="9" />
+                  <path d="M12 3a9 9 0 010 18z" fill="currentColor" />
+                </svg>
+              ) : (
+                <span className="text-[9px] font-bold text-white/60 flex-shrink-0">OPACITY</span>
+              )}
               <input
                 type="range"
                 min={0.1}
@@ -114,22 +148,86 @@ const MobileSelectionBar = forwardRef<HTMLDivElement, Props>(function MobileSele
                 step={0.05}
                 value={opacity}
                 onChange={(e) => onOpacityChange(parseFloat(e.target.value))}
-                className="flex-1 min-w-[60px] h-1 accent-amber-400"
+                className="flex-1 min-w-[50px] h-1 accent-amber-400"
                 aria-label="Opacity"
+                title={`Opacity ${Math.round(opacity * 100)}%`}
               />
               <span className="text-[10px] font-mono text-white/80 w-8 text-right flex-shrink-0">{Math.round(opacity * 100)}%</span>
             </div>
           )}
 
-          {kind === "building" && (
-            <span className="text-[11px] font-semibold text-white/70 px-2">
-              Drag the building onto the trash to remove it.
-            </span>
-          )}
         </div>
 
-        {/* Right: trash + done */}
+        {/* Right: per-kind actions (rotate / rename / flip) + trash + done.
+            Icon-only buttons so the bar stays narrow on small phones. */}
         <div className="flex items-center gap-1 flex-shrink-0">
+          {onRotate && (
+            <button
+              onClick={onRotate}
+              className="flex items-center justify-center w-10 h-10 rounded-xl bg-white/10 hover:bg-white/20 text-white/90"
+              title="Rotate 90°"
+              aria-label="Rotate 90 degrees"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                {/* Refresh-style circular arrow */}
+                <path d="M20.5 12a8.5 8.5 0 1 1-3.1-6.55" />
+                <polyline points="20.5 3.5 20.5 9 15 9" />
+              </svg>
+            </button>
+          )}
+          {onRename && (
+            <button
+              onClick={onRename}
+              className="flex items-center justify-center w-10 h-10 rounded-xl bg-white/10 hover:bg-white/20 text-white/90"
+              title={kind === "text" ? "Edit text" : "Rename"}
+              aria-label={kind === "text" ? "Edit text" : "Rename"}
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                {/* Pencil */}
+                <path d="M12 20h9" />
+                <path d="M16.5 3.5a2.121 2.121 0 113 3L7 19l-4 1 1-4L16.5 3.5z" />
+              </svg>
+            </button>
+          )}
+          {/* Quick resize — scales the selected shape up/down by 10%
+              around its centroid. Only shown when a resize handler is
+              wired (drawings; not buildings or text). */}
+          {onResize && (
+            <div className="flex items-center gap-0.5 px-1 h-10 rounded-xl bg-white/10">
+              <button
+                onClick={() => onResize(1 / 1.1)}
+                className="w-7 h-8 flex items-center justify-center rounded-lg hover:bg-white/15 text-white/90 text-base font-bold"
+                title="Resize smaller (10%)"
+                aria-label="Resize smaller"
+              >
+                −
+              </button>
+              <span className="text-[9px] font-bold text-white/60 px-0.5">SIZE</span>
+              <button
+                onClick={() => onResize(1.1)}
+                className="w-7 h-8 flex items-center justify-center rounded-lg hover:bg-white/15 text-white/90 text-base font-bold"
+                title="Resize bigger (10%)"
+                aria-label="Resize bigger"
+              >
+                +
+              </button>
+            </div>
+          )}
+          {isDimension && onFlipSide && (
+            <button
+              onClick={onFlipSide}
+              className="flex items-center justify-center w-10 h-10 rounded-xl bg-white/10 hover:bg-white/20 text-white/90"
+              title="Flip — move the dimension label to the other side"
+              aria-label="Flip dimension label side"
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M17 1l4 4-4 4" />
+                <path d="M3 11V9a4 4 0 014-4h14" />
+                <path d="M7 23l-4-4 4-4" />
+                <path d="M21 13v2a4 4 0 01-4 4H3" />
+              </svg>
+            </button>
+          )}
           <button
             data-trash-slot
             onClick={onDelete}

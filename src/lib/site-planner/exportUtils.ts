@@ -168,9 +168,55 @@ async function captureStageWithFallback(
 }
 
 /**
+ * Compute the crop region (in canvas pixels) around the placed buildings,
+ * with sensible padding + minimum-side enforcement. Returns the full canvas
+ * if nothing's been placed yet.
+ */
+function computeCropRegion(buildings: PlacedBuilding[]) {
+  const ppm = PIXELS_PER_METRE;
+  const fullW = CANVAS_WIDTH_M * ppm;
+  const fullH = CANVAS_HEIGHT_M * ppm;
+  const bbox = computeBuildingsBoundsPx(buildings);
+
+  let cropX = 0, cropY = 0, cropW = fullW, cropH = fullH;
+  if (bbox) {
+    // 8m of padding around the buildings — leaves room for the sun
+    // overlay, dimension lines, and shows useful context of the
+    // surrounding satellite imagery.
+    const padPx = 8 * ppm;
+    cropX = Math.max(0, bbox.minX - padPx);
+    cropY = Math.max(0, bbox.minY - padPx);
+    const cropMaxX = Math.min(fullW, bbox.maxX + padPx);
+    const cropMaxY = Math.min(fullH, bbox.maxY + padPx);
+    cropW = cropMaxX - cropX;
+    cropH = cropMaxY - cropY;
+
+    // Enforce a minimum visible area so a single building isn't comically zoomed
+    const minSidePx = 20 * ppm;
+    if (cropW < minSidePx) {
+      const grow = (minSidePx - cropW) / 2;
+      cropX = Math.max(0, cropX - grow);
+      cropW = Math.min(fullW - cropX, minSidePx);
+    }
+    if (cropH < minSidePx) {
+      const grow = (minSidePx - cropH) / 2;
+      cropY = Math.max(0, cropY - grow);
+      cropH = Math.min(fullH - cropY, minSidePx);
+    }
+  }
+  return { cropX, cropY, cropW, cropH };
+}
+
+/**
  * Build the PDF and return both the jsPDF instance and a base64 dataURL.
  * `downloadPDF` triggers the browser save; `generatePDFBase64` is for when
  * we need the raw bytes (e.g. emailing the PDF on mobile).
+ *
+ * Orientation is decided from the layout's aspect ratio so the user gets
+ * the maximum image size on the page — a tall-aspect site (e.g. a long
+ * narrow driveway) renders portrait; a wide spread renders landscape.
+ * Previously the PDF was always landscape, which made tall layouts
+ * letterbox into a small square at the top of the page.
  */
 async function buildPDF(
   stage: Konva.Stage,
@@ -180,8 +226,17 @@ async function buildPDF(
   siteCoords?: { lat: number; lng: number },
 ) {
   const { jsPDF } = await import("jspdf");
-  const pdf = new jsPDF({ orientation: "landscape", unit: "mm", format: "a3" });
-  await populatePDF(pdf, stage, buildings, mapRotation, siteAddress, siteCoords);
+  const crop = computeCropRegion(buildings);
+  const aspect = crop.cropW / crop.cropH;
+  // Crossover where portrait vs landscape yields the same image area on
+  // an A3 page (with our 36mm header + 60mm legend reserve) is ≈ 1.328.
+  // Below that, portrait wins — and the win is significant: at aspect
+  // 1.0 (square layout) portrait gives 267×267 mm vs landscape's 201×201,
+  // ≈ 75% more image area. This single tweak fixes the "lil square in
+  // the middle of a big landscape page" problem.
+  const orientation: "portrait" | "landscape" = aspect < 1.3 ? "portrait" : "landscape";
+  const pdf = new jsPDF({ orientation, unit: "mm", format: "a3" });
+  await populatePDF(pdf, stage, buildings, mapRotation, siteAddress, siteCoords, crop);
   return pdf;
 }
 
@@ -216,9 +271,13 @@ async function populatePDF(
   mapRotation: number,
   siteAddress?: string,
   siteCoords?: { lat: number; lng: number },
+  cropRegion?: { cropX: number; cropY: number; cropW: number; cropH: number },
 ) {
-  // We're inside an async helper now; the original body of downloadPDF
-  // moves here verbatim (sans the final pdf.save call).
+  // Page dimensions — we used to hard-code 420×297 (landscape A3) but
+  // orientation is now dynamic, so pull the real numbers from the PDF
+  // every time. All subsequent layout uses pageW / pageH.
+  const pageW = pdf.internal.pageSize.getWidth();
+  const pageH = pdf.internal.pageSize.getHeight();
 
   // Logo
   const logoDataUrl = await loadImageAsDataUrl("/images/logos/logo-color.png");
@@ -257,37 +316,10 @@ async function populatePDF(
   }
 
   // --- Crop region ---
-  // Zoom in to the actual buildings (with padding) instead of exporting the
-  // whole 60×40m grid. Falls back to full canvas if nothing has been placed.
+  // Use the crop computed by buildPDF (which used it to pick page
+  // orientation), or compute it on the fly if called directly.
+  const { cropX, cropY, cropW, cropH } = cropRegion ?? computeCropRegion(buildings);
   const ppm = PIXELS_PER_METRE;
-  const fullW = CANVAS_WIDTH_M * ppm;
-  const fullH = CANVAS_HEIGHT_M * ppm;
-  const bbox = computeBuildingsBoundsPx(buildings);
-
-  let cropX = 0, cropY = 0, cropW = fullW, cropH = fullH;
-  if (bbox) {
-    // Padding in metres around the buildings (also leaves room for the sun overlay)
-    const padPx = 5 * ppm;
-    cropX = Math.max(0, bbox.minX - padPx);
-    cropY = Math.max(0, bbox.minY - padPx);
-    const cropMaxX = Math.min(fullW, bbox.maxX + padPx);
-    const cropMaxY = Math.min(fullH, bbox.maxY + padPx);
-    cropW = cropMaxX - cropX;
-    cropH = cropMaxY - cropY;
-
-    // Enforce a minimum visible area so a single building isn't comically zoomed
-    const minSidePx = 20 * ppm;
-    if (cropW < minSidePx) {
-      const grow = (minSidePx - cropW) / 2;
-      cropX = Math.max(0, cropX - grow);
-      cropW = Math.min(fullW - cropX, minSidePx);
-    }
-    if (cropH < minSidePx) {
-      const grow = (minSidePx - cropH) / 2;
-      cropY = Math.max(0, cropY - grow);
-      cropH = Math.min(fullH - cropY, minSidePx);
-    }
-  }
 
   // Render the crop to PNG (preserves transparency for compositing) then re-
   // encode as JPEG over a white background to keep the file under a few MB.
@@ -301,10 +333,51 @@ async function populatePDF(
   const pngUrl = await captureStageWithFallback(stage, cropX, cropY, cropW, cropH);
   const jpegUrl = await pngDataUrlToJpeg(pngUrl, 0.82);
 
-  // Fit the crop into the available space on the A3 page while preserving its
-  // aspect ratio. A3 landscape = 420 × 297 mm; reserve room for header + legend.
-  const maxImgW = 390;
-  const maxImgH = 210;
+  // Collect legend metadata up-front so we can size the legend reserve
+  // to the actual content rather than always burning 60 mm at the
+  // bottom (most layouts only have 4–8 distinct types, which fits in
+  // a 2-column block ~ 30 mm tall).
+  const legendItems: { name: string; count: number; color: string; stroke: string; dims: string }[] = [];
+  {
+    const seen = new Map<string, number>();
+    for (const b of buildings) {
+      const type = getBuildingType(b.typeId);
+      if (!type) continue;
+      const idx = seen.get(type.id);
+      if (idx !== undefined) {
+        legendItems[idx].count++;
+      } else {
+        seen.set(type.id, legendItems.length);
+        legendItems.push({
+          name: type.name,
+          count: 1,
+          color: type.color,
+          stroke: type.stroke,
+          dims: `${type.widthM}×${type.depthM}m`,
+        });
+      }
+    }
+  }
+  const legendCols = legendItems.length > 5 ? 2 : 1;
+  const itemsPerCol = Math.max(1, Math.ceil(legendItems.length / legendCols));
+  const legendItemH = 5.5;
+  // Header line + items per column + a small bottom gap. Keep a min of 18 mm
+  // so a single-item legend doesn't look orphaned at the page foot.
+  const legendBodyH = Math.max(18, 6 + itemsPerCol * legendItemH + 2);
+
+  // Fit the crop into the available space on the page while preserving
+  // its aspect ratio. Side margins trimmed from 15 mm → 8 mm so the
+  // image takes most of the page width. Header reserve is dynamic:
+  //   • 38 mm when an address is shown (its baseline is at y=35 + ~3 mm
+  //     descender, so the image must start at y=38 or it paints over
+  //     the address line — which is what site-layout (25).pdf showed).
+  //   • 32 mm when no address (last header line is the date at y=29).
+  // Legend reserve also dynamic (see above).
+  const sideMargin = 8;
+  const headerH = siteAddress ? 38 : 32;
+  const legendH = legendBodyH;
+  const maxImgW = pageW - sideMargin * 2;
+  const maxImgH = pageH - headerH - legendH - 5; // 5 mm gap above legend
   const aspect = cropW / cropH;
   let imgWidth = maxImgW;
   let imgHeight = imgWidth / aspect;
@@ -312,8 +385,9 @@ async function populatePDF(
     imgHeight = maxImgH;
     imgWidth = imgHeight * aspect;
   }
-  const imgX = 15;
-  const imgY = 36;
+  // Centre horizontally on the page
+  const imgX = (pageW - imgWidth) / 2;
+  const imgY = headerH;
   pdf.addImage(jpegUrl, "JPEG", imgX, imgY, imgWidth, imgHeight);
 
   // North compass — top right of the image area
@@ -357,33 +431,22 @@ async function populatePDF(
   pdf.setTextColor(0, 0, 0);
   pdf.setFontSize(11);
   pdf.setFont("helvetica", "bold");
-  pdf.text("Building Legend", 15, legendY);
+  pdf.text("Building Legend", sideMargin + 7, legendY);
   pdf.setFontSize(9);
   pdf.setFont("helvetica", "normal");
 
-  // Collect counts and colors per building type
-  const legendItems: { name: string; count: number; color: string; stroke: string; dims: string }[] = [];
-  const seen = new Map<string, number>();
-  for (const b of buildings) {
-    const type = getBuildingType(b.typeId);
-    if (!type) continue;
-    const idx = seen.get(type.id);
-    if (idx !== undefined) {
-      legendItems[idx].count++;
-    } else {
-      seen.set(type.id, legendItems.length);
-      legendItems.push({
-        name: type.name,
-        count: 1,
-        color: type.color,
-        stroke: type.stroke,
-        dims: `${type.widthM}×${type.depthM}m`,
-      });
-    }
-  }
+  // Render the legend in `legendCols` columns. Each column gets equal
+  // share of the page width minus the side margins; items split top-
+  // down then column-by-column (col 0 fills first, then col 1).
+  const colWidth = (pageW - sideMargin * 2) / legendCols;
+  const itemsBaseY = legendY + 6;
+  for (let i = 0; i < legendItems.length; i++) {
+    const item = legendItems[i];
+    const col = Math.floor(i / itemsPerCol);
+    const row = i % itemsPerCol;
+    const xCol = sideMargin + col * colWidth;
+    const yRow = itemsBaseY + row * legendItemH;
 
-  let y = legendY + 6;
-  for (const item of legendItems) {
     // Color swatch
     const hex = item.color;
     const r = parseInt(hex.slice(1, 3), 16);
@@ -396,12 +459,11 @@ async function populatePDF(
     const sb = parseInt(sHex.slice(5, 7), 16);
     pdf.setDrawColor(sr, sg, sb);
     pdf.setLineWidth(0.3);
-    pdf.rect(18, y - 3, 5, 3.5, "FD");
+    pdf.rect(xCol + 3, yRow - 3, 5, 3.5, "FD");
 
     // Text
     pdf.setTextColor(40, 40, 40);
-    pdf.text(`${item.count}×  ${item.name}  (${item.dims})`, 25, y);
-    y += 5.5;
+    pdf.text(`${item.count}×  ${item.name}  (${item.dims})`, xCol + 10, yRow);
   }
 
   // Scale bar on PDF — bottom right of image area. Compute mm-per-metre from

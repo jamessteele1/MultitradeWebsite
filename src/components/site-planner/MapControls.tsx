@@ -14,6 +14,10 @@ type Props = {
   compact?: boolean;
   /** Hide the scale slider — used on mobile where pinch-zoom replaces it */
   hideScale?: boolean;
+  /** Optional callback wired to a "Done — lock & continue" pill. The
+      caller is expected to lock the map and (typically) collapse the
+      panel so the canvas reads cleanly. */
+  onDone?: () => void;
 };
 
 /**
@@ -48,6 +52,7 @@ export default function MapControls({
   onRecenter,
   compact = false,
   hideScale = false,
+  onDone,
 }: Props) {
   const handleSliderRelease = () => {
     onRotationChange(snapToCardinals(rotation));
@@ -192,6 +197,22 @@ export default function MapControls({
             moveAsOne ? "Linked" : "Move all",
           )}
         </div>
+      )}
+
+      {/* Done — locks the map (so subsequent taps don't accidentally drag
+          it) and tells the parent to collapse this panel. Same UX as the
+          mobile MobileMapBar Done flow. */}
+      {onDone && (
+        <button
+          type="button"
+          onClick={onDone}
+          className="w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-gold text-gray-900 text-[12px] font-extrabold shadow-sm hover:brightness-110 active:brightness-95 transition-all"
+        >
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+          Done — lock map &amp; continue
+        </button>
       )}
     </div>
   );

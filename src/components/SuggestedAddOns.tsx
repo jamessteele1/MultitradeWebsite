@@ -312,6 +312,32 @@ const RECOMMENDATIONS: Record<string, string[]> = {
     "dual-hand-wash-station",
   ],
 
+  // ─── Complexes ───
+  "12x6m-complex": [
+    "6x3m-toilet-block",     // amenities for the complex
+    "5000l-tank-pump",       // water supply
+    "12x3m-covered-deck",    // covered access between buildings
+    "stair-landing",         // access to entries
+  ],
+  "12x9m-complex": [
+    "6x3m-toilet-block",
+    "5000l-tank-pump",
+    "6000l-waste-tank",
+    "12x3m-covered-deck",
+  ],
+  "12x12m-complex": [
+    "6x3m-toilet-block",
+    "5000l-tank-pump",
+    "6000l-waste-tank",
+    "12x3m-covered-deck",
+  ],
+  "custom-complexes": [
+    "6x3m-toilet-block",
+    "5000l-tank-pump",
+    "12x3m-covered-deck",
+    "stair-landing",
+  ],
+
   // ─── Ancillary ───
   "5000l-tank-pump": [
     "6x3m-toilet-block",

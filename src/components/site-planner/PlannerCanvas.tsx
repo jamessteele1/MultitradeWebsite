@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useCallback, useEffect } from "react";
+import { useRef, useState, useCallback, useEffect, useMemo } from "react";
 import { Stage, Layer, Line, Rect, Text as KonvaText, Image as KonvaImage, Circle, Arrow, Group } from "react-konva";
 import BuildingShape from "./BuildingShape";
 import MobileSelectionBar from "./MobileSelectionBar";
@@ -102,6 +102,9 @@ type Props = {
       mobile trash chip. Optional — drag-to-trash falls back to no-op
       when not provided. */
   onRemoveBuilding?: (id: string) => void;
+  /** Rotate a building 90° clockwise — wired to the mobile selection
+      bar's rotate button. */
+  onRotateBuilding?: (id: string) => void;
   onAdd: (typeId: string, x: number, y: number, label: string) => void;
   onAddCustom?: (widthM: number, depthM: number, x: number, y: number, label: string) => void;
   stageRef: React.RefObject<Konva.Stage>;
@@ -121,6 +124,11 @@ type Props = {
   onMoveSiteAsOneChange?: (on: boolean) => void;
   onMapRecenter?: () => void;
   onMapDragShift?: (dxMetres: number, dyMetres: number) => void;
+  /** Fetch additional satellite tiles centred at the given canvas-pixel
+      coordinates and composite them onto the existing map. Wired to the
+      "+ Add map here" button that appears when the user has panned to
+      whitespace beyond the loaded imagery. */
+  onMapExtend?: (canvasX: number, canvasY: number) => void;
   sunDirection?: number | null;
   /** Drawings + text annotations */
   drawings?: Drawing[];
@@ -144,6 +152,10 @@ type Props = {
   onToolChange?: (tool: ToolMode) => void;
   drawStyle?: DrawStyle;
   textStyle?: TextStyle;
+  /** Default size (metres) for the next Shape-tool placement. Used as
+      "longer side" for elongated shapes (cars/buses/trucks) and as the
+      bounding-box side for rect/circle/triangle/arrow. */
+  shapeSize?: number;
   /** Mobile: building type ID queued for tap-to-place */
   placingTypeId?: string | null;
   placingLabel?: string;
@@ -161,6 +173,7 @@ export default function PlannerCanvas({
   onMove,
   onLabelEdit,
   onRemoveBuilding,
+  onRotateBuilding,
   onAdd,
   onAddCustom,
   stageRef,
@@ -177,6 +190,7 @@ export default function PlannerCanvas({
   onMoveSiteAsOneChange,
   onMapRecenter,
   onMapDragShift,
+  onMapExtend,
   sunDirection,
   drawings = [],
   texts = [],
@@ -192,6 +206,7 @@ export default function PlannerCanvas({
   onToolChange,
   drawStyle,
   textStyle,
+  shapeSize = 5,
   placingTypeId,
   placingLabel,
   onPlaced,
@@ -203,6 +218,15 @@ export default function PlannerCanvas({
   const [zoom, setZoom] = useState(1);
   const [stagePos, setStagePos] = useState({ x: 0, y: 0 });
   const [initialFit, setInitialFit] = useState(false);
+
+  // Desktop map-controls panel collapse state. Auto-opens whenever a
+  // fresh map loads (so the user can position it), collapses when the
+  // user hits Done, and re-opens via the "Edit map" pill that takes
+  // its place.
+  const [mapPanelOpen, setMapPanelOpen] = useState(true);
+  useEffect(() => {
+    if (mapData) setMapPanelOpen(true);
+  }, [mapData]);
 
   // In-progress drawing buffer (current freehand stroke or polygon vertices)
   const [activeStroke, setActiveStroke] = useState<number[] | null>(null);
@@ -274,7 +298,9 @@ export default function PlannerCanvas({
         const canvasW = CANVAS_WIDTH_M * PIXELS_PER_METRE;
         const canvasH = CANVAS_HEIGHT_M * PIXELS_PER_METRE;
         const fitZoom = Math.min(w / canvasW, h / canvasH) * 0.95;
-        setZoom(Math.min(1, fitZoom));
+        // Clamp to MIN_ZOOM so tiny viewports don't end up at 5%
+        // (where the canvas turns into a blank haze).
+        setZoom(Math.max(MIN_ZOOM, Math.min(1, fitZoom)));
         setInitialFit(true);
       }
     });
@@ -353,9 +379,24 @@ export default function PlannerCanvas({
     [zoom, stagePos, onAdd, onAddCustom],
   );
 
+  /**
+   * Click/tap dedupe: Konva fires BOTH `click` and `tap` for a single
+   * touch on mobile, so the click handler ran twice per tap. That broke
+   * the line / dimension two-tap flow (the second invocation found the
+   * anchor that the first invocation just set, then computed a
+   * zero-length commit and cleared it — the user saw the anchor flash
+   * on and back off and no line drew on the second tap). 50ms is a
+   * generous window for the within-same-tap double-fire, well below
+   * any human's tap-tap rhythm.
+   */
+  const lastTapHandledAt = useRef(0);
+
   // Click/tap on empty space — place building (mobile), drop text, or deselect
   const handleStageClick = useCallback(
     (e: Konva.KonvaEventObject<MouseEvent>) => {
+      const now = typeof performance !== "undefined" ? performance.now() : Date.now();
+      if (now - lastTapHandledAt.current < 60) return;
+      lastTapHandledAt.current = now;
       if (e.target !== e.target.getStage()) return;
 
       // Mobile tap-to-place
@@ -426,6 +467,138 @@ export default function PlannerCanvas({
         return;
       }
 
+      // Shape mode — tap once to drop a standard shape centred on the
+      // tap point. Stays in shape mode so the user can drop more; "Done"
+      // exits to select. Size comes from `shapeSize` (in metres) which
+      // the user adjusts via the slider in the Shape popover.
+      if (tool.startsWith("shape-") && onAddDrawing && drawStyle) {
+        const c = pointerToCanvas();
+        if (!c) return;
+        const ppm = PIXELS_PER_METRE;
+        const sizeM = Math.max(0.5, shapeSize);
+        const halfPx = (sizeM * ppm) / 2;
+        let pts: number[] = [];
+        if (tool === "shape-rect") {
+          pts = [
+            c.x - halfPx, c.y - halfPx,
+            c.x + halfPx, c.y - halfPx,
+            c.x + halfPx, c.y + halfPx,
+            c.x - halfPx, c.y + halfPx,
+          ];
+        } else if (tool === "shape-circle") {
+          const segs = 32;
+          pts = [];
+          for (let i = 0; i < segs; i++) {
+            const a = (i / segs) * Math.PI * 2;
+            pts.push(c.x + Math.cos(a) * halfPx, c.y + Math.sin(a) * halfPx);
+          }
+        } else if (tool === "shape-triangle") {
+          const r = halfPx * 1.05;
+          pts = [
+            c.x, c.y - r,
+            c.x + r * Math.sin((2 * Math.PI) / 3), c.y - r * Math.cos((2 * Math.PI) / 3),
+            c.x - r * Math.sin((2 * Math.PI) / 3), c.y - r * Math.cos((2 * Math.PI) / 3),
+          ];
+        } else if (tool.startsWith("shape-arrow-")) {
+          // Single directional arrow (one of up/down/left/right) — handy
+          // for marking traffic flow, vehicle access direction, gate
+          // ingress, etc. The shape is a 7-vertex arrow defined for
+          // "up" then rotated for the other directions.
+          const dir = tool.slice("shape-arrow-".length);
+          const tThick = halfPx * 0.25;  // shaft thickness (half-width)
+          const aw = halfPx * 0.55;      // arrowhead half-width
+          const ah = halfPx * 0.45;      // arrowhead height (from tip)
+          // Local vertices for an UP arrow centred at origin
+          const local: Array<[number, number]> = [
+            [0, -halfPx],          // tip
+            [aw, -halfPx + ah],    // right of tip base
+            [tThick, -halfPx + ah],// right inner
+            [tThick, halfPx],      // right bottom of shaft
+            [-tThick, halfPx],     // left bottom of shaft
+            [-tThick, -halfPx + ah],// left inner
+            [-aw, -halfPx + ah],   // left of tip base
+          ];
+          // Rotate to direction
+          const rotated: Array<[number, number]> = local.map(([x, y]) => {
+            switch (dir) {
+              case "down":  return [-x, -y];
+              case "left":  return [y, -x];
+              case "right": return [-y, x];
+              default:      return [x, y]; // up
+            }
+          });
+          pts = rotated.flatMap(([x, y]) => [c.x + x, c.y + y]);
+        } else if (tool === "shape-car" || tool === "shape-bus" || tool === "shape-truck") {
+          // Vehicle markers — render as a rectangle proportional to the
+          // real vehicle. Width fixed (vehicle "length"), depth fixed at
+          // a realistic ratio. shapeSize sets the LENGTH; depth follows.
+          const ratios: Record<string, { lenRatio: number; widthM: number }> = {
+            "shape-car":   { lenRatio: 1,    widthM: 2 },     // 4 × 2 m at sizeM=4
+            "shape-bus":   { lenRatio: 1,    widthM: 2.5 },   // 12 × 2.5 m at sizeM=12
+            "shape-truck": { lenRatio: 1,    widthM: 2.5 },   // 8 × 2.5 m at sizeM=8
+          };
+          // Default lengths if user hasn't bumped size from the 5m default
+          const defaults: Record<string, number> = {
+            "shape-car": 4, "shape-bus": 12, "shape-truck": 8,
+          };
+          const lenM = sizeM === 5 ? defaults[tool] ?? sizeM : sizeM;
+          const cfg = ratios[tool];
+          const lenPx = (lenM * cfg.lenRatio * ppm) / 2;
+          const widPx = (cfg.widthM * ppm) / 2;
+          pts = [
+            c.x - lenPx, c.y - widPx,
+            c.x + lenPx, c.y - widPx,
+            c.x + lenPx, c.y + widPx,
+            c.x - lenPx, c.y + widPx,
+          ];
+        }
+        if (pts.length) {
+          onAddDrawing({
+            points: pts,
+            color: drawStyle.color,
+            thickness: drawStyle.thickness,
+            dashed: drawStyle.dashed,
+            closed: true,
+            opacity: drawStyle.opacity,
+            // Shapes are decorative — suppress the auto m² / perimeter
+            // label so the canvas stays clean. The Area tool still gets
+            // its label because it doesn't set this flag.
+            noLabel: true,
+          });
+        }
+        return;
+      }
+
+      // Line / dimension mode — two-click flow (matches polygon UX).
+      // First tap drops an anchor circle, the line then follows the
+      // pointer; second tap commits. Dimension lines are forced-dashed
+      // and get arrowheads at both ends in the renderer.
+      if ((tool === "line" || tool === "dimension") && onAddDrawing && drawStyle) {
+        const c = pointerToCanvas();
+        if (!c) return;
+        if (!activeStroke) {
+          // First tap — anchor the start point.
+          setActiveStroke([c.x, c.y, c.x, c.y]);
+          return;
+        }
+        // Second tap — commit unless zero-length.
+        const dx = c.x - activeStroke[0];
+        const dy = c.y - activeStroke[1];
+        if (Math.hypot(dx, dy) >= 4 / zoom) {
+          const isDim = tool === "dimension";
+          onAddDrawing({
+            points: [activeStroke[0], activeStroke[1], c.x, c.y],
+            color: drawStyle.color,
+            thickness: drawStyle.thickness,
+            dashed: isDim ? true : drawStyle.dashed,
+            closed: false,
+            opacity: drawStyle.opacity,
+            dimension: isDim || undefined,
+          });
+        }
+        setActiveStroke(null);
+        return;
+      }
 
       onSelect(null);
       setSelectedTextId(null);
@@ -447,6 +620,7 @@ export default function PlannerCanvas({
       onAddDrawing,
       drawStyle,
       activePolygon,
+      activeStroke,
       pointerToCanvas,
     ],
   );
@@ -479,20 +653,16 @@ export default function PlannerCanvas({
   // the second point to the new touch position.
   const handleStageMouseDown = useCallback(
     (e: Konva.KonvaEventObject<MouseEvent | TouchEvent>) => {
-      if ((tool !== "freehand" && tool !== "line") || !drawStyle) return;
+      // Only the freehand pen draws on press-and-drag now. The straight
+      // line tool is click-to-anchor / click-to-commit (handled in
+      // handleStageClick) — same UX as polygon, much friendlier on touch.
+      if (tool !== "freehand" || !drawStyle) return;
       if (e.target !== e.target.getStage()) return;
       const c = pointerToCanvas();
       if (!c) return;
-      if (tool === "line" && activeStroke && activeStroke.length === 4) {
-        // Line is mid-flight (first tap landed, waiting for second). Move
-        // the second endpoint to the new touch position; mouse-up will
-        // commit if the line has length.
-        setActiveStroke([activeStroke[0], activeStroke[1], c.x, c.y]);
-      } else {
-        setActiveStroke(tool === "line" ? [c.x, c.y, c.x, c.y] : [c.x, c.y]);
-      }
+      setActiveStroke([c.x, c.y]);
     },
-    [tool, drawStyle, pointerToCanvas, activeStroke],
+    [tool, drawStyle, pointerToCanvas],
   );
 
   // Mouse-move → extend the in-progress freehand stroke, OR update the
@@ -502,7 +672,7 @@ export default function PlannerCanvas({
     if (!activeStroke) return;
     const c = pointerToCanvas();
     if (!c) return;
-    if (tool === "line") {
+    if (tool === "line" || tool === "dimension") {
       setActiveStroke([activeStroke[0], activeStroke[1], c.x, c.y]);
       return;
     }
@@ -515,6 +685,8 @@ export default function PlannerCanvas({
 
   const handleStageMouseUp = useCallback(() => {
     if (!activeStroke || !drawStyle || !onAddDrawing) return;
+    // Only freehand commits on mouse-up — the line tool now commits via
+    // its second click in handleStageClick.
     if (tool === "freehand" && activeStroke.length >= 4) {
       onAddDrawing({
         points: activeStroke,
@@ -527,25 +699,7 @@ export default function PlannerCanvas({
       setActiveStroke(null);
       return;
     }
-    if (tool === "line" && activeStroke.length === 4) {
-      const dx = activeStroke[2] - activeStroke[0];
-      const dy = activeStroke[3] - activeStroke[1];
-      if (Math.hypot(dx, dy) >= 4 / zoom) {
-        // Tap-and-drag (or second tap of tap-then-tap) → commit.
-        onAddDrawing({
-          points: activeStroke,
-          color: drawStyle.color,
-          thickness: drawStyle.thickness,
-          dashed: drawStyle.dashed,
-          closed: false,
-          opacity: drawStyle.opacity,
-        });
-        setActiveStroke(null);
-      }
-      // else: zero-length tap → keep activeStroke alive so the next touch
-      // (tap-then-tap pattern) can finish the line.
-    }
-  }, [tool, activeStroke, drawStyle, onAddDrawing, zoom]);
+  }, [tool, activeStroke, drawStyle, onAddDrawing]);
 
   // Commit an inline text input
   const commitTextInput = useCallback(() => {
@@ -563,22 +717,51 @@ export default function PlannerCanvas({
     }
     setTextInput(null);
     setTextInputValue("");
-    // iOS Safari pushes the page up when the keyboard opens for the text
-    // input — and frequently leaves the page scrolled past the canvas
-    // when the keyboard closes. Pull the canvas back into view after the
-    // input dismisses (next frame, so the viewport has settled).
-    if (isMobile) {
-      requestAnimationFrame(() => {
-        containerRef.current?.scrollIntoView({ block: "center", behavior: "smooth" });
-      });
-    }
-  }, [textInput, textInputValue, onAddText, textStyle, isMobile]);
+    // No need to scroll the canvas back into view — the body-lock
+    // effect prevents the page from moving in the first place, and
+    // restores scroll on cleanup.
+  }, [textInput, textInputValue, onAddText, textStyle]);
 
   useEffect(() => {
     if (textInput && textInputRef.current) {
       textInputRef.current.focus();
     }
   }, [textInput]);
+
+  // While the text input is open on mobile, freeze the document so iOS
+  // Safari can't pull the page upwards to make room for the keyboard.
+  // We pin the body in place at the current scroll, then restore on
+  // close. The input itself is rendered position:fixed at the top of
+  // the visual viewport, so it sits above the keyboard already and iOS
+  // has no reason to scroll.
+  useEffect(() => {
+    if (!textInput || !isMobile) return;
+    const scrollY = window.scrollY;
+    const body = document.body;
+    const prev = {
+      position: body.style.position,
+      top: body.style.top,
+      left: body.style.left,
+      right: body.style.right,
+      width: body.style.width,
+      overflow: body.style.overflow,
+    };
+    body.style.position = "fixed";
+    body.style.top = `-${scrollY}px`;
+    body.style.left = "0";
+    body.style.right = "0";
+    body.style.width = "100%";
+    body.style.overflow = "hidden";
+    return () => {
+      body.style.position = prev.position;
+      body.style.top = prev.top;
+      body.style.left = prev.left;
+      body.style.right = prev.right;
+      body.style.width = prev.width;
+      body.style.overflow = prev.overflow;
+      window.scrollTo(0, scrollY);
+    };
+  }, [textInput, isMobile]);
 
   // Delete-key removes selected text annotation OR selected drawing
   useEffect(() => {
@@ -788,9 +971,49 @@ export default function PlannerCanvas({
     return { metres, widthPx: metres * ppm * zoom };
   })();
 
-  // Zoom controls
-  const zoomIn = () => setZoom((z) => Math.min(MAX_ZOOM, z + ZOOM_STEP));
-  const zoomOut = () => setZoom((z) => Math.max(MIN_ZOOM, z - ZOOM_STEP));
+  // Live totals chip — surfaces the building count + total footprint
+  // m² so the user can see the camp size growing as they drop buildings.
+  // Utility markers (Power / Water / Sewage / Grey Water / Data) are
+  // 1×1m indicator points, not buildings, so they're excluded from
+  // both the count and the m² total — counting them as buildings
+  // would inflate the camp-size readout.
+  const totals = useMemo(() => {
+    let count = 0;
+    let area = 0;
+    for (const b of buildings) {
+      const t = getBuildingType(b.typeId);
+      if (!t || t.category === "utilities") continue;
+      count++;
+      area += t.widthM * t.depthM;
+    }
+    // 1 dp under 100, 0 dp at or above (matches the area-label formatting
+    // we already use on closed-polygon labels).
+    const formatted = area >= 100 ? `${area.toFixed(0)}` : `${area.toFixed(1)}`;
+    return { count, areaM2: formatted };
+  }, [buildings]);
+
+  // Zoom controls — anchor zoom on the centre of the visible viewport so
+  // whatever the user is looking at stays roughly in the same spot rather
+  // than the canvas drifting off-screen. Same maths the wheel-zoom uses,
+  // just with the viewport centre instead of the cursor position.
+  const zoomAtViewportCenter = useCallback((newZoom: number) => {
+    const oldZoom = zoom;
+    if (newZoom === oldZoom) return;
+    const cx = dims.w / 2;
+    const cy = dims.h / 2;
+    const pointTo = {
+      x: (cx - stagePos.x) / oldZoom,
+      y: (cy - stagePos.y) / oldZoom,
+    };
+    setZoom(newZoom);
+    setStagePos({
+      x: cx - pointTo.x * newZoom,
+      y: cy - pointTo.y * newZoom,
+    });
+  }, [zoom, dims, stagePos]);
+
+  const zoomIn = () => zoomAtViewportCenter(Math.min(MAX_ZOOM, zoom + ZOOM_STEP));
+  const zoomOut = () => zoomAtViewportCenter(Math.max(MIN_ZOOM, zoom - ZOOM_STEP));
   const zoomReset = () => {
     setZoom(1);
     setStagePos({ x: 0, y: 0 });
@@ -798,6 +1021,35 @@ export default function PlannerCanvas({
 
   return (
     <div className="relative flex-1 bg-white rounded-xl border border-gray-200 overflow-hidden">
+      {/* Live totals chip — count + total footprint of placed buildings.
+          Only renders when there's at least one building so it doesn't
+          chrome up the empty canvas. Sits top-left, but pushed down on
+          mobile when the floating "+ Add Items" pill is visible so the
+          two don't overlap. */}
+      {totals.count > 0 && (
+        <div
+          className={`absolute z-10 left-3 flex items-center gap-2 bg-white/95 backdrop-blur rounded-xl border border-gray-200 shadow-md px-3 py-1.5 pointer-events-none select-none ${
+            isMobile && onRequestAdd && !placingTypeId ? "top-[60px]" : "top-3"
+          }`}
+        >
+          <div className="flex items-baseline gap-1">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500">
+              <rect x="3" y="3" width="7" height="7" rx="0.5" />
+              <rect x="14" y="3" width="7" height="7" rx="0.5" />
+              <rect x="3" y="14" width="7" height="7" rx="0.5" />
+              <rect x="14" y="14" width="7" height="7" rx="0.5" />
+            </svg>
+            <span className="text-xs font-extrabold text-gray-900 tabular-nums">{totals.count}</span>
+            <span className="text-[10px] text-gray-500">{totals.count === 1 ? "building" : "buildings"}</span>
+          </div>
+          <span className="text-gray-300 text-xs">·</span>
+          <div className="flex items-baseline gap-1">
+            <span className="text-xs font-extrabold text-gray-900 tabular-nums">{totals.areaM2}</span>
+            <span className="text-[10px] text-gray-500">m²</span>
+          </div>
+        </div>
+      )}
+
       {/* Tap-to-place indicator */}
       {placingTypeId && isMobile && (
         <div className="absolute top-3 left-1/2 -translate-x-1/2 z-20 px-4 py-2 bg-amber-500 text-white text-xs font-bold rounded-full shadow-lg animate-pulse">
@@ -874,6 +1126,38 @@ export default function PlannerCanvas({
         </div>
       )}
 
+      {/* "+ Add map here" button — appears at the visible viewport centre
+          when the user has panned beyond the loaded satellite imagery and
+          is looking at whitespace. Tapping fetches a fresh patch of tiles
+          centred at that point and composites them onto the existing map.
+          Hidden when no map is loaded (use the address search instead),
+          when the centre is already over imagery, or while loading. */}
+      {mapData && onMapExtend && tool === "select" && !placingTypeId && (() => {
+        // Visible viewport centre in canvas-pixel coords.
+        const cx = (dims.w / 2 - stagePos.x) / zoom;
+        const cy = (dims.h / 2 - stagePos.y) / zoom;
+        const eff = mapData.scale * mapScaleMultiplier;
+        const imgL = mapData.x;
+        const imgT = mapData.y;
+        const imgR = imgL + mapData.image.width * eff;
+        const imgB = imgT + mapData.image.height * eff;
+        const overMap = cx >= imgL && cx <= imgR && cy >= imgT && cy <= imgB;
+        if (overMap) return null;
+        return (
+          <button
+            onClick={() => onMapExtend(cx, cy)}
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20 inline-flex items-center gap-2 px-4 py-2.5 rounded-full bg-amber-500 text-white text-sm font-extrabold shadow-xl ring-2 ring-amber-300 hover:bg-amber-600 active:scale-95 transition-all"
+            title="Load satellite tiles for this area"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round">
+              <line x1="12" y1="5" x2="12" y2="19" />
+              <line x1="5" y1="12" x2="19" y2="12" />
+            </svg>
+            Add map here
+          </button>
+        );
+      })()}
+
       {/* Scale bar — bottom left */}
       <div className="absolute bottom-3 left-3 z-10 bg-white/90 backdrop-blur rounded-lg border border-gray-200 shadow-sm px-3 py-2">
         <div className="flex items-center gap-2">
@@ -900,20 +1184,41 @@ export default function PlannerCanvas({
               <text x="16" y="3" textAnchor="middle" fontSize="7" fontWeight="bold" fill="#EF4444" style={{ transform: `rotate(${mapRotation}deg)`, transformOrigin: "16px 16px" }}>N</text>
             </svg>
           </div>
-          <div className="w-[200px]">
-            <MapControls
-              rotation={mapRotation}
-              onRotationChange={(d) => onMapRotation?.(d)}
-              locked={mapLocked}
-              onLockedChange={(v) => onMapLockedChange?.(v)}
-              scaleMultiplier={mapScaleMultiplier}
-              onScaleChange={(m) => onMapScaleChange?.(m)}
-              moveAsOne={moveSiteAsOne}
-              onMoveAsOneChange={(v) => onMoveSiteAsOneChange?.(v)}
-              onRecenter={() => onMapRecenter?.()}
-              compact
-            />
-          </div>
+          {mapPanelOpen ? (
+            <div className="w-[200px]">
+              <MapControls
+                rotation={mapRotation}
+                onRotationChange={(d) => onMapRotation?.(d)}
+                locked={mapLocked}
+                onLockedChange={(v) => onMapLockedChange?.(v)}
+                scaleMultiplier={mapScaleMultiplier}
+                onScaleChange={(m) => onMapScaleChange?.(m)}
+                moveAsOne={moveSiteAsOne}
+                onMoveAsOneChange={(v) => onMoveSiteAsOneChange?.(v)}
+                onRecenter={() => onMapRecenter?.()}
+                onDone={() => {
+                  onMapLockedChange?.(true);
+                  setMapPanelOpen(false);
+                }}
+                compact
+              />
+            </div>
+          ) : (
+            // Collapsed: small pill where the panel was. Tapping
+            // re-opens the panel for further adjustments.
+            <button
+              type="button"
+              onClick={() => setMapPanelOpen(true)}
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-white/95 backdrop-blur border border-gray-200 shadow-sm text-gray-700 text-[11px] font-bold hover:bg-white transition-colors"
+              title="Re-open map controls"
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" />
+                <path d="M7 11V7a5 5 0 0110 0v4" />
+              </svg>
+              Map locked — Edit
+            </button>
+          )}
         </div>
       )}
 
@@ -962,7 +1267,7 @@ export default function PlannerCanvas({
             handleTouchEnd(e);
             handleStageMouseUp();
           }}
-          style={{ cursor: tool === "freehand" || tool === "line" || tool === "polygon" ? "crosshair" : tool === "text" ? "text" : "default" }}
+          style={{ cursor: tool === "freehand" || tool === "line" || tool === "dimension" || tool === "polygon" || tool.startsWith("shape-") ? "crosshair" : tool === "text" ? "text" : "default" }}
         >
           {/* Map background layer */}
           {mapData && (() => {
@@ -977,16 +1282,14 @@ export default function PlannerCanvas({
             const handleOffset = imgH / 2 + 30; // 30px above the map's top edge
             const handleX = cx + Math.sin(rad) * handleOffset;
             const handleY = cy - Math.cos(rad) * handleOffset;
-            // The map only intercepts pointer events while the user is in
-            // plain "select" mode with nothing queued for placement. As soon
-            // as they pick a drawing tool (pen / line / area / polygon /
-            // text) or queue a building for tap-to-place, we set
-            // listening={false} so the tap falls through to the Stage and
-            // the drawing/placement handlers fire. Without this the map
-            // captures every tap and the user can't put anything on top of
-            // it — the symptom is most obvious on mobile, where dragging
-            // the map is the only thing taps ever do.
-            const mapListening = tool === "select" && !placingTypeId && !mapLocked;
+            // The map image covers most of the canvas — if it stays
+            // interactive while the user is trying to place a building or
+            // draw a line, every tap hits the map first and silently does
+            // nothing. Disable hit-testing on the map whenever the user
+            // has a placement queued OR has a drawing/text tool active so
+            // touches fall through to the stage and the placement / draw
+            // handlers fire normally.
+            const mapInteractive = !placingTypeId && tool === "select";
             return (
               <Layer>
                 <KonvaImage
@@ -999,8 +1302,8 @@ export default function PlannerCanvas({
                   scaleY={effectiveScale}
                   rotation={mapRotation}
                   opacity={mapOpacity}
-                  listening={mapListening}
-                  draggable={mapListening}
+                  listening={mapInteractive}
+                  draggable={mapInteractive && !mapLocked}
                   onDragEnd={(e) => {
                     const newX = e.target.x() - imgW / 2;
                     const newY = e.target.y() - imgH / 2;
@@ -1013,11 +1316,11 @@ export default function PlannerCanvas({
                   }}
                 />
 
-                {/* Rotation handle — only in select mode, with no
-                    placement queued, and only when the map isn't locked.
-                    Hiding it during drawing/placement prevents stray taps
-                    near the map's top edge from rotating it. */}
-                {mapListening && onMapRotation && (
+                {/* Rotation handle — only when map isn't locked AND the
+                    user isn't trying to place / draw something. Otherwise
+                    a stray tap on the handle hijacks the placement
+                    gesture. */}
+                {!mapLocked && onMapRotation && mapInteractive && (
                   <>
                     {/* Connector line from map centre to handle */}
                     <Line
@@ -1131,6 +1434,74 @@ export default function PlannerCanvas({
             );
           })()}
 
+          {/* Closed-polygon visual underlay — areas / m² boundaries /
+              filled shapes sit BENEATH the buildings layer so a
+              building dropped inside the boundary isn't obscured by
+              the translucent fill.
+              The polygon's CLICK target also lives here (not in the
+              FG drawings layer) so Konva's top-down hit detection
+              naturally lets the buildings layer win wherever the two
+              overlap. Result: tap inside-the-polygon-but-on-a-
+              building → building selects; tap inside-the-polygon-
+              over-empty-space → polygon selects.
+              Selection halo, vertex handles, length / area labels
+              still render in the FG drawings layer above buildings,
+              so they remain visible + tappable. */}
+          {drawings.some((d) => d.closed) && (
+            <Layer>
+              {drawings.filter((d) => d.closed).map((d) => {
+                const op = d.opacity ?? 1;
+                const fillRGBA = hexToRGBA(d.color, op * 0.32);
+                const dashArr = d.dashed ? [d.thickness * 3, d.thickness * 2] : undefined;
+                const selectThis = (e: Konva.KonvaEventObject<MouseEvent | TouchEvent>) => {
+                  e.cancelBubble = true;
+                  setSelectedDrawingId(d.id);
+                  setSelectedTextId(null);
+                  if (tool !== "select") onToolChange?.("select");
+                };
+                return (
+                  <Group key={`bg-${d.id}`}>
+                    {/* Black halo behind the colour — keeps the boundary
+                        legible on bright satellite imagery. */}
+                    <Line
+                      points={d.points}
+                      stroke="rgba(0,0,0,0.8)"
+                      strokeWidth={d.thickness + 2}
+                      dash={dashArr}
+                      closed
+                      lineCap="round"
+                      lineJoin="round"
+                      opacity={op}
+                      listening={false}
+                    />
+                    <Line
+                      points={d.points}
+                      stroke={d.color}
+                      strokeWidth={d.thickness}
+                      dash={dashArr}
+                      closed
+                      fill={fillRGBA}
+                      lineCap="round"
+                      lineJoin="round"
+                      opacity={op}
+                      hitStrokeWidth={Math.max(d.thickness + 12, 16)}
+                      onMouseEnter={(e) => {
+                        const c = e.target.getStage()?.container();
+                        if (c) c.style.cursor = "pointer";
+                      }}
+                      onMouseLeave={(e) => {
+                        const c = e.target.getStage()?.container();
+                        if (c) c.style.cursor = "default";
+                      }}
+                      onClick={selectThis}
+                      onTap={selectThis}
+                    />
+                  </Group>
+                );
+              })}
+            </Layer>
+          )}
+
           {/* Buildings layer */}
           <Layer>
             {buildings.map((b) => {
@@ -1177,10 +1548,28 @@ export default function PlannerCanvas({
                 const centroid = d.closed ? computeCentroid(d.points) : null;
                 // Label position for open paths: midpoint of last segment
                 const labelPos = !d.closed ? computeMidpoint(d.points) : null;
-                // Hex colour with opacity for the closed-polygon fill —
-                // bumped from 0.18 to 0.32 so the area is clearly readable
-                // when overlaid on a satellite background.
-                const fillRGBA = d.closed ? hexToRGBA(d.color, op * 0.32) : undefined;
+                // Dimension lines get the label offset perpendicular to
+                // the line so it reads as a measurement annotation rather
+                // than text-on-top-of-the-line. dimensionFlip moves it to
+                // the other side. Falls back to mid-line for non-dim.
+                const dimLabelPos = (() => {
+                  if (!d.dimension || d.points.length !== 4) return null;
+                  const [x1, y1, x2, y2] = d.points;
+                  const dx = x2 - x1;
+                  const dy = y2 - y1;
+                  const len = Math.hypot(dx, dy);
+                  if (len === 0) return null;
+                  const mx = (x1 + x2) / 2;
+                  const my = (y1 + y2) / 2;
+                  // Perpendicular unit vector (rotate 90°); flip via sign.
+                  const px = -dy / len;
+                  const py = dx / len;
+                  const sign = d.dimensionFlip ? -1 : 1;
+                  const offset = 22 / zoom; // pixel offset, scale-independent
+                  return { x: mx + px * offset * sign, y: my + py * offset * sign };
+                })();
+                // (Closed-polygon fill colour is computed inline in the
+                // underlay layer above buildings — not needed here.)
                 // Tap/click → select this drawing. If the user is in a
                 // drawing tool we flip them to select mode so the edit
                 // panel shows up and they can drag the vertex / change
@@ -1193,43 +1582,81 @@ export default function PlannerCanvas({
                 };
                 return (
                   <Group key={d.id}>
-                    {/* Thin black outline behind the stroke — reads on any
-                        background (satellite grass / road / shadows) without
-                        washing out the user's chosen colour the way a thick
-                        white halo did. */}
-                    <Line
-                      points={d.points}
-                      stroke="rgba(0,0,0,0.8)"
-                      strokeWidth={d.thickness + 2}
-                      closed={d.closed}
-                      lineCap="round"
-                      lineJoin="round"
-                      opacity={op}
-                      listening={false}
-                    />
-                    <Line
-                      points={d.points}
-                      stroke={d.color}
-                      strokeWidth={d.thickness}
-                      dash={d.dashed ? [d.thickness * 3, d.thickness * 2] : undefined}
-                      closed={d.closed}
-                      fill={fillRGBA}
-                      lineCap="round"
-                      lineJoin="round"
-                      opacity={op}
-                      // Hit area is generous so thin lines are tappable
-                      hitStrokeWidth={Math.max(d.thickness + 12, 16)}
-                      onMouseEnter={(e) => {
-                        const c = e.target.getStage()?.container();
-                        if (c) c.style.cursor = "pointer";
-                      }}
-                      onMouseLeave={(e) => {
-                        const c = e.target.getStage()?.container();
-                        if (c) c.style.cursor = "default";
-                      }}
-                      onClick={selectThis}
-                      onTap={selectThis}
-                    />
+                    {/* Open drawings (lines / dimensions / freehand) get a
+                        black halo behind the colour for satellite legibility.
+                        Closed polygons render their visible halo + colour in
+                        the underlay layer above buildings — here we only
+                        keep an invisible hit target so taps still select the
+                        polygon. */}
+                    {!d.closed && (
+                      <Line
+                        points={d.points}
+                        stroke="rgba(0,0,0,0.8)"
+                        strokeWidth={d.thickness + 2}
+                        dash={(d.dashed || d.dimension)
+                          ? [d.thickness * 3, d.thickness * 2]
+                          : undefined}
+                        closed={false}
+                        lineCap="round"
+                        lineJoin="round"
+                        opacity={op}
+                        listening={false}
+                      />
+                    )}
+                    {d.dimension ? (
+                      // Dimension line: dashed Arrow with arrowheads on
+                      // both ends. Konva.Arrow extends Line so we can
+                      // reuse all the same hit / click handlers.
+                      <Arrow
+                        points={d.points}
+                        stroke={d.color}
+                        strokeWidth={d.thickness}
+                        dash={[d.thickness * 3, d.thickness * 2]}
+                        fill={d.color}
+                        pointerAtBeginning
+                        pointerAtEnding
+                        pointerLength={Math.max(d.thickness * 3, 11)}
+                        pointerWidth={Math.max(d.thickness * 2.5, 9)}
+                        lineCap="round"
+                        lineJoin="round"
+                        opacity={op}
+                        hitStrokeWidth={Math.max(d.thickness + 12, 16)}
+                        onMouseEnter={(e) => {
+                          const c = e.target.getStage()?.container();
+                          if (c) c.style.cursor = "pointer";
+                        }}
+                        onMouseLeave={(e) => {
+                          const c = e.target.getStage()?.container();
+                          if (c) c.style.cursor = "default";
+                        }}
+                        onClick={selectThis}
+                        onTap={selectThis}
+                      />
+                    ) : !d.closed ? (
+                      // Open lines / freehand strokes — full visual + hit
+                      // target lives in this layer (above buildings).
+                      <Line
+                        points={d.points}
+                        stroke={d.color}
+                        strokeWidth={d.thickness}
+                        dash={d.dashed ? [d.thickness * 3, d.thickness * 2] : undefined}
+                        closed={false}
+                        lineCap="round"
+                        lineJoin="round"
+                        opacity={op}
+                        hitStrokeWidth={Math.max(d.thickness + 12, 16)}
+                        onMouseEnter={(e) => {
+                          const c = e.target.getStage()?.container();
+                          if (c) c.style.cursor = "pointer";
+                        }}
+                        onMouseLeave={(e) => {
+                          const c = e.target.getStage()?.container();
+                          if (c) c.style.cursor = "default";
+                        }}
+                        onClick={selectThis}
+                        onTap={selectThis}
+                      />
+                    ) : null /* closed polygons are rendered + click-handled in the underlay layer above buildings */}
 
                     {/* Selection halo — re-stroke at lower opacity */}
                     {isSelected && (
@@ -1246,38 +1673,53 @@ export default function PlannerCanvas({
                     )}
 
                     {/* Length label — at midpoint for open strokes (>= 0.5m).
-                        White pill behind the text guarantees readability on
-                        any background. */}
-                    {!d.closed && labelPos && lengthM >= 0.5 && (
-                      <>
-                        <Rect
-                          x={labelPos.x - 30}
-                          y={labelPos.y - 22 / zoom - 2}
-                          width={60}
-                          height={18}
-                          fill="rgba(255,255,255,0.92)"
-                          stroke={d.color}
-                          strokeWidth={1}
-                          cornerRadius={4}
-                          listening={false}
-                        />
-                        <KonvaText
-                          x={labelPos.x - 28}
-                          y={labelPos.y - 22 / zoom}
-                          width={56}
-                          align="center"
-                          text={`${lengthM.toFixed(1)} m`}
-                          fontSize={12}
-                          fontStyle="bold"
-                          fontFamily="system-ui, sans-serif"
-                          fill={d.color}
-                          listening={false}
-                        />
-                      </>
-                    )}
+                        For a dimension drawing, the label sits perpendicular
+                        to the line (one side, flippable via the edit panel)
+                        so it reads as a measurement annotation rather than
+                        sitting on top of the line. */}
+                    {!d.closed && !d.noLabel && (dimLabelPos || labelPos) && lengthM >= 0.5 && (() => {
+                      const pos = dimLabelPos ?? labelPos!;
+                      // Dimension labels are bold and slightly bigger; centred
+                      // on the offset point. Regular line labels stay where
+                      // they always were.
+                      const isDim = !!dimLabelPos;
+                      const fontSize = isDim ? 13 : 12;
+                      const text = `${lengthM.toFixed(2)} m`;
+                      const textW = isDim ? 78 : 56;
+                      const pillW = isDim ? 82 : 60;
+                      const pillH = isDim ? 20 : 18;
+                      const dy = isDim ? -pillH / 2 : -22 / zoom;
+                      return (
+                        <>
+                          <Rect
+                            x={pos.x - pillW / 2}
+                            y={pos.y + dy}
+                            width={pillW}
+                            height={pillH}
+                            fill="rgba(255,255,255,0.94)"
+                            stroke={d.color}
+                            strokeWidth={isDim ? 1.5 : 1}
+                            cornerRadius={4}
+                            listening={false}
+                          />
+                          <KonvaText
+                            x={pos.x - textW / 2}
+                            y={pos.y + dy + (pillH - fontSize) / 2}
+                            width={textW}
+                            align="center"
+                            text={text}
+                            fontSize={fontSize}
+                            fontStyle="bold"
+                            fontFamily="system-ui, sans-serif"
+                            fill={d.color}
+                            listening={false}
+                          />
+                        </>
+                      );
+                    })()}
 
                     {/* Area + perimeter label inside closed polygons */}
-                    {d.closed && centroid && (
+                    {d.closed && !d.noLabel && centroid && (
                       <>
                         <Rect
                           x={centroid.x - 52}
@@ -1344,18 +1786,49 @@ export default function PlannerCanvas({
                 );
               })}
 
-              {/* In-progress freehand stroke */}
+              {/* In-progress freehand stroke or line preview. For the
+                  line tool we also drop a white anchor circle on the
+                  start point (matches the polygon UX) so the user can
+                  see exactly where the line is anchored before they
+                  tap to commit the second endpoint. */}
               {activeStroke && drawStyle && (
-                <Line
-                  points={activeStroke}
-                  stroke={drawStyle.color}
-                  strokeWidth={drawStyle.thickness}
-                  dash={drawStyle.dashed ? [drawStyle.thickness * 3, drawStyle.thickness * 2] : undefined}
-                  lineCap="round"
-                  lineJoin="round"
-                  opacity={drawStyle.opacity}
-                  listening={false}
-                />
+                <Group listening={false}>
+                  <Line
+                    points={activeStroke}
+                    stroke={drawStyle.color}
+                    strokeWidth={drawStyle.thickness}
+                    dash={drawStyle.dashed ? [drawStyle.thickness * 3, drawStyle.thickness * 2] : undefined}
+                    lineCap="round"
+                    lineJoin="round"
+                    opacity={drawStyle.opacity}
+                  />
+                  {(tool === "line" || tool === "dimension") && activeStroke.length === 4 && (
+                    <>
+                      {/* Anchored start point — same UX as polygon's
+                          first vertex so the user sees their tap landed. */}
+                      <Circle
+                        x={activeStroke[0]}
+                        y={activeStroke[1]}
+                        radius={6 / zoom}
+                        fill="#fff"
+                        stroke={drawStyle.color}
+                        strokeWidth={2 / zoom}
+                      />
+                      {/* Live cursor / second-tap target — only show if
+                          the user has moved away from the anchor */}
+                      {(activeStroke[2] !== activeStroke[0] || activeStroke[3] !== activeStroke[1]) && (
+                        <Circle
+                          x={activeStroke[2]}
+                          y={activeStroke[3]}
+                          radius={4 / zoom}
+                          fill={drawStyle.color}
+                          stroke="#fff"
+                          strokeWidth={1.5 / zoom}
+                        />
+                      )}
+                    </>
+                  )}
+                </Group>
               )}
 
               {/* In-progress polygon outline */}
@@ -1628,9 +2101,14 @@ export default function PlannerCanvas({
         </Stage>
 
         {/* Inline text input overlay (HTML) — appears when user clicks on
-            stage in text mode. Positioned in screen coords matching the
-            Konva pointer location. */}
-        {textInput && textStyle && (
+            stage in text mode.
+            Desktop: positioned at the click point, in place.
+            Mobile : pinned to the top of the visual viewport (above the
+                     iOS keyboard) so iOS Safari doesn't yank the whole
+                     page upwards to bring the input into view. The text
+                     still drops at the user's tap point on the canvas
+                     when they hit Enter — only the input UI moves. */}
+        {textInput && textStyle && !isMobile && (
           <div
             className="absolute z-30"
             style={{
@@ -1647,11 +2125,6 @@ export default function PlannerCanvas({
                 if (e.key === "Escape") {
                   setTextInput(null);
                   setTextInputValue("");
-                  if (isMobile) {
-                    requestAnimationFrame(() => {
-                      containerRef.current?.scrollIntoView({ block: "center", behavior: "smooth" });
-                    });
-                  }
                 }
               }}
               onBlur={commitTextInput}
@@ -1664,6 +2137,62 @@ export default function PlannerCanvas({
                 minWidth: 120,
               }}
             />
+          </div>
+        )}
+        {textInput && textStyle && isMobile && (
+          <div
+            className="fixed left-3 right-3 z-50"
+            // Centred vertically — sits just above where iOS slides the
+            // keyboard up from. The body is locked so the page can't drift
+            // while the input is open.
+            style={{ top: "50%", transform: "translateY(-50%)" }}
+          >
+            <div className="flex items-center gap-2 bg-gray-900/95 backdrop-blur-md text-white rounded-2xl shadow-2xl ring-1 ring-white/10 px-2 py-2">
+              <input
+                ref={textInputRef}
+                value={textInputValue}
+                onChange={(e) => setTextInputValue(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    commitTextInput();
+                  }
+                  if (e.key === "Escape") {
+                    setTextInput(null);
+                    setTextInputValue("");
+                  }
+                }}
+                // enterKeyHint makes iOS / Android render the keyboard's
+                // return key as an obvious tickable "Done" — tapping it
+                // fires the Enter handler above and commits the text.
+                enterKeyHint="done"
+                placeholder="Type text — drops at your tap point"
+                className="flex-1 min-w-0 px-3 py-2 rounded-lg bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-400"
+                style={{ fontSize: 16 /* keep ≥16 so iOS doesn't auto-zoom */, fontWeight: 700 }}
+              />
+              <button
+                type="button"
+                onClick={commitTextInput}
+                className="flex-shrink-0 px-3 py-2 rounded-lg bg-amber-500 text-gray-900 text-sm font-bold hover:bg-amber-400"
+              >
+                Add
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setTextInput(null);
+                  setTextInputValue("");
+                }}
+                className="flex-shrink-0 w-9 h-9 rounded-lg text-white/70 hover:bg-white/10"
+                aria-label="Cancel"
+                title="Cancel"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
+            </div>
           </div>
         )}
 
@@ -1680,6 +2209,8 @@ export default function PlannerCanvas({
               ref={trashRef}
               kind="building"
               hovered={trashHover}
+              onRotate={onRotateBuilding ? () => onRotateBuilding(selectedId) : undefined}
+              onRename={onLabelEdit ? () => onLabelEdit(selectedId) : undefined}
               onDelete={() => {
                 onRemoveBuilding?.(selectedId);
                 onSelect(null);
@@ -1691,6 +2222,28 @@ export default function PlannerCanvas({
         {isMobile && selectedDrawingId && (() => {
           const d = drawings.find((dd) => dd.id === selectedDrawingId);
           if (!d) return null;
+          // Scale the drawing's vertices around its centroid by `factor`.
+          // Used by the +/- buttons in the selection bar — gives the
+          // user a quick "make this 10% bigger / smaller" without having
+          // to drag every vertex by hand.
+          const handleResize = (factor: number) => {
+            if (!onUpdateDrawing) return;
+            const n = d.points.length / 2;
+            if (n === 0) return;
+            let cx = 0, cy = 0;
+            for (let i = 0; i < n; i++) {
+              cx += d.points[i * 2];
+              cy += d.points[i * 2 + 1];
+            }
+            cx /= n;
+            cy /= n;
+            const next = d.points.slice();
+            for (let i = 0; i < n; i++) {
+              next[i * 2]     = cx + (d.points[i * 2]     - cx) * factor;
+              next[i * 2 + 1] = cy + (d.points[i * 2 + 1] - cy) * factor;
+            }
+            onUpdateDrawing(d.id, { points: next });
+          };
           return (
             <MobileSelectionBar
               ref={trashRef}
@@ -1700,6 +2253,9 @@ export default function PlannerCanvas({
               onOpacityChange={(v) => onUpdateDrawing?.(d.id, { opacity: v })}
               color={d.color}
               onColorChange={(c) => onUpdateDrawing?.(d.id, { color: c })}
+              onResize={handleResize}
+              isDimension={!!d.dimension}
+              onFlipSide={d.dimension ? () => onUpdateDrawing?.(d.id, { dimensionFlip: !d.dimensionFlip }) : undefined}
               onDelete={() => {
                 onRemoveDrawing?.(d.id);
                 setSelectedDrawingId(null);
@@ -1720,6 +2276,12 @@ export default function PlannerCanvas({
               onOpacityChange={(v) => onUpdateText?.(t.id, { opacity: v })}
               color={t.color}
               onColorChange={(c) => onUpdateText?.(t.id, { color: c })}
+              onRename={() => {
+                const next = window.prompt("Edit text", t.text);
+                if (next !== null && next.trim()) {
+                  onUpdateText?.(t.id, { text: next.trim() });
+                }
+              }}
               onDelete={() => {
                 onRemoveText?.(t.id);
                 setSelectedTextId(null);

@@ -25,3 +25,8 @@ Thumbs.db
 # debug
 npm-debug.log*
 .vercel
+
+# Floor-plan rebrand workflow: originals contain client names, rebranded is the
+# staging dir (its content is identical to the live floorplans/ once swapped).
+public/images/floorplans-original/
+public/images/floorplans-rebranded/

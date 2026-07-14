@@ -29,8 +29,9 @@ type Props = {
   onSunToggle: () => void;
   // Quote
   onGetQuote: () => void;
-  // Quick-add note (adds a styled text annotation at canvas centre)
-  onAddAnnotation: (text: string) => void;
+  // Templates + saved layouts entry points
+  onOpenTemplates?: () => void;
+  onOpenLayouts?: () => void;
 };
 
 export default function PlannerToolbar({
@@ -56,7 +57,8 @@ export default function PlannerToolbar({
   sunEnabled,
   onSunToggle,
   onGetQuote,
-  onAddAnnotation,
+  onOpenTemplates,
+  onOpenLayouts,
 }: Props) {
   const [editingLabel, setEditingLabel] = useState(false);
   const [labelText, setLabelText] = useState("");
@@ -64,8 +66,6 @@ export default function PlannerToolbar({
   const [suggestions, setSuggestions] = useState<GeoResult[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [searchingAddr, setSearchingAddr] = useState(false);
-  const [addingNote, setAddingNote] = useState(false);
-  const [noteText, setNoteText] = useState("");
   const suggestionsRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
   const hasSelection = selectedId !== null;
@@ -78,14 +78,6 @@ export default function PlannerToolbar({
   const confirmLabel = () => {
     if (labelText.trim()) onLabel(labelText.trim());
     setEditingLabel(false);
-  };
-
-  const confirmNote = () => {
-    if (noteText.trim()) {
-      onAddAnnotation(noteText.trim());
-      setNoteText("");
-      setAddingNote(false);
-    }
   };
 
   // Debounced address search
@@ -215,7 +207,10 @@ export default function PlannerToolbar({
 
         <div className="w-px h-6 bg-gray-200 mx-1" />
 
-        {/* Sun & Note */}
+        {/* Sun overlay toggle. The legacy "Note" button has been removed —
+            free text now lives entirely in the Drawing tools' Text mode,
+            which gives the user proper colour / size / opacity controls
+            and works on both desktop and mobile. */}
         <div className="flex items-center gap-1.5">
           <button
             onClick={onSunToggle}
@@ -231,43 +226,56 @@ export default function PlannerToolbar({
             </svg>
             Sun
           </button>
-
-          {addingNote ? (
-            <div className="flex items-center gap-1">
-              <input
-                autoFocus
-                value={noteText}
-                onChange={(e) => setNoteText(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && confirmNote()}
-                className="w-36 px-2 py-1.5 text-xs rounded-lg border border-gray-300 focus:outline-none focus:ring-1 focus:ring-amber-500"
-                placeholder="Note text..."
-              />
-              <button onClick={confirmNote} className={`${btnBase} bg-amber-100 text-amber-800 border border-amber-200`}>
-                Add
-              </button>
-              <button onClick={() => setAddingNote(false)} className={`${btnBase} text-gray-500`}>
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
-              </button>
-            </div>
-          ) : (
-            <button onClick={() => setAddingNote(true)} className={btnActive} title="Add a note to the canvas">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
-                <polyline points="14 2 14 8 20 8" />
-                <line x1="12" y1="18" x2="12" y2="12" />
-                <line x1="9" y1="15" x2="15" y2="15" />
-              </svg>
-              Note
-            </button>
-          )}
         </div>
 
         {/* Spacer */}
         <div className="flex-1" />
 
-        {/* Export & Quote */}
+        {/* Templates + Layouts — file-level operations grouped together
+            so they're discoverable up top instead of buried in the
+            keyboard-hint footer. Templates gets the amber treatment
+            because it's the marketing-friendly "drop a starter" path. */}
+        {(onOpenTemplates || onOpenLayouts) && (
+          <div className="flex items-center gap-1.5">
+            {onOpenTemplates && (
+              <button
+                onClick={onOpenTemplates}
+                className={`${btnBase} bg-amber-50/60 border border-amber-200 text-amber-800 hover:bg-amber-100`}
+                title="Browse templates — pre-arranged layouts you can drop on the canvas"
+              >
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z" />
+                  <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+                  <line x1="12" y1="22.08" x2="12" y2="12" />
+                </svg>
+                Templates
+              </button>
+            )}
+            {onOpenLayouts && (
+              <button
+                onClick={onOpenLayouts}
+                className={btnActive}
+                title="Save / load layouts"
+              >
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z" />
+                  <polyline points="17 21 17 13 7 13 7 21" />
+                  <polyline points="7 3 7 8 15 8" />
+                </svg>
+                Layouts
+              </button>
+            )}
+          </div>
+        )}
+
+        <div className="w-px h-6 bg-gray-200 mx-1" />
+
+        {/* Export & Quote — note: the per-building count text that used to
+            sit before PNG was dropped because it duplicated the live
+            "N buildings · X m²" chip on the canvas (top-left), and it
+            counted utility markers as buildings which inflated the
+            number. The canvas chip is the single source of truth now. */}
         <div className="flex items-center gap-1.5">
-          <span className="text-[11px] text-gray-400 mr-1">{buildingCount} building{buildingCount !== 1 ? "s" : ""}</span>
           <button onClick={onExportPNG} disabled={buildingCount === 0} className={buildingCount > 0 ? `${btnBase} border border-gray-200 text-gray-700 hover:bg-gray-100` : btnDisabled}>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" /><polyline points="7 10 12 15 17 10" /><line x1="12" y1="15" x2="12" y2="3" /></svg>
             PNG

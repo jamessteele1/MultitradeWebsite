@@ -30,6 +30,19 @@ export type Drawing = {
   closed: boolean;
   /** 0–1; applied to stroke and (for closed polygons) the fill. Defaults to 1. */
   opacity?: number;
+  /** When true, this is a dimension line — rendered with arrowheads at
+      both ends and forced-dashed. Length label is offset perpendicular
+      to one side of the line. */
+  dimension?: boolean;
+  /** Which side of a dimension line the label sits on. false (default)
+      = left of the line direction, true = flipped to the right. */
+  dimensionFlip?: boolean;
+  /** When true, suppress the auto-rendered length / area+perimeter
+      label. Used by the Shape tool (rect / circle / triangle / arrow /
+      vehicle) — those are decorative shapes, not measurements, so the
+      m² readout would be noise. The Area / Line / Dimension tools
+      leave this off so their labels still render. */
+  noLabel?: boolean;
 };
 
 /**
@@ -311,6 +324,27 @@ export function usePlannerState() {
     setSelectedId(null);
   }, [pushUndo, buildings, drawings, texts]);
 
+  /**
+   * Wholesale replace the planner state — used when loading a saved
+   * layout or applying a Template. Pushes the previous state onto the
+   * undo stack so the user can ⌘Z back to what they had.
+   */
+  const replaceState = useCallback(
+    (next: { buildings: PlacedBuilding[]; drawings: Drawing[]; texts: TextItem[] }) => {
+      pushUndo(buildings, drawings, texts);
+      // Re-id incoming items so they don't clash with anything else if
+      // the same layout is loaded twice in quick succession.
+      const reIdBuilding = (b: PlacedBuilding): PlacedBuilding => ({ ...b, instanceId: nextId("bld"), parentId: undefined });
+      const reIdDrawing = (d: Drawing): Drawing => ({ ...d, id: nextId("drw") });
+      const reIdText = (t: TextItem): TextItem => ({ ...t, id: nextId("txt") });
+      setBuildings(next.buildings.map(reIdBuilding));
+      setDrawings(next.drawings.map(reIdDrawing));
+      setTexts(next.texts.map(reIdText));
+      setSelectedId(null);
+    },
+    [pushUndo, buildings, drawings, texts],
+  );
+
   const undo = useCallback(() => {
     setUndoStack((stack) => {
       if (stack.length === 0) return stack;
@@ -343,6 +377,7 @@ export function usePlannerState() {
     moveText,
     removeText,
     clearAll,
+    replaceState,
     undo,
     canUndo: undoStack.length > 0,
   };

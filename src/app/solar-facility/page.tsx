@@ -191,12 +191,15 @@ export default function SolarFacilityPage() {
             <div className="relative rounded-xl overflow-hidden shadow-2xl shadow-black/30">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src="/images/products/solar-facility/hero-exterior.jpg"
-                alt="Multitrade Solar Facility — exterior view"
+                src="/images/products/solar-facility/mine-site-hero.jpg"
+                alt="Multitrade Solar Facility deployed at a Queensland mine site"
                 className="w-full h-64 md:h-80 object-cover"
               />
               <div className="absolute top-3 right-3 px-2.5 py-1 rounded-md text-xs font-bold bg-green-500/90 text-white backdrop-blur-sm">
                 ZERO DIESEL
+              </div>
+              <div className="absolute bottom-3 left-3 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider bg-black/60 text-white/90 backdrop-blur-sm">
+                On-site — QLD mine
               </div>
             </div>
           </div>
@@ -420,6 +423,8 @@ export default function SolarFacilityPage() {
           <h2 className="text-xl font-bold text-gray-900 mb-5">Gallery</h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {[
+              { src: "/images/products/solar-facility/mine-site-battery-bay.jpg", alt: "Solar Facility battery bay open on a Queensland mine site, rock wall backdrop" },
+              { src: "/images/products/solar-facility/mine-site-hero.jpg", alt: "Solar Facility deployed at a Queensland mine site" },
               { src: "/images/products/solar-facility/aerial-solar-panels.jpg", alt: "Aerial view showing solar panels on roof" },
               { src: "/images/products/solar-facility/exterior-elevated.jpg", alt: "Elevated exterior view with green fields" },
               { src: "/images/products/solar-facility/exterior-side.jpg", alt: "Side exterior showing water tanks" },

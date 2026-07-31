@@ -14,28 +14,32 @@ const CATEGORY_IMAGE: Record<string, string> = {
   "Accommodation / Village": "/images/bespoke/accommodation-village/1.jpg",
   "Amenities / Club Building": "/images/case-studies/gladstone-hockey/hero.jpg",
   Bathhouse: "/images/bespoke/bathhouse/1.jpg",
+  // Room-type fitouts have no dedicated photography, so they draw on the
+  // three generic "standard-room" interiors — spread across 1/2/3 here so
+  // no two cards show the same image. First Aid Room now uses the real
+  // 15x3.4m first aid room photos.
   "Change Room": "/images/bespoke/standard-room/1.jpg",
-  Classroom: "/images/bespoke/standard-room/1.jpg",
+  Classroom: "/images/bespoke/standard-room/2.jpg",
   "Container Office Conversion": "/images/bespoke/container-office-conversion/1.jpg",
   "Control Room": "/images/bespoke/control-room/1.jpg",
   "Cool Room / Cold Storage": "/images/bespoke/cool-room-cold-storage/1.jpg",
   "Custom Build": "/images/bespoke/custom-build/1.jpg",
-  "D&A Testing Room": "/images/bespoke/standard-room/1.jpg",
+  "D&A Testing Room": "/images/bespoke/standard-room/3.jpg",
   "DNA Testing Room": "/images/bespoke/standard-room/1.jpg",
   // Double Stack / Stackable: still a placeholder — no two-storey photo yet
   "Double Stack / Stackable": "/images/products/12x6m-complex/1.jpg",
-  "First Aid Room": "/images/bespoke/standard-room/1.jpg",
+  "First Aid Room": "/images/products/15x3-4m-first-aid-room/2.jpg",
   "Gatehouse / Security": "/images/bespoke/gatehouse-security/1.jpg",
   "Gender Ablution": "/images/bespoke/gender-ablution/1.jpg",
   "Kitchen / Mess": "/images/bespoke/kitchen-mess/1.jpg",
-  Laboratory: "/images/bespoke/standard-room/1.jpg",
+  Laboratory: "/images/bespoke/standard-room/2.jpg",
   "Large Format Complex": "/images/bespoke/large-format-complex/1.jpg",
   "Large Format Crib": "/images/bespoke/large-format-crib/1.jpg",
   "Large Format Office": "/images/bespoke/large-format-office/1.jpg",
   "PWD Accessible Facility": "/images/bespoke/pwd-accessible-facility/1.jpg",
   "Server Room": "/images/bespoke/server-room/1.jpg",
   "Switch Room": "/images/bespoke/switch-room/1.jpg",
-  "Training Room": "/images/bespoke/standard-room/1.jpg",
+  "Training Room": "/images/bespoke/standard-room/3.jpg",
   "Workshop / Warehouse": "/images/bespoke/workshop-warehouse/1.jpg",
 };
 

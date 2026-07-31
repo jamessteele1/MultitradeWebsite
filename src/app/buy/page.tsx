@@ -6,6 +6,7 @@ import CatalogueDownload from "@/components/CatalogueDownload";
 import ProjectSearch from "@/components/buy/ProjectSearch";
 import BespokeCategories from "@/components/buy/BespokeCategories";
 import ProposalCTA from "@/components/buy/ProposalCTA";
+import StandardFleetGrid from "@/components/buy/StandardFleetGrid";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -179,8 +180,48 @@ export default function BuyIndexPage() {
         </div>
       </section>
 
+      {/* Standard Fleet — lead section, searchable */}
+      <section id="standard-fleet" className="py-12 md:py-16">
+        <div className="max-w-7xl mx-auto px-4">
+          <FadeIn>
+            <div className="text-center mb-8">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gray-100 border border-gray-200 text-xs text-gray-600 font-semibold mb-4">
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                >
+                  <rect x="2" y="3" width="20" height="14" rx="2" />
+                  <line x1="8" y1="21" x2="16" y2="21" />
+                  <line x1="12" y1="17" x2="12" y2="21" />
+                </svg>
+                READY TO GO
+              </div>
+              <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 tracking-tight">
+                Browse Our Standard Buildings for Purchase
+              </h2>
+              <p className="text-gray-500 mt-3 max-w-2xl mx-auto">
+                Available for outright purchase. New builds manufactured at our
+                Gladstone factory.
+              </p>
+            </div>
+          </FadeIn>
+
+          <StandardFleetGrid items={STANDARD_FLEET} />
+        </div>
+      </section>
+
+      {/* Divider */}
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="border-t border-gray-200" />
+      </div>
+
       {/* Search/Match Tool */}
-      <section className="py-12 md:py-16 bg-gray-50">
+      <section id="search-tool" className="py-12 md:py-16 bg-gray-50">
         <div className="max-w-3xl mx-auto px-4">
           <FadeIn>
             <div className="text-center mb-8">
@@ -232,97 +273,6 @@ export default function BuyIndexPage() {
           <FadeIn delay={0.1}>
             <BespokeCategories />
           </FadeIn>
-        </div>
-      </section>
-
-      {/* Divider */}
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="border-t border-gray-200" />
-      </div>
-
-      {/* Standard Fleet */}
-      <section id="standard-fleet" className="py-12 md:py-16">
-        <div className="max-w-7xl mx-auto px-4">
-          <FadeIn>
-            <div className="text-center mb-10">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gray-100 border border-gray-200 text-xs text-gray-600 font-semibold mb-4">
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                >
-                  <rect x="2" y="3" width="20" height="14" rx="2" />
-                  <line x1="8" y1="21" x2="16" y2="21" />
-                  <line x1="12" y1="17" x2="12" y2="21" />
-                </svg>
-                READY TO GO
-              </div>
-              <h2 className="text-2xl md:text-3xl font-extrabold text-gray-900 tracking-tight">
-                Or Browse Our Standard Buildings for Purchase
-              </h2>
-              <p className="text-gray-500 mt-3 max-w-2xl mx-auto">
-                Available for outright purchase. New builds manufactured at our
-                Gladstone factory.
-              </p>
-            </div>
-          </FadeIn>
-
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {STANDARD_FLEET.map((cat, i) => (
-              <FadeIn key={i} delay={i * 0.06}>
-                <Link
-                  href={cat.href}
-                  className="group bg-white rounded-xl border border-gray-200 shadow-lg shadow-black/5 overflow-hidden hover:border-gray-300 hover:shadow-xl hover:shadow-black/10 transition-all block"
-                >
-                  <div className="relative h-52 overflow-hidden">
-                    <img
-                      src={cat.img}
-                      alt={cat.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                    <div className="absolute top-3 left-3">
-                      <span className="px-2 py-0.5 rounded text-[10px] font-bold text-white bg-white/20 backdrop-blur-sm">
-                        PURCHASE
-                      </span>
-                    </div>
-                    <div className="absolute bottom-4 left-4 text-white">
-                      <div className="text-xl font-extrabold tracking-tight">
-                        {cat.name}
-                      </div>
-                      <div className="text-xs text-white/70 mt-0.5">
-                        {cat.count} products available
-                      </div>
-                    </div>
-                  </div>
-                  <div className="p-5">
-                    <p className="text-sm text-gray-600 leading-relaxed mb-3">
-                      {cat.desc}
-                    </p>
-                    <span className="text-sm font-semibold text-gray-500 group-hover:text-gray-900 flex items-center gap-1 transition-colors">
-                      Request Purchase Price
-                      <svg
-                        width="14"
-                        height="14"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                      >
-                        <line x1="5" y1="12" x2="19" y2="12" />
-                        <polyline points="12 5 19 12 12 19" />
-                      </svg>
-                    </span>
-                  </div>
-                </Link>
-              </FadeIn>
-            ))}
-          </div>
         </div>
       </section>
 

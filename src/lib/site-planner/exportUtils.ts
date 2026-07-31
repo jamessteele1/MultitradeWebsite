@@ -1,5 +1,5 @@
 import type Konva from "konva";
-import type { PlacedBuilding } from "./usePlannerState";
+import type { PlacedBuilding, Drawing, TextItem } from "./usePlannerState";
 import { getBuildingType } from "./buildings";
 import { PIXELS_PER_METRE, CANVAS_WIDTH_M, CANVAS_HEIGHT_M } from "./constants";
 
@@ -29,6 +29,58 @@ export function computeBuildingsBoundsPx(buildings: PlacedBuilding[]): Bounds | 
     maxX = Math.max(maxX, cx + halfW);
     maxY = Math.max(maxY, cy + halfH);
   }
+  if (!isFinite(minX)) return null;
+  return { minX, minY, maxX, maxY };
+}
+
+/**
+ * Axis-aligned bounding box of *everything the user placed* — buildings,
+ * drawings (freehand / lines / dimensions / shapes / polygons) and text
+ * annotations — in canvas pixels. Returns null if the canvas is empty.
+ *
+ * The PDF export used to frame the building rectangles only, which meant a
+ * site boundary polygon, dimension lines, or labels drawn around the
+ * buildings got cropped away and the plan looked zoomed-in and cut off.
+ * Including drawings + texts here keeps all of the user's work in the export.
+ *
+ * Note on units: building x/y are metres (×ppm here), whereas Drawing.points
+ * and TextItem.x/y are already canvas pixels — see the type definitions.
+ */
+export function computeContentBoundsPx(
+  buildings: PlacedBuilding[],
+  drawings: Drawing[] = [],
+  texts: TextItem[] = [],
+): Bounds | null {
+  const start = computeBuildingsBoundsPx(buildings);
+  let minX = start ? start.minX : Infinity;
+  let minY = start ? start.minY : Infinity;
+  let maxX = start ? start.maxX : -Infinity;
+  let maxY = start ? start.maxY : -Infinity;
+
+  for (const d of drawings) {
+    const pts = d.points;
+    for (let i = 0; i + 1 < pts.length; i += 2) {
+      const x = pts[i];
+      const y = pts[i + 1];
+      if (x < minX) minX = x;
+      if (y < minY) minY = y;
+      if (x > maxX) maxX = x;
+      if (y > maxY) maxY = y;
+    }
+  }
+
+  for (const t of texts) {
+    // Approximate the rendered text box. Height ≈ fontSize; width ≈ a
+    // rough per-character estimate. Exact metrics aren't needed — the
+    // crop adds generous padding around this anyway.
+    const w = (t.text?.length ?? 0) * t.fontSize * 0.6;
+    const h = t.fontSize * 1.2;
+    if (t.x < minX) minX = t.x;
+    if (t.y < minY) minY = t.y;
+    if (t.x + w > maxX) maxX = t.x + w;
+    if (t.y + h > maxY) maxY = t.y + h;
+  }
+
   if (!isFinite(minX)) return null;
   return { minX, minY, maxX, maxY };
 }
@@ -172,11 +224,15 @@ async function captureStageWithFallback(
  * with sensible padding + minimum-side enforcement. Returns the full canvas
  * if nothing's been placed yet.
  */
-function computeCropRegion(buildings: PlacedBuilding[]) {
+function computeCropRegion(
+  buildings: PlacedBuilding[],
+  drawings: Drawing[] = [],
+  texts: TextItem[] = [],
+) {
   const ppm = PIXELS_PER_METRE;
   const fullW = CANVAS_WIDTH_M * ppm;
   const fullH = CANVAS_HEIGHT_M * ppm;
-  const bbox = computeBuildingsBoundsPx(buildings);
+  const bbox = computeContentBoundsPx(buildings, drawings, texts);
 
   let cropX = 0, cropY = 0, cropW = fullW, cropH = fullH;
   if (bbox) {
@@ -224,9 +280,11 @@ async function buildPDF(
   mapRotation = 0,
   siteAddress?: string,
   siteCoords?: { lat: number; lng: number },
+  drawings: Drawing[] = [],
+  texts: TextItem[] = [],
 ) {
   const { jsPDF } = await import("jspdf");
-  const crop = computeCropRegion(buildings);
+  const crop = computeCropRegion(buildings, drawings, texts);
   const aspect = crop.cropW / crop.cropH;
   // Crossover where portrait vs landscape yields the same image area on
   // an A3 page (with our 36mm header + 60mm legend reserve) is ≈ 1.328.
@@ -247,8 +305,10 @@ export async function generatePDFBase64(
   mapRotation = 0,
   siteAddress?: string,
   siteCoords?: { lat: number; lng: number },
+  drawings: Drawing[] = [],
+  texts: TextItem[] = [],
 ): Promise<string> {
-  const pdf = await buildPDF(stage, buildings, mapRotation, siteAddress, siteCoords);
+  const pdf = await buildPDF(stage, buildings, mapRotation, siteAddress, siteCoords, drawings, texts);
   return pdf.output("datauristring");
 }
 
@@ -258,8 +318,10 @@ export async function downloadPDF(
   mapRotation = 0,
   siteAddress?: string,
   siteCoords?: { lat: number; lng: number },
+  drawings: Drawing[] = [],
+  texts: TextItem[] = [],
 ) {
-  const pdf = await buildPDF(stage, buildings, mapRotation, siteAddress, siteCoords);
+  const pdf = await buildPDF(stage, buildings, mapRotation, siteAddress, siteCoords, drawings, texts);
   pdf.save("site-layout.pdf");
 }
 

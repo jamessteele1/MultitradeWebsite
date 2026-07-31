@@ -238,8 +238,8 @@ export default function SitePlannerClient() {
       setPdfModalOpen(true);
       return;
     }
-    downloadPDF(stageRef.current, state.buildings, mapRotation, siteAddress, siteCoords);
-  }, [isMobile, state.buildings, mapRotation, siteAddress, siteCoords]);
+    downloadPDF(stageRef.current, state.buildings, mapRotation, siteAddress, siteCoords, state.drawings, state.texts);
+  }, [isMobile, state.buildings, state.drawings, state.texts, mapRotation, siteAddress, siteCoords]);
 
   // The modal expects this to throw on failure so it can show a useful
   // message — swallowing the error here would hide *why* it failed.
@@ -247,8 +247,8 @@ export default function SitePlannerClient() {
     if (!stageRef.current) {
       throw new Error("Canvas isn't ready yet — please reload and try again.");
     }
-    return await generatePDFBase64(stageRef.current, state.buildings, mapRotation, siteAddress, siteCoords);
-  }, [state.buildings, mapRotation, siteAddress, siteCoords]);
+    return await generatePDFBase64(stageRef.current, state.buildings, mapRotation, siteAddress, siteCoords, state.drawings, state.texts);
+  }, [state.buildings, state.drawings, state.texts, mapRotation, siteAddress, siteCoords]);
 
   /**
    * Snapshot the current canvas as a SavedLayout. Includes a small PNG

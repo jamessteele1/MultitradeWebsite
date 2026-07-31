@@ -141,6 +141,13 @@ const SELF_CONTAINED = new Set([
 // Per-product recommendation lists (in priority order)
 // Rule: recommend what complements this product on a real worksite
 const RECOMMENDATIONS: Record<string, string[]> = {
+  // ─── Medical & First Aid ───
+  "15x3-4m-first-aid-room": [
+    "12x3m-covered-deck",     // compliant shaded access for the 15m length
+    "stair-landing",          // compliant entry access
+    "5000l-tank-pump",        // water supply for the wet area
+    "6x3m-toilet-block",      // additional site ablutions
+  ],
   // ─── Ablutions ───
   "6x3m-toilet-block": [
     "6000l-waste-tank",       // needs waste collection

@@ -16,6 +16,7 @@ const CATEGORY_LABELS: Record<CartItem["category"], string> = {
   containers: "Container",
   complexes: "Complex",
   ancillary: "Ancillary",
+  "medical-first-aid": "Medical & First Aid",
 };
 
 type FormData = {

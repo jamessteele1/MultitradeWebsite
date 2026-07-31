@@ -16,7 +16,7 @@ export type CartItem = {
   name: string;
   size: string;
   img: string;
-  category: "crib-rooms" | "site-offices" | "ablutions" | "containers" | "complexes" | "ancillary";
+  category: "crib-rooms" | "site-offices" | "ablutions" | "containers" | "complexes" | "ancillary" | "medical-first-aid";
   quantity: number;
   serviceUpgrades?: ServiceUpgrades;
 };

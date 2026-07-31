@@ -77,6 +77,13 @@ const STANDARD_FLEET = [
     count: 5,
   },
   {
+    name: "Medical & First Aid",
+    href: "/buy/medical-first-aid",
+    img: "/images/products/15x3-4m-first-aid-room/2.jpg",
+    desc: "Purpose-built first aid rooms and medical facilities. Mine-spec, C2 wind rated, fully fitted out.",
+    count: 1,
+  },
+  {
     name: "Complexes",
     href: "/hire/complexes",
     img: "/images/products/12x6m-complex/1.jpg",

@@ -178,8 +178,6 @@ async function captureStageWithFallback(
     y: stage.y(),
     sx: stage.scaleX(),
     sy: stage.scaleY(),
-    w: stage.width(),
-    h: stage.height(),
   };
 
   // pixel-ratio ladder — quality high → low. Each step also caps the longer
@@ -192,31 +190,39 @@ async function captureStageWithFallback(
     ? [Math.min(1, ratioCap), Math.min(0.75, ratioCap), Math.min(0.5, ratioCap)]
     : [Math.min(1.5, ratioCap), Math.min(1, ratioCap), Math.min(0.75, ratioCap)];
 
-  let lastErr: unknown = null;
-  for (const pixelRatio of ladder) {
-    try {
-      stage.scale({ x: 1, y: 1 });
-      stage.position({ x: -cropX, y: -cropY });
-      stage.size({ width: cropW, height: cropH });
-      stage.draw();
-      const url = stage.toDataURL({ pixelRatio, mimeType: "image/png" });
-      // Restore before returning
-      stage.scale({ x: prev.sx, y: prev.sy });
-      stage.position({ x: prev.x, y: prev.y });
-      stage.size({ width: prev.w, height: prev.h });
-      stage.draw();
-      return url;
-    } catch (err) {
-      lastErr = err;
-      // Loop and try a lower pixelRatio
-    }
-  }
-  // Restore stage before re-throwing
-  stage.scale({ x: prev.sx, y: prev.sy });
-  stage.position({ x: prev.x, y: prev.y });
-  stage.size({ width: prev.w, height: prev.h });
+  // Export from the planner's logical canvas coordinates. Moving and
+  // resizing the live Stage to imitate a crop caused Konva to resize every
+  // layer canvas before export; on larger layouts the new layer bounds could
+  // clip the lower/right content even though it was inside `cropW/cropH`.
+  // Konva supports an explicit x/y/width/height export region, so keep the
+  // Stage dimensions intact and let its export canvas perform the crop.
+  stage.scale({ x: 1, y: 1 });
+  stage.position({ x: 0, y: 0 });
   stage.draw();
-  throw lastErr instanceof Error ? lastErr : new Error("Stage capture failed");
+
+  let lastErr: unknown = null;
+  try {
+    for (const pixelRatio of ladder) {
+      try {
+        return stage.toDataURL({
+          x: cropX,
+          y: cropY,
+          width: cropW,
+          height: cropH,
+          pixelRatio,
+          mimeType: "image/png",
+        });
+      } catch (err) {
+        lastErr = err;
+        // Loop and try a lower pixelRatio
+      }
+    }
+    throw lastErr instanceof Error ? lastErr : new Error("Stage capture failed");
+  } finally {
+    stage.scale({ x: prev.sx, y: prev.sy });
+    stage.position({ x: prev.x, y: prev.y });
+    stage.draw();
+  }
 }
 
 /**
@@ -240,10 +246,14 @@ function computeCropRegion(
     // overlay, dimension lines, and shows useful context of the
     // surrounding satellite imagery.
     const padPx = 8 * ppm;
-    cropX = Math.max(0, bbox.minX - padPx);
-    cropY = Math.max(0, bbox.minY - padPx);
-    const cropMaxX = Math.min(fullW, bbox.maxX + padPx);
-    const cropMaxY = Math.min(fullH, bbox.maxY + padPx);
+    // Do not clamp the export to the nominal 60 m × 40 m grid. Buildings
+    // and drawings can legitimately extend past that grid (the built-in
+    // Basic Site Layout reaches just beyond 40 m), and clamping here cut
+    // the lower buildings in half even though Konva could render them.
+    cropX = bbox.minX - padPx;
+    cropY = bbox.minY - padPx;
+    const cropMaxX = bbox.maxX + padPx;
+    const cropMaxY = bbox.maxY + padPx;
     cropW = cropMaxX - cropX;
     cropH = cropMaxY - cropY;
 
@@ -251,13 +261,13 @@ function computeCropRegion(
     const minSidePx = 20 * ppm;
     if (cropW < minSidePx) {
       const grow = (minSidePx - cropW) / 2;
-      cropX = Math.max(0, cropX - grow);
-      cropW = Math.min(fullW - cropX, minSidePx);
+      cropX -= grow;
+      cropW = minSidePx;
     }
     if (cropH < minSidePx) {
       const grow = (minSidePx - cropH) / 2;
-      cropY = Math.max(0, cropY - grow);
-      cropH = Math.min(fullH - cropY, minSidePx);
+      cropY -= grow;
+      cropH = minSidePx;
     }
   }
   return { cropX, cropY, cropW, cropH };

@@ -5,6 +5,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/install" },
   title: "Install | Lead Contractor, Project Management & Site Construction — Multitrade",
   description: "Full-service portable building installation, civil works, building services, and project management across Queensland. QBCC 20298. Carpentry, steel fabrication, concreting, plumbing, electrical & more. 45+ years experience.",
 };

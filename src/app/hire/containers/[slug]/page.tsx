@@ -266,6 +266,7 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
   const p = PRODUCTS[params.slug];
   if (!p) return {};
   return {
+    alternates: { canonical: `/hire/containers/${params.slug}` },
     title: `${p.name} Hire & Sale | Shipping Containers QLD — Multitrade`,
     description: `Hire or buy the ${p.name}. ${p.tagline}. ${p.capacity}. Delivered across Queensland. Multitrade Building Hire.`,
   };

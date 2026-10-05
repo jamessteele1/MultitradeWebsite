@@ -6,6 +6,7 @@ import { FadeIn } from "@/components/FadeIn";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/industries/oil-gas" },
   title: "Oil & Gas Portable Buildings | LNG Site Accommodation QLD",
   description: "Portable buildings for oil and gas operations in Queensland. LNG plant support, pipeline projects, CSG operations. Trusted by Santos, QGC, Arrow Energy.",
 };

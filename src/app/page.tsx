@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Header from "@/components/Header";
 import MobileCTA from "@/components/MobileCTA";
 import { FadeIn } from "@/components/FadeIn";
@@ -7,6 +8,8 @@ import Link from "next/link";
 import dynamic from "next/dynamic";
 import ProductCarousel from "@/components/ProductCarousel";
 import SitePlannerCTA from "@/components/SitePlannerCTA";
+
+export const metadata: Metadata = { alternates: { canonical: "/" } };
 
 const ServiceAreaMaps = dynamic(() => import("@/components/ServiceAreaMaps"), { ssr: false });
 

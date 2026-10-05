@@ -6,6 +6,7 @@ import { FadeIn } from "@/components/FadeIn";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/locations/mackay" },
   title: "Portable Building Hire Mackay QLD | Multitrade Building Hire",
   description: "Portable building hire in Mackay QLD. Mining accommodation, site offices, crib rooms for Bowen Basin southern corridor. Multitrade Building Hire.",
 };

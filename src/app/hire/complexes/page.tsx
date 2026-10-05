@@ -7,6 +7,7 @@ import { FadeIn } from "@/components/FadeIn";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/hire/complexes" },
   title: "Portable Building Complex Hire QLD",
   description: "Hire multi-module portable building complexes in Queensland. 12x6m to 12x12m+ configurations for mining, construction, and industrial projects. Multitrade Building Hire.",
 };

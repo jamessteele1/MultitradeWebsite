@@ -312,22 +312,18 @@ export default async function ProjectPage({ params }: PageProps) {
         dangerouslySetInnerHTML={{
           __html: JSON.stringify({
             "@context": "https://schema.org",
-            "@type": "Product",
+            "@type": "WebPage",
+            "@id": `https://www.multitrade.com.au${project.slug}#webpage`,
+            url: `https://www.multitrade.com.au${project.slug}`,
             name: project.title,
             description: project.summary,
-            manufacturer: {
+            image: project.image ? `https://www.multitrade.com.au${project.image}` : undefined,
+            about: { "@type": "Thing", name: project.category },
+            publisher: {
               "@type": "Organization",
               name: "Multitrade Building Hire",
+              url: "https://www.multitrade.com.au",
             },
-            offers: {
-              "@type": "Offer",
-              availability: "https://schema.org/InStock",
-              seller: {
-                "@type": "Organization",
-                name: "Multitrade Building Hire",
-              },
-            },
-            category: project.category,
           }),
         }}
       />

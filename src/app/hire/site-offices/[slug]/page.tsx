@@ -288,6 +288,7 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
   const p = PRODUCTS[params.slug];
   if (!p) return {};
   return {
+    alternates: { canonical: `/hire/site-offices/${params.slug}` },
     title: `${p.name} Hire | Portable Site Offices QLD — Multitrade`,
     description: `Hire the ${p.name} for your worksite. ${p.tagline}. ${p.capacity}. Delivered across Central Queensland. 45+ years experience.`,
   };

@@ -10,6 +10,7 @@ import StandardFleetGrid from "@/components/buy/StandardFleetGrid";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/buy" },
   title:
     "Buy Portable Buildings Queensland | New & Custom | Multitrade Building Hire",
   description:

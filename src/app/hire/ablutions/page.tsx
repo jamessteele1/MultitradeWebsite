@@ -7,6 +7,7 @@ import { FadeIn } from "@/components/FadeIn";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/hire/ablutions" },
   title: "Portable Toilet & Ablution Block Hire QLD",
   description: "Hire portable toilets, ablution blocks, and shower facilities in Queensland. Solar toilets, chemical toilets, and mine-spec compliant blocks. Multitrade Building Hire.",
 };

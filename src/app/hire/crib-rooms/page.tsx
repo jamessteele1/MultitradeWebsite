@@ -5,8 +5,9 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Crib Room Hire QLD | Portable Lunch Rooms",
-  description: "Hire portable crib rooms and lunch rooms for mining & construction sites in Queensland. Standard, self-contained & mobile options. Multitrade Building Hire — 45+ years experience.",
+  alternates: { canonical: "/hire/crib-rooms" },
+  title: "Portable Crib Room Hire Queensland | Lunch Rooms",
+  description: "Compare portable crib rooms for hire across Central Queensland. Explore 6x3m, 12x3m, self-contained and mobile lunch rooms, view floor plans and request a quote.",
 };
 
 const PRODUCTS = [
@@ -39,10 +40,10 @@ export default function CribRoomsPage() {
               {PRODUCTS.length} Products Available for Hire & Sale
             </div>
             <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white tracking-tight leading-tight">
-              Crib Rooms & <span className="gold-text">Lunch Rooms</span>
+              Portable Crib Room Hire & <span className="gold-text">Lunch Rooms</span>
             </h1>
             <p className="text-white/60 mt-4 max-w-lg">
-              Comfortable, fully equipped break facilities for crews of 5 to 2,000. Standard, self-contained, and mobile options. Queensland&apos;s largest privately owned fleet.
+              Compare standard, self-contained and mobile crib rooms for mining, construction and industrial worksites across Central Queensland. View layouts and inclusions, then request a quote for your crew and site.
             </p>
           </div>
         </div>
@@ -96,10 +97,20 @@ export default function CribRoomsPage() {
       <section className="bg-gray-50 border-y border-gray-200 py-10">
         <div className="max-w-4xl mx-auto px-4">
           <h2 className="text-xl font-bold text-gray-900 mb-4">Portable Crib Room Hire — Central Queensland</h2>
-          <div className="text-sm text-gray-600 space-y-3">
-            <p>Multitrade Building Hire provides comfortable, fully equipped crib rooms and lunch rooms for mining, construction, and industrial worksites across Queensland. With standard inclusions like kitchen sinks, instant boiling water units, and pie warmers, our units meet even the toughest Tier 1 site requirements.</p>
-            <p>Our crib room hire fleet ranges from compact 6x3m units for small crews through to 12x3m facilities seating up to 30 workers. For remote sites without connections, our self-contained and mobile crib rooms come with onboard generators, water tanks, and waste systems.</p>
-            <p>With yards in Gladstone and Emerald and over 45 years of experience, we deliver across the Bowen Basin, Central Highlands, Surat Basin, and throughout Central Queensland. All units are mine-spec compliant and backed by our zero lost time injury safety record.</p>
+          <div className="text-sm text-gray-600 space-y-4">
+            <p>A portable crib room gives your crew a dedicated place for meals and breaks. Compare floor plans, seating, kitchen facilities and service requirements before choosing a building for your site.</p>
+            <h3 className="font-semibold text-gray-900">Which crib room suits your site?</h3>
+            <ul className="list-disc pl-5 space-y-2">
+              <li><Link className="underline" href="/hire/crib-rooms/6x3m-crib-room">6x3m crib rooms</Link> provide a compact lunch-room option. Check the floor plan and included furniture against the number of people using it at each break.</li>
+              <li><Link className="underline" href="/hire/crib-rooms/12x3m-crib-room">12x3m crib rooms</Link> offer more internal space for larger crews.</li>
+              <li><Link className="underline" href="/hire/crib-rooms/6-6x3m-self-contained">Self-contained crib rooms</Link> combine building facilities with onboard services. Confirm the power, water and waste arrangements for your selected unit.</li>
+              <li><Link className="underline" href="/hire/crib-rooms/12x3m-mobile-crib">Mobile crib rooms</Link> are trailer-mounted facilities for projects that need a transportable break space. Review access, towing and site requirements with our team.</li>
+            </ul>
+            <h3 className="font-semibold text-gray-900">Crib room hire across Central Queensland</h3>
+            <p>Our yards in <Link className="underline" href="/locations/gladstone">Gladstone</Link> and <Link className="underline" href="/locations/emerald">Emerald</Link> support projects across the <Link className="underline" href="/locations/bowen-basin">Bowen Basin</Link>, <Link className="underline" href="/locations/rockhampton">Rockhampton</Link> and surrounding areas. Delivery, setup and suitability are confirmed for your location and selected building.</p>
+            <h3 className="font-semibold text-gray-900">What do we need to prepare your quote?</h3>
+            <p>Tell us your site location, crew size and break schedule, hire dates, available power and water, and truck access. Include any site-specific requirements. We will confirm availability, inclusions and transport in your quote.</p>
+            <Link href="/quote" className="inline-flex rounded-lg bg-gold px-5 py-3 font-semibold text-gray-900">Request a crib room hire quote</Link>
           </div>
         </div>
       </section>

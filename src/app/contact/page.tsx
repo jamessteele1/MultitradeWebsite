@@ -6,6 +6,7 @@ import { FadeIn } from "@/components/FadeIn";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/contact" },
   title: "Contact Us",
   description: "Contact Multitrade Building Hire. Head office: 6 South Trees Drive, Gladstone QLD 4680. Phone (07) 4979 2333. Portable building enquiries welcome.",
 };

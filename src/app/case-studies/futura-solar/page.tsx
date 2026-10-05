@@ -5,6 +5,7 @@ import { ClickableImage, ClickableGalleryGrid } from "@/components/ClickableGall
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/case-studies/futura-solar" },
   title: "Case Study — Futura Resources | Off-Grid Solar Site Office",
   description: "How a hire-ready solar building eliminated diesel generation at Wilton Coal Mine. Zero diesel burn, no grid connection, fully self-contained off-grid site office.",
 };

@@ -243,8 +243,9 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
   const p = PRODUCTS[params.slug];
   if (!p) return {};
   return {
-    title: `${p.name} Hire | Portable Crib Rooms QLD — Multitrade`,
-    description: `Hire the ${p.name} for your worksite. ${p.tagline}. ${p.capacity}. Delivered across Central Queensland. 45+ years experience.`,
+    alternates: { canonical: `/hire/crib-rooms/${params.slug}` },
+    title: params.slug === "12x3m-mobile-crib" ? "Mobile Crib Room Hire QLD | 12.5x3m Trailer-Mounted" : `${p.name} Hire | Portable Crib Rooms QLD`,
+    description: params.slug === "12x3m-mobile-crib" ? "Hire a 12.5x3m trailer-mounted mobile crib room in Central Queensland. View the floor plan, onboard generator and water facilities, and request a site-specific quote." : `Hire the ${p.name} for your worksite. View the floor plan and inclusions, confirm site services, and request a quote for Central Queensland.`,
   };
 }
 export default function CribRoomDetailPage({ params }: { params: { slug: string } }) {

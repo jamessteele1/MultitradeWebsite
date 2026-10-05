@@ -279,6 +279,7 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
   const p = PRODUCTS[params.slug];
   if (!p) return {};
   return {
+    alternates: { canonical: `/hire/ancillary/${params.slug}` },
     title: `${p.name} Hire | Ancillary Equipment QLD — Multitrade`,
     description: `Hire the ${p.name}. ${p.tagline}. ${p.capacity}. Delivered across Queensland. Multitrade Building Hire.`,
   };

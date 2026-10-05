@@ -4,6 +4,7 @@ import { FadeIn } from "@/components/FadeIn";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/about" },
   title: "About Us | Our Story",
   description: "45+ years of portable building solutions in Central Queensland. Family-owned since 1980. Design, manufacture, hire, sale & installation. Meet the Multitrade Group.",
 };

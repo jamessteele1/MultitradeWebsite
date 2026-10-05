@@ -5,6 +5,7 @@ import { FadeIn } from "@/components/FadeIn";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/case-studies" },
   title: "Case Studies | Multitrade Building Hire",
   description: "Real projects, real results. See how Multitrade Building Hire delivers portable building solutions across Queensland — from community facilities to off-grid solar offices.",
 };

@@ -2,6 +2,7 @@ import Header from "@/components/Header";
 import SitePlannerClient from "@/components/site-planner/SitePlannerClient";
 
 export const metadata = {
+  alternates: { canonical: "/site-planner" },
   title: "Site Layout Planner | Multitrade Building Hire",
   description:
     "Plan your site layout with our drag-and-drop tool. Place portable buildings to scale and export your layout as PDF.",

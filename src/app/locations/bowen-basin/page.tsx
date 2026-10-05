@@ -6,6 +6,7 @@ import { FadeIn } from "@/components/FadeIn";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/locations/bowen-basin" },
   title: "Portable Building Hire Bowen Basin QLD | Mining Accommodation",
   description: "Portable building hire for Bowen Basin mining operations. Camp accommodation, crib rooms, offices, ablutions. Rapid deployment from Gladstone and Emerald yards.",
 };

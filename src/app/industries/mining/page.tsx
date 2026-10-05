@@ -5,6 +5,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/industries/mining" },
   title: "Mining & Resources | Portable Buildings for Mine Sites",
   description: "Mine-spec portable buildings for QLD mining operations. C-RES BMA Certified. Crib rooms, offices, ablutions, and solar facilities. Trusted by BHP, Rio Tinto, Glencore.",
 };

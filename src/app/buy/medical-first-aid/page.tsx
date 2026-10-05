@@ -7,6 +7,7 @@ import { FadeIn } from "@/components/FadeIn";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/buy/medical-first-aid" },
   title: "Medical & First Aid Facilities for Sale | Mine-Spec First Aid Rooms — Multitrade Building Hire",
   description:
     "Purpose-built first aid rooms, medical facilities and paramedic stations for sale. Mine-spec compliant, C2 wind rated and delivered fully fitted out. Built for Queensland worksites.",

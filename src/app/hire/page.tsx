@@ -5,6 +5,7 @@ import { FadeIn } from "@/components/FadeIn";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/hire" },
   title: "Portable Building Hire QLD | Crib Rooms, Offices, Ablutions — Multitrade",
   description: "Hire portable buildings across Central Queensland. Crib rooms, site offices, ablutions, complexes, containers, and ancillary equipment. Mine-spec compliant. 45+ years experience.",
 };

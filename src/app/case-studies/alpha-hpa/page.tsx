@@ -5,6 +5,7 @@ import { ClickableImage, ClickableGalleryGrid } from "@/components/ClickableGall
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/case-studies/alpha-hpa" },
   title: "Case Study — Alpha HPA | 12×9m Office Complex, Yarwun QLD",
   description: "Multitrade Building Hire delivered a 12×9m office complex for Alpha HPA's Yarwun refinery — custom-engineered foundations over a swale drain, turnkey delivery ahead of schedule.",
 };

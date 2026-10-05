@@ -6,6 +6,7 @@ import { FadeIn } from "@/components/FadeIn";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/locations/emerald" },
   title: "Portable Building Hire Emerald QLD | Multitrade Building Hire",
   description: "Portable building hire in Emerald QLD. Crib rooms, site offices, ablutions for Bowen Basin mining operations. Regional depot with rapid deployment.",
 };

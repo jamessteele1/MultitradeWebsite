@@ -5,6 +5,7 @@ import { ClickableImage, ClickableGalleryGrid } from "@/components/ClickableGall
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/case-studies/gladstone-hockey" },
   title: "Case Study — Gladstone Hockey Association | 12×3m Amenities Building",
   description: "Full turnkey delivery of a custom 12×3m amenities building for the Gladstone Hockey Association. Design, manufacture, transport & installation — $210K project, C2 wind rated, fully DDA compliant.",
 };

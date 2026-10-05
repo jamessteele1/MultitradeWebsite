@@ -7,6 +7,7 @@ import { FadeIn } from "@/components/FadeIn";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/hire/ancillary" },
   title: "Portable Building Accessories & Equipment Hire QLD",
   description: "Hire ancillary equipment — tanks, pumps, covered decks, flat racks, stairs, and hand wash stations. Multitrade Building Hire Queensland.",
 };

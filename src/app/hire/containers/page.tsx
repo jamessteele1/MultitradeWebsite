@@ -7,6 +7,7 @@ import { FadeIn } from "@/components/FadeIn";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/hire/containers" },
   title: "Shipping Container Hire & Sale QLD",
   description: "Hire or buy shipping containers in Queensland. Standard, high cube, dangerous goods, shelved, and container office conversions. Multitrade Building Hire.",
 };

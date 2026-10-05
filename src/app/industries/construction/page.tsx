@@ -6,6 +6,7 @@ import { FadeIn } from "@/components/FadeIn";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/industries/construction" },
   title: "Construction Site Portable Buildings | Multitrade Building Hire",
   description: "Portable buildings for construction sites in Queensland. Site offices, crib rooms, toilet blocks, and storage containers. Fast deployment, mine-spec quality.",
 };

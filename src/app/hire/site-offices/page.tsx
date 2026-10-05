@@ -7,6 +7,7 @@ import { FadeIn } from "@/components/FadeIn";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/hire/site-offices" },
   title: "Site Office Hire QLD | Portable Offices",
   description: "Hire portable site offices in Queensland. 3x3m to 12x3m offices, container conversions, gatehouses. Mine-spec compliant. Multitrade Building Hire.",
 };

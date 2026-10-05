@@ -6,6 +6,7 @@ import { FadeIn } from "@/components/FadeIn";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/locations/rockhampton" },
   title: "Portable Building Hire Rockhampton QLD | Multitrade Building Hire",
   description: "Portable building hire in Rockhampton QLD. Site offices, crib rooms, ablutions for construction and mining. Delivered from Gladstone — under 2 hours.",
 };

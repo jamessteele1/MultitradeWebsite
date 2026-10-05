@@ -5,6 +5,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/locations/gladstone" },
   title: "Portable Building Hire Gladstone QLD",
   description: "Portable building hire in Gladstone QLD. Head office & manufacturing facility at 6 South Trees Drive. Same-day availability. Crib rooms, offices, ablutions, containers. Est. 1980.",
 };

@@ -150,13 +150,10 @@ export default function Footer() {
 
         {/* Building Hire certification marks from the email signature */}
         <div className="border-t border-white/15">
-          <section aria-labelledby="footer-certification-heading" className="py-8 md:py-10">
-            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
-              <div className="lg:max-w-xs">
-                <h3 id="footer-certification-heading" className="text-sm font-semibold text-white">Multitrade Building Hire</h3>
-                <p className="text-sm text-white/65 mt-2 leading-relaxed">Certified for quality, environment<br />and health &amp; safety.</p>
-              </div>
-              <div className="grid grid-cols-3 gap-3 sm:gap-10 lg:gap-12">
+          <div className="grid md:grid-cols-2 gap-7 md:gap-8 py-7">
+          <section aria-labelledby="footer-certification-heading">
+              <h3 id="footer-certification-heading" className="text-xs font-semibold text-white/75 mb-5">Multitrade Building Hire · ISO certified</h3>
+              <div className="grid grid-cols-3 gap-3 sm:gap-6">
                 {[
                   { standard: "9001", year: "2015", label: "Quality" },
                   { standard: "14001", year: "2015", label: "Environment" },
@@ -174,33 +171,33 @@ export default function Footer() {
                       width="112"
                       height="112"
                       loading="lazy"
-                      className="w-20 h-20 sm:w-24 sm:h-24 mix-blend-screen opacity-90 group-hover:opacity-100 transition-opacity"
+                      className="w-16 h-16 mix-blend-screen opacity-90 group-hover:opacity-100 transition-opacity"
                       style={{ filter: "grayscale(1) invert(1) brightness(3)" }}
                     />
-                    <span className="mt-3 text-xs sm:text-sm font-medium text-white">{certification.label}</span>
-                    <span className="mt-1 text-[10px] sm:text-xs text-white/60">ISO {certification.standard}:{certification.year}</span>
+                    <span className="mt-3 text-xs font-medium text-white">{certification.label}</span>
+                    <span className="mt-1 text-[10px] text-white/60">ISO {certification.standard}:{certification.year}</span>
                   </a>
                 ))}
               </div>
-            </div>
           </section>
 
           {/* Sister businesses, using their supplied white logo artwork */}
-          <section aria-labelledby="footer-group-heading" className="py-8 md:py-10 border-t border-white/15 grid lg:grid-cols-[1fr_2fr] items-center gap-8">
-            <h3 id="footer-group-heading" className="text-xs font-semibold uppercase tracking-widest text-white/65 leading-relaxed">
-              Proudly part of the<br /><span className="text-white">Multitrade Group</span>
+          <section aria-labelledby="footer-group-heading" className="border-t md:border-t-0 md:border-l border-white/15 pt-6 md:pt-0 md:pl-8">
+            <h3 id="footer-group-heading" className="text-xs font-semibold text-white/75 mb-5">
+              Proudly part of the Multitrade Group
             </h3>
-            <div className="grid grid-cols-2 gap-4 sm:gap-10">
-              <a href="https://multitradecontracting.com.au" aria-label="Visit Multitrade Contracting" className="group flex flex-col items-center text-center py-2 rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
+            <div className="grid grid-cols-2 gap-4 sm:gap-6">
+              <a href="https://multitradecontracting.com.au" aria-label="Visit Multitrade Contracting" className="group flex flex-col items-center text-center rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
                 <img src="/images/logos/multitrade-contracting-white.svg" alt="Multitrade Contracting" width="386" height="157" loading="lazy" className="w-full max-w-48 h-16 object-contain opacity-90 group-hover:opacity-100 transition-opacity" />
-                <span className="mt-4 text-xs sm:text-sm text-white/75 group-hover:text-white transition-colors">Multitrade Contracting <span aria-hidden="true">↗</span></span>
+                <span className="mt-3 text-xs text-white/75 group-hover:text-white transition-colors">Multitrade Contracting <span aria-hidden="true">↗</span></span>
               </a>
-              <a href="https://www.multitradehomes.com.au" aria-label="Visit Multitrade Homes" className="group flex flex-col items-center text-center py-2 rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
+              <a href="https://www.multitradehomes.com.au" aria-label="Visit Multitrade Homes" className="group flex flex-col items-center text-center rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
                 <img src="/images/logos/Multitrade Homes Logo - Secondary Inverted - WEBSITE EDIT.avif" alt="Multitrade Homes" width="812" height="186" loading="lazy" className="w-full max-w-48 h-16 object-contain brightness-0 invert opacity-90 group-hover:opacity-100 transition-opacity" />
-                <span className="mt-4 text-xs sm:text-sm text-white/75 group-hover:text-white transition-colors">Multitrade Homes <span aria-hidden="true">↗</span></span>
+                <span className="mt-3 text-xs text-white/75 group-hover:text-white transition-colors">Multitrade Homes <span aria-hidden="true">↗</span></span>
               </a>
             </div>
           </section>
+          </div>
 
           <div className="pt-6 border-t border-white/15 flex flex-col md:flex-row items-center justify-between gap-3">
             <div className="text-xs text-white/20">

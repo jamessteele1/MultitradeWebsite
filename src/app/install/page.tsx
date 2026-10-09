@@ -177,6 +177,15 @@ export default function InstallPage() {
         <div className="max-w-7xl mx-auto px-4 py-10 md:py-14 grid lg:grid-cols-[1fr_auto] items-center gap-8">
           <div className="max-w-3xl">
             <p className="text-xs font-bold uppercase tracking-wider text-emerald-800 mb-3">Part of the Multitrade Group</p>
+            <a href="https://multitradecontracting.com.au" className="inline-block mb-5 rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-emerald-800">
+              <img
+                src="/images/logos/multitrade-contracting.svg"
+                alt="Multitrade Contracting"
+                width="386"
+                height="157"
+                className="w-48 md:w-56 h-auto"
+              />
+            </a>
             <h2 id="contracting-heading" className="text-2xl md:text-3xl font-extrabold text-gray-900 tracking-tight">Multitrade Contracting</h2>
             <p className="text-gray-700 mt-4 leading-relaxed">
               Our group&apos;s installation, maintenance and construction business, based in Gladstone and working across Central Queensland. From portable building installations and civil works to refurbishments and ongoing maintenance, Multitrade Contracting supports projects from site preparation through to completion.

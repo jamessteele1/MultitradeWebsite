@@ -123,11 +123,6 @@ export default function Footer() {
                   <Link href={link.href} className="text-sm text-white/40 hover:text-white/80 transition-colors">{link.label}</Link>
                 </li>
               ))}
-              <li>
-                <a href="https://multitradecontracting.com.au" className="text-sm text-white/60 hover:text-white transition-colors">
-                  Multitrade Contracting <span aria-hidden="true">↗</span>
-                </a>
-              </li>
             </ul>
           </div>
         </div>
@@ -153,41 +148,61 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Certifications & Bottom bar */}
-        <div className="pt-6 border-t border-white/5 space-y-6">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {[
-              { std: "ISO 9001", year: "2015", label: "Quality Management", color: "#3B82F6" },
-              { std: "ISO 14001", year: "2015", label: "Environmental Management", color: "#22C55E" },
-              { std: "ISO 45001", year: "2018", label: "Health & Safety", color: "#F59E0B" },
-            ].map((c) => (
-              <div key={c.std} className="flex items-center gap-4 px-5 py-4 rounded-xl border border-gray-200 bg-white">
-                {/* Circular badge */}
-                <div className="relative flex-shrink-0 w-16 h-16">
-                  <svg viewBox="0 0 80 80" className="w-full h-full">
-                    {/* Outer ring */}
-                    <circle cx="40" cy="40" r="37" fill="none" stroke={c.color} strokeWidth="2.5" opacity="0.5" />
-                    <circle cx="40" cy="40" r="33" fill="none" stroke={c.color} strokeWidth="1" opacity="0.3" />
-                    {/* Inner fill */}
-                    <circle cx="40" cy="40" r="30" fill={c.color} fillOpacity="0.1" />
-                    {/* Checkmark */}
-                    <path d="M28 40 L36 48 L52 32" fill="none" stroke={c.color} strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" opacity="0.8" />
-                    {/* "CERTIFIED" arc text at top */}
-                    <path id={`arc-${c.std}`} d="M12,40 a28,28 0 0,1 56,0" fill="none" />
-                    <text fontSize="6" fill="#374151" fillOpacity="0.4" fontWeight="600" letterSpacing="2">
-                      <textPath href={`#arc-${c.std}`} startOffset="50%" textAnchor="middle">CERTIFIED</textPath>
-                    </text>
-                  </svg>
-                </div>
-                <div>
-                  <div className="text-base font-extrabold text-gray-800 tracking-tight">{c.std}<span className="text-gray-400 font-semibold">:{c.year}</span></div>
-                  <div className="text-xs text-gray-500 mt-0.5">{c.label}</div>
-                  <div className="text-[10px] text-gray-300 mt-1 uppercase tracking-wider">Certified Company</div>
-                </div>
+        {/* Building Hire certification marks from the email signature */}
+        <div className="border-t border-white/15">
+          <section aria-labelledby="footer-certification-heading" className="py-8 md:py-10">
+            <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-8">
+              <div className="lg:max-w-xs">
+                <h3 id="footer-certification-heading" className="text-sm font-semibold text-white">Multitrade Building Hire</h3>
+                <p className="text-sm text-white/65 mt-2 leading-relaxed">Certified for quality, environment<br />and health &amp; safety.</p>
               </div>
-            ))}
-          </div>
-          <div className="flex flex-col md:flex-row items-center justify-between gap-3">
+              <div className="grid grid-cols-3 gap-3 sm:gap-10 lg:gap-12">
+                {[
+                  { standard: "9001", year: "2015", label: "Quality" },
+                  { standard: "14001", year: "2015", label: "Environment" },
+                  { standard: "45001", year: "2018", label: "Health & Safety" },
+                ].map((certification) => (
+                  <a
+                    key={certification.standard}
+                    href="https://qdos.equalassurance.com/certificates/MHRQ01"
+                    aria-label={`ISO ${certification.standard}:${certification.year} — ${certification.label}. View Multitrade Building Hire certification.`}
+                    className="group flex flex-col items-center text-center rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
+                  >
+                    <img
+                      src={`/email-signature/iso-${certification.standard}-v2.png`}
+                      alt={`Equal Assurance ISO ${certification.standard} certified`}
+                      width="112"
+                      height="112"
+                      loading="lazy"
+                      className="w-20 h-20 sm:w-24 sm:h-24 mix-blend-screen opacity-90 group-hover:opacity-100 transition-opacity"
+                      style={{ filter: "grayscale(1) invert(1) brightness(3)" }}
+                    />
+                    <span className="mt-3 text-xs sm:text-sm font-medium text-white">{certification.label}</span>
+                    <span className="mt-1 text-[10px] sm:text-xs text-white/60">ISO {certification.standard}:{certification.year}</span>
+                  </a>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {/* Sister businesses, using their supplied white logo artwork */}
+          <section aria-labelledby="footer-group-heading" className="py-8 md:py-10 border-t border-white/15 grid lg:grid-cols-[1fr_2fr] items-center gap-8">
+            <h3 id="footer-group-heading" className="text-xs font-semibold uppercase tracking-widest text-white/65 leading-relaxed">
+              Proudly part of the<br /><span className="text-white">Multitrade Group</span>
+            </h3>
+            <div className="grid grid-cols-2 gap-4 sm:gap-10">
+              <a href="https://multitradecontracting.com.au" aria-label="Visit Multitrade Contracting" className="group flex flex-col items-center text-center py-2 rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
+                <img src="/images/logos/multitrade-contracting-white.svg" alt="Multitrade Contracting" width="386" height="157" loading="lazy" className="w-full max-w-48 h-16 object-contain opacity-90 group-hover:opacity-100 transition-opacity" />
+                <span className="mt-4 text-xs sm:text-sm text-white/75 group-hover:text-white transition-colors">Multitrade Contracting <span aria-hidden="true">↗</span></span>
+              </a>
+              <a href="https://www.multitradehomes.com.au" aria-label="Visit Multitrade Homes" className="group flex flex-col items-center text-center py-2 rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
+                <img src="/images/logos/Multitrade Homes Logo - Secondary Inverted - WEBSITE EDIT.avif" alt="Multitrade Homes" width="812" height="186" loading="lazy" className="w-full max-w-48 h-16 object-contain brightness-0 invert opacity-90 group-hover:opacity-100 transition-opacity" />
+                <span className="mt-4 text-xs sm:text-sm text-white/75 group-hover:text-white transition-colors">Multitrade Homes <span aria-hidden="true">↗</span></span>
+              </a>
+            </div>
+          </section>
+
+          <div className="pt-6 border-t border-white/15 flex flex-col md:flex-row items-center justify-between gap-3">
             <div className="text-xs text-white/20">
               © {new Date().getFullYear()} Multitrade Building Hire Pty Ltd. All rights reserved.
             </div>

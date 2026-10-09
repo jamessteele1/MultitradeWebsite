@@ -156,7 +156,7 @@ export default function InstallPage() {
               Design. Manufacture. <br className="hidden sm:block" /><span className="gold-text">Hire. Install.</span>
             </h1>
             <p className="text-white/60 mt-5 text-lg max-w-xl">
-              Full-service lead contractor from project inception to completion. Portable building installation, civil works, building services, and ongoing maintenance — one point of contact for everything.
+              Multitrade Building Hire supplies your portable buildings. Multitrade Contracting brings the installation, construction and maintenance expertise to support your project on site — together as part of the Multitrade Group.
             </p>
           </div>
 
@@ -172,6 +172,26 @@ export default function InstallPage() {
         </div>
       </section>
 
+
+      <section aria-labelledby="contracting-heading" className="bg-emerald-50 border-b border-emerald-100">
+        <div className="max-w-7xl mx-auto px-4 py-10 md:py-14 grid lg:grid-cols-[1fr_auto] items-center gap-8">
+          <div className="max-w-3xl">
+            <p className="text-xs font-bold uppercase tracking-wider text-emerald-800 mb-3">Part of the Multitrade Group</p>
+            <h2 id="contracting-heading" className="text-2xl md:text-3xl font-extrabold text-gray-900 tracking-tight">Multitrade Contracting</h2>
+            <p className="text-gray-700 mt-4 leading-relaxed">
+              Our group&apos;s installation, maintenance and construction business, based in Gladstone and working across Central Queensland. From portable building installations and civil works to refurbishments and ongoing maintenance, Multitrade Contracting supports projects from site preparation through to completion.
+            </p>
+            <p className="text-gray-600 mt-3 text-sm leading-relaxed">Explore the Contracting team&apos;s services and recent projects, or discuss your installation requirements directly.</p>
+          </div>
+          <a
+            href="https://multitradecontracting.com.au"
+            className="inline-flex items-center justify-center gap-2 px-6 py-4 rounded-lg text-sm font-semibold text-white bg-emerald-800 hover:bg-emerald-900 transition-colors text-center focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-emerald-800"
+          >
+            Visit Multitrade Contracting
+            <svg aria-hidden="true" className="shrink-0" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M7 17 17 7M7 7h10v10" /></svg>
+          </a>
+        </div>
+      </section>
 
       {/* Service Categories */}
       <section className="bg-white">

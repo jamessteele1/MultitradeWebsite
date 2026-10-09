@@ -123,6 +123,11 @@ export default function Footer() {
                   <Link href={link.href} className="text-sm text-white/40 hover:text-white/80 transition-colors">{link.label}</Link>
                 </li>
               ))}
+              <li>
+                <a href="https://multitradecontracting.com.au" className="text-sm text-white/60 hover:text-white transition-colors">
+                  Multitrade Contracting <span aria-hidden="true">↗</span>
+                </a>
+              </li>
             </ul>
           </div>
         </div>

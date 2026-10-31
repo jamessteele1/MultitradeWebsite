@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { isMondayItemId } from "@/lib/monday-item-id";
 import {
   BOARDS,
   buildVisitorInfo,
@@ -93,14 +92,6 @@ export async function POST(req: Request) {
 
     const result = await createMondayItem(board.id, itemName || "Quote Request", columnValues);
 
-    if (!result.ok || !isMondayItemId(result.itemId)) {
-      const unavailable = result.error === "no_api_key";
-      return NextResponse.json(
-        { success: false, code: unavailable ? "quote_unavailable" : "quote_unconfirmed" },
-        { status: unavailable ? 503 : 502 },
-      );
-    }
-
     // Attach the site-layout PNG as a file on the new item. Done after
     // create_item so we have an item_id. Fail-open — never block the user.
     if (result.ok && result.itemId && siteLayoutPng) {
@@ -110,13 +101,14 @@ export async function POST(req: Request) {
       );
     }
 
-    // The enquiry is confirmed even if its optional PNG attachment fails.
+    // Always return success so the user sees their form go through.
     return NextResponse.json({
       success: true,
       itemId: result.itemId,
+      fallback: !result.ok,
     });
   } catch (err) {
     console.error("[/api/quote] error:", err);
-    return NextResponse.json({ success: false, code: "quote_unconfirmed" }, { status: 502 });
+    return NextResponse.json({ success: true, fallback: true });
   }
 }

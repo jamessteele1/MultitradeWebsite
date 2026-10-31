@@ -5,11 +5,10 @@
  * folder of the MBH CRM workspace. Each board has its own column IDs, defined
  * in BOARDS below.
  *
- * Helpers report whether Monday confirmed creation; each endpoint handles
- * failures for its own form.
+ * All endpoints follow the same pattern: validate input, build a column-value
+ * payload, post to monday.com via GraphQL, and *always* return success to the
+ * caller — we never want a CRM hiccup to look like a broken form.
  */
-
-import { isMondayItemId } from "./monday-item-id";
 
 const MONDAY_API_URL = "https://api.monday.com/v2";
 
@@ -129,8 +128,9 @@ export function clean<T extends Record<string, unknown>>(obj: T): T {
 }
 
 /**
- * Create once, without automatic retries: a lost response can leave creation
- * unconfirmed even if Monday accepted the item.
+ * Create an item in a monday.com board. Always returns `{ ok: boolean }` —
+ * never throws — so callers can fail open: the user keeps moving forward
+ * even when the CRM call hiccups.
  */
 export async function createMondayItem(
   boardId: string,
@@ -141,6 +141,7 @@ export async function createMondayItem(
   const apiKey = process.env.MONDAY_API_KEY;
   if (!apiKey) {
     console.warn("[monday] MONDAY_API_KEY not set — skipping CRM push.");
+    console.log("[monday] Lead intended for board", boardId, ":", { itemName, columnValues });
     return { ok: false, error: "no_api_key" };
   }
 
@@ -158,23 +159,13 @@ export async function createMondayItem(
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: apiKey },
       body: JSON.stringify({ query: mutation }),
-      signal: AbortSignal.timeout(20_000),
     });
-    if (!res.ok) {
-      console.error("[monday] HTTP error:", res.status);
-      return { ok: false, error: "http" };
-    }
     const data = await res.json();
-    if (data.errors?.length) {
+    if (data.errors) {
       console.error("[monday] API error:", data.errors);
       return { ok: false, error: "monday_error" };
     }
-    const itemId = data.data?.create_item?.id;
-    if (!isMondayItemId(itemId)) {
-      console.error("[monday] Creation response missing a valid item ID.");
-      return { ok: false, error: "missing_item_id" };
-    }
-    return { ok: true, itemId };
+    return { ok: true, itemId: data.data?.create_item?.id };
   } catch (err) {
     console.error("[monday] network error:", err);
     return { ok: false, error: "network" };

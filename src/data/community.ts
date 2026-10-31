@@ -6,6 +6,8 @@ export const communityGroups = [
     ["Ronald McDonald House Charities", "Event sponsorship and fundraising support."],
     ["Rotary Club of South Gladstone", "Charity golf sponsorship and donated solar-toilet hire."],
     ["Rotary Club of Gladstone", "Support for the Ladies Long Table Lunch."],
+    ["Cosmos Arts for Health", "Fundraiser sponsorship."],
+    ["Royal Flying Doctor Service", "Outback Air Race fundraising support."],
   ]},
   { title: "Sport & local clubs", organisations: [
     ["Gladstone Clay Target Club", "Sponsorship of the club’s 50th Anniversary carnival."],
@@ -19,29 +21,27 @@ export const communityGroups = [
     ["Central Highlands MTB Club", "Support for the local mountain-biking community."],
     ["Gladstone Amateur Boxing Club", "Donated chemical-toilet hire."],
     ["Benaraby Dragway", "Road-barrier support."],
-    ["Gladstone Rugby League representative teams", "Support for the 2025 men’s and women’s teams."],
-    ["Police vs Young Veterans CQ cricket", "Sponsorship of the 2025 community cricket match."],
   ]},
   { title: "Community events", organisations: [
     ["Brisbane to Gladstone Yacht Race", "Annual donation of 6 × 3 m crib hire."],
     ["Yacht Club Easter Party", "Donated toilet buildings for the Easter celebrations."],
     ["Gladstone Harbour Festival", "Donated administration-building hire, with transport and team installation."],
-    ["Gladstone Police — QPV Pork Chop", "A raft built and painted by our team for the Harbour Festival race."],
+    ["Gladstone Police — QPV Pork Chop", "A raft built, supplied and painted by the whole MBH team for the 2026 Harbour Festival race."],
     ["Calliope Rodeo & Ute Muster", "Donated 6 × 3 m building hire."],
     ["Baralaba Rodeo", "Donated toilet-building hire and associated equipment."],
     ["Australasian Team Roping Association", "Donated building hire for the National Finals."],
     ["Mt Larcom Show", "Donated toilet-building and solar-toilet hire."],
-    ["Lowmead 3 Car Challenge", "Support with toilet facilities and water tanks."],
-    ["Old Station Airshow", "Donated building hire for the event."],
+    ["Lowmead 3 Car Challenge", "Toilet facilities for the event, with water tanks provided as part of earlier support."],
   ]},
   { title: "Schools, arts & early learning", organisations: [
-    ["Star of the Sea", "Caulfield Cup sponsorship and toilet hire for school fundraising."],
-    ["Martin Hanson Memorial Art Awards", "Support for the emerging artist award."],
+    ["Star of the Sea", "Longstanding Caulfield Cup support, plus separate toilet hire for school events and fundraising."],
+    ["Martin Hanson Memorial Art Awards", "Longstanding support, including sponsorship of the Pieter Groen-int-woud Memorial Young Emerging Artist Award."],
     ["Kookaburra Creek Kindy", "Ladies Day sponsorship."],
   ]},
-  { title: "Across the Multitrade Group", organisations: [
-    ["Cosmos Arts for Health", "Fundraiser sponsorship through Multitrade Homes / Kenwoud."],
-    ["Royal Flying Doctor Service", "Outback Air Race fundraising support through Kenwoud."],
+  { title: "Earlier community moments", organisations: [
+    ["Old Station Airshow — May 2025", "Donated canteen and crib-building hire for the event."],
+    ["Gladstone Rugby League representative teams — June 2025", "Support for the men’s and women’s teams at the 47th Battalion competition."],
+    ["Police vs Young Veterans CQ cricket — June 2025", "Sponsorship of the community cricket match at The Glen, separate from the club’s reunion."],
   ]},
 ];
 

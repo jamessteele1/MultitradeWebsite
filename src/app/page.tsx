@@ -203,13 +203,13 @@ export default function HomePage() {
       {/* ─── WHY MULTITRADE ─── */}
       <section className="py-16 md:py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4">
-          <FadeIn className="text-center mb-12">
+          <div className="text-center mb-12">
             <div className="text-xs font-semibold tracking-widest uppercase gold-text mb-3">Why Multitrade</div>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight">Built Different. Built to Last.</h2>
+            <h2 className="service-heading text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight">Service is <span className="heading-accent">our advantage.</span></h2>
             <p className="text-gray-500 mt-3 max-w-xl mx-auto">
               We don&apos;t just hire buildings — we design, manufacture, and install them from our own facility in Gladstone.
             </p>
-          </FadeIn>
+          </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {[

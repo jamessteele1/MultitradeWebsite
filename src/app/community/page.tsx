@@ -7,7 +7,7 @@ import { communityGallery, communityGroups } from "@/data/community";
 
 export const metadata: Metadata = {
   title: "In Our Community",
-  description: "Meet the clubs, charities and events Multitrade supports across Central Queensland through sponsorship, donated hire, transport and hands-on help.",
+  description: "Meet the clubs, charities and events MBH supports across Central Queensland through sponsorship, donated hire, transport and hands-on help.",
   alternates: { canonical: "/community" },
   openGraph: {
     title: "In Our Community | Multitrade Building Hire",
@@ -30,7 +30,7 @@ export default function CommunityPage() {
             <div>
               <div className="text-xs font-semibold tracking-widest uppercase gold-text mb-4">In Our Community</div>
               <h1 className="text-4xl md:text-5xl font-extrabold text-white tracking-tight leading-tight">Backing the community <span className="gold-text">we call home.</span></h1>
-              <p className="text-white/80 mt-6 text-lg leading-relaxed max-w-lg">We live and work here too. We’re proud to support the clubs, charities, schools and events that bring Central Queensland together.</p>
+              <p className="text-white/80 mt-6 text-lg leading-relaxed max-w-lg">At Multitrade Building Hire (MBH), we live and work here too. We’re proud to support the clubs, charities, schools and events that bring Central Queensland together.</p>
               <p className="text-white/70 mt-4 leading-relaxed max-w-lg">Sometimes that means sponsorship. Sometimes it means a building, facilities for an event, a delivery or our team getting involved.</p>
               <a href="#organisations" className="inline-flex mt-8 px-7 py-3.5 rounded-lg font-semibold text-gray-900 bg-gold hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">Meet the organisations we support</a>
             </div>
@@ -66,12 +66,26 @@ export default function CommunityPage() {
           <div className="grid md:grid-cols-2 gap-8 mt-12">
             <article className="rounded-xl overflow-hidden border border-gray-200 bg-white">
               <div className="relative aspect-[4/3]"><Image src="/images/community/police-raft-team.jpg" alt="Gladstone Police raft-race team at the Harbour Festival waterfront" fill sizes="(max-width: 767px) 100vw, 50vw" className="object-cover" /></div>
-              <div className="p-6 md:p-8"><h3 className="text-xl font-extrabold text-gray-900">Built by our team. Paddled by theirs.</h3><p className="text-gray-600 leading-relaxed mt-3">Our team built and painted QPV Pork Chop for Gladstone Police to take on the Harbour Festival raft race. A different kind of building project, and one we were happy to get behind.</p></div>
+              <div className="p-6 md:p-8"><h3 className="text-xl font-extrabold text-gray-900">Built by our team. Paddled by theirs.</h3><p className="text-gray-600 leading-relaxed mt-3">The whole MBH team built, supplied and painted QPV Pork Chop for Gladstone Police to take on the 2026 Harbour Festival raft race. A different kind of building project, and one we were happy to get behind.</p></div>
             </article>
             <article className="rounded-xl overflow-hidden border border-gray-200 bg-white">
               <div className="relative aspect-[4/3]"><Image src="/images/community/bella-community.jpg" alt="Families gathering at Bella the Brave’s Run for a Cure" fill sizes="(max-width: 767px) 100vw, 50vw" className="object-cover" /></div>
               <div className="p-6 md:p-8"><h3 className="text-xl font-extrabold text-gray-900">Getting behind Bella the Brave.</h3><p className="text-gray-600 leading-relaxed mt-3">We’re proud to support Run for a Cure. Our 2026 contribution included Platinum sponsorship, BBQ food and practical help on the day, alongside the many volunteers and supporters who make the event possible.</p></div>
             </article>
+          </div>
+        </div>
+      </section>
+
+      <section className="py-16 md:py-20 border-t border-gray-200" aria-labelledby="emerging-artists">
+        <div className="max-w-7xl mx-auto px-4 grid md:grid-cols-2 gap-8 md:gap-14">
+          <div>
+            <div className="text-xs font-semibold tracking-widest uppercase gold-text mb-3">Arts & emerging talent</div>
+            <h2 id="emerging-artists" className="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight">Encouraging the next generation.</h2>
+          </div>
+          <div className="text-gray-600 leading-relaxed">
+            <p>MBH is a longstanding supporter of the Martin Hanson Memorial Art Awards. In 2026, we’re proud to sponsor the Pieter Groen-int-woud Memorial Young Emerging Artist Award at the 51st Rio Tinto Yarwun &amp; QAL Martin Hanson Memorial Art Awards.</p>
+            <p className="mt-4">It’s one way we help recognise young creative talent in our community.</p>
+            <a href="https://gragm.qld.gov.au/art-awards" className="inline-block mt-5 font-semibold text-gray-900 underline decoration-gold decoration-2 underline-offset-4">Explore the awards at Gladstone Regional Art Gallery &amp; Museum</a>
           </div>
         </div>
       </section>
@@ -92,7 +106,7 @@ export default function CommunityPage() {
       <section id="organisations" className="py-16 md:py-24 scroll-mt-24" aria-labelledby="organisations-title">
         <div className="max-w-7xl mx-auto px-4">
           <h2 id="organisations-title" className="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight">Organisations & events we’ve supported.</h2>
-          <p className="text-gray-600 mt-4 max-w-2xl leading-relaxed">From sponsorship and fundraising to donated hire and hands-on help, these are some of the community connections we’re proud of. This list brings together support over the years.</p>
+          <p className="text-gray-600 mt-4 max-w-2xl leading-relaxed">From sponsorship and fundraising to donated hire and hands-on help, these are some of the community connections MBH is proud of. This list brings together support over the years, with earlier events noted separately.</p>
           <div className="mt-12 space-y-12">
             {communityGroups.map(group => <div key={group.title} className="grid lg:grid-cols-[1fr_3fr] gap-6 border-t border-gray-200 pt-8">
               <h3 className="text-xl font-bold text-gray-900">{group.title}</h3>

@@ -20,7 +20,7 @@ export default function CommunityFeature({ compact = false }: { compact?: boolea
             {compact ? "Part of the community." : "Backing the community we call home."}
           </h2>
           <p className="text-gray-600 mt-5 leading-relaxed max-w-lg">
-            From local clubs and fundraisers to the events that bring Central Queensland together, we’re proud to lend a hand. Our support includes sponsorship, donated building and toilet hire, transport, installation and time from our team.
+            From local clubs and fundraisers to the events that bring Central Queensland together, MBH is proud to lend a hand. Our support includes sponsorship, donated building and toilet hire, transport, installation and time from our team.
           </p>
           <Link href="/community" className="inline-flex items-center justify-center mt-7 px-7 py-3.5 rounded-lg font-semibold text-gray-900 bg-gold hover:brightness-110 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gray-900">
             See our community support

@@ -1,3 +1,4 @@
+import CommunityFeature from "@/components/community/CommunityFeature";
 import Header from "@/components/Header";
 import MobileCTA from "@/components/MobileCTA";
 import { FadeIn } from "@/components/FadeIn";
@@ -119,6 +120,8 @@ export default function AboutPage() {
           </div>
         </div>
       </section>
+
+      <CommunityFeature compact />
 
       {/* CTA */}
       <section className="py-14 md:py-20 bg-white">

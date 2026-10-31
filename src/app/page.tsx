@@ -1,3 +1,4 @@
+import CommunityFeature from "@/components/community/CommunityFeature";
 import type { Metadata } from "next";
 import Header from "@/components/Header";
 import MobileCTA from "@/components/MobileCTA";
@@ -457,6 +458,8 @@ export default function HomePage() {
       </section>
 
 
+
+      <CommunityFeature />
 
       <MobileCTA />
     </>

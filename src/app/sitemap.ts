@@ -77,6 +77,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     entry("/solar-facility", 0.7),
     entry("/quote", 0.8),
     entry("/about", 0.6),
+    entry("/community", 0.6),
     entry("/contact", 0.6),
     entry("/case-studies", 0.7),
   ];

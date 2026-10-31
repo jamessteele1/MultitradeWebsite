@@ -66,7 +66,10 @@ const NAV_ITEMS: NavItem[] = [
       { label: "Scope Builder — sized in 60 seconds", href: "/scope-builder" },
     ],
   },
-  { label: "About", href: "/about" },
+  { label: "About", href: "/about", children: [
+    { label: "Our Story", href: "/about" },
+    { label: "In Our Community", href: "/community" },
+  ] },
   { label: "Contact", href: "/contact" },
 ];
 
@@ -102,7 +105,10 @@ const MOBILE_NAV_ITEMS: NavItem[] = [
       { label: "Scope Builder", href: "/scope-builder" },
     ],
   },
-  { label: "About", href: "/about" },
+  { label: "About", href: "/about", children: [
+    { label: "Our Story", href: "/about" },
+    { label: "In Our Community", href: "/community" },
+  ] },
   { label: "Contact", href: "/contact" },
 ];
 
@@ -159,6 +165,9 @@ export default function Header() {
                 item.children && setActiveDropdown(i)
               }
               onMouseLeave={() => setActiveDropdown(null)}
+              onFocus={() => item.children && setActiveDropdown(i)}
+              onBlur={(event) => { if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setActiveDropdown(null); }}
+              onKeyDown={(event) => { if (event.key === "Escape") setActiveDropdown(null); }}
             >
               <Link
                 href={item.href}
@@ -222,6 +231,8 @@ export default function Header() {
             )}
           </button>
           <button
+            aria-label={mobileMenu ? "Close menu" : "Open menu"}
+            aria-expanded={mobileMenu}
             onClick={() => setMobileMenu(!mobileMenu)}
             className="p-2 text-gray-700"
           >
@@ -242,6 +253,7 @@ export default function Header() {
               item.children ? (
                 <div key={i} className="border-b border-gray-100">
                   <button
+                    aria-expanded={mobileExpanded === i}
                     onClick={() => setMobileExpanded(mobileExpanded === i ? null : i)}
                     className={`flex items-center justify-between w-full py-4 text-2xl font-bold ${item.highlight ? "gold-text" : "text-gray-900"}`}
                   >

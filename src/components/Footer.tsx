@@ -26,6 +26,7 @@ const LOCATION_LINKS = [
 
 const COMPANY_LINKS = [
   { label: "About Us", href: "/about" },
+  { label: "In Our Community", href: "/community" },
   { label: "Install", href: "/install" },
   { label: "Case Studies", href: "/case-studies/gladstone-hockey" },
   { label: "Futura Solar Facilities", href: "/case-studies/futura-solar" },

@@ -8,6 +8,7 @@ import Link from "next/link";
 import { useState, useCallback, type FormEvent } from "react";
 import STANDARD_INCLUSIONS from "@/data/standardInclusions";
 import { trackLead } from "@/lib/analytics";
+import { isMondayItemId } from "@/lib/monday-item-id";
 
 const CATEGORY_LABELS: Record<CartItem["category"], string> = {
   "crib-rooms": "Crib Room",
@@ -110,6 +111,7 @@ export default function QuotePage() {
     }
 
     setSubmitting(true);
+    let failureMessage = "We couldn't confirm whether your request arrived. Your details and quote items are still here. Please call (07) 4979 2333 before trying again so we can check and avoid a duplicate enquiry.";
 
     try {
       const res = await fetch("/api/quote", {
@@ -138,7 +140,13 @@ export default function QuotePage() {
         }),
       });
 
-      if (!res.ok) throw new Error("Submission failed");
+      const result = await res.json();
+      if (!res.ok || result?.success !== true || !isMondayItemId(result.itemId)) {
+        if (result?.code === "quote_unavailable") {
+          failureMessage = "We couldn't send your request just now. Your details and quote items are still here. Please try again later or call (07) 4979 2333.";
+        }
+        throw new Error("Quote creation not confirmed");
+      }
 
       trackLead(
         siteLayout ? "site_planner" : items.length > 0 ? "quote_cart" : "quote",
@@ -147,7 +155,7 @@ export default function QuotePage() {
       setSubmitted(true);
       clearCart();
     } catch {
-      setError("Something went wrong. Please try again or call us directly.");
+      setError(failureMessage);
     } finally {
       setSubmitting(false);
     }

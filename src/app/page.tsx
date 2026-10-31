@@ -36,7 +36,7 @@ export default function HomePage() {
       <main className="mbh-homepage">
 
       {/* ─── HERO ─── */}
-      <section className="relative overflow-hidden flex flex-col md:block">
+      <section className="relative overflow-hidden min-h-[75vh] md:min-h-0 flex flex-col md:block">
         <ParallaxVideo
           src="/images/hero-video.mp4"
           className="hidden md:block"
@@ -51,19 +51,20 @@ export default function HomePage() {
         <div className="absolute inset-0 md:hidden" style={{ background: "linear-gradient(to bottom, rgba(15,27,61,0.7) 0%, rgba(15,27,61,0.3) 50%, rgba(15,27,61,0.6) 100%)" }} />
         <div className="absolute inset-0 opacity-5" style={{ backgroundImage: "linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)", backgroundSize: "60px 60px" }} />
 
-        <div className="relative z-10 max-w-7xl mx-auto px-4 py-12 md:py-20 lg:py-24">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 py-12 md:py-20 lg:py-24 flex flex-col justify-between md:block min-h-[inherit]">
           <div className="max-w-3xl">
             <div className="animate-hero">
               <div className="hidden md:inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-400 text-xs font-medium mb-6">
                 NEW — Solar-Powered Facility Now Available
               </div>
-              <p className="text-base md:text-lg font-semibold text-amber-300 mb-4 text-center md:text-left">Service is our advantage.</p>
+              <p className="hidden md:block text-base md:text-lg font-semibold text-amber-300 mb-4 text-center md:text-left">Service is our advantage.</p>
               <h1 className="text-3xl md:text-5xl lg:text-6xl font-extrabold text-white leading-tight tracking-tight text-center md:text-left">
                 Portable Buildings{" "}<br />
-                <span className="gold-text">for Hire &amp; Sale</span>
+                <span className="md:hidden"><span className="gold-text">Built for</span> Industry</span>
+                <span className="hidden md:inline gold-text">for Hire &amp; Sale</span>
               </h1>
             </div>
-            <p className="animate-hero-delay text-base md:text-lg text-white/85 mt-5 leading-relaxed max-w-xl text-center md:text-left">
+            <p className="animate-hero-delay hidden md:block text-base md:text-lg text-white/85 mt-5 leading-relaxed max-w-xl text-center md:text-left">
               Crib rooms, site offices, toilets and complete site facilities.
               Hire, buy or custom-build with our team in Gladstone, with
               delivery and installation for your project.

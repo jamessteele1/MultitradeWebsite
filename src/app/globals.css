@@ -37,6 +37,30 @@ body {
   background: var(--gold);
   transform-origin: left;
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .mbh-homepage > :not(#in-our-community) *, .mbh-quote * {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+  .mbh-homepage .fade-in, .mbh-quote .fade-in,
+  .mbh-homepage .animate-hero, .mbh-homepage .animate-hero-delay,
+  .mbh-homepage .animate-hero-delay-2 {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .mbh-homepage .marquee-track {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+    width: auto;
+    transform: none;
+  }
+  .mbh-homepage .marquee-track > [aria-hidden="true"] {
+    display: none;
+  }
+}
 /* Touch and reduced-motion users keep the complete, static underline. */
 @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
   .heading-accent::after {

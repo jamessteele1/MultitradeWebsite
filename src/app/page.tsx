@@ -3,7 +3,6 @@ import type { Metadata } from "next";
 import Header from "@/components/Header";
 import MobileCTA from "@/components/MobileCTA";
 import { FadeIn } from "@/components/FadeIn";
-import { CountUp } from "@/components/CountUp";
 import { ParallaxVideo } from "@/components/ParallaxVideo";
 import Link from "next/link";
 import dynamic from "next/dynamic";
@@ -34,9 +33,10 @@ export default function HomePage() {
   return (
     <>
       <Header />
+      <main className="mbh-homepage">
 
       {/* ─── HERO ─── */}
-      <section className="relative overflow-hidden min-h-[75vh] md:min-h-0 flex flex-col md:block">
+      <section className="relative overflow-hidden flex flex-col md:block">
         <ParallaxVideo
           src="/images/hero-video.mp4"
           className="hidden md:block"
@@ -51,21 +51,22 @@ export default function HomePage() {
         <div className="absolute inset-0 md:hidden" style={{ background: "linear-gradient(to bottom, rgba(15,27,61,0.7) 0%, rgba(15,27,61,0.3) 50%, rgba(15,27,61,0.6) 100%)" }} />
         <div className="absolute inset-0 opacity-5" style={{ backgroundImage: "linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)", backgroundSize: "60px 60px" }} />
 
-        <div className="relative z-10 max-w-7xl mx-auto px-4 py-12 md:py-24 lg:py-32 flex flex-col justify-between md:block min-h-[inherit]">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 py-12 md:py-20 lg:py-24">
           <div className="max-w-3xl">
             <div className="animate-hero">
               <div className="hidden md:inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-400 text-xs font-medium mb-6">
                 NEW — Solar-Powered Facility Now Available
               </div>
+              <p className="text-base md:text-lg font-semibold text-amber-300 mb-4 text-center md:text-left">Service is our advantage.</p>
               <h1 className="text-3xl md:text-5xl lg:text-6xl font-extrabold text-white leading-tight tracking-tight text-center md:text-left">
                 Portable Buildings{" "}<br />
-                <span className="gold-text">Built for</span> Industry
+                <span className="gold-text">for Hire &amp; Sale</span>
               </h1>
             </div>
-            <p className="animate-hero-delay hidden md:block text-lg text-gray-400 mt-6 leading-relaxed max-w-lg">
-              Queensland&apos;s largest privately owned fleet. 45+ years delivering
-              hire, sale, installation, and custom manufacture of portable
-              buildings for mining, construction, and civil projects.
+            <p className="animate-hero-delay text-base md:text-lg text-white/85 mt-5 leading-relaxed max-w-xl text-center md:text-left">
+              Crib rooms, site offices, toilets and complete site facilities.
+              Hire, buy or custom-build with our team in Gladstone, with
+              delivery and installation for your project.
             </p>
           </div>
           <div className="max-w-3xl">
@@ -95,23 +96,20 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 py-8 md:py-0">
           <div className="grid grid-cols-2 md:grid-cols-4 md:divide-x divide-gray-200">
             {STATS.map((stat, i) => (
-              <FadeIn key={i} delay={0.1 * i} className="text-center py-4 md:py-8">
+              <div key={i} className="text-center py-4 md:py-6">
                 <div className="text-3xl md:text-4xl font-extrabold tracking-tight text-gray-900">
-                  <CountUp value={stat.value} />
+                  {stat.value}
                 </div>
                 <div className="text-sm font-semibold text-gray-800 mt-1">{stat.label}</div>
                 <div className="text-xs text-gray-500">{stat.sub}</div>
-              </FadeIn>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ─── PLAN & QUOTE TOOLS ─── */}
-      <SitePlannerCTA />
-
       {/* ─── PRODUCTS ─── */}
-      <section className="py-16 md:py-24 bg-gray-50">
+      <section className="py-12 md:py-16 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4">
           <FadeIn className="text-center mb-12">
             <div className="text-xs font-semibold tracking-widest uppercase gold-text mb-3">Our Fleet</div>
@@ -155,6 +153,67 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+
+      {/* ─── PROJECT PROOF ─── */}
+      <section className="py-12 md:py-16" style={{ background: "linear-gradient(135deg, var(--navy), var(--navy-2))" }} aria-labelledby="project-proof-title">
+        <div className="max-w-7xl mx-auto px-4 grid md:grid-cols-2 gap-8 lg:gap-12 items-center">
+          <Link href="/case-studies/gladstone-hockey" className="block rounded-xl overflow-hidden focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
+            <img src="/images/case-studies/gladstone-hockey/hero.jpg" alt="Anthony from Multitrade shaking hands with Brett Ryan at the completed Gladstone Hockey amenities building" className="w-full h-64 md:h-80 object-cover" />
+          </Link>
+          <div>
+            <div className="text-xs font-semibold tracking-widest uppercase text-amber-300 mb-3">Gladstone Hockey Association</div>
+            <h2 id="project-proof-title" className="text-2xl md:text-3xl font-extrabold text-white tracking-tight">From design to a finished amenities building.</h2>
+            <p className="text-white/80 leading-relaxed mt-4">A 12 × 3 m building, delivered with design, approvals, manufacture and installation handled from start to finish.</p>
+            <blockquote className="border-l-2 border-gold pl-5 mt-6">
+              <p className="text-white/90 italic leading-relaxed">&ldquo;Our thanks and appreciation go out to Multitrade for their workmanship and professionalism in making this happen for us.&rdquo;</p>
+              <footer className="text-white/75 text-sm mt-3">Brett Ryan, Facilities Director</footer>
+            </blockquote>
+            <Link href="/case-studies/gladstone-hockey" className="inline-flex mt-6 px-6 py-3 rounded-lg font-semibold text-gray-900 bg-gold hover:brightness-110 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">Read the full case study</Link>
+          </div>
+        </div>
+      </section>
+
+      {/* ─── CLIENT LOGOS ─── */}
+      <section className="bg-white pt-10 pb-6 overflow-hidden">
+        <FadeIn className="text-center mb-6">
+          <div className="text-xs font-semibold tracking-widest uppercase text-gray-400">Trusted by Industry Leaders</div>
+        </FadeIn>
+        <div className="relative overflow-hidden">
+          <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
+          <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
+          <div className="marquee-track">
+            {[...Array(2)].map((_, set) =>
+              [
+                { name: "Rio Tinto", src: "/images/logos/clients/rio-tinto.png" },
+                { name: "Glencore", src: "/images/logos/clients/glencore.png" },
+                { name: "Fortescue", src: "/images/logos/clients/fortescue.png" },
+                { name: "Alpha HPA", src: "/images/logos/clients/alpha-hpa.png" },
+                { name: "Aurizon", src: "/images/logos/clients/aurizon.png" },
+                { name: "Acciona", src: "/images/logos/clients/acciona.png" },
+                { name: "Downer", src: "/images/logos/clients/downer.png" },
+                { name: "Thiess", src: "/images/logos/clients/thiess.png" },
+                { name: "New Hope Group", src: "/images/logos/clients/new-hope.png" },
+                { name: "Coronado", src: "/images/logos/clients/coronado.png" },
+                { name: "Monadelphous", src: "/images/logos/clients/monadelphous.png" },
+                { name: "UGL", src: "/images/logos/clients/ugl.png" },
+                { name: "Fulton Hogan", src: "/images/logos/clients/fulton-hogan.png" },
+                { name: "Golding", src: "/images/logos/clients/golding.svg" },
+                { name: "Gladstone Ports", src: "/images/logos/clients/gpc.png" },
+                { name: "McCosker", src: "/images/logos/clients/mccosker.png" },
+                { name: "Aestec Services", src: "/images/logos/clients/aestec.png" },
+              ].map((client, i) => (
+                <div key={`${set}-${i}`} aria-hidden={set === 1 ? true : undefined} className="flex-shrink-0 mx-6 md:mx-12 flex items-center justify-center h-14 md:h-16">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={client.src} alt={client.name} className="h-10 md:h-14 w-auto max-w-[140px] object-contain opacity-40 grayscale hover:opacity-70 hover:grayscale-0 transition-all duration-300" />
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* ─── PLAN & QUOTE TOOLS ─── */}
+      <SitePlannerCTA />
 
       {/* ─── SCALE / VILLAGE BAND ─── */}
       {/* Full-width photo of a workforce and Multitrade village setup on
@@ -201,7 +260,7 @@ export default function HomePage() {
       </section>
 
       {/* ─── WHY MULTITRADE ─── */}
-      <section className="py-16 md:py-24 bg-white">
+      <section className="py-12 md:py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4">
           <div className="text-center mb-12">
             <div className="text-xs font-semibold tracking-widest uppercase gold-text mb-3">Why Multitrade</div>
@@ -257,7 +316,7 @@ export default function HomePage() {
       </section>
 
       {/* ─── SERVICES OVERVIEW ─── */}
-      <section className="py-16 md:py-24 bg-white border-t border-gray-200">
+      <section className="py-12 md:py-16 bg-white border-t border-gray-200">
         <div className="max-w-7xl mx-auto px-4">
           <FadeIn className="text-center mb-12">
             <div className="text-xs font-semibold tracking-widest uppercase gold-text mb-3">What We Do</div>
@@ -271,6 +330,7 @@ export default function HomePage() {
             {[
               {
                 title: "Hire",
+                href: "/hire",
                 desc: "Short and long-term hire from QLD\u2019s largest private fleet.",
                 icon: (
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
@@ -278,6 +338,7 @@ export default function HomePage() {
               },
               {
                 title: "Buy",
+                href: "/buy",
                 desc: "New and refurbished buildings available for outright purchase.",
                 icon: (
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>
@@ -285,6 +346,7 @@ export default function HomePage() {
               },
               {
                 title: "Manufacture",
+                href: "/install",
                 desc: "Custom-built to your specs in our Gladstone factory.",
                 icon: (
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/></svg>
@@ -292,6 +354,7 @@ export default function HomePage() {
               },
               {
                 title: "Install",
+                href: "/install",
                 desc: "Delivery, craning, blocking, and full electrical connection.",
                 icon: (
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
@@ -299,6 +362,7 @@ export default function HomePage() {
               },
               {
                 title: "Relocate",
+                href: "/install",
                 desc: "Move existing buildings between sites with full logistics support.",
                 icon: (
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
@@ -306,7 +370,7 @@ export default function HomePage() {
               },
             ].map((service, i) => (
               <FadeIn key={i} delay={0.1 * i}>
-                <Link href="/install" className="group p-5 rounded-xl border border-gray-200 hover:border-gold/40 hover:shadow-lg hover:shadow-gold/5 transition-all duration-300 text-center block h-full">
+                <Link href={service.href} className="group p-5 rounded-xl border border-gray-200 hover:border-gold/40 hover:shadow-lg hover:shadow-gold/5 transition-all duration-300 text-center block h-full">
                   <div className="w-11 h-11 rounded-lg bg-gray-100 group-hover:bg-gold/10 flex items-center justify-center mx-auto mb-3 text-gray-600 group-hover:text-amber-600 transition-colors">
                     {service.icon}
                   </div>
@@ -326,81 +390,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ─── CASE STUDY ─── */}
-      <section className="relative overflow-hidden py-16 md:py-24" style={{ background: "linear-gradient(135deg, var(--navy) 0%, var(--navy-2) 60%, var(--navy-3) 100%)" }}>
-        <div className="absolute inset-0 opacity-5" style={{ backgroundImage: "linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)", backgroundSize: "60px 60px" }} />
-        <div className="relative z-10 max-w-7xl mx-auto px-4">
-          <FadeIn className="text-center mb-12">
-            <div className="text-xs font-semibold tracking-widest uppercase gold-text mb-3">Case Study</div>
-            <h2 className="text-3xl md:text-4xl font-extrabold text-white tracking-tight">Real Projects. Real Results.</h2>
-            <p className="text-white/50 mt-3 max-w-xl mx-auto">
-              See how we deliver complete turnkey building solutions for clubs, councils, and industry.
-            </p>
-          </FadeIn>
-
-          <div className="grid lg:grid-cols-2 gap-8 items-center">
-            <FadeIn delay={0.1} className="relative rounded-xl overflow-hidden shadow-2xl">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="/images/case-studies/gladstone-hockey/hero.jpg"
-                alt="Anthony from Multitrade shaking hands with Brett Ryan at completed Gladstone Hockey amenities building"
-                className="w-full h-72 md:h-96 object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-              <div className="absolute bottom-4 left-4 right-4">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold text-xs font-bold text-gray-900">
-                  GLADSTONE HOCKEY ASSOCIATION
-                </div>
-              </div>
-            </FadeIn>
-
-            <FadeIn delay={0.25} className="space-y-6">
-              <h3 className="text-2xl font-extrabold text-white">12×3m Amenities Building — Gladstone Hockey</h3>
-              <p className="text-white/60 leading-relaxed">
-                Full turnkey delivery of a custom amenities building for the Gladstone Hockey Association. From design and council approvals through to manufacture, transport, and complete installation — one contractor, start to finish.
-              </p>
-
-              <div className="grid grid-cols-2 gap-4">
-                {[
-                  { label: "Building", value: "12×3m" },
-                  { label: "Value", value: "$210K+" },
-                  { label: "Wind Rating", value: "C2 Rated" },
-                  { label: "Delivery", value: "Turnkey" },
-                ].map((stat, i) => (
-                  <div key={i} className="p-3 rounded-lg bg-white/5 border border-white/10">
-                    <div className="text-xs text-white/40 font-medium uppercase tracking-wide">{stat.label}</div>
-                    <div className="text-lg font-bold text-white mt-0.5">{stat.value}</div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="bg-white/5 border border-white/10 rounded-xl p-5">
-                <p className="text-white/70 italic text-sm leading-relaxed">&ldquo;Our thanks and appreciation go out to Multitrade for their workmanship and professionalism in making this happen for us.&rdquo;</p>
-                <p className="text-white/40 text-xs mt-2 font-semibold">— Brett Ryan, Facilities Director</p>
-              </div>
-
-              <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                <Link
-                  href="/case-studies/gladstone-hockey"
-                  className="px-6 py-3 rounded-lg font-semibold text-gray-900 text-center bg-gold hover:brightness-110 transition-all flex items-center justify-center gap-2"
-                >
-                  Read Full Case Study
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-                </Link>
-                <Link
-                  href="/quote"
-                  className="px-6 py-3 rounded-lg font-semibold text-white text-center border border-white/20 hover:bg-white/5 transition-all"
-                >
-                  Get a Quote
-                </Link>
-              </div>
-            </FadeIn>
-          </div>
-        </div>
-      </section>
-
       {/* ─── WHERE WE OPERATE ─── */}
-      <section className="py-16 md:py-24 bg-gray-50 border-t border-gray-200">
+      <section className="py-12 md:py-16 bg-gray-50 border-t border-gray-200">
         <div className="max-w-7xl mx-auto px-4">
           <FadeIn className="text-center mb-12">
             <div className="text-xs font-semibold tracking-widest uppercase gold-text mb-3">Where We Operate</div>
@@ -418,49 +409,9 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ─── CLIENT LOGOS ─── */}
-      <section className="bg-white pt-10 pb-6 overflow-hidden">
-        <FadeIn className="text-center mb-6">
-          <div className="text-xs font-semibold tracking-widest uppercase text-gray-400">Trusted by Industry Leaders</div>
-        </FadeIn>
-        <div className="relative overflow-hidden">
-          <div className="absolute left-0 top-0 bottom-0 w-16 bg-gradient-to-r from-white to-transparent z-10 pointer-events-none" />
-          <div className="absolute right-0 top-0 bottom-0 w-16 bg-gradient-to-l from-white to-transparent z-10 pointer-events-none" />
-          <div className="marquee-track">
-            {[...Array(2)].map((_, set) =>
-              [
-                { name: "Rio Tinto", src: "/images/logos/clients/rio-tinto.png" },
-                { name: "Glencore", src: "/images/logos/clients/glencore.png" },
-                { name: "Fortescue", src: "/images/logos/clients/fortescue.png" },
-                { name: "Alpha HPA", src: "/images/logos/clients/alpha-hpa.png" },
-                { name: "Aurizon", src: "/images/logos/clients/aurizon.png" },
-                { name: "Acciona", src: "/images/logos/clients/acciona.png" },
-                { name: "Downer", src: "/images/logos/clients/downer.png" },
-                { name: "Thiess", src: "/images/logos/clients/thiess.png" },
-                { name: "New Hope Group", src: "/images/logos/clients/new-hope.png" },
-                { name: "Coronado", src: "/images/logos/clients/coronado.png" },
-                { name: "Monadelphous", src: "/images/logos/clients/monadelphous.png" },
-                { name: "UGL", src: "/images/logos/clients/ugl.png" },
-                { name: "Fulton Hogan", src: "/images/logos/clients/fulton-hogan.png" },
-                { name: "Golding", src: "/images/logos/clients/golding.svg" },
-                { name: "Gladstone Ports", src: "/images/logos/clients/gpc.png" },
-                { name: "McCosker", src: "/images/logos/clients/mccosker.png" },
-                { name: "Aestec Services", src: "/images/logos/clients/aestec.png" },
-              ].map((client, i) => (
-                <div key={`${set}-${i}`} className="flex-shrink-0 mx-6 md:mx-12 flex items-center justify-center h-14 md:h-16">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={client.src} alt={client.name} className="h-10 md:h-14 w-auto max-w-[140px] object-contain opacity-40 grayscale hover:opacity-70 hover:grayscale-0 transition-all duration-300" />
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-      </section>
-
-
-
       <CommunityFeature />
 
+      </main>
       <MobileCTA />
     </>
   );

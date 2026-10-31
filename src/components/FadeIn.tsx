@@ -30,7 +30,7 @@ export function FadeIn({
   return (
     <div
       ref={ref}
-      className={className}
+      className={`fade-in ${className}`}
       style={{
         opacity: visible ? 1 : 0,
         transform: visible ? "translateY(0)" : "translateY(20px)",

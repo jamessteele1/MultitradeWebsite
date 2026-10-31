@@ -162,6 +162,7 @@ export default function QuotePage() {
   return (
     <>
       <Header />
+      <main className="mbh-quote">
       <section
         className="relative overflow-hidden"
         style={{
@@ -186,12 +187,12 @@ export default function QuotePage() {
         />
         <div className="relative z-10 max-w-3xl mx-auto px-4 py-14 md:py-20 text-center">
           <h1 className="text-3xl md:text-5xl font-extrabold text-white tracking-tight">
-            Review Your <span className="gold-text">Quote</span>
+            Your <span className="gold-text">Quote Request</span>
           </h1>
           <p className="text-white/60 mt-4">
             {items.length > 0
-              ? `You have ${itemCount} item${itemCount !== 1 ? "s" : ""} in your quote. Review below and submit your request.`
-              : "Add products to your quote, then fill in your details to get a free quote."}
+              ? `Review your ${itemCount} selected item${itemCount !== 1 ? "s" : ""} and send your request to our team for pricing.`
+              : "Choose products or describe what you need below. Our team will review your request and prepare your quote."}
           </p>
         </div>
       </section>
@@ -409,7 +410,10 @@ export default function QuotePage() {
                               {/* Per-product note */}
                               {isNoteExpanded && (
                                 <div className="mt-2.5">
+                                  <label htmlFor={`quote-note-${item.id}`} className="block text-xs font-medium text-gray-700 mb-1">Notes for {item.name}</label>
                                   <textarea
+                                    id={`quote-note-${item.id}`}
+                                    name={`note-${item.id}`}
                                     rows={2}
                                     value={noteValue}
                                     onChange={(e) => setProductNotes((prev) => ({ ...prev, [item.id]: e.target.value }))}
@@ -510,6 +514,7 @@ export default function QuotePage() {
               {/* ── Customer Details Form ── */}
               <FadeIn delay={0.1}>
                 <form
+                  aria-label="Quote request"
                   onSubmit={handleSubmit}
                   className="mt-6 bg-white rounded-2xl shadow-xl shadow-black/10 border border-gray-200 p-6 md:p-8"
                 >
@@ -520,8 +525,11 @@ export default function QuotePage() {
                   <div className="space-y-4">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
-                        <label className={labelClass}>First Name *</label>
+                        <label htmlFor="quote-firstName" className={labelClass}>First Name *</label>
                         <input
+                          id="quote-firstName"
+                          name="firstName"
+                          autoComplete="given-name"
                           type="text"
                           required
                           value={form.firstName}
@@ -531,8 +539,11 @@ export default function QuotePage() {
                         />
                       </div>
                       <div>
-                        <label className={labelClass}>Last Name</label>
+                        <label htmlFor="quote-lastName" className={labelClass}>Last Name</label>
                         <input
+                          id="quote-lastName"
+                          name="lastName"
+                          autoComplete="family-name"
                           type="text"
                           value={form.lastName}
                           onChange={(e) => set("lastName", e.target.value)}
@@ -544,8 +555,11 @@ export default function QuotePage() {
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
-                        <label className={labelClass}>Company Name</label>
+                        <label htmlFor="quote-company" className={labelClass}>Company Name</label>
                         <input
+                          id="quote-company"
+                          name="company"
+                          autoComplete="organization"
                           type="text"
                           value={form.company}
                           onChange={(e) => set("company", e.target.value)}
@@ -554,8 +568,11 @@ export default function QuotePage() {
                         />
                       </div>
                       <div>
-                        <label className={labelClass}>Job Title</label>
+                        <label htmlFor="quote-jobTitle" className={labelClass}>Job Title</label>
                         <input
+                          id="quote-jobTitle"
+                          name="jobTitle"
+                          autoComplete="organization-title"
                           type="text"
                           value={form.jobTitle}
                           onChange={(e) => set("jobTitle", e.target.value)}
@@ -567,8 +584,11 @@ export default function QuotePage() {
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
-                        <label className={labelClass}>Email *</label>
+                        <label htmlFor="quote-email" className={labelClass}>Email *</label>
                         <input
+                          id="quote-email"
+                          name="email"
+                          autoComplete="email"
                           type="email"
                           required
                           value={form.email}
@@ -578,8 +598,11 @@ export default function QuotePage() {
                         />
                       </div>
                       <div>
-                        <label className={labelClass}>Phone *</label>
+                        <label htmlFor="quote-phone" className={labelClass}>Phone *</label>
                         <input
+                          id="quote-phone"
+                          name="phone"
+                          autoComplete="tel"
                           type="tel"
                           required
                           value={form.phone}
@@ -591,8 +614,11 @@ export default function QuotePage() {
                     </div>
 
                     <div>
-                      <label className={labelClass}>Business Address</label>
+                      <label htmlFor="quote-address" className={labelClass}>Business Address</label>
                       <input
+                        id="quote-address"
+                        name="address"
+                        autoComplete="street-address"
                         type="text"
                         value={form.address}
                         onChange={(e) => set("address", e.target.value)}
@@ -608,10 +634,13 @@ export default function QuotePage() {
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
-                        <label className={labelClass}>
+                        <label htmlFor="quote-inquiryType" className={labelClass}>
                           Type of Inquiry *
                         </label>
                         <select
+                          id="quote-inquiryType"
+                          name="inquiryType"
+                          required
                           value={form.inquiryType}
                           onChange={(e) =>
                             set(
@@ -627,8 +656,10 @@ export default function QuotePage() {
                         </select>
                       </div>
                       <div>
-                        <label className={labelClass}>Project Location</label>
+                        <label htmlFor="quote-projectLocation" className={labelClass}>Project Location</label>
                         <input
+                          id="quote-projectLocation"
+                          name="projectLocation"
                           type="text"
                           value={form.projectLocation}
                           onChange={(e) =>
@@ -641,8 +672,10 @@ export default function QuotePage() {
                     </div>
 
                     <div>
-                      <label className={labelClass}>Timeline</label>
+                      <label htmlFor="quote-timeline" className={labelClass}>Timeline</label>
                       <select
+                        id="quote-timeline"
+                        name="timeline"
                         value={form.timeline}
                         onChange={(e) => set("timeline", e.target.value)}
                         className={selectClass}
@@ -658,10 +691,12 @@ export default function QuotePage() {
                     </div>
 
                     <div>
-                      <label className={labelClass}>
+                      <label htmlFor="quote-details" className={labelClass}>
                         Additional Details
                       </label>
                       <textarea
+                        id="quote-details"
+                        name="details"
                         rows={4}
                         value={form.details}
                         onChange={(e) => set("details", e.target.value)}
@@ -671,7 +706,7 @@ export default function QuotePage() {
                     </div>
 
                     {error && (
-                      <div className="px-4 py-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-700">
+                      <div role="alert" className="px-4 py-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-700">
                         {error}
                       </div>
                     )}
@@ -718,6 +753,7 @@ export default function QuotePage() {
           </div>
         </div>
       </section>
+      </main>
       <MobileCTA />
     </>
   );

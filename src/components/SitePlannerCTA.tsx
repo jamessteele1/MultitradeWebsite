@@ -10,7 +10,7 @@ import Link from "next/link";
  */
 export default function SitePlannerCTA() {
   return (
-    <section className="py-16 md:py-24 bg-gray-50 border-t border-gray-200">
+    <section className="py-12 md:py-16 bg-gray-50 border-t border-gray-200">
       <div className="max-w-6xl mx-auto px-4">
         <div className="text-center mb-10">
           <div className="text-xs font-semibold tracking-widest uppercase gold-text mb-3">
@@ -20,7 +20,7 @@ export default function SitePlannerCTA() {
             Design Your <span className="gold-text">Site</span>
           </h2>
           <p className="text-gray-500 mt-4 max-w-2xl mx-auto leading-relaxed">
-            Use our site planner to build your custom site layout and get a quote automatically.
+            Build your site layout, then send a quote request to our team for pricing.
           </p>
         </div>
 
@@ -239,11 +239,11 @@ export default function SitePlannerCTA() {
               <h3 className="text-2xl md:text-3xl font-extrabold text-gray-900 leading-tight">
                 Drop your address.<br />
                 <span className="gold-text">Drag your buildings.</span><br />
-                Get a quote.
+                Request a quote.
               </h3>
 
               <p className="text-sm md:text-base text-gray-500 mt-4 leading-relaxed">
-                Plan your site over real satellite imagery, snap buildings to scale, and check sun direction — then export a PDF or send straight to quote in one click.
+                Plan your site over real satellite imagery, snap buildings to scale, and check sun direction — then export a PDF or include the layout with your quote request.
               </p>
 
               <ul className="mt-5 space-y-2">
@@ -251,7 +251,7 @@ export default function SitePlannerCTA() {
                   "Real satellite imagery for any Australian site",
                   "Drag-and-drop buildings, snap to grid, rotate & label",
                   "Sun direction & shadow preview for orientation",
-                  "Scaled PDF export + instant online quote",
+                  "Scaled PDF export + quote request to our team",
                 ].map((line) => (
                   <li key={line} className="flex items-start gap-2.5 text-sm text-gray-700">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="2.5" strokeLinecap="round" className="mt-0.5 flex-shrink-0">

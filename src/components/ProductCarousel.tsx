@@ -118,8 +118,10 @@ export default function ProductCarousel({ products }: { products: Product[] }) {
   // Auto-advance
   const resetAuto = useCallback(() => {
     if (autoRef.current) clearTimeout(autoRef.current);
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const advance = () => {
       autoRef.current = setTimeout(() => {
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
         const el = scrollRef.current;
         if (el) {
           el.scrollBy({ left: CARD_W, behavior: "smooth" });
@@ -166,7 +168,7 @@ export default function ProductCarousel({ products }: { products: Product[] }) {
   const goTo = (idx: number) => {
     const el = scrollRef.current;
     if (!el) return;
-    el.scrollTo({ left: (n + idx) * CARD_W - centerOffset.current, behavior: "smooth" });
+    el.scrollTo({ left: (n + idx) * CARD_W - centerOffset.current, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
     resetAuto();
   };
 
